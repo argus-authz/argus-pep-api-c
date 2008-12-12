@@ -1,7 +1,7 @@
 #
-# $Id: Makefile,v 1.1 2008/12/12 13:29:46 vtschopp Exp $
+# $Id: Makefile,v 1.2 2008/12/12 14:06:39 vtschopp Exp $
 #
-GLITE_LOCATION=/tmp/glite
+GLITE_LOCATION=/opt/glite
 
 CC=gcc 
 CFLAGS=-Wall -I$(GLITE_LOCATION)/include
