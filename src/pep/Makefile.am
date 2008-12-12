@@ -1,10 +1,11 @@
 #
-# $Id: Makefile.am,v 1.1 2008/12/12 11:27:12 vtschopp Exp $
+# $Id: Makefile.am,v 1.2 2008/12/12 13:32:11 vtschopp Exp $
 #
 
-noinst_LTLIBRARIES = libpep.la
+lib_LTLIBRARIES = libpep-c.la
+libpep_c_la_LIBADD = ../util/libutil.la ../hessian/libhessian.la 
 
-libpep_la_SOURCES = \
+libpep_c_la_SOURCES = \
 action.c \
 attribute.c \
 attributeassignment.c \
@@ -27,7 +28,7 @@ subject.c
 #
 # link with libcurl
 #
-libpep_la_LDFLAGS = -lcurl
+libpep_c_la_LDFLAGS = -version-info 0:0:0 -lcurl
 
 #
 # headers files
@@ -35,4 +36,4 @@ libpep_la_LDFLAGS = -lcurl
 includedir=$(prefix)/include/pep
 include_HEADERS = pep.h model.h error.h
 
-SOURCES = $(libpep_la_SOURCES)
+SOURCES = $(libpep_c_la_SOURCES)
