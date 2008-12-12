@@ -1,7 +1,7 @@
 #                                              -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 #
-# $Id: configure.ac,v 1.1 2008/12/12 11:27:12 vtschopp Exp $
+# $Id: configure.ac,v 1.2 2008/12/12 16:35:14 vtschopp Exp $
 #
 
 #AC_PREREQ(2.59)
@@ -28,8 +28,10 @@ AC_CHECK_HEADERS([curl/curl.h string.h stdlib.h stdio.h stdint.h stdarg.h float.
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_TYPE_SIZE_T
-AC_TYPE_INT32_T
-AC_TYPE_INT64_T
+
+# FUCK!!! int32_t and int64_t macro not available on SLC4
+#AC_TYPE_INT32_T
+#AC_TYPE_INT64_T
 
 # Checks for library functions.
 AC_FUNC_REALLOC
