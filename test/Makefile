@@ -1,15 +1,15 @@
 #
-# $Id: Makefile,v 1.2 2008/12/12 14:06:39 vtschopp Exp $
+# $Id: Makefile,v 1.3 2008/12/12 16:08:39 vtschopp Exp $
 #
-GLITE_LOCATION=/opt/glite
+GLITE_LOCATION ?= /opt/glite
 
-CC=gcc 
-CFLAGS=-Wall -I$(GLITE_LOCATION)/include
-LDFLAGS=-L$(GLITE_LOCATION)/lib -lpep-c
+CC = gcc 
+CFLAGS = -Wall -I$(GLITE_LOCATION)/include
+LDFLAGS = -L$(GLITE_LOCATION)/lib -lpep-c
 
-SOURCES=test_pep.c
-OBJECTS=$(SOURCES:.c=.o)
-EXEC=test-pep
+SOURCES = test_pep.c
+OBJECTS = $(SOURCES:.c=.o)
+EXEC = test-pep
 
 all: $(EXEC)
 
