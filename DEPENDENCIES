@@ -1,1 +1,7 @@
-list of build time and run time dependencies and oldest version numbers that this component is compatible with.
+PEP-C thin client library dependencies
+--------------------------------------
+
+* libcurl
+
+--
+$Id: DEPENDENCIES,v 1.2 2008/12/12 14:01:41 vtschopp Exp $
