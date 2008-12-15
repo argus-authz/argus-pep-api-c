@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: pep.c,v 1.1 2008/12/12 11:34:27 vtschopp Exp $
+ * $Id: pep.c,v 1.2 2008/12/15 10:28:51 vtschopp Exp $
  */
 #include <stdarg.h>  /* va_list, va_arg, ... */
 #include <string.h>
@@ -277,7 +277,7 @@ pep_error_t pep_authorize(pep_request_t ** inout_request, pep_response_t ** out_
 		return PEP_ERR_AUTHZ_CURL;
 	}
 	if (http_code != 200) {
-		fprintf(stderr,"ERROR:pep_authorize: HTTP response code not 200 OK: %ld.\n",http_code);
+		fprintf(stderr,"ERROR:pep_authorize: HTTP status code: %ld.\n",http_code);
 		buffer_delete(b64output);
 		buffer_delete(b64input);
 		return PEP_ERR_AUTHZ_REQUEST;

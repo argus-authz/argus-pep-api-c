@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: error.c,v 1.2 2008/12/12 13:45:58 vtschopp Exp $
+ * $Id: error.c,v 1.3 2008/12/15 10:29:52 vtschopp Exp $
  */
 
 #include "pep/error.h"
@@ -26,6 +26,6 @@ static const char * ERROR_STRINGS[]= {
 };
 
 const char * pep_strerror(pep_error_t errno) {
-	return "pep_strerror: not yet implemented.";
+	return "pep_strerror(...) not yet implemented.";
 	//return ERROR_STRINGS[errno];
 }
