@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: hessian.c,v 1.1 2008/12/12 11:33:43 vtschopp Exp $
+ * $Id: hessian.c,v 1.2 2008/12/15 10:35:01 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <string.h>
@@ -42,7 +42,7 @@ extern const void * hessian_null_class;
 /**
  * Returns the class descriptor for the given type or NULL.
  */
-const hessian_class_t * _getclass(hessian_t type) {
+static const hessian_class_t * _getclass(hessian_t type) {
 	const hessian_class_t * class = NULL;
 	switch (type) {
 	case HESSIAN_BOOLEAN:
@@ -96,7 +96,7 @@ const hessian_class_t * _getclass(hessian_t type) {
 /**
  * Returns the hessian_t for the given serialization tag or HESSIAN_UNKNOWN.
  */
-hessian_t _gettype(int tag) {
+static hessian_t _gettype(int tag) {
 	hessian_t type= HESSIAN_UNKNOWN;
 	switch (tag) {
 	case 'N':
