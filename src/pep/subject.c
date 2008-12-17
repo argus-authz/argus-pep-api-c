@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: subject.c,v 1.1 2008/12/12 11:34:27 vtschopp Exp $
+ * $Id: subject.c,v 1.2 2008/12/17 15:27:47 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -43,21 +43,24 @@ pep_subject_t * pep_subject_create() {
 	return subject;
 }
 
+// category == NULL will delete the existing one.
 int pep_subject_setcategory(pep_subject_t * subject, const char * category) {
-	if (subject == NULL || category == NULL) {
-		fprintf(stderr,"ERROR:pep_subject_setcategory: NULL subject or category.\n");
+	if (subject == NULL) {
+		fprintf(stderr,"ERROR:pep_subject_setcategory: NULL subject.\n");
 		return PEP_MODEL_ERROR;
 	}
 	if (subject->category != NULL) {
 		free(subject->category);
 	}
-	size_t size= strlen(category);
-	subject->category= calloc(size + 1, sizeof(char));
-	if (subject->category == NULL) {
-		fprintf(stderr,"ERROR:pep_subject_setcategory: can't allocate category (%d bytes).\n", (int)size);
-		return PEP_MODEL_ERROR;
+	if (category != NULL) {
+		size_t size= strlen(category);
+		subject->category= calloc(size + 1, sizeof(char));
+		if (subject->category == NULL) {
+			fprintf(stderr,"ERROR:pep_subject_setcategory: can't allocate category (%d bytes).\n", (int)size);
+			return PEP_MODEL_ERROR;
+		}
+		strncpy(subject->category,category,size);
 	}
-	strncpy(subject->category,category,size);
 	return PEP_MODEL_OK;
 }
 
