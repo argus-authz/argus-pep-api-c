@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: resource.c,v 1.1 2008/12/12 11:34:27 vtschopp Exp $
+ * $Id: resource.c,v 1.2 2008/12/17 15:28:16 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -71,21 +71,24 @@ pep_attribute_t * pep_resource_getattribute(const pep_resource_t * resource, int
 	return llist_get(resource->attributes, index);
 }
 
+// if content is NULL, delete existing
 int pep_resource_setcontent(pep_resource_t * resource, const char * content) {
-	if (resource == NULL || content == NULL) {
-		fprintf(stderr,"ERROR:pep_resource_setcontent: NULL resource or content.\n");
+	if (resource == NULL) {
+		fprintf(stderr,"ERROR:pep_resource_setcontent: NULL resource pointer.\n");
 		return PEP_MODEL_ERROR;
 	}
 	if (resource->content != NULL) {
 		free(resource->content);
 	}
-	size_t size= strlen(content);
-	resource->content= calloc(size + 1, sizeof(char));
-	if (resource->content == NULL) {
-		fprintf(stderr,"ERROR:pep_resource_setcontent: can't allocate content (%d bytes).\n", (int)size);
-		return PEP_MODEL_ERROR;
+	if (content != NULL) {
+		size_t size= strlen(content);
+		resource->content= calloc(size + 1, sizeof(char));
+		if (resource->content == NULL) {
+			fprintf(stderr,"ERROR:pep_resource_setcontent: can't allocate content (%d bytes).\n", (int)size);
+			return PEP_MODEL_ERROR;
+		}
+		strncpy(resource->content,content,size);
 	}
-	strncpy(resource->content,content,size);
 	return PEP_MODEL_OK;
 }
 
