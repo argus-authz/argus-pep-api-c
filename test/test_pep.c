@@ -99,9 +99,85 @@ int main(int argc, char **argv) {
 	pep_request_t * request2= pep_response_getrequest(response);
 	assert(request2);
 	printf("PEP response.request: %s\n", (request2 == NULL) ? "NULL" : "PRESENT");
+	size_t subjects_l= pep_request_subjects_length(request2);
+	printf("PEP response.request: %d subjects\n", (int)subjects_l);
+	int i= 0;
+	for (i= 0; i<subjects_l; i++) {
+		pep_subject_t * subject= pep_request_getsubject(request2,i);
+		printf("PEP response.request.subject[%d].category= %s\n", i, pep_subject_getcategory(subject));
+		size_t attrs_l= pep_subject_attributes_length(subject);
+		printf("PEP response.request.subject[%d]: %d attributes\n", i, (int)attrs_l);
+		int j= 0;
+		for(j= 0; j<attrs_l; j++) {
+			pep_attribute_t * attr= pep_subject_getattribute(subject,j);
+			printf("PEP response.request.subject[%d].attribute[%d].id= %s\n", i,j,pep_attribute_getid(attr));
+			printf("PEP response.request.subject[%d].attribute[%d].datatype= %s\n", i,j,pep_attribute_getdatatype(attr));
+			printf("PEP response.request.subject[%d].attribute[%d].issuer= %s\n", i,j,pep_attribute_getissuer(attr));
+			size_t values_l= pep_attribute_values_length(attr);
+			printf("PEP response.request.subject[%d].attribute[%d]: %d values\n", i,j,(int)values_l);
+			int k= 0;
+			for (k= 0; k<values_l; k++) {
+				printf("PEP response.request.subject[%d].attribute[%d].value[%d]= %s\n", i,j,k,pep_attribute_getvalue(attr,k));
+			}
+		}
+	}
+	size_t resources_l= pep_request_resources_length(request2);
+	printf("PEP response.request: %d resources\n", (int)resources_l);
+	for (i= 0; i<resources_l; i++) {
+		pep_resource_t * resource= pep_request_getresource(request2,i);
+		printf("PEP response.request.resource[%d].content= %s\n", i, pep_resource_getcontent(resource));
+		size_t attrs_l= pep_resource_attributes_length(resource);
+		printf("PEP response.request.resource[%d]: %d attributes\n", i, (int)attrs_l);
+		int j= 0;
+		for(j= 0; j<attrs_l; j++) {
+			pep_attribute_t * attr= pep_resource_getattribute(resource,j);
+			printf("PEP response.request.resource[%d].attribute[%d].id= %s\n", i,j,pep_attribute_getid(attr));
+			printf("PEP response.request.resource[%d].attribute[%d].datatype= %s\n", i,j,pep_attribute_getdatatype(attr));
+			printf("PEP response.request.resource[%d].attribute[%d].issuer= %s\n", i,j,pep_attribute_getissuer(attr));
+			size_t values_l= pep_attribute_values_length(attr);
+			printf("PEP response.request.resource[%d].attribute[%d]: %d values\n", i,j,(int)values_l);
+			int k= 0;
+			for (k= 0; k<values_l; k++) {
+				printf("PEP response.request.resource[%d].attribute[%d].value[%d]= %s\n", i,j,k,pep_attribute_getvalue(attr,k));
+			}
+		}
+	}
+	pep_action_t * action2= pep_request_getaction(request2);
+	printf("PEP response.request.action: %s\n", (action2 == NULL) ? "NULL":"PRESENT");
+	size_t attrs_l= pep_action_attributes_length(action2);
+	printf("PEP response.request.action: %d attributes\n",(int)attrs_l);
+	int j= 0;
+	for (j= 0; j<attrs_l; j++) {
+		pep_attribute_t * attr= pep_action_getattribute(action2,j);
+		printf("PEP response.request.action.attribute[%d].id= %s\n", j,pep_attribute_getid(attr));
+		printf("PEP response.request.action.attribute[%d].datatype= %s\n", j,pep_attribute_getdatatype(attr));
+		printf("PEP response.request.action.attribute[%d].issuer= %s\n", j,pep_attribute_getissuer(attr));
+		size_t values_l= pep_attribute_values_length(attr);
+		printf("PEP response.request.action.attribute[%d]: %d values\n", j,(int)values_l);
+		int k= 0;
+		for (k= 0; k<values_l; k++) {
+			printf("PEP response.request.action.attribute[%d].value[%d]= %s\n",j,k,pep_attribute_getvalue(attr,k));
+		}
+	}
+	pep_environment_t * env2= pep_request_getenvironment(request2);
+	printf("PEP response.request.environment: %s\n", (env2 == NULL) ? "NULL":"PRESENT");
+	attrs_l= pep_environment_attributes_length(env2);
+	printf("PEP response.request.environment: %d attributes\n",(int)attrs_l);
+	for (j= 0; j<attrs_l; j++) {
+		pep_attribute_t * attr= pep_environment_getattribute(env2,j);
+		printf("PEP response.request.environment.attribute[%d].id= %s\n", j,pep_attribute_getid(attr));
+		printf("PEP response.request.environment.attribute[%d].datatype= %s\n", j,pep_attribute_getdatatype(attr));
+		printf("PEP response.request.environment.attribute[%d].issuer= %s\n", j,pep_attribute_getissuer(attr));
+		size_t values_l= pep_attribute_values_length(attr);
+		printf("PEP response.request.environment.attribute[%d]: %d values\n", j,(int)values_l);
+		int k= 0;
+		for (k= 0; k<values_l; k++) {
+			printf("PEP response.request.environment.attribute[%d].value[%d]= %s\n",j,k,pep_attribute_getvalue(attr,k));
+		}
+	}
+
 	size_t results_l= pep_response_results_length(response);
 	printf("PEP response: %d results\n", (int)results_l);
-	int i= 0;
 	for(i= 0; i<results_l; i++) {
 		pep_result_t * result= pep_response_getresult(response,i);
 		assert(result);
