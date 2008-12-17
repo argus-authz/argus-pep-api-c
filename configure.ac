@@ -1,18 +1,18 @@
 #                                              -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 #
-# $Id: configure.ac,v 1.2 2008/12/12 16:35:14 vtschopp Exp $
+# $Id: configure.ac,v 1.3 2008/12/17 13:45:09 vtschopp Exp $
 #
 
-#AC_PREREQ(2.59)
 AC_INIT(glite-authz-pep-c, 1.0.0, grid@switch.ch)
-AC_CONFIG_AUX_DIR(project)
 
-AM_INIT_AUTOMAKE(glite-authz-pep-c, 1.0.0)
+AC_CONFIG_AUX_DIR(project)
+AM_INIT_AUTOMAKE
 
 # Checks for programs.
 AC_PROG_LIBTOOL
 AC_PROG_CC
+CFLAGS="-Wall -g -O2"
 
 if test "x$host_cpu" = "xx86_64"; then
     AC_SUBST([libdir], ['${exec_prefix}/lib64'])
