@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: request.c,v 1.1 2008/12/12 11:34:27 vtschopp Exp $
+ * $Id: request.c,v 1.2 2008/12/17 15:27:04 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -112,8 +112,8 @@ pep_resource_t * pep_request_getresource(const pep_request_t * request, int inde
 }
 
 int pep_request_setaction(pep_request_t * request, pep_action_t * action) {
-	if (request == NULL || action == NULL) {
-		fprintf(stderr,"ERROR:pep_request_setaction: NULL request or action.\n");
+	if (request == NULL) {
+		fprintf(stderr,"ERROR:pep_request_setaction: NULL request.\n");
 		return PEP_MODEL_ERROR;
 	}
 	if (request->action != NULL) pep_action_delete(request->action);
@@ -130,8 +130,8 @@ pep_action_t * pep_request_getaction(const pep_request_t * request) {
 }
 
 int pep_request_setenvironment(pep_request_t * request, pep_environment_t * env) {
-	if (request == NULL || env == NULL) {
-		fprintf(stderr,"ERROR:pep_request_setenvironment: NULL request or env.\n");
+	if (request == NULL) {
+		fprintf(stderr,"ERROR:pep_request_setenvironment: NULL request.\n");
 		return PEP_MODEL_ERROR;
 	}
 	if (request->environment != NULL) pep_environment_delete(request->environment);
