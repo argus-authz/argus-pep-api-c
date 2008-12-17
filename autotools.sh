@@ -1,15 +1,20 @@
 #! /bin/sh
 #set -x
 #
-# $Id: autotools.sh,v 1.1 2008/12/12 11:27:12 vtschopp Exp $
+# $Id: autotools.sh,v 1.2 2008/12/17 16:45:49 vtschopp Exp $
 #
 
-echo "Bootstrapping autotool..."
+echo "Bootstrapping autotools..."
 
-#aclocal -I project
-aclocal 
+echo "aclocal..."
+aclocal -I project
+echo "libtoolize..."
 libtoolize --force
+echo "autoheader..."
 autoheader
+echo "automake..."
 automake --foreign --add-missing --copy
+echo "autoconf..."
 autoconf
 
+echo "Done."
