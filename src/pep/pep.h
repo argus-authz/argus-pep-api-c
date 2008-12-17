@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: pep.h,v 1.1 2008/12/12 11:34:27 vtschopp Exp $
+ * $Id: pep.h,v 1.2 2008/12/17 16:47:55 vtschopp Exp $
  */
 #ifndef _PEP_H_
 #define _PEP_H_
@@ -92,7 +92,7 @@ typedef enum pep_option {
  *
  * @return pep_error_t PEP_OK on success or an error code.
  */
-pep_error_t pep_initialize();
+pep_error_t pep_initialize(void);
 
 /**
  * Adds a PIP request pre-processor to the PEP client.
@@ -147,7 +147,7 @@ pep_error_t pep_authorize(pep_request_t ** request, pep_response_t ** response);
  *
  * @return pep_error_t PEP_OK on success or an error code.
  */
-pep_error_t pep_destroy();
+pep_error_t pep_destroy(void);
 
 #ifdef  __cplusplus
 }
