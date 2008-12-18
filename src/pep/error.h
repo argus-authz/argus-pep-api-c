@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: error.h,v 1.1 2008/12/12 11:34:27 vtschopp Exp $
+ * $Id: error.h,v 1.2 2008/12/18 11:46:26 vtschopp Exp $
  */
 #ifndef _PEP_ERROR_H_
 #define _PEP_ERROR_H_
@@ -47,7 +47,10 @@ typedef enum pep_error {
 } pep_error_t;
 
 /**
- * Returns the string describing the error number errno.
+ * Gets the string describing the error number errno.
+ *
+ * @param pep_error_t errno the error code.
+ * @return const char * the error message describing the error.
  */
 const char * pep_strerror(pep_error_t errno);
 
