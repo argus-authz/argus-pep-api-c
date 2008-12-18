@@ -1,6 +1,8 @@
 #
-# $Id: Makefile.am,v 1.2 2008/12/12 13:32:11 vtschopp Exp $
+# $Id: Makefile.am,v 1.3 2008/12/18 11:45:38 vtschopp Exp $
 #
+
+include $(top_srcdir)/Makefile.flags.am 
 
 lib_LTLIBRARIES = libpep-c.la
 libpep_c_la_LIBADD = ../util/libutil.la ../hessian/libhessian.la 
@@ -26,9 +28,9 @@ status.c \
 subject.c
 
 #
-# link with libcurl
+# linker flags
 #
-libpep_c_la_LDFLAGS = -version-info 0:0:0 -lcurl
+libpep_c_la_LDFLAGS = -version-info 0:0:0
 
 #
 # headers files
@@ -36,4 +38,3 @@ libpep_c_la_LDFLAGS = -version-info 0:0:0 -lcurl
 includedir=$(prefix)/include/pep
 include_HEADERS = pep.h model.h error.h
 
-SOURCES = $(libpep_c_la_SOURCES)

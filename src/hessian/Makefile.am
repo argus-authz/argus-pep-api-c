@@ -1,6 +1,8 @@
 #
-# $Id: Makefile.am,v 1.1 2008/12/12 11:27:12 vtschopp Exp $
+# $Id: Makefile.am,v 1.2 2008/12/18 11:45:38 vtschopp Exp $
 #
+
+include $(top_srcdir)/Makefile.flags.am 
 
 noinst_LTLIBRARIES = libhessian.la
 
@@ -21,5 +23,3 @@ remote.c \
 string.c \
 types.h \
 xml.c
-
-SOURCES = $(libhessian_la_SOURCES)
