@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: pep.c,v 1.2 2008/12/15 10:28:51 vtschopp Exp $
+ * $Id: pep.c,v 1.3 2008/12/19 11:44:40 vtschopp Exp $
  */
 #include <stdarg.h>  /* va_list, va_arg, ... */
 #include <string.h>
@@ -27,6 +27,12 @@
 #include "pep/pep.h"
 #include "pep/io.h"
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"  /* PACKAGE_NAME and PACKAGE_VERSION const */
+#else
+#define PACKAGE_NAME "PEP-C"
+#define PACKAGE_VERSION "1.0.0"
+#endif
 
 /** List of PIPs */
 static linkedlist_t * pips;
@@ -46,10 +52,9 @@ static long option_timeout= 10L;
 static int option_pips_enabled= 0;
 static int option_ohs_enabled= 0;
 
-pep_error_t pep_initialize() {
+pep_error_t pep_initialize(void) {
 	pips= llist_create();
 	if (pips == NULL) {
-		// TODO: error handling
 		fprintf(stderr,"ERROR:pep_initialize: PIPs list allocation failed.\n");
 		return PEP_ERR_INIT_LISTS;
 	}
@@ -111,6 +116,7 @@ pep_error_t pep_addobligationhandler(pep_obligationhandler_t * oh) {
 	return PEP_OK;
 }
 
+// FIXME: implement all options
 pep_error_t pep_setoption(pep_option_t option, ... ) {
 	pep_error_t rc= PEP_OK;
 	va_list args;
@@ -197,7 +203,7 @@ pep_error_t pep_authorize(pep_request_t ** inout_request, pep_response_t ** out_
 	// set the CURL related options
 	//XXX: options debug and timeout
 	curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-    curl_easy_setopt(curl, CURLOPT_USERAGENT, "PEP-C thin client/1.0.0");
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, PACKAGE_NAME "/" PACKAGE_VERSION);
 
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, option_timeout);
     curl_easy_setopt(curl, CURLOPT_URL, option_url);
@@ -326,7 +332,7 @@ pep_error_t pep_authorize(pep_request_t ** inout_request, pep_response_t ** out_
 }
 
 // TODO: return code...
-pep_error_t pep_destroy() {
+pep_error_t pep_destroy(void) {
 	// free options...
 	if (option_logengine) free(option_logengine);
 	if (option_url) free(option_url);
