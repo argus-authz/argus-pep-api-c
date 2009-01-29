@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: log.c,v 1.1 2009/01/28 16:15:15 vtschopp Exp $
+ * $Id: log.c,v 1.2 2009/01/29 14:46:10 vtschopp Exp $
  */
 
 #include <stdio.h>
@@ -24,7 +24,13 @@
 
 #include "util/log.h"
 
+// tmp buffer for logging
+static int BUFFER_SIZE= 1024;
+static char BUFFER[BUFFER_SIZE];
+
+// output file handler
 static FILE * log_out= NULL;
+// log level
 static log_level_t log_level= LOG_LEVEL_NONE;
 
 int log_setlevel(log_level_t level) {
@@ -34,10 +40,11 @@ int log_setlevel(log_level_t level) {
 
 int log_setout(FILE * file) {
 	log_out= file;
-	return 0;
+	return LOG_OK;
 }
 
-static int log_fprintf(FILE * out, time_t * epoch, const char * level, const char * fmt, va_list args);
+// prototype
+static int log_vfprintf(FILE * out, time_t * epoch, const char * level, const char * fmt, va_list args);
 
 int log_info(const char *fmt, ...) {
 	int rc= LOG_OK;
@@ -47,7 +54,7 @@ int log_info(const char *fmt, ...) {
 			time(&epoch);
 			va_list args;
 			va_start(args,fmt);
-			rc= log_fprintf(log_out, &epoch, "INFO", fmt, args);
+			rc= log_vfprintf(log_out, &epoch, "INFO", fmt, args);
 			va_end(args);
 		}
 	}
@@ -62,7 +69,7 @@ int log_warn(const char *fmt, ...) {
 			time(&epoch);
 			va_list args;
 			va_start(args,fmt);
-			rc= log_fprintf(log_out, &epoch, "WARN", fmt, args);
+			rc= log_vfprintf(log_out, &epoch, "WARN", fmt, args);
 			va_end(args);
 		}
 	}
@@ -77,7 +84,7 @@ int log_error(const char *fmt, ...) {
 			time(&epoch);
 			va_list args;
 			va_start(args,fmt);
-			rc= log_fprintf(log_out, &epoch, "ERROR", fmt, args);
+			rc= log_vfprintf(log_out, &epoch, "ERROR", fmt, args);
 			va_end(args);
 		}
 	}
@@ -92,7 +99,7 @@ int log_debug(const char *fmt, ...) {
 			time(&epoch);
 			va_list args;
 			va_start(args,fmt);
-			rc= log_fprintf(log_out, &epoch, "DEBUG", fmt, args);
+			rc= log_vfprintf(log_out, &epoch, "DEBUG", fmt, args);
 			va_end(args);
 		}
 	}
@@ -101,17 +108,16 @@ int log_debug(const char *fmt, ...) {
 
 
 
-static int log_fprintf(FILE * out, time_t * epoch, const char * level, const char * fmt, va_list args) {
-	size_t size= strlen(level) + strlen(fmt) + 1024;
-	char * new_fmt= calloc(size + 1,sizeof(char));
-	if (new_fmt == NULL) {
-		// error
-		return LOG_ERROR;
-	}
-	// TODO: add timestamp like log4j %d{ISO8601}
-	// TODO: use snprintf(buf, size, "%s %s %s", timestamp, level, fmt)
-	snprintf(new_fmt,size,"%s %s %s","ISO8601",level,fmt);
-	int rc= vfprintf(out,new_fmt,args);
-	free(new_fmt);
+static int log_vfprintf(FILE * out, time_t * epoch, const char * level, const char * fmt, va_list args) {
+	struct tm * time= localtime(epoch);
+	strftime(BUFFER,BUFFER_SIZE,"%F %T ",time);
+	size_t size= BUFFER_SIZE - strlen(BUFFER);
+	strncat(BUFFER,level,size);
+	size= size - strlen(BUFFER);
+	strncat(BUFFER,": ",size);
+	size= size - strlen(BUFFER);
+	strncat(BUFFER,fmt,size);
+	vfprintf(out,BUFFER,args);
+	memset(BUFFER,0,BUFFER_SIZE);
 	return LOG_OK;
 }
