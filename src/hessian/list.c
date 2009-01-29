@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: list.c,v 1.1 2008/12/12 11:33:43 vtschopp Exp $
+ * $Id: list.c,v 1.2 2009/01/29 15:21:11 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -21,6 +21,7 @@
 
 #include "hessian/hessian.h"
 #include "util/linkedlist.h"
+#include "util/log.h"
 
 
 /**
@@ -55,13 +56,13 @@ const void * hessian_list_class = &_hessian_list_descr;
 hessian_object_t * hessian_list_ctor (hessian_object_t * list, va_list * ap) {
     hessian_list_t * self= list;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_list_ctor: NULL object pointer.\n");
+		log_error("hessian_list_ctor: NULL object pointer.");
     	return NULL;
     }
     self->type= NULL;
     self->list= llist_create();
     if (self->list == NULL) {
-		fprintf(stderr,"ERROR:hessian_list_ctor: can't create list.\n");
+		log_error("hessian_list_ctor: can't create list.");
     	return NULL;
     }
     return self;
@@ -74,10 +75,10 @@ hessian_object_t * hessian_list_ctor (hessian_object_t * list, va_list * ap) {
 int hessian_list_dtor (hessian_object_t * list) {
     hessian_list_t * self= list;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_list_dtor: NULL object pointer.\n");
+		log_error("hessian_list_dtor: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
-	//printf("XXX:list_dtor:%d elts\n",(int)llist_length(self->list));
+	//printf("XXX:list_dtor:%d elts",(int)llist_length(self->list));
     if (self->type != NULL) free(self->type);
     llist_delete_elements(self->list,(delete_element_func)hessian_delete);
     llist_delete(self->list);
@@ -91,20 +92,20 @@ int hessian_list_dtor (hessian_object_t * list) {
 int hessian_list_add(hessian_object_t * list, hessian_object_t * object) {
     hessian_list_t * self= list;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_list_add: NULL object pointer.\n");
+		log_error("hessian_list_add: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     const hessian_class_t * class= hessian_getclass(list);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_list_add: NULL class descriptor.\n");
+		log_error("hessian_list_add: NULL class descriptor.");
     	return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_LIST) {
-		fprintf(stderr,"ERROR:hessian_list_add: wrong class type: %d.\n",class->type);
+		log_error("hessian_list_add: wrong class type: %d.",class->type);
     	return HESSIAN_ERROR;
     }
     if (llist_add(self->list, object) != LLIST_OK) {
-		fprintf(stderr,"ERROR:hessian_list_add: can't add object to list.\n");
+		log_error("hessian_list_add: can't add object to list.");
     	return HESSIAN_ERROR;
     }
     return HESSIAN_OK;
@@ -116,16 +117,16 @@ int hessian_list_add(hessian_object_t * list, hessian_object_t * object) {
 int hessian_list_serialize (const hessian_object_t * list, BUFFER * output) {
     const hessian_list_t * self= list;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_list_add: NULL object pointer.\n");
+		log_error("hessian_list_add: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     const hessian_class_t * class= hessian_getclass(list);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_list_add: NULL class descriptor.\n");
+		log_error("hessian_list_add: NULL class descriptor.");
     	return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_LIST) {
-		fprintf(stderr,"ERROR:hessian_list_add: wrong class type: %d.\n",class->type);
+		log_error("hessian_list_add: wrong class type: %d.",class->type);
     	return HESSIAN_ERROR;
     }
 
@@ -134,7 +135,7 @@ int hessian_list_serialize (const hessian_object_t * list, BUFFER * output) {
     int b32, b24, b16, b8;
     // write type if any
     if (self->type != NULL) {
-        //printf("XXX:list_serialize: type: %s\n",self->type);
+        //printf("XXX:list_serialize: type: %s",self->type);
         str_l= strlen(self->type);
         utf8_l= utf8_strlen(self->type);
         b16= utf8_l >> 8;
@@ -147,7 +148,7 @@ int hessian_list_serialize (const hessian_object_t * list, BUFFER * output) {
     // write length if any
     size_t list_l= llist_length(self->list);
     if (list_l > 0) {
-        //printf("XXX:list_serialize: length: %ld\n",list_l);
+        //printf("XXX:list_serialize: length: %ld",list_l);
         int32_t value= (int32_t)list_l;
         b32 = (value >> 24) & 0x000000FF;
         b24 = (value >> 16) & 0x000000FF;
@@ -164,11 +165,11 @@ int hessian_list_serialize (const hessian_object_t * list, BUFFER * output) {
     for( i= 0; i < list_l; i++ ) {
     	hessian_object_t * object= llist_get(self->list,i);
     	if (object == NULL) {
-    		fprintf(stderr,"ERROR:hessian_list_add: NULL object pointer at: %d.\n",i);
+    		log_error("hessian_list_add: NULL object pointer at: %d.",i);
         	return HESSIAN_ERROR;
     	}
         if (hessian_serialize(object, output) != HESSIAN_OK) {
-    		fprintf(stderr,"ERROR:hessian_list_add: can't serialize object at: %d.\n",i);
+    		log_error("hessian_list_add: can't serialize object at: %d.",i);
         	return HESSIAN_ERROR;
         }
     }
@@ -183,33 +184,33 @@ int hessian_list_serialize (const hessian_object_t * list, BUFFER * output) {
 int hessian_list_deserialize (hessian_object_t * list, int tag, BUFFER * input) {
     hessian_list_t * self= list;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_list_deserialize: NULL object pointer.\n");
+		log_error("hessian_list_deserialize: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     const hessian_class_t * class= hessian_getclass(list);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_list_deserialize: NULL class descriptor.\n");
+		log_error("hessian_list_deserialize: NULL class descriptor.");
     	return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_LIST) {
-		fprintf(stderr,"ERROR:hessian_list_deserialize: wrong class type: %d.\n",class->type);
+		log_error("hessian_list_deserialize: wrong class type: %d.",class->type);
     	return HESSIAN_ERROR;
     }
     // tag is 'V'
     if (tag != class->tag) {
-		fprintf(stderr,"ERROR:hessian_list_deserialize: invalid tag: %c (%d).\n",(char)tag,tag);
+		log_error("hessian_list_deserialize: invalid tag: %c (%d).",(char)tag,tag);
     	return HESSIAN_ERROR;
     }
     int32_t length= -1;
     // alloc the refs list for Hessian ref handling;
     linkedlist_t * refs= llist_create();
     if (refs == NULL) {
-		fprintf(stderr,"ERROR:hessian_list_deserialize: can't create temp references list.\n");
+		log_error("hessian_list_deserialize: can't create temp references list.");
     	return HESSIAN_ERROR;
     }
     // begin parsing
     int next_tag= buffer_getc(input);
-	//printf("XXX:hessian_list_deserialize: next tag: %c\n", next_tag);
+	//printf("XXX:hessian_list_deserialize: next tag: %c", next_tag);
     // optional type
     if (next_tag == 't') {
         // read the utf8 type length
@@ -218,11 +219,11 @@ int hessian_list_deserialize (hessian_object_t * list, int tag, BUFFER * input) 
 		size_t utf8_l= (b16 << 8) + b8;
 		char * type= utf8_bgets(utf8_l,input);
 		if (type == NULL) {
-			fprintf(stderr,"ERROR:hessian_list_deserialize: can't read list type: %d chars.\n", (int)utf8_l);
+			log_error("hessian_list_deserialize: can't read list type: %d chars.", (int)utf8_l);
 			llist_delete(refs);
 			return HESSIAN_ERROR;
 		}
-		//printf("XXX:hessian_list_deserialize: type: %s\n", type);
+		//printf("XXX:hessian_list_deserialize: type: %s", type);
 		self->type= type;
 		next_tag= buffer_getc(input);
 	}
@@ -234,7 +235,7 @@ int hessian_list_deserialize (hessian_object_t * list, int tag, BUFFER * input) 
 		int32_t b16 = buffer_getc(input);
 		int32_t b8 = buffer_getc(input);
 		length= (b32 << 24) + (b24 << 16) + (b16 << 8) + b8;
-		//printf("XXX:hessian_list_deserialize: length: %d\n", length);
+		//printf("XXX:hessian_list_deserialize: length: %d", length);
 		next_tag= buffer_getc(input);
 	}
     // do until tag != 'z'
@@ -242,27 +243,27 @@ int hessian_list_deserialize (hessian_object_t * list, int tag, BUFFER * input) 
 		// standard Hessian object, add to the refs list.
 		hessian_object_t * o= hessian_deserialize_tag(next_tag,input);
 		if (o == NULL) {
-			fprintf(stderr,"ERROR:hessian_list_deserialize: can't deserialize object with tag: %c.\n", next_tag);
+			log_error("hessian_list_deserialize: can't deserialize object with tag: %c.", next_tag);
 			llist_delete_elements(refs,(delete_element_func)hessian_delete);
 			llist_delete(refs);
 			return HESSIAN_ERROR;
 		}
-		//printf("XXX:hessian_list_deserialize: object: %s\n", hessian_getclassname(o));
+		//printf("XXX:hessian_list_deserialize: object: %s", hessian_getclassname(o));
 		if (llist_add(refs,o) != LLIST_OK) {
-			fprintf(stderr,"ERROR:hessian_list_deserialize: can't add object to temp references list.\n");
+			log_error("hessian_list_deserialize: can't add object to temp references list.");
 			hessian_delete(o);
 			llist_delete_elements(refs,(delete_element_func)hessian_delete);
 			llist_delete(refs);
 			return HESSIAN_ERROR;
 		}
     	next_tag= buffer_getc(input);
-    	//printf("XXX:hessian_list_deserialize: next tag: %c\n", next_tag);
+    	//printf("XXX:hessian_list_deserialize: next tag: %c", next_tag);
     }
 
     // alloc the objects list and fill with element from the refs lists.
     self->list= llist_create();
     if (self->list == NULL) {
-		fprintf(stderr,"ERROR:hessian_list_deserialize: can't create list.\n");
+		log_error("hessian_list_deserialize: can't create list.");
 		llist_delete_elements(refs,(delete_element_func)hessian_delete);
 		llist_delete(refs);
     	return HESSIAN_ERROR;
@@ -272,7 +273,7 @@ int hessian_list_deserialize (hessian_object_t * list, int tag, BUFFER * input) 
     for (i= 0; i < refs_l; i++) {
     	hessian_object_t * o= (hessian_object_t *)llist_get(refs,i);
 		if (o == NULL) {
-			fprintf(stderr,"ERROR:hessian_list_deserialize: NULL object in refs at: %d.\n",i);
+			log_error("hessian_list_deserialize: NULL object in refs at: %d.",i);
 			llist_delete_elements(refs,(delete_element_func)hessian_delete);
 			llist_delete(refs);
 	    	return HESSIAN_ERROR;
@@ -285,15 +286,15 @@ int hessian_list_deserialize (hessian_object_t * list, int tag, BUFFER * input) 
     		// get the real object
     		o= (hessian_object_t *)llist_get(refs,ref_index);
     		if (o == NULL) {
-    			fprintf(stderr,"ERROR:hessian_list_deserialize: NULL referenced object in refs at: %d.\n",ref_index);
+    			log_error("hessian_list_deserialize: NULL referenced object in refs at: %d.",ref_index);
     			llist_delete_elements(refs,(delete_element_func)hessian_delete);
     			llist_delete(refs);
     	    	return HESSIAN_ERROR;
     		}
-        	//printf("XXX:hessian_list_deserialize: ref: %d object: %s\n", ref, hessian_getclassname(o));
+        	//printf("XXX:hessian_list_deserialize: ref: %d object: %s", ref, hessian_getclassname(o));
     	}
     	if (llist_add(self->list,o) != LLIST_OK) {
-			fprintf(stderr,"ERROR:hessian_list_deserialize: can't add object to list.\n");
+			log_error("hessian_list_deserialize: can't add object to list.");
 			hessian_delete(o);
 			llist_delete_elements(refs,(delete_element_func)hessian_delete);
 			llist_delete(refs);
@@ -310,16 +311,16 @@ int hessian_list_deserialize (hessian_object_t * list, int tag, BUFFER * input) 
 int hessian_list_settype(hessian_object_t * list, const char * type) {
     hessian_list_t * self= list;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_list_settype: NULL object pointer.\n");
+		log_error("hessian_list_settype: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     const hessian_class_t * class= hessian_getclass(list);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_list_settype: NULL class descriptor.\n");
+		log_error("hessian_list_settype: NULL class descriptor.");
     	return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_LIST) {
-		fprintf(stderr,"ERROR:hessian_list_settype: wrong class type: %d.\n",class->type);
+		log_error("hessian_list_settype: wrong class type: %d.",class->type);
     	return HESSIAN_ERROR;
     }
     // free if already set
@@ -331,7 +332,7 @@ int hessian_list_settype(hessian_object_t * list, const char * type) {
         size_t type_l= strlen(type);
         self->type= calloc(type_l + 1, sizeof(char));
         if (self->type == NULL) {
-    		fprintf(stderr,"ERROR:hessian_list_settype: can't allocate type (%d chars).\n",(int)type_l);
+    		log_error("hessian_list_settype: can't allocate type (%d chars).",(int)type_l);
         	return HESSIAN_ERROR;
         }
         strncpy(self->type,type,type_l);
@@ -348,16 +349,16 @@ int hessian_list_settype(hessian_object_t * list, const char * type) {
 const char * hessian_list_gettype(const hessian_object_t * list) {
     const hessian_list_t * self= list;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_list_gettype: NULL object pointer.\n");
+		log_error("hessian_list_gettype: NULL object pointer.");
     	return NULL;
     }
     const hessian_class_t * class= hessian_getclass(list);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_list_gettype: NULL class descriptor.\n");
+		log_error("hessian_list_gettype: NULL class descriptor.");
     	return NULL;
     }
     if (class->type != HESSIAN_LIST) {
-		fprintf(stderr,"ERROR:hessian_list_gettype: wrong class type: %d.\n",class->type);
+		log_error("hessian_list_gettype: wrong class type: %d.",class->type);
     	return NULL;
     }
     return self->type;
@@ -369,16 +370,16 @@ const char * hessian_list_gettype(const hessian_object_t * list) {
 size_t hessian_list_length(const hessian_object_t * list) {
     const hessian_list_t * self= list;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_list_settype: NULL object pointer.\n");
+		log_error("hessian_list_settype: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     const hessian_class_t * class= hessian_getclass(list);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_list_settype: NULL class descriptor.\n");
+		log_error("hessian_list_settype: NULL class descriptor.");
     	return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_LIST) {
-		fprintf(stderr,"ERROR:hessian_list_settype: wrong class type: %d.\n",class->type);
+		log_error("hessian_list_settype: wrong class type: %d.",class->type);
     	return HESSIAN_ERROR;
     }
     return llist_length(self->list);
@@ -390,16 +391,16 @@ size_t hessian_list_length(const hessian_object_t * list) {
 hessian_object_t * hessian_list_get(const hessian_object_t * list, int index) {
     const hessian_list_t * self= list;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_list_gettype: NULL object pointer.\n");
+		log_error("hessian_list_gettype: NULL object pointer.");
     	return NULL;
     }
     const hessian_class_t * class= hessian_getclass(list);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_list_gettype: NULL class descriptor.\n");
+		log_error("hessian_list_gettype: NULL class descriptor.");
     	return NULL;
     }
     if (class->type != HESSIAN_LIST) {
-		fprintf(stderr,"ERROR:hessian_list_gettype: wrong class type: %d.\n",class->type);
+		log_error("hessian_list_gettype: wrong class type: %d.",class->type);
     	return NULL;
     }
     return (hessian_object_t *) llist_get(self->list,index);

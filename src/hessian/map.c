@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: map.c,v 1.1 2008/12/12 11:33:43 vtschopp Exp $
+ * $Id: map.c,v 1.2 2009/01/29 15:27:04 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "hessian/hessian.h"
+#include "util/log.h"
 
 /**
  * Method prototypes
@@ -64,24 +65,24 @@ void map_pair_delete(map_pair_t * pair);
 hessian_object_t * hessian_map_ctor (hessian_object_t * object, va_list * ap) {
     hessian_map_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_ctor: NULL object pointer.\n");
+		log_error("hessian_map_ctor: NULL object pointer.");
     	return NULL;
     }
     const char * type= va_arg(*ap,const char *);
     if (type == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_ctor: NULL type parameter 2.\n");
+		log_error("hessian_map_ctor: NULL type parameter 2.");
     	return NULL;
     }
     size_t type_l= strlen(type);
     self->type= calloc(type_l + 1, sizeof(char));
     if (self->type == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_ctor: can't allocate type (%d chars).\n", (int)type_l);
+		log_error("hessian_map_ctor: can't allocate type (%d chars).", (int)type_l);
     	return NULL;
     }
     strncpy(self->type,type,type_l);
     self->map= llist_create();
     if (self->map == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_ctor: can't create map.\n");
+		log_error("hessian_map_ctor: can't create map.");
 		free(self->type);
     	return NULL;
     }
@@ -94,13 +95,13 @@ hessian_object_t * hessian_map_ctor (hessian_object_t * object, va_list * ap) {
 int hessian_map_dtor (hessian_object_t * object) {
     hessian_map_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_dtor: NULL object pointer.\n");
+		log_error("hessian_map_dtor: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     // free map pairs in one single list (references handling)
 	linkedlist_t * keys_values= llist_create();
     if (keys_values == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_dtor: can't create temp keys_values list.\n");
+		log_error("hessian_map_dtor: can't create temp keys_values list.");
     	return HESSIAN_ERROR;
     }
     while( llist_length(self->map) > 0 ) {
@@ -125,16 +126,16 @@ int hessian_map_dtor (hessian_object_t * object) {
 int hessian_map_serialize (const hessian_object_t * object, BUFFER * output) {
     const hessian_map_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_serialize: NULL object pointer.\n");
+		log_error("hessian_map_serialize: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_serialize: NULL class descriptor.\n");
+		log_error("hessian_map_serialize: NULL class descriptor.");
     	return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_MAP) {
-		fprintf(stderr,"ERROR:hessian_map_serialize: wrong class type: %d.\n",class->type);
+		log_error("hessian_map_serialize: wrong class type: %d.",class->type);
     	return HESSIAN_ERROR;
     }
     buffer_putc(class->tag,output);
@@ -142,7 +143,7 @@ int hessian_map_serialize (const hessian_object_t * object, BUFFER * output) {
     int b16, b8;
     // write type if any
     if (self->type != NULL) {
-        //printf("XXX:map_serialize: type: %s\n",self->type);
+        //printf("XXX:map_serialize: type: %s",self->type);
         str_l= strlen(self->type);
         utf8_l= utf8_strlen(self->type);
         b16= utf8_l >> 8;
@@ -159,17 +160,17 @@ int hessian_map_serialize (const hessian_object_t * object, BUFFER * output) {
     for( i= 0; i < map_l; i++ ) {
     	map_pair_t * kv= (map_pair_t *)llist_get(self->map,i);
     	if (kv==NULL) {
-    		fprintf(stderr,"ERROR:hessian_map_serialize: NULL map pair<key,value> at %d.\n",i);
+    		log_error("hessian_map_serialize: NULL map pair<key,value> at %d.",i);
     		return HESSIAN_ERROR;
     	}
         hessian_object_t * key= kv->key;
         if (hessian_serialize(key, output) != HESSIAN_OK) {
-    		fprintf(stderr,"ERROR:hessian_map_serialize: failed to serialize pair<key> at %d.\n",i);
+    		log_error("hessian_map_serialize: failed to serialize pair<key> at %d.",i);
     		return HESSIAN_ERROR;
         }
         hessian_object_t * value= kv->value;
         if (hessian_serialize(value, output) != HESSIAN_OK) {
-    		fprintf(stderr,"ERROR:hessian_map_serialize: failed to serialize pair<value> at %d.\n",i);
+    		log_error("hessian_map_serialize: failed to serialize pair<value> at %d.",i);
     		return HESSIAN_ERROR;
         }
     }
@@ -185,32 +186,32 @@ int hessian_map_serialize (const hessian_object_t * object, BUFFER * output) {
 int hessian_map_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
     hessian_map_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_deserialize: NULL object pointer.\n");
+		log_error("hessian_map_deserialize: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_deserialize: NULL class descriptor.\n");
+		log_error("hessian_map_deserialize: NULL class descriptor.");
     	return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_MAP) {
-		fprintf(stderr,"ERROR:hessian_map_deserialize: wrong class type: %d.\n",class->type);
+		log_error("hessian_map_deserialize: wrong class type: %d.",class->type);
     	return HESSIAN_ERROR;
     }
     // tag is 'M'
     if (tag != class->tag) {
-		fprintf(stderr,"ERROR:hessian_map_deserialize: invalid tag: %c (%d).\n",(char)tag,tag);
+		log_error("hessian_map_deserialize: invalid tag: %c (%d).",(char)tag,tag);
     	return HESSIAN_ERROR;
     }
     // alloc the refs list for Hessian ref handling
     linkedlist_t * refs= llist_create();
     if (refs == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_deserialize: can't create temp references list.\n");
+		log_error("hessian_map_deserialize: can't create temp references list.");
     	return HESSIAN_ERROR;
     }
     // begin parsing
     int next_tag= buffer_getc(input);
-	//printf("XXX:hessian_map_deserialize: next tag: %c\n", next_tag);
+	//printf("XXX:hessian_map_deserialize: next tag: %c", next_tag);
 	// map type is optional or not?
 	self->type= NULL;
 	if (next_tag == 't') {
@@ -221,40 +222,40 @@ int hessian_map_deserialize (hessian_object_t * object, int tag, BUFFER * input)
 		// TODO: handle empty type (0 length)
 		char * type= utf8_bgets(utf8_l,input);
 		if (type == NULL) {
-			fprintf(stderr,"ERROR:hessian_map_deserialize: can't read map type: %d chars.\n", (int)utf8_l);
+			log_error("hessian_map_deserialize: can't read map type: %d chars.", (int)utf8_l);
 			llist_delete(refs);
 			return HESSIAN_ERROR;
 		}
-		//printf("XXX:hessian_map_deserialize: type: %s\n", type);
+		//printf("XXX:hessian_map_deserialize: type: %s", type);
 		self->type= type;
 		next_tag= buffer_getc(input);
-		//printf("XXX:hessian_map_deserialize: next tag: %c\n", next_tag);
+		//printf("XXX:hessian_map_deserialize: next tag: %c", next_tag);
 	}
     // do until tag != 'z'
     while( next_tag != class->chunk_tag && next_tag != BUFFER_EOF) {
     	// standard Hessian object, add to the refs list.
     	hessian_object_t * key= hessian_deserialize_tag(next_tag,input);
 		if (key == NULL) {
-			fprintf(stderr,"ERROR:hessian_map_deserialize: can't deserialize map pair<key> with tag: %c.\n", next_tag);
+			log_error("hessian_map_deserialize: can't deserialize map pair<key> with tag: %c.", next_tag);
 			llist_delete_elements(refs,(delete_element_func)map_pair_delete);
 			llist_delete(refs);
 			return HESSIAN_ERROR;
 		}
 		next_tag= buffer_getc(input);
-    	//printf("XXX:hessian_map_deserialize: key: %s\n", hessian_getclassname(key));
+    	//printf("XXX:hessian_map_deserialize: key: %s", hessian_getclassname(key));
     	hessian_object_t * value= hessian_deserialize_tag(next_tag,input);
 		if (value == NULL) {
-			fprintf(stderr,"ERROR:hessian_map_deserialize: can't deserialize map pair<value> with tag: %c.\n", next_tag);
+			log_error("hessian_map_deserialize: can't deserialize map pair<value> with tag: %c.", next_tag);
 			hessian_delete(key);
 			llist_delete_elements(refs,(delete_element_func)map_pair_delete);
 			llist_delete(refs);
 			return HESSIAN_ERROR;
 		}
-    	//printf("XXX:hessian_map_deserialize: value: %s\n", hessian_getclassname(value));
+    	//printf("XXX:hessian_map_deserialize: value: %s", hessian_getclassname(value));
 
         map_pair_t * pair= map_pair_create(key,value);
         if (pair == NULL) {
-			fprintf(stderr,"ERROR:hessian_map_deserialize: can't create map pair<key,value>.\n");
+			log_error("hessian_map_deserialize: can't create map pair<key,value>.");
 			hessian_delete(key);
 			hessian_delete(value);
 			llist_delete_elements(refs,(delete_element_func)map_pair_delete);
@@ -262,7 +263,7 @@ int hessian_map_deserialize (hessian_object_t * object, int tag, BUFFER * input)
 			return HESSIAN_ERROR;
         }
     	if (llist_add(refs,pair) != LLIST_OK) {
-			fprintf(stderr,"ERROR:hessian_map_deserialize: can't add map pair<key,value> to temp references list.\n");
+			log_error("hessian_map_deserialize: can't add map pair<key,value> to temp references list.");
 			hessian_delete(key);
 			hessian_delete(value);
 			free(pair);
@@ -272,12 +273,12 @@ int hessian_map_deserialize (hessian_object_t * object, int tag, BUFFER * input)
     	}
 
     	next_tag= buffer_getc(input);
-    	//printf("XXX:hessian_map_deserialize: next tag: %c\n", next_tag);
+    	//printf("XXX:hessian_map_deserialize: next tag: %c", next_tag);
     }
     // alloc the objects list and fill with element from the refs lists.
     self->map= llist_create();
     if(self->map == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_deserialize: can't create map pairs list.\n");
+		log_error("hessian_map_deserialize: can't create map pairs list.");
 		llist_delete_elements(refs,(delete_element_func)map_pair_delete);
 		llist_delete(refs);
 		return HESSIAN_ERROR;
@@ -288,7 +289,7 @@ int hessian_map_deserialize (hessian_object_t * object, int tag, BUFFER * input)
     for (i= 0; i < refs_l; i++) {
     	map_pair_t * pair= llist_get(refs,i);
         if(pair == NULL) {
-    		fprintf(stderr,"ERROR:hessian_map_deserialize: NULL map pair in temp references list at: %d.\n",i);
+    		log_error("hessian_map_deserialize: NULL map pair in temp references list at: %d.",i);
     		llist_delete_elements(refs,(delete_element_func)map_pair_delete);
     		llist_delete(refs);
     		return HESSIAN_ERROR;
@@ -305,12 +306,12 @@ int hessian_map_deserialize (hessian_object_t * object, int tag, BUFFER * input)
     			pair->value= real_pair->value;
     		}
     		else {
-    			fprintf(stderr,"WARN:hessian_map_deserialize: ref object at %d reference NULL pair at: %d.\n",i,ref_index);
+    			log_warn("hessian_map_deserialize: ref object at %d reference NULL pair at: %d.",i,ref_index);
     		}
-        	//printf("XXX:hessian_map_deserialize: ref: %d value: %s\n", ref, hessian_getclassname(pair->value));
+        	//printf("XXX:hessian_map_deserialize: ref: %d value: %s", ref, hessian_getclassname(pair->value));
     	}
     	if (llist_add(self->map,pair) != LLIST_OK) {
-			fprintf(stderr,"ERROR:hessian_map_deserialize: can't add map pair<key,value> to pairs list.\n");
+			log_error("hessian_map_deserialize: can't add map pair<key,value> to pairs list.");
 			// FIXME: delete list content! see dtor...
 			llist_delete(refs);
     		llist_delete(self->map);
@@ -326,25 +327,25 @@ int hessian_map_deserialize (hessian_object_t * object, int tag, BUFFER * input)
 int hessian_map_add(hessian_object_t * object, hessian_object_t * key, hessian_object_t * value) {
     hessian_map_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_add: NULL object pointer.\n");
+		log_error("hessian_map_add: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_add: NULL class descriptor.\n");
+		log_error("hessian_map_add: NULL class descriptor.");
     	return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_MAP) {
-		fprintf(stderr,"ERROR:hessian_map_add: wrong class type: %d.\n",class->type);
+		log_error("hessian_map_add: wrong class type: %d.",class->type);
     	return HESSIAN_ERROR;
     }
     map_pair_t * pair= map_pair_create(key,value);
     if (pair == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_add: can't create map pair<key,value>.\n");
+		log_error("hessian_map_add: can't create map pair<key,value>.");
     	return HESSIAN_ERROR;
     }
     if (llist_add(self->map,pair) != LLIST_OK) {
-		fprintf(stderr,"ERROR:hessian_map_add: can't add map pair<key,value> to list.\n");
+		log_error("hessian_map_add: can't add map pair<key,value> to list.");
 		free(pair);
     	return HESSIAN_ERROR;
     }
@@ -357,16 +358,16 @@ int hessian_map_add(hessian_object_t * object, hessian_object_t * key, hessian_o
 int hessian_map_settype(hessian_object_t * object, const char * type) {
     hessian_map_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_settype: NULL object pointer.\n");
+		log_error("hessian_map_settype: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_settype: NULL class descriptor.\n");
+		log_error("hessian_map_settype: NULL class descriptor.");
     	return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_MAP) {
-		fprintf(stderr,"ERROR:hessian_map_settype: wrong class type: %d.\n",class->type);
+		log_error("hessian_map_settype: wrong class type: %d.",class->type);
     	return HESSIAN_ERROR;
     }
     // free if already set
@@ -378,7 +379,7 @@ int hessian_map_settype(hessian_object_t * object, const char * type) {
         size_t type_l= strlen(type);
         self->type= calloc(type_l + 1, sizeof(char));
         if (self->type == NULL) {
-    		fprintf(stderr,"ERROR:hessian_map_settype: can't allocate type (%d chars).\n",(int)type_l);
+    		log_error("hessian_map_settype: can't allocate type (%d chars).",(int)type_l);
         	return HESSIAN_ERROR;
         }
         strncpy(self->type,type,type_l);
@@ -392,16 +393,16 @@ int hessian_map_settype(hessian_object_t * object, const char * type) {
 const char * hessian_map_gettype(const hessian_object_t * object) {
     const hessian_map_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_gettype: NULL object pointer.\n");
+		log_error("hessian_map_gettype: NULL object pointer.");
     	return NULL;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_gettype: NULL class descriptor.\n");
+		log_error("hessian_map_gettype: NULL class descriptor.");
     	return NULL;
     }
     if (class->type != HESSIAN_MAP) {
-		fprintf(stderr,"ERROR:hessian_map_gettype: wrong class type: %d.\n",class->type);
+		log_error("hessian_map_gettype: wrong class type: %d.",class->type);
     	return NULL;
     }
     return self->type;
@@ -412,16 +413,16 @@ const char * hessian_map_gettype(const hessian_object_t * object) {
 size_t hessian_map_length(const hessian_object_t * object) {
     const hessian_map_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_length: NULL object pointer.\n");
+		log_error("hessian_map_length: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_length: NULL class descriptor.\n");
+		log_error("hessian_map_length: NULL class descriptor.");
     	return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_MAP) {
-		fprintf(stderr,"ERROR:hessian_map_length: wrong class type: %d.\n",class->type);
+		log_error("hessian_map_length: wrong class type: %d.",class->type);
     	return HESSIAN_ERROR;
     }
     return llist_length(self->map);
@@ -430,21 +431,21 @@ size_t hessian_map_length(const hessian_object_t * object) {
 hessian_object_t * hessian_map_getkey(const hessian_object_t * object, int index) {
     const hessian_map_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_getkey: NULL object pointer.\n");
+		log_error("hessian_map_getkey: NULL object pointer.");
     	return NULL;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_getkey: NULL class descriptor.\n");
+		log_error("hessian_map_getkey: NULL class descriptor.");
     	return NULL;
     }
     if (class->type != HESSIAN_MAP) {
-		fprintf(stderr,"ERROR:hessian_map_getkey: wrong class type: %d.\n",class->type);
+		log_error("hessian_map_getkey: wrong class type: %d.",class->type);
     	return NULL;
     }
     map_pair_t * pair= llist_get(self->map,index);
     if (pair == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_getkey: NULL map pair<key,value> at: %d.\n",index);
+		log_error("hessian_map_getkey: NULL map pair<key,value> at: %d.",index);
     	return NULL;
     }
     else return pair->key;
@@ -453,21 +454,21 @@ hessian_object_t * hessian_map_getkey(const hessian_object_t * object, int index
 hessian_object_t * hessian_map_getvalue(const hessian_object_t * object, int index) {
     const hessian_map_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_getkey: NULL object pointer.\n");
+		log_error("hessian_map_getkey: NULL object pointer.");
     	return NULL;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_getkey: NULL class descriptor.\n");
+		log_error("hessian_map_getkey: NULL class descriptor.");
     	return NULL;
     }
     if (class->type != HESSIAN_MAP) {
-		fprintf(stderr,"ERROR:hessian_map_getkey: wrong class type: %d.\n",class->type);
+		log_error("hessian_map_getkey: wrong class type: %d.",class->type);
     	return NULL;
     }
     map_pair_t * pair= llist_get(self->map,index);
     if (pair == NULL) {
-		fprintf(stderr,"ERROR:hessian_map_getkey: NULL map pair<key,value> at: %d.\n",index);
+		log_error("hessian_map_getkey: NULL map pair<key,value> at: %d.",index);
     	return NULL;
     }
     else return pair->value;
@@ -483,11 +484,11 @@ hessian_object_t * hessian_map_getvalue(const hessian_object_t * object, int ind
 map_pair_t * map_pair_create(hessian_object_t * key, hessian_object_t * value) {
 	map_pair_t * pair= calloc(1,sizeof(map_pair_t));
 	if (pair == NULL) {
-		fprintf(stderr,"ERROR:map_pair_create: can't allocate map pair.\n");
+		log_error("map_pair_create: can't allocate map pair.");
 		return NULL;
 	}
 	if (key == NULL) {
-		fprintf(stderr,"ERROR:map_pair_create: NULL key.\n");
+		log_error("map_pair_create: NULL key.");
 		free(pair);
 		return NULL;
 	}

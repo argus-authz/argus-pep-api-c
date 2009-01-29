@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: long.c,v 1.1 2008/12/12 11:33:43 vtschopp Exp $
+ * $Id: long.c,v 1.2 2009/01/29 15:24:59 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "hessian/hessian.h"
+#include "util/log.h"
 
 /**
  * Method prototypes
@@ -50,7 +51,7 @@ const void * hessian_long_class = &_hessian_long_descr;
 hessian_object_t * hessian_long_ctor (hessian_object_t * object, va_list * ap) {
     hessian_long_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_long_ctor: NULL object pointer.\n");
+		log_error("hessian_long_ctor: NULL object pointer.");
     	return NULL;
     }
     int64_t value= va_arg( *ap, int64_t);
@@ -64,16 +65,16 @@ hessian_object_t * hessian_long_ctor (hessian_object_t * object, va_list * ap) {
 int hessian_long_serialize (const hessian_object_t * object, BUFFER * output) {
     const hessian_long_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_long_serialize: NULL object pointer.\n");
+		log_error("hessian_long_serialize: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_long_serialize: NULL class descriptor.\n");
+		log_error("hessian_long_serialize: NULL class descriptor.");
     	return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_LONG && class->type != HESSIAN_DATE) {
-		fprintf(stderr,"ERROR:hessian_long_serialize: wrong class type: %d.\n",class->type);
+		log_error("hessian_long_serialize: wrong class type: %d.",class->type);
     	return HESSIAN_ERROR;
     }
     int64_t value= self->value;
@@ -103,20 +104,20 @@ int hessian_long_serialize (const hessian_object_t * object, BUFFER * output) {
 int hessian_long_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
     hessian_long_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_long_serialize: NULL object pointer.\n");
+		log_error("hessian_long_serialize: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_long_serialize: NULL class descriptor.\n");
+		log_error("hessian_long_serialize: NULL class descriptor.");
     	return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_LONG && class->type != HESSIAN_DATE) {
-		fprintf(stderr,"ERROR:hessian_long_serialize: wrong class type: %d.\n",class->type);
+		log_error("hessian_long_serialize: wrong class type: %d.",class->type);
     	return HESSIAN_ERROR;
     }
     if (tag != class->tag) {
-		fprintf(stderr,"ERROR:hessian_long_serialize: invalid tag: %c (%d).\n",(char)tag,tag);
+		log_error("hessian_long_serialize: invalid tag: %c (%d).",(char)tag,tag);
     	return HESSIAN_ERROR;
     }
     int64_t b64 = buffer_getc(input);
@@ -147,16 +148,16 @@ int hessian_long_deserialize (hessian_object_t * object, int tag, BUFFER * input
 int64_t hessian_long_getvalue(const hessian_object_t * object) {
     const hessian_long_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_long_getvalue: NULL object pointer.\n");
+		log_error("hessian_long_getvalue: NULL object pointer.");
     	return INT64_MIN;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_long_getvalue: NULL class descriptor.\n");
+		log_error("hessian_long_getvalue: NULL class descriptor.");
     	return INT64_MIN;
     }
     if (class->type != HESSIAN_LONG && class->type != HESSIAN_DATE) {
-		fprintf(stderr,"ERROR:hessian_long_getvalue: wrong class type: %d.\n",class->type);
+		log_error("hessian_long_getvalue: wrong class type: %d.",class->type);
     	return INT64_MIN;
     }
 	return self->value;

@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: hessian.c,v 1.2 2008/12/15 10:35:01 vtschopp Exp $
+ * $Id: hessian.c,v 1.3 2009/01/29 15:17:53 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
 #include "hessian/hessian.h"
+#include "util/log.h"
 
 /**
  * Hessian class descriptors
@@ -85,7 +86,7 @@ static const hessian_class_t * _getclass(hessian_t type) {
 		class = hessian_null_class;
 		break;
 	default:
-		fprintf(stderr,"ERROR:_getclass: unknown type: %d\n", type);
+		log_error("_getclass: unknown hessian_t type: %d", type);
 		class = NULL;
 		break;
 
@@ -143,7 +144,7 @@ static hessian_t _gettype(int tag) {
 		type= HESSIAN_REMOTE;
 		break;
 	default:
-		fprintf(stderr,"ERROR:_gettype: unknown tag: %c (0x%0X)\n", tag, tag);
+		log_error("_gettype: unknown tag: %c (0x%0X)", tag, tag);
 		type= HESSIAN_UNKNOWN;
 		break;
 	}
@@ -158,12 +159,12 @@ static hessian_t _gettype(int tag) {
 hessian_object_t * hessian_create(hessian_t type, ...) {
 	const hessian_class_t * class = _getclass(type);
 	if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_create: no class descriptor for type: %d\n", (int)type);
+		log_error("hessian_create: no class descriptor for type: %d", (int)type);
 		return NULL;
 	}
 	void * object = calloc(1, class->size);
 	if (object == NULL) {
-		fprintf(stderr,"ERROR:hessian_create: can't allocate object descriptor (%d bytes).\n", (int)class->size);
+		log_error("hessian_create: can't allocate object descriptor (%d bytes).", (int)class->size);
 		return NULL;
 	}
 	// first memory element of object is the class descriptor pointer
@@ -173,7 +174,7 @@ hessian_object_t * hessian_create(hessian_t type, ...) {
 		va_list ap;
 		va_start(ap, type);
 		if ( class->ctor(object, &ap) == NULL ) {
-			fprintf(stderr,"ERROR:hessian_create: object constructor failed.\n");
+			log_error("hessian_create: object constructor failed.");
 			free(object);
 			object= NULL;
 		}
@@ -189,16 +190,16 @@ void hessian_delete(hessian_object_t * object) {
 	if (object == NULL) return;
 	const hessian_class_t * class = hessian_getclass(object);
 	if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_delete: no class descriptor.\n");
+		log_error("hessian_delete: no class descriptor.");
 		return;
 	}
 	if (class->dtor) {
-		//printf("XXX:hessian_delete:%s->dtor(0x%04x)\n",class->name,(unsigned int)self);
+		//printf("XXX:hessian_delete:%s->dtor(0x%04x)",class->name,(unsigned int)self);
 		if ( class->dtor(object) == HESSIAN_ERROR ) {
-			fprintf(stderr,"ERROR:hessian_delete: object destructor failed.\n");
+			log_error("hessian_delete: object destructor failed.");
 		}
 	}
-	//printf("XXX:hessian_delete:%s:free(0x%04x)\n",class->name,(unsigned int)self);
+	//printf("XXX:hessian_delete:%s:free(0x%04x)",class->name,(unsigned int)self);
 	if (object != NULL) free(object);
 	object= NULL;
 }
@@ -206,14 +207,14 @@ void hessian_delete(hessian_object_t * object) {
 int hessian_serialize(const hessian_object_t * object, BUFFER * output) {
 	const hessian_class_t * class = hessian_getclass(object);
 	if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_serialize: NULL class descriptor.\n");
+		log_error("hessian_serialize: NULL class descriptor.");
 		return HESSIAN_ERROR;
 	}
 	if (class->serialize) {
 		return class->serialize(object, output);
 	}
 	else {
-		fprintf(stderr,"ERROR:hessian_serialize: No serializer defined for class %s\n",
+		log_error("hessian_serialize: No serializer defined for class %s",
 				class->name);
 		return HESSIAN_ERROR;
 	}
@@ -228,18 +229,18 @@ hessian_object_t * hessian_deserialize(BUFFER * input) {
 hessian_object_t * hessian_deserialize_tag(int tag, BUFFER * input) {
 	hessian_t type= _gettype(tag);
 	if (type == HESSIAN_UNKNOWN) {
-		fprintf(stderr,"ERROR:hessian_deserialize: unknown serialization tag: %c\n", tag );
+		log_error("hessian_deserialize: unknown serialization tag: %c", tag );
 		return NULL;
 	}
 	const hessian_class_t * class = _getclass(type);
 	if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_deserialize: NULL class for tag: %c\n", tag );
+		log_error("hessian_deserialize: NULL class for tag: %c", tag );
 		return NULL;
 	}
 	// allocate the object class descriptor
 	void * object = calloc(1, class->size);
 	if (object == NULL) {
-		fprintf(stderr,"ERROR:hessian_deserialize: can't allocate object (%d bytes)\n", (int)class->size );
+		log_error("hessian_deserialize: can't allocate object (%d bytes)", (int)class->size );
 		return NULL;
 	}
 	// first memory element of object is the class pointer
@@ -248,12 +249,12 @@ hessian_object_t * hessian_deserialize_tag(int tag, BUFFER * input) {
 	if (class->deserialize) {
 		if (class->deserialize(object, tag, input) == HESSIAN_OK) return object;
 		else {
-			fprintf(stderr,"ERROR:hessian_deserialize: failed to deserialize object: %s tag: %c\n", class->name, tag);
+			log_error("hessian_deserialize: failed to deserialize object: %s tag: %c", class->name, tag);
 			return NULL;
 		}
 	}
 	else {
-		fprintf(stderr,"ERROR:hessian_deserialize: No deserializer defined for class %s\n",
+		log_error("hessian_deserialize: No deserializer defined for class %s",
 				class->name);
 		return NULL;
 	}
@@ -263,7 +264,7 @@ hessian_object_t * hessian_deserialize_tag(int tag, BUFFER * input) {
 
 const hessian_class_t * hessian_getclass(const hessian_object_t * object) {
 	if (object == NULL) {
-		fprintf(stderr,"ERROR:hessian_getclass: NULL pointer object.\n");
+		log_error("hessian_getclass: NULL pointer object.");
 		return NULL;
 	}
 	// get the class pointer, first memory pointer of the struct
@@ -274,7 +275,7 @@ const hessian_class_t * hessian_getclass(const hessian_object_t * object) {
 const char * hessian_getclassname(const hessian_object_t * object) {
 	const hessian_class_t * class= hessian_getclass(object);
 	if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_getclassname: class descriptor is NULL.\n");
+		log_error("hessian_getclassname: class descriptor is NULL.");
 		return NULL;
 	}
 	return class->name;
@@ -283,7 +284,7 @@ const char * hessian_getclassname(const hessian_object_t * object) {
 hessian_t hessian_gettype(const hessian_object_t * object) {
 	const hessian_class_t * class= hessian_getclass(object);
 	if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_gettype: class descriptor is NULL.\n");
+		log_error("hessian_gettype: class descriptor is NULL.");
 		return HESSIAN_UNKNOWN;
 	}
 	return class->type;

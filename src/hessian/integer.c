@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: integer.c,v 1.1 2008/12/12 11:33:43 vtschopp Exp $
+ * $Id: integer.c,v 1.2 2009/01/29 15:19:22 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "hessian/hessian.h"
+#include "util/log.h"
 
 /**
  * Method prototypes
@@ -49,7 +50,7 @@ const void * hessian_integer_class = &_hessian_integer_descr;
 hessian_object_t * hessian_integer_ctor (hessian_object_t * object, va_list * ap) {
     hessian_integer_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_integer_ctor: NULL object pointer.\n");
+		log_error("hessian_integer_ctor: NULL object pointer.");
     	return NULL;
     }
     int32_t value= va_arg( *ap, int32_t);
@@ -63,16 +64,16 @@ hessian_object_t * hessian_integer_ctor (hessian_object_t * object, va_list * ap
 int hessian_integer_serialize (const hessian_object_t * object, BUFFER * output) {
     const hessian_integer_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_integer_serialize: NULL object pointer.\n");
+		log_error("hessian_integer_serialize: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_integer_serialize: NULL class descriptor.\n");
+		log_error("hessian_integer_serialize: NULL class descriptor.");
     	return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_INTEGER && class->type != HESSIAN_REF) {
-		fprintf(stderr,"ERROR:hessian_integer_serialize: wrong class type: %d.\n", class->type);
+		log_error("hessian_integer_serialize: wrong class type: %d.", class->type);
     	return HESSIAN_ERROR;
     }
     int32_t value= self->value;
@@ -80,7 +81,7 @@ int hessian_integer_serialize (const hessian_object_t * object, BUFFER * output)
     int32_t b24 = (value >> 16) & 0x000000FF;
     int32_t b16 = (value >> 8) & 0x000000FF;
     int32_t b8 = value & 0x000000FF;
-    //printf("XXX:integer_serialize: %d\n", value);
+    //printf("XXX:integer_serialize: %d", value);
     buffer_putc(class->tag,output);
     buffer_putc(b32,output);
     buffer_putc(b24,output);
@@ -95,21 +96,21 @@ int hessian_integer_serialize (const hessian_object_t * object, BUFFER * output)
 int hessian_integer_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
     hessian_integer_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_integer_deserialize: NULL object pointer.\n");
+		log_error("hessian_integer_deserialize: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_integer_deserialize: NULL class descriptor.\n");
+		log_error("hessian_integer_deserialize: NULL class descriptor.");
     	return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_INTEGER && class->type != HESSIAN_REF) {
-		fprintf(stderr,"ERROR:hessian_integer_deserialize: wrong class type: %d.\n", class->type);
+		log_error("hessian_integer_deserialize: wrong class type: %d.", class->type);
     	return HESSIAN_ERROR;
     }
     // 'I' or 'R' tag
     if (tag != class->tag) {
-		fprintf(stderr,"ERROR:hessian_integer_deserialize: wrong tag: %c (%d).\n",(char)tag,tag);
+		log_error("hessian_integer_deserialize: wrong tag: %c (%d).",(char)tag,tag);
     	return HESSIAN_ERROR;
     }
 
@@ -131,16 +132,16 @@ int hessian_integer_deserialize (hessian_object_t * object, int tag, BUFFER * in
 int32_t hessian_integer_getvalue(const hessian_object_t * object) {
     const hessian_integer_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_integer_getvalue: NULL object pointer.\n");
+		log_error("hessian_integer_getvalue: NULL object pointer.");
     	return INT32_MIN;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_integer_getvalue: NULL class descriptor.\n");
+		log_error("hessian_integer_getvalue: NULL class descriptor.");
     	return INT32_MIN;
     }
     if (class->type != HESSIAN_INTEGER) {
-		fprintf(stderr,"ERROR:hessian_integer_getvalue: wrong class type: %d.\n", class->type);
+		log_error("hessian_integer_getvalue: wrong class type: %d.", class->type);
     	return INT32_MIN;
     }
 	return self->value;
