@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: log.h,v 1.1 2009/01/28 16:15:15 vtschopp Exp $
+ * $Id: log.h,v 1.2 2009/01/29 14:51:16 vtschopp Exp $
  */
 #ifndef _LOG_H_
 #define _LOG_H_
@@ -41,9 +41,19 @@ typedef enum {
 int log_setlevel(log_level_t level);
 
 /**
+ * Returns the current log level
+ */
+log_level_t log_getlevel(void);
+
+/**
  * Sets the file descriptor fd as logging file descriptor. NULL for no logging.
  */
 int log_setfout(FILE * fd);
+
+/**
+ * Returns the current output stream for logging. NULL if not enable.
+ */
+FILE * log_getout(void);
 
 int log_info(const char *, ...);
 int log_warn(const char *, ...);

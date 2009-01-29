@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: log.c,v 1.2 2009/01/29 14:46:10 vtschopp Exp $
+ * $Id: log.c,v 1.3 2009/01/29 14:51:16 vtschopp Exp $
  */
 
 #include <stdio.h>
@@ -25,7 +25,7 @@
 #include "util/log.h"
 
 // tmp buffer for logging
-static int BUFFER_SIZE= 1024;
+#define BUFFER_SIZE 1024
 static char BUFFER[BUFFER_SIZE];
 
 // output file handler
@@ -38,9 +38,17 @@ int log_setlevel(log_level_t level) {
 	return LOG_OK;
 }
 
+log_level_t log_getlevel(void) {
+	return log_level;
+}
+
 int log_setout(FILE * file) {
 	log_out= file;
 	return LOG_OK;
+}
+
+FILE * log_getout(void) {
+	return log_out;
 }
 
 // prototype
