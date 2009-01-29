@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: map.c,v 1.2 2009/01/29 15:27:04 vtschopp Exp $
+ * $Id: map.c,v 1.3 2009/01/29 15:31:24 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -25,10 +25,10 @@
 /**
  * Method prototypes
  */
-OBJECT_CTOR(hessian_map);
-OBJECT_DTOR(hessian_map);
-OBJECT_SERIALIZE(hessian_map);
-OBJECT_DESERIALIZE(hessian_map);
+static OBJECT_CTOR(hessian_map);
+static OBJECT_DTOR(hessian_map);
+static OBJECT_SERIALIZE(hessian_map);
+static OBJECT_DESERIALIZE(hessian_map);
 
 /**
  * Initializes and registers the Hessian map class.
@@ -53,8 +53,8 @@ typedef struct map_pair {
 	hessian_object_t * value;
 } map_pair_t;
 
-map_pair_t * map_pair_create(hessian_object_t * key, hessian_object_t * value);
-void map_pair_delete(map_pair_t * pair);
+static map_pair_t * map_pair_create(hessian_object_t * key, hessian_object_t * value);
+static void map_pair_delete(map_pair_t * pair);
 
 
 /**
@@ -62,7 +62,7 @@ void map_pair_delete(map_pair_t * pair);
  *
  * hessian_object_t * map= hessian_create(HESSIAN_MAP, "type");
  */
-hessian_object_t * hessian_map_ctor (hessian_object_t * object, va_list * ap) {
+static hessian_object_t * hessian_map_ctor (hessian_object_t * object, va_list * ap) {
     hessian_map_t * self= object;
     if (self == NULL) {
 		log_error("hessian_map_ctor: NULL object pointer.");
@@ -92,7 +92,7 @@ hessian_object_t * hessian_map_ctor (hessian_object_t * object, va_list * ap) {
 /**
  * Hessian map destructor. Recursively delete the contained objects.
  */
-int hessian_map_dtor (hessian_object_t * object) {
+static int hessian_map_dtor (hessian_object_t * object) {
     hessian_map_t * self= object;
     if (self == NULL) {
 		log_error("hessian_map_dtor: NULL object pointer.");
@@ -123,7 +123,7 @@ int hessian_map_dtor (hessian_object_t * object) {
 /**
  * Hessian map serialize method.
  */
-int hessian_map_serialize (const hessian_object_t * object, BUFFER * output) {
+static int hessian_map_serialize (const hessian_object_t * object, BUFFER * output) {
     const hessian_map_t * self= object;
     if (self == NULL) {
 		log_error("hessian_map_serialize: NULL object pointer.");
@@ -183,7 +183,7 @@ int hessian_map_serialize (const hessian_object_t * object, BUFFER * output) {
 /**
  * Hessian map deserialize method.
  */
-int hessian_map_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
+static int hessian_map_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
     hessian_map_t * self= object;
     if (self == NULL) {
 		log_error("hessian_map_deserialize: NULL object pointer.");
@@ -481,7 +481,7 @@ hessian_object_t * hessian_map_getvalue(const hessian_object_t * object, int ind
  * @param const hessian_object_t * value object, can be NULL.
  * @return map_pair_t * pointer to the map pair<key,value> or NULL if an error occurs.
  */
-map_pair_t * map_pair_create(hessian_object_t * key, hessian_object_t * value) {
+static map_pair_t * map_pair_create(hessian_object_t * key, hessian_object_t * value) {
 	map_pair_t * pair= calloc(1,sizeof(map_pair_t));
 	if (pair == NULL) {
 		log_error("map_pair_create: can't allocate map pair.");
@@ -502,7 +502,7 @@ map_pair_t * map_pair_create(hessian_object_t * key, hessian_object_t * value) {
 	return pair;
 }
 
-void map_pair_delete(map_pair_t * pair) {
+static void map_pair_delete(map_pair_t * pair) {
 	if (pair == NULL) return;
 	hessian_delete(pair->key);
 	hessian_delete(pair->value);
