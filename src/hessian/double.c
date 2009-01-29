@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: double.c,v 1.2 2009/01/29 15:14:57 vtschopp Exp $
+ * $Id: double.c,v 1.3 2009/01/29 16:21:41 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -26,10 +26,9 @@
 /**
  * Method prototypes
  */
-OBJECT_CTOR(hessian_double);
-OBJECT_SERIALIZE(hessian_double);
-OBJECT_DESERIALIZE(hessian_double);
-
+static OBJECT_CTOR(hessian_double);
+static OBJECT_SERIALIZE(hessian_double);
+static OBJECT_DESERIALIZE(hessian_double);
 
 /**
  * Initializes and registers the internal Hessian double class descriptor.
@@ -49,7 +48,7 @@ const void * hessian_double_class = &_hessian_double_descr;
 /**
  * Hessian double constructor.
  */
-hessian_object_t * hessian_double_ctor (hessian_object_t * object, va_list * ap) {
+static hessian_object_t * hessian_double_ctor (hessian_object_t * object, va_list * ap) {
     hessian_double_t * self= object;
     if (self == NULL) {
 		log_error("hessian_double_ctor: NULL object pointer.");
@@ -64,7 +63,7 @@ hessian_object_t * hessian_double_ctor (hessian_object_t * object, va_list * ap)
 /**
  * HessianDouble serialize method.
  */
-int hessian_double_serialize (const hessian_object_t * object, BUFFER * output) {
+static int hessian_double_serialize (const hessian_object_t * object, BUFFER * output) {
     const hessian_double_t * self= object;
     if (self == NULL) {
 		log_error("hessian_double_serialize: NULL object pointer.");
@@ -105,7 +104,7 @@ int hessian_double_serialize (const hessian_object_t * object, BUFFER * output) 
 /**
  * HessianDouble deserialize method.
  */
-int hessian_double_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
+static int hessian_double_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
     hessian_double_t * self= object;
     if (self == NULL) {
 		log_error("hessian_double_deserialize: NULL object pointer.");
