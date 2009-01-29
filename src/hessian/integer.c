@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: integer.c,v 1.2 2009/01/29 15:19:22 vtschopp Exp $
+ * $Id: integer.c,v 1.3 2009/01/29 16:11:07 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -22,12 +22,16 @@
 #include "hessian/hessian.h"
 #include "util/log.h"
 
+/***********************************
+ * Hessian integer and ref objects *
+ ***********************************/
+
 /**
  * Method prototypes
  */
-OBJECT_CTOR(hessian_integer);
-OBJECT_SERIALIZE(hessian_integer);
-OBJECT_DESERIALIZE(hessian_integer);
+static OBJECT_CTOR(hessian_integer);
+static OBJECT_SERIALIZE(hessian_integer);
+static OBJECT_DESERIALIZE(hessian_integer);
 
 /**
  * Initializes and registers the internal Hessian integer class.
@@ -47,7 +51,7 @@ const void * hessian_integer_class = &_hessian_integer_descr;
 /**
  * Hessian integer constructor.
  */
-hessian_object_t * hessian_integer_ctor (hessian_object_t * object, va_list * ap) {
+static hessian_object_t * hessian_integer_ctor (hessian_object_t * object, va_list * ap) {
     hessian_integer_t * self= object;
     if (self == NULL) {
 		log_error("hessian_integer_ctor: NULL object pointer.");
@@ -61,7 +65,7 @@ hessian_object_t * hessian_integer_ctor (hessian_object_t * object, va_list * ap
 /**
  * HessianInt serialize method.
  */
-int hessian_integer_serialize (const hessian_object_t * object, BUFFER * output) {
+static int hessian_integer_serialize (const hessian_object_t * object, BUFFER * output) {
     const hessian_integer_t * self= object;
     if (self == NULL) {
 		log_error("hessian_integer_serialize: NULL object pointer.");
@@ -93,7 +97,7 @@ int hessian_integer_serialize (const hessian_object_t * object, BUFFER * output)
 /**
  * HessianInt deserialize method.
  */
-int hessian_integer_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
+static int hessian_integer_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
     hessian_integer_t * self= object;
     if (self == NULL) {
 		log_error("hessian_integer_deserialize: NULL object pointer.");
@@ -147,4 +151,39 @@ int32_t hessian_integer_getvalue(const hessian_object_t * object) {
 	return self->value;
 }
 
+/**
+ * Initializes and registers the Hessian ref class.
+ * Extends the Hessian integer class.
+ */
+static const hessian_class_t _hessian_ref_descr = {
+    HESSIAN_REF,
+    "hessian.Ref",
+    sizeof(hessian_ref_t),
+    'R', 0,
+    hessian_integer_ctor,
+    NULL, // nothing to release
+    hessian_integer_serialize,
+    hessian_integer_deserialize
+};
+const void * hessian_ref_class = &_hessian_ref_descr;
 
+/**
+ * Returns the 32-bit signed integer. INT32_MIN (-32,768) on error.
+ */
+int32_t hessian_ref_getvalue(const hessian_object_t * object) {
+    const hessian_ref_t * self= object;
+    if (self == NULL) {
+		log_error("hessian_ref_getvalue: NULL object pointer.");
+		return INT32_MIN;
+	}
+    const hessian_class_t * class= hessian_getclass(object);
+    if (class == NULL) {
+		log_error("hessian_ref_getvalue: NULL class descriptor.");
+		return INT32_MIN;
+    }
+    if (class->type != HESSIAN_REF) {
+		log_error("hessian_ref_getvalue: wrong class type: %d.", class->type);
+		return INT32_MIN;
+    }
+    return self->value;
+}
