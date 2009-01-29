@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: result.c,v 1.1 2008/12/12 11:34:27 vtschopp Exp $
+ * $Id: result.c,v 1.2 2009/01/29 17:16:36 vtschopp Exp $
  */
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "util/linkedlist.h"
+#include "util/log.h"
 #include "pep/model.h"
 
 struct pep_result {
@@ -32,12 +32,12 @@ struct pep_result {
 pep_result_t * pep_result_create() {
 	pep_result_t * result= calloc(1,sizeof(pep_result_t));
 	if (result == NULL) {
-		fprintf(stderr,"ERROR:pep_result_create: can't allocate pep_result_t.\n");
+		log_error("pep_result_create: can't allocate pep_result_t.");
 		return NULL;
 	}
 	result->obligations= llist_create();
 	if (result->obligations == NULL) {
-		fprintf(stderr,"ERROR:pep_result_create: can't allocate obligations list.\n");
+		log_error("pep_result_create: can't allocate obligations list.");
 		free(result);
 		return NULL;
 	}
@@ -49,7 +49,7 @@ pep_result_t * pep_result_create() {
 
 pep_decision_t pep_result_getdecision(const pep_result_t * result) {
 	if (result == NULL) {
-		fprintf(stderr,"ERROR:pep_result_getdecision: NULL result.\n");
+		log_error("pep_result_getdecision: NULL result.");
 		return -1; // FIXME: define DECISION_INVALID ??
 	}
 	return result->decision;
@@ -57,7 +57,7 @@ pep_decision_t pep_result_getdecision(const pep_result_t * result) {
 
 int pep_result_setdecision(pep_result_t * result, pep_decision_t decision) {
 	if (result == NULL) {
-		fprintf(stderr,"ERROR:pep_result_setdecision: NULL result.\n");
+		log_error("pep_result_setdecision: NULL result.");
 		return PEP_MODEL_ERROR;
 	}
 	switch (decision) {
@@ -68,7 +68,7 @@ int pep_result_setdecision(pep_result_t * result, pep_decision_t decision) {
 			result->decision= decision;
 			break;
 		default:
-			fprintf(stderr,"ERROR:pep_result_setdecision: invalid decision: %d.\n", decision);
+			log_error("pep_result_setdecision: invalid decision: %d.", decision);
 			return PEP_MODEL_ERROR;
 			break;
 	}
@@ -77,7 +77,7 @@ int pep_result_setdecision(pep_result_t * result, pep_decision_t decision) {
 
 const char * pep_result_getresourceid(const pep_result_t * result) {
 	if (result == NULL) {
-		fprintf(stderr,"ERROR:pep_result_getresourceid: NULL result.\n");
+		log_error("pep_result_getresourceid: NULL result.");
 		return NULL;
 	}
 	return result->resourceid;
@@ -85,7 +85,7 @@ const char * pep_result_getresourceid(const pep_result_t * result) {
 
 int pep_result_setresourceid(pep_result_t * result, const char * resourceid) {
 	if (result == NULL) {
-		fprintf(stderr,"ERROR:pep_result_setresourceid: NULL result object.\n");
+		log_error("pep_result_setresourceid: NULL result object.");
 		return PEP_MODEL_ERROR;
 	}
 	if (result->resourceid != NULL) {
@@ -96,7 +96,7 @@ int pep_result_setresourceid(pep_result_t * result, const char * resourceid) {
 		size_t size= strlen(resourceid);
 		result->resourceid= calloc(size + 1, sizeof(char));
 		if (result->resourceid == NULL) {
-			fprintf(stderr,"ERROR:pep_result_setresourceid: can't allocate resourceid (%d bytes).\n",(int)size);
+			log_error("pep_result_setresourceid: can't allocate resourceid (%d bytes).",(int)size);
 			return PEP_MODEL_ERROR;
 		}
 		strncpy(result->resourceid,resourceid,size);
@@ -106,7 +106,7 @@ int pep_result_setresourceid(pep_result_t * result, const char * resourceid) {
 
 pep_status_t * pep_result_getstatus(const pep_result_t * result) {
 	if (result == NULL) {
-		fprintf(stderr,"ERROR:pep_result_getstatus: NULL result.\n");
+		log_error("pep_result_getstatus: NULL result.");
 		return NULL;
 	}
 	return result->status;
@@ -114,7 +114,7 @@ pep_status_t * pep_result_getstatus(const pep_result_t * result) {
 
 int pep_result_setstatus(pep_result_t * result, pep_status_t * status) {
 	if (result == NULL || status == NULL) {
-		fprintf(stderr,"ERROR:pep_result_setstatus: NULL result or status.\n");
+		log_error("pep_result_setstatus: NULL result or status.");
 		return PEP_MODEL_ERROR;
 	}
 	if (result->status != NULL) pep_status_delete(result->status);
@@ -124,11 +124,11 @@ int pep_result_setstatus(pep_result_t * result, pep_status_t * status) {
 
 int pep_result_addobligation(pep_result_t * result, pep_obligation_t * obligation) {
 	if (result == NULL || obligation == NULL) {
-		fprintf(stderr,"ERROR:pep_result_addobligation: NULL result or obligation.\n");
+		log_error("pep_result_addobligation: NULL result or obligation.");
 		return PEP_MODEL_ERROR;
 	}
 	if (llist_add(result->obligations,obligation) != LLIST_OK) {
-		fprintf(stderr,"ERROR:pep_result_addobligation: can't add obligation to list.\n");
+		log_error("pep_result_addobligation: can't add obligation to list.");
 		return PEP_MODEL_ERROR;
 	}
 	return PEP_MODEL_OK;
@@ -136,7 +136,7 @@ int pep_result_addobligation(pep_result_t * result, pep_obligation_t * obligatio
 
 size_t pep_result_obligations_length(const pep_result_t * result) {
 	if (result == NULL) {
-		fprintf(stderr,"ERROR:pep_result_obligations_length: NULL result.\n");
+		log_error("pep_result_obligations_length: NULL result.");
 		return PEP_MODEL_ERROR;
 	}
 	return llist_length(result->obligations);
@@ -144,7 +144,7 @@ size_t pep_result_obligations_length(const pep_result_t * result) {
 
 pep_obligation_t * pep_result_getobligation(const pep_result_t * result, int i) {
 	if (result == NULL) {
-		fprintf(stderr,"ERROR:pep_result_getobligation: NULL result.\n");
+		log_error("pep_result_getobligation: NULL result.");
 		return NULL;
 	}
 	return llist_get(result->obligations,i);

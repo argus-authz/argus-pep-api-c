@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: status.c,v 1.1 2008/12/12 11:34:27 vtschopp Exp $
+ * $Id: status.c,v 1.2 2009/01/29 17:16:36 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 #include "util/linkedlist.h"
+#include "util/log.h"
 #include "pep/model.h"
 
 /************************************************************
@@ -34,7 +34,7 @@ struct pep_status {
 pep_status_t * pep_status_create(const char * message) {
 	pep_status_t * status= calloc(1,sizeof(pep_status_t));
 	if (status == NULL) {
-		fprintf(stderr,"ERROR:pep_status_create: can't allocate pep_status_t.\n");
+		log_error("pep_status_create: can't allocate pep_status_t.");
 		return NULL;
 	}
 	status->message= NULL;
@@ -42,7 +42,7 @@ pep_status_t * pep_status_create(const char * message) {
 		size_t size= strlen(message);
 		status->message= calloc(size + 1,sizeof(char));
 		if (status->message == NULL) {
-			fprintf(stderr,"ERROR:pep_status_create: can't allocate message (%d bytes).\n",(int)size);
+			log_error("pep_status_create: can't allocate message (%d bytes).",(int)size);
 			free(status);
 			return NULL;
 		}
@@ -55,18 +55,18 @@ pep_status_t * pep_status_create(const char * message) {
 // no NULL message allowed
 int pep_status_setmessage(pep_status_t * status, const char * message) {
 	if (status == NULL) {
-		fprintf(stderr,"ERROR:pep_status_setmessage: NULL status object.\n");
+		log_error("pep_status_setmessage: NULL status object.");
 		return PEP_MODEL_ERROR;
 	}
 	if (message == NULL) {
-		fprintf(stderr,"ERROR:pep_status_setmessage: NULL message.\n");
+		log_error("pep_status_setmessage: NULL message.");
 		return PEP_MODEL_ERROR;
 	}
 	if (status->message != NULL) free(status->message);
 	size_t size= strlen(message);
 	status->message= calloc(size + 1,sizeof(char));
 	if (status->message == NULL) {
-		fprintf(stderr,"ERROR:pep_status_setmessage: can't allocate message (%d bytes).\n",(int)size);
+		log_error("pep_status_setmessage: can't allocate message (%d bytes).",(int)size);
 		return PEP_MODEL_ERROR;
 	}
 	strncpy(status->message,message,size);
@@ -76,7 +76,7 @@ int pep_status_setmessage(pep_status_t * status, const char * message) {
 
 const char * pep_status_getmessage(const pep_status_t * status) {
 	if (status == NULL) {
-		fprintf(stderr,"ERROR:pep_status_getmessage: NULL status.\n");
+		log_error("pep_status_getmessage: NULL status.");
 		return NULL;
 	}
 	return status->message;
@@ -84,7 +84,7 @@ const char * pep_status_getmessage(const pep_status_t * status) {
 
 int pep_status_setcode(pep_status_t * status, pep_status_code_t * code) {
 	if (status == NULL || code == NULL) {
-		fprintf(stderr,"ERROR:pep_status_getcode: NULL status or code.\n");
+		log_error("pep_status_getcode: NULL status or code.");
 		return PEP_MODEL_ERROR;
 	}
 	if (status->code != NULL) {
@@ -96,7 +96,7 @@ int pep_status_setcode(pep_status_t * status, pep_status_code_t * code) {
 
 pep_status_code_t * pep_status_getcode(const pep_status_t * status) {
 	if (status == NULL) {
-		fprintf(stderr,"ERROR:pep_status_getcode: NULL status.\n");
+		log_error("pep_status_getcode: NULL status.");
 		return NULL;
 	}
 	return status->code;
@@ -124,7 +124,7 @@ struct pep_status_code {
 pep_status_code_t * pep_status_code_create(const char * code) {
 	pep_status_code_t * status_code= calloc(1,sizeof(pep_status_code_t));
 	if (status_code == NULL) {
-		fprintf(stderr,"ERROR:pep_status_code_create: can't allocate pep_status_code_t.\n");
+		log_error("pep_status_code_create: can't allocate pep_status_code_t.");
 		return NULL;
 	}
 	status_code->code= NULL;
@@ -132,7 +132,7 @@ pep_status_code_t * pep_status_code_create(const char * code) {
 		size_t size= strlen(code);
 		status_code->code= calloc(size + 1,sizeof(char));
 		if (status_code->code == NULL) {
-			fprintf(stderr,"ERROR:pep_status_code_create: can't allocate code (%d bytes).\n",(int)size);
+			log_error("pep_status_code_create: can't allocate code (%d bytes).",(int)size);
 			free(status_code);
 			return NULL;
 		}
@@ -145,18 +145,18 @@ pep_status_code_t * pep_status_code_create(const char * code) {
 // code NULL not allowed
 int pep_status_code_setcode(pep_status_code_t * status_code, const char * code) {
 	if (status_code == NULL) {
-		fprintf(stderr,"ERROR:pep_status_code_setcode: NULL status_code object.\n");
+		log_error("pep_status_code_setcode: NULL status_code object.");
 		return PEP_MODEL_ERROR;
 	}
 	if (code == NULL) {
-		fprintf(stderr,"ERROR:pep_status_code_setcode: NULL code string.\n");
+		log_error("pep_status_code_setcode: NULL code string.");
 		return PEP_MODEL_ERROR;
 	}
 	if (status_code->code != NULL) free(status_code->code);
 	size_t size= strlen(code);
 	status_code->code= calloc(size + 1,sizeof(char));
 	if (status_code->code == NULL) {
-		fprintf(stderr,"ERROR:pep_status_code_setcode: can't allocate code (%d bytes).\n",(int)size);
+		log_error("pep_status_code_setcode: can't allocate code (%d bytes).",(int)size);
 		return PEP_MODEL_ERROR;
 	}
 	strncpy(status_code->code,code,size);
@@ -165,7 +165,7 @@ int pep_status_code_setcode(pep_status_code_t * status_code, const char * code) 
 
 const char * pep_status_code_getcode(const pep_status_code_t * status_code) {
 	if (status_code == NULL) {
-		fprintf(stderr,"ERROR:pep_status_code_getcode: NULL status_code object.\n");
+		log_error("pep_status_code_getcode: NULL status_code object.");
 		return NULL;
 	}
 	return status_code->code;
@@ -173,7 +173,7 @@ const char * pep_status_code_getcode(const pep_status_code_t * status_code) {
 
 int pep_status_code_setsubcode(pep_status_code_t * status_code, pep_status_code_t * subcode) {
 	if (status_code == NULL || subcode == NULL) {
-		fprintf(stderr,"ERROR:pep_status_code_setsubcode: NULL status_code or subcode\n");
+		log_error("pep_status_code_setsubcode: NULL status_code or subcode");
 		return PEP_MODEL_ERROR;
 	}
 	if (status_code->subcode != NULL) {
@@ -186,7 +186,7 @@ int pep_status_code_setsubcode(pep_status_code_t * status_code, pep_status_code_
 
 pep_status_code_t * pep_status_code_getsubcode(const pep_status_code_t * status_code) {
 	if (status_code == NULL) {
-		fprintf(stderr,"ERROR:pep_status_code_getcode: NULL status_code.\n");
+		log_error("pep_status_code_getcode: NULL status_code.");
 		return NULL;
 	}
 	return status_code->subcode;

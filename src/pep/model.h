@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: model.h,v 1.1 2008/12/12 11:34:27 vtschopp Exp $
+ * $Id: model.h,v 1.2 2009/01/29 17:16:36 vtschopp Exp $
  */
 #ifndef _PEP_MODEL_H_
 #define _PEP_MODEL_H_
@@ -54,6 +54,15 @@ void pep_attribute_delete(pep_attribute_t * attr);
  * PEP Subject type
  */
 typedef struct pep_subject pep_subject_t;
+
+/**
+ * PEP Subject category constants (XACML 2.0, B.2)
+ */
+static const char PEP_SUBJECT_CATEGORY_ACCESS[]= "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject";
+static const char PEP_SUBJECT_CATEGORY_RECIPIENT[]= "urn:oasis:names:tc:xacml:1.0:subject-category:recipient-subject";
+static const char PEP_SUBJECT_CATEGORY_INTERMEDIARY[]= "urn:oasis:names:tc:xacml:1.0:subject-category:intermediary-subject";
+static const char PEP_SUBJECT_CATEGORY_CODEBASE[]= "urn:oasis:names:tc:xacml:1.0:subject-category:codebase";
+static const char PEP_SUBJECT_CATEGORY_REQUESTING_MACHINE[]= "urn:oasis:names:tc:xacml:1.0:subject-category:requesting-machine";
 
 pep_subject_t * pep_subject_create();
 int pep_subject_setcategory(pep_subject_t * subject, const char * category);
@@ -125,6 +134,14 @@ void pep_request_delete(pep_request_t * request);
  * PEP StatusCode type
  */
 typedef struct pep_status_code pep_status_code_t;
+
+/**
+ * PEP StatusCode code constants (XACML 2.0, B.9)
+ */
+static const char PEP_STATUSCODE_OK[]= "urn:oasis:names:tc:xacml:1.0:status:ok";
+static const char PEP_STATUSCODE_MISSING_ATTRIBUTE[]= "urn:oasis:names:tc:xacml:1.0:status:missing-attribute";
+static const char PEP_STATUSCODE_SYNTAX_ERROR[]= "urn:oasis:names:tc:xacml:1.0:status:syntax-error";
+static const char PEP_STATUSCODE_PROCESSING_ERROR[]= "urn:oasis:names:tc:xacml:1.0:status:processing-error";
 
 pep_status_code_t * pep_status_code_create(const char * code);
 int pep_status_code_setcode(pep_status_code_t * status_code, const char * code);

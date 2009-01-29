@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: pep.h,v 1.2 2008/12/17 16:47:55 vtschopp Exp $
+ * $Id: pep.h,v 1.3 2009/01/29 17:16:36 vtschopp Exp $
  */
 #ifndef _PEP_H_
 #define _PEP_H_
@@ -25,6 +25,12 @@ extern "C" {
 #include "pep/model.h"
 #include "pep/error.h"
 
+/** Logging levels */
+#define PEP_LOGLEVEL_NONE  0
+#define PEP_LOGLEVEL_ERROR 1
+#define PEP_LOGLEVEL_WARN  2
+#define PEP_LOGLEVEL_INFO  3
+#define PEP_LOGLEVEL_DEBUG 4
 
 /*****************************************************************
  * PEP PIP function prototypes and type.
@@ -74,8 +80,8 @@ typedef struct pep_obligationhandler {
  * Use pep_setoption(option, ...) to set a configuration option.
  */
 typedef enum pep_option {
-	PEP_OPTION_LOG_LEVEL,  // Set log level: see util/logging.h
-	PEP_OPTION_LOG_ENGINE,  // Set log engine: 'stderr', 'syslog', <filename>, ...
+	PEP_OPTION_LOG_LEVEL,  // Set log level (default no logging 0)
+	PEP_OPTION_LOG_STDERR,  // Set log engine file descriptor: stderr, stdout, NULL (default NULL)
 	PEP_OPTION_ENDPOINT_URL, // PEP daemon URL: http://localhost:8080/pepd/authz
 	PEP_OPTION_ENDPOINT_SSL_VALIDATION, // Enable SSL validation: 0 or 1
 	PEP_OPTION_ENDPOINT_SERVER_CERT, // PEP daemon server SSL cert: filename

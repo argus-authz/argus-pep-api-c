@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: attributeassignment.c,v 1.1 2008/12/12 11:34:27 vtschopp Exp $
+ * $Id: attributeassignment.c,v 1.2 2009/01/29 17:16:36 vtschopp Exp $
  */
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "util/linkedlist.h"
+#include "util/log.h"
 #include "pep/model.h"
 
 struct pep_attribute_assignment {
@@ -33,7 +33,7 @@ struct pep_attribute_assignment {
 pep_attribute_assignment_t * pep_attribute_assignment_create(const char * id) {
 	pep_attribute_assignment_t * attr= calloc(1,sizeof(pep_attribute_assignment_t));
 	if (attr == NULL) {
-		fprintf(stderr,"ERROR:pep_attribute_assignemnt_create: can't allocate pep_attribute_assignment_t.\n");
+		log_error("pep_attribute_assignemnt_create: can't allocate pep_attribute_assignment_t.");
 		return NULL;
 	}
 	attr->id= NULL;
@@ -41,7 +41,7 @@ pep_attribute_assignment_t * pep_attribute_assignment_create(const char * id) {
 		size_t size= strlen(id);
 		attr->id= calloc(size + 1,sizeof(char));
 		if (attr->id == NULL) {
-			fprintf(stderr,"ERROR:pep_attribute_assignemnt_create: can't allocate id (%d bytes).\n",(int)size);
+			log_error("pep_attribute_assignemnt_create: can't allocate id (%d bytes).",(int)size);
 			free(attr);
 			return NULL;
 		}
@@ -49,7 +49,7 @@ pep_attribute_assignment_t * pep_attribute_assignment_create(const char * id) {
 	}
 	attr->values= llist_create();
 	if (attr->values == NULL) {
-		fprintf(stderr,"ERROR:pep_attribute_assignemnt_create: can't create values list.\n");
+		log_error("pep_attribute_assignemnt_create: can't create values list.");
 		free(attr->id);
 		free(attr);
 		return NULL;
@@ -62,11 +62,11 @@ pep_attribute_assignment_t * pep_attribute_assignment_create(const char * id) {
  */
 int pep_attribute_assignment_setid(pep_attribute_assignment_t * attr, const char * id) {
 	if (attr == NULL) {
-		fprintf(stderr,"ERROR:pep_attribute_assignment_setid: NULL attribute.\n");
+		log_error("pep_attribute_assignment_setid: NULL attribute.");
 		return PEP_MODEL_ERROR;
 	}
 	if (id == NULL) {
-		fprintf(stderr,"ERROR:pep_attribute_assignment_setid: NULL id.\n");
+		log_error("pep_attribute_assignment_setid: NULL id.");
 		return PEP_MODEL_ERROR;
 	}
 	if (attr->id != NULL) {
@@ -75,7 +75,7 @@ int pep_attribute_assignment_setid(pep_attribute_assignment_t * attr, const char
 	size_t size= strlen(id);
 	attr->id= calloc(size + 1,sizeof(char));
 	if (attr->id == NULL) {
-		fprintf(stderr,"ERROR:pep_attribute_assignment_setid: can't allocate id (%d bytes).\n", (int)size);
+		log_error("pep_attribute_assignment_setid: can't allocate id (%d bytes).", (int)size);
 		return PEP_MODEL_ERROR;
 	}
 	strncpy(attr->id,id,size);
@@ -87,7 +87,7 @@ int pep_attribute_assignment_setid(pep_attribute_assignment_t * attr, const char
  */
 const char * pep_attribute_assignment_getid(const pep_attribute_assignment_t * attr) {
 	if (attr == NULL) {
-		fprintf(stderr,"ERROR:pep_attribute_assignment_getid: NULL attribute.\n");
+		log_error("pep_attribute_assignment_getid: NULL attribute.");
 		return NULL;
 	}
 	return attr->id;
@@ -95,19 +95,19 @@ const char * pep_attribute_assignment_getid(const pep_attribute_assignment_t * a
 
 int pep_attribute_assignment_addvalue(pep_attribute_assignment_t * attr, const char *value) {
 	if (attr == NULL || value == NULL) {
-		fprintf(stderr,"ERROR:pep_attribute_assignment_addvalue: NULL attribute or value.\n");
+		log_error("pep_attribute_assignment_addvalue: NULL attribute or value.");
 		return PEP_MODEL_ERROR;
 	}
 	// copy the const value
 	size_t size= strlen(value);
 	char * v= calloc(size + 1, sizeof(char));
 	if (v == NULL) {
-		fprintf(stderr,"ERROR:pep_attribute_assignment_addvalue: can't allocate value (%d bytes).\n", (int)size);
+		log_error("pep_attribute_assignment_addvalue: can't allocate value (%d bytes).", (int)size);
 		return PEP_MODEL_ERROR;
 	}
 	strncpy(v,value,size);
 	if (llist_add(attr->values,v) != LLIST_OK) {
-		fprintf(stderr,"ERROR:pep_attribute_assignment_addvalue: can't add value to list.\n");
+		log_error("pep_attribute_assignment_addvalue: can't add value to list.");
 		return PEP_MODEL_ERROR;
 	}
 	else return PEP_MODEL_OK;
@@ -117,7 +117,7 @@ int pep_attribute_assignment_addvalue(pep_attribute_assignment_t * attr, const c
  */
 size_t pep_attribute_assignment_values_length(const pep_attribute_assignment_t * attr) {
 	if (attr == NULL) {
-		fprintf(stderr,"ERROR:pep_attribute_assignment_values_length: NULL attribute.\n");
+		log_error("pep_attribute_assignment_values_length: NULL attribute.");
 		return PEP_MODEL_ERROR;
 	}
 	return llist_length(attr->values);
@@ -128,7 +128,7 @@ size_t pep_attribute_assignment_values_length(const pep_attribute_assignment_t *
  */
 const char * pep_attribute_assignment_getvalue(const pep_attribute_assignment_t * attr,int i) {
 	if (attr == NULL) {
-		fprintf(stderr,"ERROR:pep_attribute_assignment_getvalue: NULL attribute.\n");
+		log_error("pep_attribute_assignment_getvalue: NULL attribute.");
 		return NULL;
 	}
 	return llist_get(attr->values,i);

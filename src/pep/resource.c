@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: resource.c,v 1.2 2008/12/17 15:28:16 vtschopp Exp $
+ * $Id: resource.c,v 1.3 2009/01/29 17:16:36 vtschopp Exp $
  */
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "util/linkedlist.h"
+#include "util/log.h"
 #include "pep/model.h"
 
 struct pep_resource {
@@ -30,12 +30,12 @@ struct pep_resource {
 pep_resource_t * pep_resource_create() {
 	pep_resource_t * resource= calloc(1,sizeof(pep_resource_t));
 	if (resource == NULL) {
-		fprintf(stderr,"ERROR:pep_resource_create: can't allocate pep_resource_t.\n");
+		log_error("pep_resource_create: can't allocate pep_resource_t.");
 		return NULL;
 	}
 	resource->attributes= llist_create();
 	if (resource->attributes == NULL) {
-		fprintf(stderr,"ERROR:pep_resource_create: can't allocate attributes list.\n");
+		log_error("pep_resource_create: can't allocate attributes list.");
 		free(resource);
 		return NULL;
 	}
@@ -45,11 +45,11 @@ pep_resource_t * pep_resource_create() {
 
 int pep_resource_addattribute(pep_resource_t * resource, pep_attribute_t * attr) {
 	if (resource == NULL || attr == NULL) {
-		fprintf(stderr,"ERROR:pep_resource_addattribute: NULL resource or attribute.\n");
+		log_error("pep_resource_addattribute: NULL resource or attribute.");
 		return PEP_MODEL_ERROR;
 	}
 	if (llist_add(resource->attributes,attr) != LLIST_OK) {
-		fprintf(stderr,"ERROR:pep_resource_addattribute: can't add attribute to list.\n");
+		log_error("pep_resource_addattribute: can't add attribute to list.");
 		return PEP_MODEL_ERROR;
 	}
 	else return PEP_MODEL_OK;
@@ -57,7 +57,7 @@ int pep_resource_addattribute(pep_resource_t * resource, pep_attribute_t * attr)
 
 size_t pep_resource_attributes_length(const pep_resource_t * resource) {
 	if (resource == NULL) {
-		fprintf(stderr,"ERROR:pep_resource_attributes_length: NULL resource.\n");
+		log_error("pep_resource_attributes_length: NULL resource.");
 		return PEP_MODEL_ERROR;
 	}
 	return llist_length(resource->attributes);
@@ -65,7 +65,7 @@ size_t pep_resource_attributes_length(const pep_resource_t * resource) {
 
 pep_attribute_t * pep_resource_getattribute(const pep_resource_t * resource, int index) {
 	if (resource == NULL) {
-		fprintf(stderr,"ERROR:pep_resource_getattribute: NULL resource.\n");
+		log_error("pep_resource_getattribute: NULL resource.");
 		return NULL;
 	}
 	return llist_get(resource->attributes, index);
@@ -74,7 +74,7 @@ pep_attribute_t * pep_resource_getattribute(const pep_resource_t * resource, int
 // if content is NULL, delete existing
 int pep_resource_setcontent(pep_resource_t * resource, const char * content) {
 	if (resource == NULL) {
-		fprintf(stderr,"ERROR:pep_resource_setcontent: NULL resource pointer.\n");
+		log_error("pep_resource_setcontent: NULL resource pointer.");
 		return PEP_MODEL_ERROR;
 	}
 	if (resource->content != NULL) {
@@ -84,7 +84,7 @@ int pep_resource_setcontent(pep_resource_t * resource, const char * content) {
 		size_t size= strlen(content);
 		resource->content= calloc(size + 1, sizeof(char));
 		if (resource->content == NULL) {
-			fprintf(stderr,"ERROR:pep_resource_setcontent: can't allocate content (%d bytes).\n", (int)size);
+			log_error("pep_resource_setcontent: can't allocate content (%d bytes).", (int)size);
 			return PEP_MODEL_ERROR;
 		}
 		strncpy(resource->content,content,size);
@@ -94,7 +94,7 @@ int pep_resource_setcontent(pep_resource_t * resource, const char * content) {
 
 const char * pep_resource_getcontent(const pep_resource_t * resource) {
 	if (resource == NULL) {
-		fprintf(stderr,"ERROR:pep_resource_getcontent: NULL resource.\n");
+		log_error("pep_resource_getcontent: NULL resource.");
 		return NULL;
 	}
 	return resource->content;

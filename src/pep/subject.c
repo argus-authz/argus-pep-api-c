@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: subject.c,v 1.2 2008/12/17 15:27:47 vtschopp Exp $
+ * $Id: subject.c,v 1.3 2009/01/29 17:16:36 vtschopp Exp $
  */
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "util/linkedlist.h"
+#include "util/log.h"
 #include "pep/model.h"
 
 struct pep_subject {
@@ -30,12 +30,12 @@ struct pep_subject {
 pep_subject_t * pep_subject_create() {
 	pep_subject_t * subject= calloc(1,sizeof(pep_subject_t));
 	if (subject == NULL) {
-		fprintf(stderr,"ERROR:pep_subject_create: can't allocate pep_subject_t.\n");
+		log_error("pep_subject_create: can't allocate pep_subject_t.");
 		return NULL;
 	}
 	subject->attributes= llist_create();
 	if (subject->attributes == NULL) {
-		fprintf(stderr,"ERROR:pep_subject_create: can't allocate attributes list.\n");
+		log_error("pep_subject_create: can't allocate attributes list.");
 		free(subject);
 		return NULL;
 	}
@@ -46,7 +46,7 @@ pep_subject_t * pep_subject_create() {
 // category == NULL will delete the existing one.
 int pep_subject_setcategory(pep_subject_t * subject, const char * category) {
 	if (subject == NULL) {
-		fprintf(stderr,"ERROR:pep_subject_setcategory: NULL subject.\n");
+		log_error("pep_subject_setcategory: NULL subject.");
 		return PEP_MODEL_ERROR;
 	}
 	if (subject->category != NULL) {
@@ -56,7 +56,7 @@ int pep_subject_setcategory(pep_subject_t * subject, const char * category) {
 		size_t size= strlen(category);
 		subject->category= calloc(size + 1, sizeof(char));
 		if (subject->category == NULL) {
-			fprintf(stderr,"ERROR:pep_subject_setcategory: can't allocate category (%d bytes).\n", (int)size);
+			log_error("pep_subject_setcategory: can't allocate category (%d bytes).", (int)size);
 			return PEP_MODEL_ERROR;
 		}
 		strncpy(subject->category,category,size);
@@ -66,7 +66,7 @@ int pep_subject_setcategory(pep_subject_t * subject, const char * category) {
 
 const char * pep_subject_getcategory(const pep_subject_t * subject) {
 	if (subject == NULL) {
-		fprintf(stderr,"ERROR:pep_subject_getcategory: NULL subject.\n");
+		log_error("pep_subject_getcategory: NULL subject.");
 		return NULL;
 	}
 	return subject->category;
@@ -74,11 +74,11 @@ const char * pep_subject_getcategory(const pep_subject_t * subject) {
 
 int pep_subject_addattribute(pep_subject_t * subject, pep_attribute_t * attr) {
 	if (subject == NULL || attr == NULL) {
-		fprintf(stderr,"ERROR:pep_subject_addattribute: NULL subject or attribute.\n");
+		log_error("pep_subject_addattribute: NULL subject or attribute.");
 		return PEP_MODEL_ERROR;
 	}
 	if (llist_add(subject->attributes,attr) != LLIST_OK) {
-		fprintf(stderr,"ERROR:pep_subject_addattribute: can't add attribute to list.\n");
+		log_error("pep_subject_addattribute: can't add attribute to list.");
 		return PEP_MODEL_ERROR;
 	}
 	else return PEP_MODEL_OK;
@@ -86,7 +86,7 @@ int pep_subject_addattribute(pep_subject_t * subject, pep_attribute_t * attr) {
 
 size_t pep_subject_attributes_length(const pep_subject_t * subject) {
 	if (subject == NULL) {
-		fprintf(stderr,"ERROR:pep_subject_attributes_length: NULL subject.\n");
+		log_error("pep_subject_attributes_length: NULL subject.");
 		return PEP_MODEL_ERROR;
 	}
 	return llist_length(subject->attributes);
@@ -94,7 +94,7 @@ size_t pep_subject_attributes_length(const pep_subject_t * subject) {
 
 pep_attribute_t * pep_subject_getattribute(const pep_subject_t * subject, int index) {
 	if (subject == NULL) {
-		fprintf(stderr,"ERROR:pep_subject_getattribute: NULL subject.\n");
+		log_error("pep_subject_getattribute: NULL subject.");
 		return NULL;
 	}
 	return llist_get(subject->attributes, index);

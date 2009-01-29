@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: io.c,v 1.2 2008/12/17 15:29:20 vtschopp Exp $
+ * $Id: io.c,v 1.3 2009/01/29 17:16:36 vtschopp Exp $
  */
 
 #include <string.h>
+
 #include "pep/io.h"
 #include "hessian/hessian.h"
+#include "util/log.h"
+
 
 /** functions return codes  */
 #define PEP_IO_OK     0
@@ -56,7 +59,7 @@ static int pep_action_marshal(const pep_action_t * action, hessian_object_t ** h
 	if (action == NULL) {
 		h_action= hessian_create(HESSIAN_NULL);
 		if (h_action == NULL) {
-			fprintf(stderr,"ERROR:pep_action_marshal: NULL action, but can't create hessian null.\n");
+			log_error("pep_action_marshal: NULL action, but can't create hessian null.");
 			return PEP_IO_ERROR;
 		}
 		*h_act= h_action;
@@ -64,13 +67,13 @@ static int pep_action_marshal(const pep_action_t * action, hessian_object_t ** h
 	}
 	h_action= hessian_create(HESSIAN_MAP,PEP_ACTION_CLASSNAME);
 	if (h_action == NULL) {
-		fprintf(stderr,"ERROR:pep_action_marshal: can't create hessian map: %s.\n", PEP_ACTION_CLASSNAME);
+		log_error("pep_action_marshal: can't create hessian map: %s.", PEP_ACTION_CLASSNAME);
 		return PEP_IO_ERROR;
 	}
 	// attributes list
 	hessian_object_t * h_attrs= hessian_create(HESSIAN_LIST);
 	if (h_attrs == NULL) {
-		fprintf(stderr,"ERROR:pep_action_marshal: can't create hessian list: %s.\n", PEP_ACTION_ATTRIBUTES);
+		log_error("pep_action_marshal: can't create hessian list: %s.", PEP_ACTION_ATTRIBUTES);
 		hessian_delete(h_action);
 		return PEP_IO_ERROR;
 	}
@@ -80,13 +83,13 @@ static int pep_action_marshal(const pep_action_t * action, hessian_object_t ** h
 		pep_attribute_t * attr= pep_action_getattribute(action,i);
 		hessian_object_t * h_attr= NULL;
 		if (pep_attribute_marshal(attr,&h_attr) != PEP_IO_OK) {
-			fprintf(stderr,"ERROR:pep_action_marshal: can't marshal attribute at: %d.\n",i);
+			log_error("pep_action_marshal: can't marshal attribute at: %d.",i);
 			hessian_delete(h_action);
 			hessian_delete(h_attrs);
 			return PEP_IO_ERROR;
 		}
 		if (hessian_list_add(h_attrs,h_attr) != HESSIAN_OK) {
-			fprintf(stderr,"ERROR:pep_action_marshal: can't add hessian attribute to hessian list at: %d.\n",i);
+			log_error("pep_action_marshal: can't add hessian attribute to hessian list at: %d.",i);
 			hessian_delete(h_action);
 			hessian_delete(h_attrs);
 			hessian_delete(h_attr);
@@ -95,13 +98,13 @@ static int pep_action_marshal(const pep_action_t * action, hessian_object_t ** h
 	}
 	hessian_object_t * h_attrs_key= hessian_create(HESSIAN_STRING,PEP_ACTION_ATTRIBUTES);
 	if (h_attrs_key == NULL) {
-		fprintf(stderr,"ERROR:pep_action_marshal: can't create hessian map<key>: %s.\n", PEP_ACTION_ATTRIBUTES);
+		log_error("pep_action_marshal: can't create hessian map<key>: %s.", PEP_ACTION_ATTRIBUTES);
 		hessian_delete(h_action);
 		hessian_delete(h_attrs);
 		return PEP_IO_ERROR;
 	}
 	if (hessian_map_add(h_action,h_attrs_key,h_attrs) != HESSIAN_OK) {
-		fprintf(stderr,"ERROR:pep_action_marshal: can't add %s hessian list to action hessian map.\n", PEP_ACTION_ATTRIBUTES);
+		log_error("pep_action_marshal: can't add %s hessian list to action hessian map.", PEP_ACTION_ATTRIBUTES);
 		hessian_delete(h_action);
 		hessian_delete(h_attrs);
 		hessian_delete(h_attrs_key);
@@ -113,21 +116,21 @@ static int pep_action_marshal(const pep_action_t * action, hessian_object_t ** h
 
 static int pep_action_unmarshal(pep_action_t ** act, const hessian_object_t * h_action) {
 	if (hessian_gettype(h_action) != HESSIAN_MAP) {
-		fprintf(stderr,"ERROR:pep_action_unmarshal: wrong Hessian type: %d (%s).\n", hessian_gettype(h_action), hessian_getclassname(h_action));
+		log_error("pep_action_unmarshal: wrong Hessian type: %d (%s).", hessian_gettype(h_action), hessian_getclassname(h_action));
 		return PEP_IO_ERROR;
 	}
 	const char * map_type= hessian_map_gettype(h_action);
 	if (map_type == NULL) {
-		fprintf(stderr,"ERROR:pep_action_unmarshal: NULL Hessian map type.\n");
+		log_error("pep_action_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
 	if (strcmp(PEP_ACTION_CLASSNAME,map_type) != 0) {
-		fprintf(stderr,"ERROR:pep_action_unmarshal: wrong Hessian map type: %s.\n",map_type);
+		log_error("pep_action_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
 	pep_action_t * action= pep_action_create();
 	if (action == NULL) {
-		fprintf(stderr,"ERROR:pep_action_unmarshal: can't create PEP action.\n");
+		log_error("pep_action_unmarshal: can't create PEP action.");
 		return PEP_IO_ERROR;
 	}
 
@@ -137,20 +140,20 @@ static int pep_action_unmarshal(pep_action_t ** act, const hessian_object_t * h_
 	for(i= 0; i<map_l; i++) {
 		hessian_object_t * h_map_key= hessian_map_getkey(h_action,i);
 		if (hessian_gettype(h_map_key) != HESSIAN_STRING) {
-			fprintf(stderr,"ERROR:pep_action_unmarshal: Hessian map<key> is not an hessian string at: %d.\n",i);
+			log_error("pep_action_unmarshal: Hessian map<key> is not an hessian string at: %d.",i);
 			pep_action_delete(action);
 			return PEP_IO_ERROR;
 		}
 		const char * key= hessian_string_getstring(h_map_key);
 		if (key == NULL) {
-			fprintf(stderr,"ERROR:pep_action_unmarshal: Hessian map<key>: NULL string at: %d.\n",i);
+			log_error("pep_action_unmarshal: Hessian map<key>: NULL string at: %d.",i);
 			pep_action_delete(action);
 			return PEP_IO_ERROR;
 		}
 		if (strcmp(PEP_ACTION_ATTRIBUTES,key) == 0) {
 			hessian_object_t * h_attributes= hessian_map_getvalue(h_action,i);
 			if (hessian_gettype(h_attributes) != HESSIAN_LIST) {
-				fprintf(stderr,"ERROR:pep_action_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.\n",key, i);
+				log_error("pep_action_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.",key, i);
 				pep_action_delete(action);
 				return PEP_IO_ERROR;
 			}
@@ -160,12 +163,12 @@ static int pep_action_unmarshal(pep_action_t ** act, const hessian_object_t * h_
 				hessian_object_t * h_attr= hessian_list_get(h_attributes,j);
 				pep_attribute_t * attribute= NULL;
 				if (pep_attribute_unmarshal(&attribute,h_attr)) {
-					fprintf(stderr,"ERROR:pep_action_unmarshal: can't unmarshal PEP attribute at: %d.\n",j);
+					log_error("pep_action_unmarshal: can't unmarshal PEP attribute at: %d.",j);
 					pep_action_delete(action);
 					return PEP_IO_ERROR;
 				}
 				if (pep_action_addattribute(action,attribute) != PEP_MODEL_OK) {
-					fprintf(stderr,"ERROR:pep_action_unmarshal: can't add PEP attribute to PEP action at: %d",j);
+					log_error("pep_action_unmarshal: can't add PEP attribute to PEP action at: %d",j);
 					pep_action_delete(action);
 					pep_attribute_delete(attribute);
 					return PEP_IO_ERROR;
@@ -174,7 +177,7 @@ static int pep_action_unmarshal(pep_action_t ** act, const hessian_object_t * h_
 		}
 		else {
 			// unkown key ???
-			fprintf(stderr,"WARN:pep_action_unmarshal: unknown Hessian map<key>: %s at: %d.\n",key,i);
+			log_warn("pep_action_unmarshal: unknown Hessian map<key>: %s at: %d.",key,i);
 		}
 	}
 	*act= action;
@@ -187,12 +190,12 @@ static int pep_action_unmarshal(pep_action_t ** act, const hessian_object_t * h_
  */
 static int pep_attribute_marshal(const pep_attribute_t * attr, hessian_object_t ** h_attr) {
 	if (attr == NULL) {
-		fprintf(stderr,"ERROR:pep_attribute_marshal: NULL attribute object.\n");
+		log_error("pep_attribute_marshal: NULL attribute object.");
 		return PEP_IO_ERROR;
 	}
 	hessian_object_t * h_attribute= hessian_create(HESSIAN_MAP,PEP_ATTRIBUTE_CLASSNAME);
 	if (h_attribute == NULL) {
-		fprintf(stderr,"ERROR:pep_attribute_marshal: can't create attribute hessian map: %s\n", PEP_ATTRIBUTE_CLASSNAME);
+		log_error("pep_attribute_marshal: can't create attribute hessian map: %s", PEP_ATTRIBUTE_CLASSNAME);
 		return PEP_IO_ERROR;
 	}
 
@@ -200,13 +203,13 @@ static int pep_attribute_marshal(const pep_attribute_t * attr, hessian_object_t 
 	const char * attr_id= pep_attribute_getid(attr);
 	hessian_object_t * h_value= hessian_create(HESSIAN_STRING,attr_id);
 	if (h_value== NULL) {
-		fprintf(stderr,"ERROR:pep_attribute_marshal: can't create hessian string: %s\n", attr_id);
+		log_error("pep_attribute_marshal: can't create hessian string: %s", attr_id);
 		hessian_delete(h_attribute);
 		return PEP_IO_ERROR;
 	}
 	hessian_object_t * h_key= hessian_create(HESSIAN_STRING,PEP_ATTRIBUTE_ID);
 	if (hessian_map_add(h_attribute,h_key,h_value) != HESSIAN_OK) {
-		fprintf(stderr,"ERROR:pep_attribute_marshal: can't add pair<'%s','%s'> to hessian map: %s\n", PEP_ATTRIBUTE_ID,attr_id,PEP_ATTRIBUTE_CLASSNAME);
+		log_error("pep_attribute_marshal: can't add pair<'%s','%s'> to hessian map: %s", PEP_ATTRIBUTE_ID,attr_id,PEP_ATTRIBUTE_CLASSNAME);
 		hessian_delete(h_attribute);
 		hessian_delete(h_key);
 		hessian_delete(h_value);
@@ -218,7 +221,7 @@ static int pep_attribute_marshal(const pep_attribute_t * attr, hessian_object_t 
 		h_key= hessian_create(HESSIAN_STRING,PEP_ATTRIBUTE_DATATYPE);
 		h_value= hessian_create(HESSIAN_STRING,attr_dt);
 		if (hessian_map_add(h_attribute,h_key,h_value) != HESSIAN_OK) {
-			fprintf(stderr,"ERROR:pep_attribute_marshal: can't add pair<'%s','%s'> to hessian map: %s\n", PEP_ATTRIBUTE_DATATYPE,attr_dt,PEP_ATTRIBUTE_CLASSNAME);
+			log_error("pep_attribute_marshal: can't add pair<'%s','%s'> to hessian map: %s", PEP_ATTRIBUTE_DATATYPE,attr_dt,PEP_ATTRIBUTE_CLASSNAME);
 			hessian_delete(h_attribute);
 			hessian_delete(h_key);
 			hessian_delete(h_value);
@@ -231,7 +234,7 @@ static int pep_attribute_marshal(const pep_attribute_t * attr, hessian_object_t 
 		h_key= hessian_create(HESSIAN_STRING,PEP_ATTRIBUTE_ISSUER);
 		h_value= hessian_create(HESSIAN_STRING,attr_issuer);
 		if (hessian_map_add(h_attribute,h_key,h_value) != HESSIAN_OK) {
-			fprintf(stderr,"ERROR:pep_attribute_marshal: can't add pair<'%s','%s'> to hessian map: %s\n", PEP_ATTRIBUTE_ISSUER,attr_issuer,PEP_ATTRIBUTE_CLASSNAME);
+			log_error("pep_attribute_marshal: can't add pair<'%s','%s'> to hessian map: %s", PEP_ATTRIBUTE_ISSUER,attr_issuer,PEP_ATTRIBUTE_CLASSNAME);
 			hessian_delete(h_attribute);
 			hessian_delete(h_key);
 			hessian_delete(h_value);
@@ -241,7 +244,7 @@ static int pep_attribute_marshal(const pep_attribute_t * attr, hessian_object_t 
 	// values list
 	hessian_object_t * h_values= hessian_create(HESSIAN_LIST);
 	if (h_values == NULL) {
-		fprintf(stderr,"ERROR:pep_attribute_marshal: can't create %s hessian list.\n", PEP_ATTRIBUTE_VALUES);
+		log_error("pep_attribute_marshal: can't create %s hessian list.", PEP_ATTRIBUTE_VALUES);
 		hessian_delete(h_attribute);
 		return PEP_IO_ERROR;
 	}
@@ -251,13 +254,13 @@ static int pep_attribute_marshal(const pep_attribute_t * attr, hessian_object_t 
 		const char * value= pep_attribute_getvalue(attr,i);
 		h_value= hessian_create(HESSIAN_STRING,value);
 		if (h_value == NULL) {
-			fprintf(stderr,"ERROR:pep_attribute_marshal: can't create hessian string: %s at: %d.\n", value, i);
+			log_error("pep_attribute_marshal: can't create hessian string: %s at: %d.", value, i);
 			hessian_delete(h_attribute);
 			hessian_delete(h_values);
 			return PEP_IO_ERROR;
 		}
 		if (hessian_list_add(h_values,h_value) != HESSIAN_OK) {
-			fprintf(stderr,"ERROR:pep_attribute_marshal: can't add hessian string: %s to hessian list.\n", value);
+			log_error("pep_attribute_marshal: can't add hessian string: %s to hessian list.", value);
 			hessian_delete(h_attribute);
 			hessian_delete(h_values);
 			hessian_delete(h_value);
@@ -266,7 +269,7 @@ static int pep_attribute_marshal(const pep_attribute_t * attr, hessian_object_t 
 	}
 	hessian_object_t * h_values_key= hessian_create(HESSIAN_STRING,PEP_ATTRIBUTE_VALUES);
 	if (hessian_map_add(h_attribute,h_values_key,h_values) != HESSIAN_OK) {
-		fprintf(stderr,"ERROR:pep_attribute_marshal: can't add attributes hessian list to attribute hessian map.\n");
+		log_error("pep_attribute_marshal: can't add attributes hessian list to attribute hessian map.");
 		hessian_delete(h_attribute);
 		hessian_delete(h_values_key);
 		hessian_delete(h_values);
@@ -278,22 +281,22 @@ static int pep_attribute_marshal(const pep_attribute_t * attr, hessian_object_t 
 
 static int pep_attribute_unmarshal(pep_attribute_t ** attr, const hessian_object_t * h_attribute) {
 	if (hessian_gettype(h_attribute) != HESSIAN_MAP) {
-		fprintf(stderr,"ERROR:pep_attribute_unmarshal: wrong hessian type: %d (%s).\n", hessian_gettype(h_attribute), hessian_getclassname(h_attribute));
+		log_error("pep_attribute_unmarshal: wrong hessian type: %d (%s).", hessian_gettype(h_attribute), hessian_getclassname(h_attribute));
 		return PEP_IO_ERROR;
 	}
 	const char * map_type= hessian_map_gettype(h_attribute);
 	if (map_type == NULL) {
-		fprintf(stderr,"ERROR:pep_attribute_unmarshal: NULL hessian map type.\n");
+		log_error("pep_attribute_unmarshal: NULL hessian map type.");
 		return PEP_IO_ERROR;
 	}
 	if (strcmp(PEP_ATTRIBUTE_CLASSNAME,map_type) != 0) {
-		fprintf(stderr,"ERROR:pep_attribute_unmarshal: wrong hessian map type: %s.\n",map_type);
+		log_error("pep_attribute_unmarshal: wrong hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
 
 	pep_attribute_t * attribute= pep_attribute_create(NULL);
 	if (attribute == NULL) {
-		fprintf(stderr,"ERROR:pep_attribute_unmarshal: can't create PEP attribute.\n");
+		log_error("pep_attribute_unmarshal: can't create PEP attribute.");
 		return PEP_IO_ERROR;
 	}
 
@@ -303,13 +306,13 @@ static int pep_attribute_unmarshal(pep_attribute_t ** attr, const hessian_object
 	for(i= 0; i<map_l; i++) {
 		hessian_object_t * h_map_key= hessian_map_getkey(h_attribute,i);
 		if (hessian_gettype(h_map_key) != HESSIAN_STRING) {
-			fprintf(stderr,"ERROR:pep_attribute_unmarshal: hessian map<key> is not an hessian string at: %d.\n",i);
+			log_error("pep_attribute_unmarshal: hessian map<key> is not an hessian string at: %d.",i);
 			pep_attribute_delete(attribute);
 			return PEP_IO_ERROR;
 		}
 		const char * key= hessian_string_getstring(h_map_key);
 		if (key == NULL) {
-			fprintf(stderr,"ERROR:pep_attribute_unmarshal: hessian map<key>: NULL string at: %d.\n",i);
+			log_error("pep_attribute_unmarshal: hessian map<key>: NULL string at: %d.",i);
 			pep_attribute_delete(attribute);
 			return PEP_IO_ERROR;
 		}
@@ -318,13 +321,13 @@ static int pep_attribute_unmarshal(pep_attribute_t ** attr, const hessian_object
 		if (strcmp(PEP_ATTRIBUTE_ID,key) == 0) {
 			hessian_object_t * h_string= hessian_map_getvalue(h_attribute,i);
 			if (hessian_gettype(h_string) != HESSIAN_STRING) {
-				fprintf(stderr,"ERROR:pep_attribute_unmarshal: hessian map<'%s',value> is not a hessian string at: %d.\n",key,i);
+				log_error("pep_attribute_unmarshal: hessian map<'%s',value> is not a hessian string at: %d.",key,i);
 				pep_attribute_delete(attribute);
 				return PEP_IO_ERROR;
 			}
 			const char * id = hessian_string_getstring(h_string);
 			if (pep_attribute_setid(attribute,id) != PEP_MODEL_OK) {
-				fprintf(stderr,"ERROR:pep_attribute_unmarshal: can't set id: %s to PEP attribute at: %d",id,i);
+				log_error("pep_attribute_unmarshal: can't set id: %s to PEP attribute at: %d",id,i);
 				pep_attribute_delete(attribute);
 				return PEP_IO_ERROR;
 			}
@@ -334,7 +337,7 @@ static int pep_attribute_unmarshal(pep_attribute_t ** attr, const hessian_object
 			hessian_object_t * h_string= hessian_map_getvalue(h_attribute,i);
 			hessian_t h_string_type= hessian_gettype(h_string);
 			if ( h_string_type != HESSIAN_STRING && h_string_type != HESSIAN_NULL) {
-				fprintf(stderr,"ERROR:pep_attribute_unmarshal: Hessian map<'%s',value> is not a Hessian string or null at: %d.\n",key,i);
+				log_error("pep_attribute_unmarshal: Hessian map<'%s',value> is not a Hessian string or null at: %d.",key,i);
 				pep_attribute_delete(attribute);
 				return PEP_IO_ERROR;
 			}
@@ -342,7 +345,7 @@ static int pep_attribute_unmarshal(pep_attribute_t ** attr, const hessian_object
 			if (h_string_type == HESSIAN_STRING)
 				datatype= hessian_string_getstring(h_string);
 			if (pep_attribute_setdatatype(attribute,datatype) != PEP_MODEL_OK) {
-				fprintf(stderr,"ERROR:pep_attribute_unmarshal: can't set datatype: %s to PEP attribute at: %d",datatype,i);
+				log_error("pep_attribute_unmarshal: can't set datatype: %s to PEP attribute at: %d",datatype,i);
 				pep_attribute_delete(attribute);
 				return PEP_IO_ERROR;
 			}
@@ -353,7 +356,7 @@ static int pep_attribute_unmarshal(pep_attribute_t ** attr, const hessian_object
 			hessian_object_t * h_string= hessian_map_getvalue(h_attribute,i);
 			hessian_t h_string_type= hessian_gettype(h_string);
 			if ( h_string_type != HESSIAN_STRING && h_string_type != HESSIAN_NULL) {
-				fprintf(stderr,"ERROR:pep_attribute_unmarshal: hessian map<'%s',value> is not a hessian string or null at: %d.\n",key,i);
+				log_error("pep_attribute_unmarshal: hessian map<'%s',value> is not a hessian string or null at: %d.",key,i);
 				pep_attribute_delete(attribute);
 				return PEP_IO_ERROR;
 			}
@@ -361,7 +364,7 @@ static int pep_attribute_unmarshal(pep_attribute_t ** attr, const hessian_object
 			if (h_string_type == HESSIAN_STRING)
 				issuer= hessian_string_getstring(h_string);
 			if (pep_attribute_setissuer(attribute,issuer) != PEP_MODEL_OK) {
-				fprintf(stderr,"ERROR:pep_attribute_unmarshal: can't set issuer: %s to PEP attribute at: %d",issuer,i);
+				log_error("pep_attribute_unmarshal: can't set issuer: %s to PEP attribute at: %d",issuer,i);
 				pep_attribute_delete(attribute);
 				return PEP_IO_ERROR;
 			}
@@ -371,7 +374,7 @@ static int pep_attribute_unmarshal(pep_attribute_t ** attr, const hessian_object
 		else if (strcmp(PEP_ATTRIBUTE_VALUES,key) == 0) {
 			hessian_object_t * h_values= hessian_map_getvalue(h_attribute,i);
 			if (hessian_gettype(h_values) != HESSIAN_LIST) {
-				fprintf(stderr,"ERROR:pep_attribute_unmarshal: hessian map<'%s',value> is not a hessian list.\n",key);
+				log_error("pep_attribute_unmarshal: hessian map<'%s',value> is not a hessian list.",key);
 				pep_attribute_delete(attribute);
 				return PEP_IO_ERROR;
 			}
@@ -380,13 +383,13 @@ static int pep_attribute_unmarshal(pep_attribute_t ** attr, const hessian_object
 			for(j= 0; j<h_values_l; j++) {
 				hessian_object_t * h_value= hessian_list_get(h_values,j);
 				if (hessian_gettype(h_value) != HESSIAN_STRING) {
-					fprintf(stderr,"ERROR:pep_attribute_unmarshal: hessian map<'%s',value> is not a hessian string at: %d.\n",key,i);
+					log_error("pep_attribute_unmarshal: hessian map<'%s',value> is not a hessian string at: %d.",key,i);
 					pep_attribute_delete(attribute);
 					return PEP_IO_ERROR;
 				}
 				const char * value = hessian_string_getstring(h_value);
 				if (pep_attribute_addvalue(attribute,value) != PEP_MODEL_OK) {
-					fprintf(stderr,"ERROR:pep_attribute_unmarshal: can't add value: %s to PEP attribute at: %d",value,j);
+					log_error("pep_attribute_unmarshal: can't add value: %s to PEP attribute at: %d",value,j);
 					pep_attribute_delete(attribute);
 					return PEP_IO_ERROR;
 				}
@@ -394,7 +397,7 @@ static int pep_attribute_unmarshal(pep_attribute_t ** attr, const hessian_object
 
 		}
 		else {
-			fprintf(stderr,"WARNING:pep_attribute_unmarshal: unknown Hessian map<key>: %s at: %d.\n",key,i);
+			log_warn("pep_attribute_unmarshal: unknown Hessian map<key>: %s at: %d.",key,i);
 		}
 	}
 	*attr= attribute;
@@ -408,7 +411,7 @@ static int pep_environment_marshal(const pep_environment_t * env, hessian_object
 	if (env == NULL) {
 		hessian_object_t * h_null= hessian_create(HESSIAN_NULL);
 		if (h_null == NULL) {
-			fprintf(stderr,"ERROR:pep_environment_marshal: NULL environment, but can't create hessian null.\n");
+			log_error("pep_environment_marshal: NULL environment, but can't create hessian null.");
 			return PEP_IO_ERROR;
 		}
 		*h_env= h_null;
@@ -416,13 +419,13 @@ static int pep_environment_marshal(const pep_environment_t * env, hessian_object
 	}
 	hessian_object_t * h_environment= h_environment= hessian_create(HESSIAN_MAP,PEP_ENVIRONMENT_CLASSNAME);
 	if (h_environment == NULL) {
-		fprintf(stderr,"ERROR:pep_environment_marshal: can't create hessian map: %s.\n", PEP_ENVIRONMENT_CLASSNAME);
+		log_error("pep_environment_marshal: can't create hessian map: %s.", PEP_ENVIRONMENT_CLASSNAME);
 		return PEP_IO_ERROR;
 	}
 	// attributes list
 	hessian_object_t * h_attrs= hessian_create(HESSIAN_LIST);
 	if (h_attrs == NULL) {
-		fprintf(stderr,"ERROR:pep_environment_marshal: can't create %s hessian list.\n", PEP_ENVIRONMENT_ATTRIBUTES);
+		log_error("pep_environment_marshal: can't create %s hessian list.", PEP_ENVIRONMENT_ATTRIBUTES);
 		hessian_delete(h_environment);
 		return PEP_IO_ERROR;
 	}
@@ -432,13 +435,13 @@ static int pep_environment_marshal(const pep_environment_t * env, hessian_object
 		pep_attribute_t * attr= pep_environment_getattribute(env,i);
 		hessian_object_t * h_attr= NULL;
 		if (pep_attribute_marshal(attr,&h_attr) != PEP_MODEL_OK) {
-			fprintf(stderr,"ERROR:pep_environment_marshal: can't marshall PEP attribute at: %d\n",i);
+			log_error("pep_environment_marshal: can't marshall PEP attribute at: %d",i);
 			hessian_delete(h_environment);
 			hessian_delete(h_attrs);
 			return PEP_IO_ERROR;
 		}
 		if (hessian_list_add(h_attrs,h_attr) != HESSIAN_OK) {
-			fprintf(stderr,"ERROR:pep_environment_marshal: can't add hessian attribute to hessian list at: %d\n",i);
+			log_error("pep_environment_marshal: can't add hessian attribute to hessian list at: %d",i);
 			hessian_delete(h_environment);
 			hessian_delete(h_attrs);
 			hessian_delete(h_attr);
@@ -447,7 +450,7 @@ static int pep_environment_marshal(const pep_environment_t * env, hessian_object
 	}
 	hessian_object_t * h_attrs_key= hessian_create(HESSIAN_STRING,PEP_ENVIRONMENT_ATTRIBUTES);
 	if (hessian_map_add(h_environment,h_attrs_key,h_attrs) != HESSIAN_OK) {
-		fprintf(stderr,"ERROR:pep_environment_marshal: can't add attributes hessian list to environment hessian map.\n");
+		log_error("pep_environment_marshal: can't add attributes hessian list to environment hessian map.");
 		hessian_delete(h_environment);
 		hessian_delete(h_attrs);
 		hessian_delete(h_attrs_key);
@@ -460,21 +463,21 @@ static int pep_environment_marshal(const pep_environment_t * env, hessian_object
 
 static int pep_environment_unmarshal(pep_environment_t ** env, const hessian_object_t * h_environment) {
 	if (hessian_gettype(h_environment) != HESSIAN_MAP) {
-		fprintf(stderr,"ERROR:pep_environment_unmarshal: wrong Hessian type: %d (%s).\n", hessian_gettype(h_environment), hessian_getclassname(h_environment));
+		log_error("pep_environment_unmarshal: wrong Hessian type: %d (%s).", hessian_gettype(h_environment), hessian_getclassname(h_environment));
 		return PEP_IO_ERROR;
 	}
 	const char * map_type= hessian_map_gettype(h_environment);
 	if (map_type == NULL) {
-		fprintf(stderr,"ERROR:pep_environment_unmarshal: NULL Hessian map type.\n");
+		log_error("pep_environment_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
 	if (strcmp(PEP_ENVIRONMENT_CLASSNAME,map_type) != 0) {
-		fprintf(stderr,"ERROR:pep_environment_unmarshal: wrong Hessian map type: %s.\n",map_type);
+		log_error("pep_environment_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
 	pep_environment_t * environment= pep_environment_create();
 	if (environment == NULL) {
-		fprintf(stderr,"ERROR:pep_environment_unmarshal: can't create PEP environment.\n");
+		log_error("pep_environment_unmarshal: can't create PEP environment.");
 		return PEP_IO_ERROR;
 	}
 
@@ -484,20 +487,20 @@ static int pep_environment_unmarshal(pep_environment_t ** env, const hessian_obj
 	for(i= 0; i<map_l; i++) {
 		hessian_object_t * h_map_key= hessian_map_getkey(h_environment,i);
 		if (hessian_gettype(h_map_key) != HESSIAN_STRING) {
-			fprintf(stderr,"ERROR:pep_environment_unmarshal: Hessian map<key> is not an hessian string at: %d.\n",i);
+			log_error("pep_environment_unmarshal: Hessian map<key> is not an hessian string at: %d.",i);
 			pep_environment_delete(environment);
 			return PEP_IO_ERROR;
 		}
 		const char * key= hessian_string_getstring(h_map_key);
 		if (key == NULL) {
-			fprintf(stderr,"ERROR:pep_environment_unmarshal: Hessian map<key>: NULL string at: %d.\n",i);
+			log_error("pep_environment_unmarshal: Hessian map<key>: NULL string at: %d.",i);
 			pep_environment_delete(environment);
 			return PEP_IO_ERROR;
 		}
 		if (strcmp(PEP_ENVIRONMENT_ATTRIBUTES,key) == 0) {
 			hessian_object_t * h_attributes= hessian_map_getvalue(h_environment,i);
 			if (hessian_gettype(h_attributes) != HESSIAN_LIST) {
-				fprintf(stderr,"ERROR:pep_environment_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.\n",key, i);
+				log_error("pep_environment_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.",key, i);
 				pep_environment_delete(environment);
 				return PEP_IO_ERROR;
 			}
@@ -507,12 +510,12 @@ static int pep_environment_unmarshal(pep_environment_t ** env, const hessian_obj
 				hessian_object_t * h_attr= hessian_list_get(h_attributes,j);
 				pep_attribute_t * attribute= NULL;
 				if (pep_attribute_unmarshal(&attribute,h_attr)) {
-					fprintf(stderr,"ERROR:pep_environment_unmarshal: can't unmarshal PEP attribute at: %d.\n",j);
+					log_error("pep_environment_unmarshal: can't unmarshal PEP attribute at: %d.",j);
 					pep_environment_delete(environment);
 					return PEP_IO_ERROR;
 				}
 				if (pep_environment_addattribute(environment,attribute) != PEP_MODEL_OK) {
-					fprintf(stderr,"ERROR:pep_environment_unmarshal: can't add PEP attribute to PEP environment at: %d",j);
+					log_error("pep_environment_unmarshal: can't add PEP attribute to PEP environment at: %d",j);
 					pep_environment_delete(environment);
 					pep_attribute_delete(attribute);
 					return PEP_IO_ERROR;
@@ -521,7 +524,7 @@ static int pep_environment_unmarshal(pep_environment_t ** env, const hessian_obj
 		}
 		else {
 			// unkown key ???
-			fprintf(stderr,"WARN:pep_environment_unmarshal: unknown Hessian map<key>: %s at: %d.\n",key,i);
+			log_warn("pep_environment_unmarshal: unknown Hessian map<key>: %s at: %d.",key,i);
 		}
 	}
 	*env= environment;
@@ -533,19 +536,19 @@ static int pep_environment_unmarshal(pep_environment_t ** env, const hessian_obj
  */
 static int pep_request_marshal(const pep_request_t * request, hessian_object_t ** h_req) {
 	if (request == NULL) {
-		fprintf(stderr,"ERROR:pep_request_marshal: NULL request object.\n");
+		log_error("pep_request_marshal: NULL request object.");
 		return PEP_IO_ERROR;
 	}
 	// request
 	hessian_object_t * h_request= hessian_create(HESSIAN_MAP,PEP_REQUEST_CLASSNAME);
 	if (h_request == NULL) {
-		fprintf(stderr,"ERROR:pep_request_marshal: can't create request hessian map: %s.\n",PEP_REQUEST_CLASSNAME);
+		log_error("pep_request_marshal: can't create request hessian map: %s.",PEP_REQUEST_CLASSNAME);
 		return PEP_IO_ERROR;
 	}
 	// subjects list
 	hessian_object_t * h_subjects= hessian_create(HESSIAN_LIST);
 	if (h_subjects == NULL) {
-		fprintf(stderr,"ERROR:pep_request_marshal: can't create subjects hessian list.\n");
+		log_error("pep_request_marshal: can't create subjects hessian list.");
 		hessian_delete(h_request);
 		return PEP_IO_ERROR;
 	}
@@ -555,13 +558,13 @@ static int pep_request_marshal(const pep_request_t * request, hessian_object_t *
 		pep_subject_t * subject= pep_request_getsubject(request,i);
 		hessian_object_t * h_subject= NULL;
 		if (pep_subject_marshal(subject,&h_subject) != PEP_IO_OK) {
-			fprintf(stderr,"ERROR:pep_request_marshal: failed to marshal PEP subject at: %d.\n",i);
+			log_error("pep_request_marshal: failed to marshal PEP subject at: %d.",i);
 			hessian_delete(h_request);
 			hessian_delete(h_subjects);
 			return PEP_IO_ERROR;
 		}
 		if (hessian_list_add(h_subjects,h_subject) != HESSIAN_OK) {
-			fprintf(stderr,"ERROR:pep_request_marshal: can't add hessian subject %d in hessian subjects list.\n",i);
+			log_error("pep_request_marshal: can't add hessian subject %d in hessian subjects list.",i);
 			hessian_delete(h_request);
 			hessian_delete(h_subjects);
 			hessian_delete(h_subject);
@@ -570,7 +573,7 @@ static int pep_request_marshal(const pep_request_t * request, hessian_object_t *
 	}
 	hessian_object_t * h_subjects_key= hessian_create(HESSIAN_STRING,PEP_REQUEST_SUBJECTS);
 	if (hessian_map_add(h_request,h_subjects_key,h_subjects) != HESSIAN_OK) {
-		fprintf(stderr,"ERROR:pep_request_marshal: can't add hessian subjects list in hessian request map.\n");
+		log_error("pep_request_marshal: can't add hessian subjects list in hessian request map.");
 		hessian_delete(h_request);
 		hessian_delete(h_subjects_key);
 		hessian_delete(h_subjects);
@@ -579,7 +582,7 @@ static int pep_request_marshal(const pep_request_t * request, hessian_object_t *
 	// resources list
 	hessian_object_t * h_resources= hessian_create(HESSIAN_LIST);
 	if (h_resources == NULL) {
-		fprintf(stderr,"ERROR:pep_request_marshal: can't create resources hessian list.\n");
+		log_error("pep_request_marshal: can't create resources hessian list.");
 		hessian_delete(h_request);
 		return PEP_IO_ERROR;
 	}
@@ -588,13 +591,13 @@ static int pep_request_marshal(const pep_request_t * request, hessian_object_t *
 		pep_resource_t * resource= pep_request_getresource(request,i);
 		hessian_object_t * h_resource= NULL;
 		if (pep_resource_marshal(resource,&h_resource) != PEP_IO_OK) {
-			fprintf(stderr,"ERROR:pep_request_marshal: failed to marshal PEP resource at: %d.\n",i);
+			log_error("pep_request_marshal: failed to marshal PEP resource at: %d.",i);
 			hessian_delete(h_request);
 			hessian_delete(h_resources);
 			return PEP_IO_ERROR;
 		}
 		if (hessian_list_add(h_resources,h_resource) != HESSIAN_OK) {
-			fprintf(stderr,"ERROR:pep_request_marshal: can't add hessian resource %d to hessian resources list.\n",i);
+			log_error("pep_request_marshal: can't add hessian resource %d to hessian resources list.",i);
 			hessian_delete(h_request);
 			hessian_delete(h_resources);
 			hessian_delete(h_resource);
@@ -603,7 +606,7 @@ static int pep_request_marshal(const pep_request_t * request, hessian_object_t *
 	}
 	hessian_object_t * h_resources_key= hessian_create(HESSIAN_STRING,PEP_REQUEST_RESOURCES);
 	if (hessian_map_add(h_request,h_resources_key,h_resources) != HESSIAN_OK) {
-		fprintf(stderr,"ERROR:pep_request_marshal: can't add hessian resources list to hessian request map.\n");
+		log_error("pep_request_marshal: can't add hessian resources list to hessian request map.");
 		hessian_delete(h_request);
 		hessian_delete(h_resources_key);
 		hessian_delete(h_resources);
@@ -613,13 +616,13 @@ static int pep_request_marshal(const pep_request_t * request, hessian_object_t *
 	pep_action_t * action= pep_request_getaction(request);
 	hessian_object_t * h_action= NULL;
 	if (pep_action_marshal(action,&h_action) != PEP_IO_OK) {
-		fprintf(stderr,"ERROR:pep_request_marshal: failed to marshal PEP action.\n");
+		log_error("pep_request_marshal: failed to marshal PEP action.");
 		hessian_delete(h_request);
 		return PEP_IO_ERROR;
 	}
 	hessian_object_t * h_action_key= hessian_create(HESSIAN_STRING,PEP_REQUEST_ACTION);
 	if (hessian_map_add(h_request,h_action_key,h_action) != HESSIAN_OK) {
-		fprintf(stderr,"ERROR:pep_request_marshal: can't add hessian action to hessian request.\n");
+		log_error("pep_request_marshal: can't add hessian action to hessian request.");
 		hessian_delete(h_request);
 		hessian_delete(h_action_key);
 		hessian_delete(h_action);
@@ -629,13 +632,13 @@ static int pep_request_marshal(const pep_request_t * request, hessian_object_t *
 	pep_environment_t * environment= pep_request_getenvironment(request);
 	hessian_object_t * h_environment= NULL;
 	if (pep_environment_marshal(environment,&h_environment) != PEP_IO_OK) {
-		fprintf(stderr,"ERROR:pep_request_marshal: failed to marshal PEP environment.\n");
+		log_error("pep_request_marshal: failed to marshal PEP environment.");
 		hessian_delete(h_request);
 		return PEP_IO_ERROR;
 	}
 	hessian_object_t * h_environment_key= hessian_create(HESSIAN_STRING,PEP_REQUEST_ENVIRONMENT);
 	if (hessian_map_add(h_request,h_environment_key,h_environment) != HESSIAN_OK) {
-		fprintf(stderr,"ERROR:pep_request_marshal: can't add hessian environment to hessian request.\n");
+		log_error("pep_request_marshal: can't add hessian environment to hessian request.");
 		hessian_delete(h_request);
 		hessian_delete(h_environment_key);
 		hessian_delete(h_environment);
@@ -647,22 +650,22 @@ static int pep_request_marshal(const pep_request_t * request, hessian_object_t *
 
 static int pep_request_unmarshal(pep_request_t ** req, const hessian_object_t * h_request) {
 	if (hessian_gettype(h_request) != HESSIAN_MAP) {
-		fprintf(stderr,"ERROR:pep_request_unmarshal: wrong Hessian type: %d (%s).\n", hessian_gettype(h_request), hessian_getclassname(h_request));
+		log_error("pep_request_unmarshal: wrong Hessian type: %d (%s).", hessian_gettype(h_request), hessian_getclassname(h_request));
 		return PEP_IO_ERROR;
 	}
 	const char * map_type= hessian_map_gettype(h_request);
 	if (map_type == NULL) {
-		fprintf(stderr,"ERROR:pep_request_unmarshal: NULL Hessian map type.\n");
+		log_error("pep_request_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
 	if (strcmp(PEP_REQUEST_CLASSNAME,map_type) != 0) {
-		fprintf(stderr,"ERROR:pep_request_unmarshal: wrong Hessian map type: %s.\n",map_type);
+		log_error("pep_request_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
 
 	pep_request_t * request= pep_request_create();
 	if (request == NULL) {
-		fprintf(stderr,"ERROR:pep_request_unmarshal: can't create PEP request.\n");
+		log_error("pep_request_unmarshal: can't create PEP request.");
 		return PEP_IO_ERROR;
 	}
 
@@ -672,13 +675,13 @@ static int pep_request_unmarshal(pep_request_t ** req, const hessian_object_t * 
 	for(i= 0; i<map_l; i++) {
 		hessian_object_t * h_map_key= hessian_map_getkey(h_request,i);
 		if (hessian_gettype(h_map_key) != HESSIAN_STRING) {
-			fprintf(stderr,"ERROR:pep_request_unmarshal: Hessian map<key> is not an hessian string at: %d.\n",i);
+			log_error("pep_request_unmarshal: Hessian map<key> is not an hessian string at: %d.",i);
 			pep_request_delete(request);
 			return PEP_IO_ERROR;
 		}
 		const char * key= hessian_string_getstring(h_map_key);
 		if (key == NULL) {
-			fprintf(stderr,"ERROR:pep_request_unmarshal: Hessian map<key>: NULL string at: %d.\n",i);
+			log_error("pep_request_unmarshal: Hessian map<key>: NULL string at: %d.",i);
 			pep_request_delete(request);
 			return PEP_IO_ERROR;
 		}
@@ -686,7 +689,7 @@ static int pep_request_unmarshal(pep_request_t ** req, const hessian_object_t * 
 		if (strcmp(PEP_REQUEST_SUBJECTS,key) == 0) {
 			hessian_object_t * h_subjects= hessian_map_getvalue(h_request,i);
 			if (hessian_gettype(h_subjects) != HESSIAN_LIST) {
-				fprintf(stderr,"ERROR:pep_request_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.\n",key, i);
+				log_error("pep_request_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.",key, i);
 				pep_request_delete(request);
 				return PEP_IO_ERROR;
 			}
@@ -696,12 +699,12 @@ static int pep_request_unmarshal(pep_request_t ** req, const hessian_object_t * 
 				hessian_object_t * h_subject= hessian_list_get(h_subjects,j);
 				pep_subject_t * subject= NULL;
 				if (pep_subject_unmarshal(&subject,h_subject) != PEP_IO_OK) {
-					fprintf(stderr,"ERROR:pep_request_unmarshal: can't unmarshal PEP subject at: %d.\n",j);
+					log_error("pep_request_unmarshal: can't unmarshal PEP subject at: %d.",j);
 					pep_request_delete(request);
 					return PEP_IO_ERROR;
 				}
 				if (pep_request_addsubject(request,subject) != PEP_MODEL_OK) {
-					fprintf(stderr,"ERROR:pep_request_unmarshal: can't add PEP subject to PEP request at: %d",j);
+					log_error("pep_request_unmarshal: can't add PEP subject to PEP request at: %d",j);
 					pep_request_delete(request);
 					pep_subject_delete(subject);
 					return PEP_IO_ERROR;
@@ -712,7 +715,7 @@ static int pep_request_unmarshal(pep_request_t ** req, const hessian_object_t * 
 		else if (strcmp(PEP_REQUEST_RESOURCES,key) == 0) {
 			hessian_object_t * h_resources= hessian_map_getvalue(h_request,i);
 			if (hessian_gettype(h_resources) != HESSIAN_LIST) {
-				fprintf(stderr,"ERROR:pep_request_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.\n",key, i);
+				log_error("pep_request_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.",key, i);
 				pep_request_delete(request);
 				return PEP_IO_ERROR;
 			}
@@ -722,12 +725,12 @@ static int pep_request_unmarshal(pep_request_t ** req, const hessian_object_t * 
 				hessian_object_t * h_resource= hessian_list_get(h_resources,j);
 				pep_resource_t * resource= NULL;
 				if (pep_resource_unmarshal(&resource,h_resource) != PEP_IO_OK) {
-					fprintf(stderr,"ERROR:pep_request_unmarshal: can't unmarshal PEP resource at: %d.\n",j);
+					log_error("pep_request_unmarshal: can't unmarshal PEP resource at: %d.",j);
 					pep_request_delete(request);
 					return PEP_IO_ERROR;
 				}
 				if (pep_request_addresource(request,resource) != PEP_MODEL_OK) {
-					fprintf(stderr,"ERROR:pep_request_unmarshal: can't add PEP resource to PEP request at: %d",j);
+					log_error("pep_request_unmarshal: can't add PEP resource to PEP request at: %d",j);
 					pep_request_delete(request);
 					pep_resource_delete(resource);
 					return PEP_IO_ERROR;
@@ -740,12 +743,12 @@ static int pep_request_unmarshal(pep_request_t ** req, const hessian_object_t * 
 			if (hessian_gettype(h_action) != HESSIAN_NULL) {
 				pep_action_t * action= NULL;
 				if (pep_action_unmarshal(&action,h_action) != PEP_IO_OK) {
-					fprintf(stderr,"ERROR:pep_request_unmarshal: can't unmarshal PEP action at: %d.\n",i);
+					log_error("pep_request_unmarshal: can't unmarshal PEP action at: %d.",i);
 					pep_request_delete(request);
 					return PEP_IO_ERROR;
 				}
 				if (pep_request_setaction(request,action) != PEP_MODEL_OK) {
-					fprintf(stderr,"ERROR:pep_request_unmarshal: can't set PEP action to PEP request at: %d.\n",i);
+					log_error("pep_request_unmarshal: can't set PEP action to PEP request at: %d.",i);
 					pep_action_delete(action);
 					pep_request_delete(request);
 					return PEP_IO_ERROR;
@@ -759,12 +762,12 @@ static int pep_request_unmarshal(pep_request_t ** req, const hessian_object_t * 
 			if (hessian_gettype(h_environment) != HESSIAN_NULL) {
 				pep_environment_t * environment= NULL;
 				if (pep_environment_unmarshal(&environment,h_environment) != PEP_IO_OK) {
-					fprintf(stderr,"ERROR:pep_request_unmarshal: can't unmarshal PEP environment at: %d.\n",i);
+					log_error("pep_request_unmarshal: can't unmarshal PEP environment at: %d.",i);
 					pep_request_delete(request);
 					return PEP_IO_ERROR;
 				}
 				if (pep_request_setenvironment(request,environment) != PEP_MODEL_OK) {
-					fprintf(stderr,"ERROR:pep_request_unmarshal: can't set PEP environment to PEP request at: %d.\n",i);
+					log_error("pep_request_unmarshal: can't set PEP environment to PEP request at: %d.",i);
 					pep_environment_delete(environment);
 					pep_request_delete(request);
 					return PEP_IO_ERROR;
@@ -773,7 +776,7 @@ static int pep_request_unmarshal(pep_request_t ** req, const hessian_object_t * 
 		}
 		// unkown key ???
 		else {
-			fprintf(stderr,"WARN:pep_request_unmarshal: unknown Hessian map<key>: %s at: %d.\n",key,i);
+			log_warn("pep_request_unmarshal: unknown Hessian map<key>: %s at: %d.",key,i);
 		}
 	}
 
@@ -784,12 +787,12 @@ static int pep_request_unmarshal(pep_request_t ** req, const hessian_object_t * 
 
 static int pep_resource_marshal(const pep_resource_t * resource, hessian_object_t ** h_res) {
 	if (resource == NULL) {
-		fprintf(stderr,"ERROR:pep_resource_marshal: NULL resource object.\n");
+		log_error("pep_resource_marshal: NULL resource object.");
 		return PEP_IO_ERROR;
 	}
 	hessian_object_t * h_resource= hessian_create(HESSIAN_MAP,PEP_RESOURCE_CLASSNAME);
 	if (h_resource == NULL) {
-		fprintf(stderr,"ERROR:pep_resource_marshal: can't create hessian map: %s.\n", PEP_RESOURCE_CLASSNAME);
+		log_error("pep_resource_marshal: can't create hessian map: %s.", PEP_RESOURCE_CLASSNAME);
 		return PEP_IO_ERROR;
 	}
 	// optional content
@@ -797,13 +800,13 @@ static int pep_resource_marshal(const pep_resource_t * resource, hessian_object_
 	if (content != NULL) {
 		hessian_object_t * h_content= hessian_create(HESSIAN_STRING,content);
 		if (h_content == NULL) {
-			fprintf(stderr,"ERROR:pep_resource_marshal: can't create content hessian string: %s.\n", content);
+			log_error("pep_resource_marshal: can't create content hessian string: %s.", content);
 			hessian_delete(h_resource);
 			return PEP_IO_ERROR;
 		}
 		hessian_object_t * h_content_key= hessian_create(HESSIAN_STRING,PEP_RESOURCE_CONTENT);
 		if (hessian_map_add(h_resource,h_content_key,h_content) != HESSIAN_OK) {
-			fprintf(stderr,"ERROR:pep_resource_marshal: can't add content hessian string to resource hessian map.\n");
+			log_error("pep_resource_marshal: can't add content hessian string to resource hessian map.");
 			hessian_delete(h_resource);
 			hessian_delete(h_content);
 			hessian_delete(h_content_key);
@@ -813,7 +816,7 @@ static int pep_resource_marshal(const pep_resource_t * resource, hessian_object_
 	// attributes list
 	hessian_object_t * h_attrs= hessian_create(HESSIAN_LIST);
 	if (h_attrs == NULL) {
-		fprintf(stderr,"ERROR:pep_resource_marshal: can't create attributes hessian list.\n");
+		log_error("pep_resource_marshal: can't create attributes hessian list.");
 		hessian_delete(h_resource);
 		return PEP_IO_ERROR;
 	}
@@ -823,13 +826,13 @@ static int pep_resource_marshal(const pep_resource_t * resource, hessian_object_
 		pep_attribute_t * attr= pep_resource_getattribute(resource,i);
 		hessian_object_t * h_attr= NULL;
 		if (pep_attribute_marshal(attr,&h_attr) != PEP_MODEL_OK) {
-			fprintf(stderr,"ERROR:pep_resource_marshal: can't marshal PEP attribute at: %d.\n", i);
+			log_error("pep_resource_marshal: can't marshal PEP attribute at: %d.", i);
 			hessian_delete(h_resource);
 			hessian_delete(h_attrs);
 			return PEP_IO_ERROR;
 		}
 		if (hessian_list_add(h_attrs,h_attr) != HESSIAN_OK) {
-			fprintf(stderr,"ERROR:pep_resource_marshal: can't add hessian attribute to attributes hessian list at: %d.\n", i);
+			log_error("pep_resource_marshal: can't add hessian attribute to attributes hessian list at: %d.", i);
 			hessian_delete(h_resource);
 			hessian_delete(h_attrs);
 			hessian_delete(h_attr);
@@ -838,7 +841,7 @@ static int pep_resource_marshal(const pep_resource_t * resource, hessian_object_
 	}
 	hessian_object_t * h_attrs_key= hessian_create(HESSIAN_STRING,PEP_RESOURCE_ATTRIBUTES);
 	if (hessian_map_add(h_resource,h_attrs_key,h_attrs) != HESSIAN_OK) {
-		fprintf(stderr,"ERROR:pep_resource_marshal: can't add attributes hessian list to resource hessian map.\n");
+		log_error("pep_resource_marshal: can't add attributes hessian list to resource hessian map.");
 		hessian_delete(h_resource);
 		hessian_delete(h_attrs);
 		hessian_delete(h_attrs_key);
@@ -850,22 +853,22 @@ static int pep_resource_marshal(const pep_resource_t * resource, hessian_object_
 
 static int pep_resource_unmarshal(pep_resource_t ** res, const hessian_object_t * h_resource) {
 	if (hessian_gettype(h_resource) != HESSIAN_MAP) {
-		fprintf(stderr,"ERROR:pep_resource_unmarshal: wrong Hessian type: %d (%s).\n", hessian_gettype(h_resource), hessian_getclassname(h_resource));
+		log_error("pep_resource_unmarshal: wrong Hessian type: %d (%s).", hessian_gettype(h_resource), hessian_getclassname(h_resource));
 		return PEP_IO_ERROR;
 	}
 	const char * map_type= hessian_map_gettype(h_resource);
 	if (map_type == NULL) {
-		fprintf(stderr,"ERROR:pep_resource_unmarshal: NULL Hessian map type.\n");
+		log_error("pep_resource_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
 	if (strcmp(PEP_RESOURCE_CLASSNAME,map_type) != 0) {
-		fprintf(stderr,"ERROR:pep_resource_unmarshal: wrong Hessian map type: %s.\n",map_type);
+		log_error("pep_resource_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
 
 	pep_resource_t * resource= pep_resource_create();
 	if (resource == NULL) {
-		fprintf(stderr,"ERROR:pep_resource_unmarshal: can't create PEP resource.\n");
+		log_error("pep_resource_unmarshal: can't create PEP resource.");
 		return PEP_IO_ERROR;
 	}
 
@@ -875,13 +878,13 @@ static int pep_resource_unmarshal(pep_resource_t ** res, const hessian_object_t 
 	for(i= 0; i<map_l; i++) {
 		hessian_object_t * h_map_key= hessian_map_getkey(h_resource,i);
 		if (hessian_gettype(h_map_key) != HESSIAN_STRING) {
-			fprintf(stderr,"ERROR:pep_resource_unmarshal: Hessian map<key> is not an hessian string at: %d.\n",i);
+			log_error("pep_resource_unmarshal: Hessian map<key> is not an hessian string at: %d.",i);
 			pep_resource_delete(resource);
 			return PEP_IO_ERROR;
 		}
 		const char * key= hessian_string_getstring(h_map_key);
 		if (key == NULL) {
-			fprintf(stderr,"ERROR:pep_resource_unmarshal: Hessian map<key>: NULL string at: %d.\n",i);
+			log_error("pep_resource_unmarshal: Hessian map<key>: NULL string at: %d.",i);
 			pep_resource_delete(resource);
 			return PEP_IO_ERROR;
 		}
@@ -890,7 +893,7 @@ static int pep_resource_unmarshal(pep_resource_t ** res, const hessian_object_t 
 			hessian_object_t * h_string= hessian_map_getvalue(h_resource,i);
 			hessian_t h_string_type= hessian_gettype(h_string);
 			if ( h_string_type != HESSIAN_STRING && h_string_type != HESSIAN_NULL) {
-				fprintf(stderr,"ERROR:pep_resource_unmarshal: Hessian map<'%s',value> is not a Hessian string or null at: %d.\n",key,i);
+				log_error("pep_resource_unmarshal: Hessian map<'%s',value> is not a Hessian string or null at: %d.",key,i);
 				pep_resource_delete(resource);
 				return PEP_IO_ERROR;
 			}
@@ -899,7 +902,7 @@ static int pep_resource_unmarshal(pep_resource_t ** res, const hessian_object_t 
 				content= hessian_string_getstring(h_string);
 			}
 			if (pep_resource_setcontent(resource,content) != PEP_MODEL_OK) {
-				fprintf(stderr,"ERROR:pep_resource_unmarshal: can't set content: %s to PEP resource.\n",content);
+				log_error("pep_resource_unmarshal: can't set content: %s to PEP resource.",content);
 				pep_resource_delete(resource);
 				return PEP_IO_ERROR;
 			}
@@ -908,7 +911,7 @@ static int pep_resource_unmarshal(pep_resource_t ** res, const hessian_object_t 
 		else if (strcmp(PEP_RESOURCE_ATTRIBUTES,key) == 0) {
 			hessian_object_t * h_attributes= hessian_map_getvalue(h_resource,i);
 			if (hessian_gettype(h_attributes) != HESSIAN_LIST) {
-				fprintf(stderr,"ERROR:pep_resource_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.\n",key, i);
+				log_error("pep_resource_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.",key, i);
 				pep_resource_delete(resource);
 				return PEP_IO_ERROR;
 			}
@@ -918,12 +921,12 @@ static int pep_resource_unmarshal(pep_resource_t ** res, const hessian_object_t 
 				hessian_object_t * h_attr= hessian_list_get(h_attributes,j);
 				pep_attribute_t * attribute= NULL;
 				if (pep_attribute_unmarshal(&attribute,h_attr) != PEP_IO_OK) {
-					fprintf(stderr,"ERROR:pep_resource_unmarshal: can't unmarshal PEP attribute at: %d.\n",j);
+					log_error("pep_resource_unmarshal: can't unmarshal PEP attribute at: %d.",j);
 					pep_resource_delete(resource);
 					return PEP_IO_ERROR;
 				}
 				if (pep_resource_addattribute(resource,attribute) != PEP_MODEL_OK) {
-					fprintf(stderr,"ERROR:pep_resource_unmarshal: can't add PEP attribute to PEP resource at: %d",j);
+					log_error("pep_resource_unmarshal: can't add PEP attribute to PEP resource at: %d",j);
 					pep_resource_delete(resource);
 					pep_attribute_delete(attribute);
 					return PEP_IO_ERROR;
@@ -932,7 +935,7 @@ static int pep_resource_unmarshal(pep_resource_t ** res, const hessian_object_t 
 		}
 		else {
 			// unkown key ???
-			fprintf(stderr,"WARN:pep_resource_unmarshal: unknown Hessian map<key>: %s at: %d.\n",key,i);
+			log_warn("pep_resource_unmarshal: unknown Hessian map<key>: %s at: %d.",key,i);
 		}
 	}
 	*res= resource;
@@ -942,25 +945,25 @@ static int pep_resource_unmarshal(pep_resource_t ** res, const hessian_object_t 
 
 static int pep_subject_marshal(const pep_subject_t * subject, hessian_object_t ** h_sub) {
 	if (subject == NULL) {
-		fprintf(stderr,"ERROR:pep_subject_marshal: NULL subject object.\n");
+		log_error("pep_subject_marshal: NULL subject object.");
 		return PEP_IO_ERROR;
 	}
 	hessian_object_t * h_subject= hessian_create(HESSIAN_MAP,PEP_SUBJECT_CLASSNAME);
 	if (h_subject == NULL) {
-		fprintf(stderr,"ERROR:pep_subject_marshal: can't create hessian map: %s.\n", PEP_SUBJECT_CLASSNAME);
+		log_error("pep_subject_marshal: can't create hessian map: %s.", PEP_SUBJECT_CLASSNAME);
 		return PEP_IO_ERROR;
 	}
 	const char * category= pep_subject_getcategory(subject);
 	if (category != NULL) {
 		hessian_object_t * h_category= hessian_create(HESSIAN_STRING,category);
 		if (h_category == NULL) {
-			fprintf(stderr,"ERROR:pep_subject_marshal: can't create category hessian string: %s.\n", category);
+			log_error("pep_subject_marshal: can't create category hessian string: %s.", category);
 			hessian_delete(h_subject);
 			return PEP_IO_ERROR;
 		}
 		hessian_object_t * h_category_key= hessian_create(HESSIAN_STRING,PEP_SUBJECT_CATEGORY);
 		if (hessian_map_add(h_subject,h_category_key,h_category) != HESSIAN_OK) {
-			fprintf(stderr,"ERROR:pep_subject_marshal: can't add category hessian string to subject hessian map.\n");
+			log_error("pep_subject_marshal: can't add category hessian string to subject hessian map.");
 			hessian_delete(h_subject);
 			hessian_delete(h_category_key);
 			hessian_delete(h_category);
@@ -970,7 +973,7 @@ static int pep_subject_marshal(const pep_subject_t * subject, hessian_object_t *
 	// attributes list
 	hessian_object_t * h_attrs= hessian_create(HESSIAN_LIST);
 	if (h_attrs == NULL) {
-		fprintf(stderr,"ERROR:pep_subject_marshal: can't create attributes hessian list.\n");
+		log_error("pep_subject_marshal: can't create attributes hessian list.");
 		hessian_delete(h_subject);
 		return PEP_IO_ERROR;
 	}
@@ -980,13 +983,13 @@ static int pep_subject_marshal(const pep_subject_t * subject, hessian_object_t *
 		pep_attribute_t * attr= pep_subject_getattribute(subject,i);
 		hessian_object_t * h_attr= NULL;
 		if (pep_attribute_marshal(attr,&h_attr) != PEP_IO_OK) {
-			fprintf(stderr,"ERROR:pep_subject_marshal: can't marshal PEP attribute at: %d.\n", i);
+			log_error("pep_subject_marshal: can't marshal PEP attribute at: %d.", i);
 			hessian_delete(h_subject);
 			hessian_delete(h_attrs);
 			return PEP_IO_ERROR;
 		}
 		if (hessian_list_add(h_attrs,h_attr) != HESSIAN_OK) {
-			fprintf(stderr,"ERROR:pep_subject_marshal: can't add hessian attribute to attributes hessian list at: %d.\n", i);
+			log_error("pep_subject_marshal: can't add hessian attribute to attributes hessian list at: %d.", i);
 			hessian_delete(h_subject);
 			hessian_delete(h_attrs);
 			hessian_delete(h_attr);
@@ -995,7 +998,7 @@ static int pep_subject_marshal(const pep_subject_t * subject, hessian_object_t *
 	}
 	hessian_object_t * h_attrs_key= hessian_create(HESSIAN_STRING,PEP_SUBJECT_ATTRIBUTES);
 	if (hessian_map_add(h_subject,h_attrs_key,h_attrs) != HESSIAN_OK) {
-		fprintf(stderr,"ERROR:pep_subject_marshal: can't add attributes hessian list to subject hessian map.\n");
+		log_error("pep_subject_marshal: can't add attributes hessian list to subject hessian map.");
 		hessian_delete(h_subject);
 		hessian_delete(h_attrs);
 		hessian_delete(h_attrs_key);
@@ -1007,22 +1010,22 @@ static int pep_subject_marshal(const pep_subject_t * subject, hessian_object_t *
 
 static int pep_subject_unmarshal(pep_subject_t ** subj, const hessian_object_t * h_subject) {
 	if (hessian_gettype(h_subject) != HESSIAN_MAP) {
-		fprintf(stderr,"ERROR:pep_subject_unmarshal: wrong Hessian type: %d (%s).\n", hessian_gettype(h_subject), hessian_getclassname(h_subject));
+		log_error("pep_subject_unmarshal: wrong Hessian type: %d (%s).", hessian_gettype(h_subject), hessian_getclassname(h_subject));
 		return PEP_IO_ERROR;
 	}
 	const char * map_type= hessian_map_gettype(h_subject);
 	if (map_type == NULL) {
-		fprintf(stderr,"ERROR:pep_subject_unmarshal: NULL Hessian map type.\n");
+		log_error("pep_subject_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
 	if (strcmp(PEP_SUBJECT_CLASSNAME,map_type) != 0) {
-		fprintf(stderr,"ERROR:pep_subject_unmarshal: wrong Hessian map type: %s.\n",map_type);
+		log_error("pep_subject_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
 
 	pep_subject_t * subject= pep_subject_create();
 	if (subject == NULL) {
-		fprintf(stderr,"ERROR:pep_subject_unmarshal: can't create PEP subject.\n");
+		log_error("pep_subject_unmarshal: can't create PEP subject.");
 		return PEP_IO_ERROR;
 	}
 
@@ -1032,13 +1035,13 @@ static int pep_subject_unmarshal(pep_subject_t ** subj, const hessian_object_t *
 	for(i= 0; i<map_l; i++) {
 		hessian_object_t * h_map_key= hessian_map_getkey(h_subject,i);
 		if (hessian_gettype(h_map_key) != HESSIAN_STRING) {
-			fprintf(stderr,"ERROR:pep_subject_unmarshal: Hessian map<key> is not an hessian string at: %d.\n",i);
+			log_error("pep_subject_unmarshal: Hessian map<key> is not an hessian string at: %d.",i);
 			pep_subject_delete(subject);
 			return PEP_IO_ERROR;
 		}
 		const char * key= hessian_string_getstring(h_map_key);
 		if (key == NULL) {
-			fprintf(stderr,"ERROR:pep_subject_unmarshal: Hessian map<key>: NULL string at: %d.\n",i);
+			log_error("pep_subject_unmarshal: Hessian map<key>: NULL string at: %d.",i);
 			pep_subject_delete(subject);
 			return PEP_IO_ERROR;
 		}
@@ -1047,7 +1050,7 @@ static int pep_subject_unmarshal(pep_subject_t ** subj, const hessian_object_t *
 			hessian_object_t * h_string= hessian_map_getvalue(h_subject,i);
 			hessian_t h_string_type= hessian_gettype(h_string);
 			if ( h_string_type != HESSIAN_STRING && h_string_type != HESSIAN_NULL) {
-				fprintf(stderr,"ERROR:pep_subject_unmarshal: Hessian map<'%s',value> is not a Hessian string or null at: %d.\n",key,i);
+				log_error("pep_subject_unmarshal: Hessian map<'%s',value> is not a Hessian string or null at: %d.",key,i);
 				pep_subject_delete(subject);
 				return PEP_IO_ERROR;
 			}
@@ -1056,7 +1059,7 @@ static int pep_subject_unmarshal(pep_subject_t ** subj, const hessian_object_t *
 				category= hessian_string_getstring(h_string);
 			}
 			if (pep_subject_setcategory(subject,category) != PEP_MODEL_OK) {
-				fprintf(stderr,"ERROR:pep_subject_unmarshal: can't set category: %s to PEP subject.\n",category);
+				log_error("pep_subject_unmarshal: can't set category: %s to PEP subject.",category);
 				pep_subject_delete(subject);
 				return PEP_IO_ERROR;
 			}
@@ -1065,7 +1068,7 @@ static int pep_subject_unmarshal(pep_subject_t ** subj, const hessian_object_t *
 		else if (strcmp(PEP_SUBJECT_ATTRIBUTES,key) == 0) {
 			hessian_object_t * h_attributes= hessian_map_getvalue(h_subject,i);
 			if (hessian_gettype(h_attributes) != HESSIAN_LIST) {
-				fprintf(stderr,"ERROR:pep_subject_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.\n",key, i);
+				log_error("pep_subject_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.",key, i);
 				pep_subject_delete(subject);
 				return PEP_IO_ERROR;
 			}
@@ -1075,12 +1078,12 @@ static int pep_subject_unmarshal(pep_subject_t ** subj, const hessian_object_t *
 				hessian_object_t * h_attr= hessian_list_get(h_attributes,j);
 				pep_attribute_t * attribute= NULL;
 				if (pep_attribute_unmarshal(&attribute,h_attr) != PEP_IO_OK) {
-					fprintf(stderr,"ERROR:pep_subject_unmarshal: can't unmarshal PEP attribute at: %d.\n",j);
+					log_error("pep_subject_unmarshal: can't unmarshal PEP attribute at: %d.",j);
 					pep_subject_delete(subject);
 					return PEP_IO_ERROR;
 				}
 				if (pep_subject_addattribute(subject,attribute) != PEP_MODEL_OK) {
-					fprintf(stderr,"ERROR:pep_subject_unmarshal: can't add PEP attribute to PEP subject at: %d",j);
+					log_error("pep_subject_unmarshal: can't add PEP attribute to PEP subject at: %d",j);
 					pep_subject_delete(subject);
 					pep_attribute_delete(attribute);
 					return PEP_IO_ERROR;
@@ -1090,7 +1093,7 @@ static int pep_subject_unmarshal(pep_subject_t ** subj, const hessian_object_t *
 		}
 		else {
 			// unkown key ???
-			fprintf(stderr,"WARN:pep_subject_unmarshal: unknown Hessian map<key>: %s at: %d.\n",key,i);
+			log_warn("pep_subject_unmarshal: unknown Hessian map<key>: %s at: %d.",key,i);
 		}
 
 	}
@@ -1104,11 +1107,11 @@ static int pep_subject_unmarshal(pep_subject_t ** subj, const hessian_object_t *
 pep_error_t pep_request_marshalling(const pep_request_t * request, BUFFER * output) {
 	hessian_object_t * h_request= NULL;
 	if (pep_request_marshal(request,&h_request) != PEP_IO_OK) {
-		fprintf(stderr,"ERROR:pep_request_marshalling: can't marshal PEP request into Hessian object.\n");
+		log_error("pep_request_marshalling: can't marshal PEP request into Hessian object.");
 		return PEP_ERR_MARSHALLING_HESSIAN;
 	}
 	if (hessian_serialize(h_request,output) != HESSIAN_OK) {
-		fprintf(stderr,"ERROR:pep_request_marshalling: failed to serialize Hessian object.\n");
+		log_error("pep_request_marshalling: failed to serialize Hessian object.");
 		hessian_delete(h_request);
 		return PEP_ERR_MARSHALLING_IO;
 	}
@@ -1120,11 +1123,11 @@ pep_error_t pep_request_marshalling(const pep_request_t * request, BUFFER * outp
 pep_error_t pep_response_unmarshalling(pep_response_t ** response, BUFFER * input) {
 	hessian_object_t * h_response= hessian_deserialize(input);
 	if (h_response == NULL) {
-		fprintf(stderr,"ERROR:pep_response_unmarshalling: failed to deserialize Hessian object.\n");
+		log_error("pep_response_unmarshalling: failed to deserialize Hessian object.");
 		return PEP_ERR_UNMARSHALLING_IO;
 	}
 	if (pep_response_unmarshal(response, h_response) != PEP_IO_OK) {
-		fprintf(stderr,"ERROR:pep_response_unmarshalling: can't unmarshal PEP response from Hessian object.\n");
+		log_error("pep_response_unmarshalling: can't unmarshal PEP response from Hessian object.");
 		hessian_delete(h_response);
 		return PEP_ERR_UNMARSHALLING_HESSIAN;
 	}
@@ -1136,22 +1139,22 @@ pep_error_t pep_response_unmarshalling(pep_response_t ** response, BUFFER * inpu
 // OK
 static int pep_response_unmarshal(pep_response_t ** resp, const hessian_object_t * h_response) {
 	if (hessian_gettype(h_response) != HESSIAN_MAP) {
-		fprintf(stderr,"ERROR:pep_response_unmarshal: wrong Hessian type: %d (%s).\n", hessian_gettype(h_response), hessian_getclassname(h_response));
+		log_error("pep_response_unmarshal: wrong Hessian type: %d (%s).", hessian_gettype(h_response), hessian_getclassname(h_response));
 		return PEP_IO_ERROR;
 	}
 	const char * map_type= hessian_map_gettype(h_response);
 	if (map_type == NULL) {
-		fprintf(stderr,"ERROR:pep_response_unmarshal: NULL Hessian map type.\n");
+		log_error("pep_response_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
 	if (strcmp(PEP_RESPONSE_CLASSNAME,map_type) != 0) {
-		fprintf(stderr,"ERROR:pep_response_unmarshal: wrong Hessian map type: %s.\n",map_type);
+		log_error("pep_response_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
 
 	pep_response_t * response= pep_response_create();
 	if (response == NULL) {
-		fprintf(stderr,"ERROR:pep_response_unmarshal: can't create PEP response.\n");
+		log_error("pep_response_unmarshal: can't create PEP response.");
 		return PEP_IO_ERROR;
 	}
 
@@ -1161,13 +1164,13 @@ static int pep_response_unmarshal(pep_response_t ** resp, const hessian_object_t
 	for(i= 0; i<map_l; i++) {
 		hessian_object_t * h_map_key= hessian_map_getkey(h_response,i);
 		if (hessian_gettype(h_map_key) != HESSIAN_STRING) {
-			fprintf(stderr,"ERROR:pep_response_unmarshal: Hessian map<key> is not an hessian string at: %d.\n",i);
+			log_error("pep_response_unmarshal: Hessian map<key> is not an hessian string at: %d.",i);
 			pep_response_delete(response);
 			return PEP_IO_ERROR;
 		}
 		const char * key= hessian_string_getstring(h_map_key);
 		if (key == NULL) {
-			fprintf(stderr,"ERROR:pep_response_unmarshal: Hessian map<key>: NULL string at: %d.\n",i);
+			log_error("pep_response_unmarshal: Hessian map<key>: NULL string at: %d.",i);
 			pep_response_delete(response);
 			return PEP_IO_ERROR;
 		}
@@ -1177,19 +1180,19 @@ static int pep_response_unmarshal(pep_response_t ** resp, const hessian_object_t
 			if (hessian_gettype(h_request) != HESSIAN_NULL) {
 				pep_request_t * request= NULL;
 				if (pep_request_unmarshal(&request,h_request) != PEP_IO_OK) {
-					fprintf(stderr,"ERROR:pep_response_unmarshal: can't unmarshal PEP request.\n");
+					log_error("pep_response_unmarshal: can't unmarshal PEP request.");
 					pep_response_delete(response);
 					return PEP_IO_ERROR;
 				}
 				if (pep_response_setrequest(response,request) != PEP_MODEL_OK) {
-					fprintf(stderr,"ERROR:pep_response_unmarshal: can't set PEP request in PEP response.\n");
+					log_error("pep_response_unmarshal: can't set PEP request in PEP response.");
 					pep_request_delete(request);
 					pep_response_delete(response);
 					return PEP_IO_ERROR;
 				}
 			}
 			else {
-				fprintf(stderr,"WARN:pep_response_unmarshal: PEP request is NULL.\n");
+				log_warn("pep_response_unmarshal: PEP request is NULL.");
 			}
 
 		}
@@ -1197,7 +1200,7 @@ static int pep_response_unmarshal(pep_response_t ** resp, const hessian_object_t
 		else if (strcmp(PEP_RESPONSE_RESULTS,key) == 0) {
 			hessian_object_t * h_results= hessian_map_getvalue(h_response,i);
 			if (hessian_gettype(h_results) != HESSIAN_LIST) {
-				fprintf(stderr,"ERROR:pep_response_unmarshal: hessian map<'%s',value> is not a hessian list at: %d.\n",key,i);
+				log_error("pep_response_unmarshal: hessian map<'%s',value> is not a hessian list at: %d.",key,i);
 				pep_response_delete(response);
 				return PEP_IO_ERROR;
 			}
@@ -1207,12 +1210,12 @@ static int pep_response_unmarshal(pep_response_t ** resp, const hessian_object_t
 				hessian_object_t * h_result= hessian_list_get(h_results,j);
 				pep_result_t * result= NULL;
 				if (pep_result_unmarshal(&result,h_result) != PEP_IO_OK) {
-					fprintf(stderr,"ERROR:pep_response_unmarshal: can't unmarshal PEP result at: %d.\n",j);
+					log_error("pep_response_unmarshal: can't unmarshal PEP result at: %d.",j);
 					pep_response_delete(response);
 					return PEP_IO_ERROR;
 				}
 				if (pep_response_addresult(response,result) != PEP_MODEL_OK) {
-					fprintf(stderr,"ERROR:pep_response_unmarshal: can't add PEP result at: %d to PEP response.\n",j);
+					log_error("pep_response_unmarshal: can't add PEP result at: %d to PEP response.",j);
 					pep_result_delete(result);
 					pep_response_delete(response);
 					return PEP_IO_ERROR;
@@ -1221,7 +1224,7 @@ static int pep_response_unmarshal(pep_response_t ** resp, const hessian_object_t
 		}
 		else {
 			// unkown key ???
-			fprintf(stderr,"WARN:pep_response_unmarshal: unknown Hessian map<key>: %s at: %d.\n",key,i);
+			log_warn("pep_response_unmarshal: unknown Hessian map<key>: %s at: %d.",key,i);
 		}
 	}
 	*resp= response;
@@ -1231,21 +1234,21 @@ static int pep_response_unmarshal(pep_response_t ** resp, const hessian_object_t
 // OK
 static int pep_result_unmarshal(pep_result_t ** res, const hessian_object_t * h_result) {
 	if (hessian_gettype(h_result) != HESSIAN_MAP) {
-		fprintf(stderr,"ERROR:pep_result_unmarshal: wrong Hessian type: %d (%s).\n", hessian_gettype(h_result), hessian_getclassname(h_result));
+		log_error("pep_result_unmarshal: wrong Hessian type: %d (%s).", hessian_gettype(h_result), hessian_getclassname(h_result));
 		return PEP_IO_ERROR;
 	}
 	const char * map_type= hessian_map_gettype(h_result);
 	if (map_type == NULL) {
-		fprintf(stderr,"ERROR:pep_result_unmarshal: NULL Hessian map type.\n");
+		log_error("pep_result_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
 	if (strcmp(PEP_RESULT_CLASSNAME,map_type) != 0) {
-		fprintf(stderr,"ERROR:pep_result_unmarshal: wrong Hessian map type: %s.\n",map_type);
+		log_error("pep_result_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
 	pep_result_t * result= pep_result_create();
 	if (result == NULL) {
-		fprintf(stderr,"ERROR:pep_result_unmarshal: can't create PEP result.\n");
+		log_error("pep_result_unmarshal: can't create PEP result.");
 		return PEP_IO_ERROR;
 	}
 
@@ -1255,13 +1258,13 @@ static int pep_result_unmarshal(pep_result_t ** res, const hessian_object_t * h_
 	for(i= 0; i<map_l; i++) {
 		hessian_object_t * h_map_key= hessian_map_getkey(h_result,i);
 		if (hessian_gettype(h_map_key) != HESSIAN_STRING) {
-			fprintf(stderr,"ERROR:pep_result_unmarshal: Hessian map<key> is not an Hessian string at: %d.\n",i);
+			log_error("pep_result_unmarshal: Hessian map<key> is not an Hessian string at: %d.",i);
 			pep_result_delete(result);
 			return PEP_IO_ERROR;
 		}
 		const char * key= hessian_string_getstring(h_map_key);
 		if (key == NULL) {
-			fprintf(stderr,"ERROR:pep_result_unmarshal: Hessian map<key>: NULL string at: %d.\n",i);
+			log_error("pep_result_unmarshal: Hessian map<key>: NULL string at: %d.",i);
 			pep_result_delete(result);
 			return PEP_IO_ERROR;
 		}
@@ -1269,13 +1272,13 @@ static int pep_result_unmarshal(pep_result_t ** res, const hessian_object_t * h_
 		if (strcmp(PEP_RESULT_DECISION,key) == 0) {
 			hessian_object_t * h_integer= hessian_map_getvalue(h_result,i);
 			if (hessian_gettype(h_integer) != HESSIAN_INTEGER) {
-				fprintf(stderr,"ERROR:pep_result_unmarshal: Hessian map<'%s',value> is not a Hessian integer at: %d.\n",key,i);
+				log_error("pep_result_unmarshal: Hessian map<'%s',value> is not a Hessian integer at: %d.",key,i);
 				pep_result_delete(result);
 				return PEP_IO_ERROR;
 			}
 			int32_t decision= hessian_integer_getvalue(h_integer);
 			if (pep_result_setdecision(result,decision) != PEP_MODEL_OK) {
-				fprintf(stderr,"ERROR:pep_result_unmarshal: can't set decision: %d to PEP result.\n",(int)decision);
+				log_error("pep_result_unmarshal: can't set decision: %d to PEP result.",(int)decision);
 				pep_result_delete(result);
 				return PEP_IO_ERROR;
 			}
@@ -1285,7 +1288,7 @@ static int pep_result_unmarshal(pep_result_t ** res, const hessian_object_t * h_
 			hessian_object_t * h_string= hessian_map_getvalue(h_result,i);
 			hessian_t h_string_type= hessian_gettype(h_string);
 			if ( h_string_type != HESSIAN_STRING && h_string_type != HESSIAN_NULL) {
-				fprintf(stderr,"ERROR:pep_result_unmarshal: Hessian map<'%s',value> is not a Hessian string or null at: %d.\n",key,i);
+				log_error("pep_result_unmarshal: Hessian map<'%s',value> is not a Hessian string or null at: %d.",key,i);
 				pep_result_delete(result);
 				return PEP_IO_ERROR;
 			}
@@ -1294,7 +1297,7 @@ static int pep_result_unmarshal(pep_result_t ** res, const hessian_object_t * h_
 				resourceid= hessian_string_getstring(h_string);
 			}
 			if (pep_result_setresourceid(result, resourceid) != PEP_MODEL_OK) {
-				fprintf(stderr,"ERROR:pep_result_unmarshal: can't set resourceid: %s to PEP result.\n",resourceid);
+				log_error("pep_result_unmarshal: can't set resourceid: %s to PEP result.",resourceid);
 				pep_result_delete(result);
 				return PEP_IO_ERROR;
 			}
@@ -1305,19 +1308,19 @@ static int pep_result_unmarshal(pep_result_t ** res, const hessian_object_t * h_
 			if (hessian_gettype(h_status) != HESSIAN_NULL) {
 				pep_status_t * status= NULL;
 				if (pep_status_unmarshal(&status,h_status) != PEP_IO_OK) {
-					fprintf(stderr,"ERROR:pep_result_unmarshal: can't unmarshal PEP status.\n");
+					log_error("pep_result_unmarshal: can't unmarshal PEP status.");
 					pep_result_delete(result);
 					return PEP_IO_ERROR;
 				}
 				if (pep_result_setstatus(result,status) != PEP_MODEL_OK) {
-					fprintf(stderr,"ERROR:pep_result_unmarshal: can't set PEP status to PEP result.\n");
+					log_error("pep_result_unmarshal: can't set PEP status to PEP result.");
 					pep_result_delete(result);
 					pep_status_delete(status);
 					return PEP_IO_ERROR;
 				}
 			}
 			else {
-				fprintf(stderr,"WARN:pep_result_unmarshal: PEP status is NULL.\n");
+				log_warn("pep_result_unmarshal: PEP status is NULL.");
 			}
 
 		}
@@ -1325,7 +1328,7 @@ static int pep_result_unmarshal(pep_result_t ** res, const hessian_object_t * h_
 		else if (strcmp(PEP_RESULT_OBLIGATIONS,key) == 0) {
 			hessian_object_t * h_obligations= hessian_map_getvalue(h_result,i);
 			if (hessian_gettype(h_obligations) != HESSIAN_LIST) {
-				fprintf(stderr,"ERROR:pep_result_unmarshal: Hessian map<'%s',value> is not a Hessian list.\n",key);
+				log_error("pep_result_unmarshal: Hessian map<'%s',value> is not a Hessian list.",key);
 				pep_result_delete(result);
 				return PEP_IO_ERROR;
 			}
@@ -1335,12 +1338,12 @@ static int pep_result_unmarshal(pep_result_t ** res, const hessian_object_t * h_
 				hessian_object_t * h_obligation= hessian_list_get(h_obligations,j);
 				pep_obligation_t * obligation= NULL;
 				if (pep_obligation_unmarshal(&obligation,h_obligation) != PEP_IO_OK) {
-					fprintf(stderr,"ERROR:pep_result_unmarshal: can't unmarshal PEP obligation at: %d.\n", j);
+					log_error("pep_result_unmarshal: can't unmarshal PEP obligation at: %d.", j);
 					pep_result_delete(result);
 					return PEP_IO_ERROR;
 				}
 				if (pep_result_addobligation(result,obligation) != PEP_MODEL_OK) {
-					fprintf(stderr,"ERROR:pep_result_unmarshal: can't add PEP obligation at: %d to PEP result.\n", j);
+					log_error("pep_result_unmarshal: can't add PEP obligation at: %d to PEP result.", j);
 					pep_result_delete(result);
 					pep_obligation_delete(obligation);
 					return PEP_IO_ERROR;
@@ -1349,7 +1352,7 @@ static int pep_result_unmarshal(pep_result_t ** res, const hessian_object_t * h_
 		}
 		else {
 			// unkown key ???
-			fprintf(stderr,"WARN:pep_result_unmarshal: unknown map<key>: %s at: %d.\n",key,i);
+			log_warn("pep_result_unmarshal: unknown map<key>: %s at: %d.",key,i);
 		}
 	}
 	*res= result;
@@ -1359,21 +1362,21 @@ static int pep_result_unmarshal(pep_result_t ** res, const hessian_object_t * h_
 // OK
 static int pep_status_unmarshal(pep_status_t ** st, const hessian_object_t * h_status) {
 	if (hessian_gettype(h_status) != HESSIAN_MAP) {
-		fprintf(stderr,"ERROR:pep_status_unmarshal: wrong Hessian type: %d (%s).\n", hessian_gettype(h_status), hessian_getclassname(h_status));
+		log_error("pep_status_unmarshal: wrong Hessian type: %d (%s).", hessian_gettype(h_status), hessian_getclassname(h_status));
 		return PEP_IO_ERROR;
 	}
 	const char * map_type= hessian_map_gettype(h_status);
 	if (map_type == NULL) {
-		fprintf(stderr,"ERROR:pep_status_unmarshal: NULL Hessian map type.\n");
+		log_error("pep_status_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
 	if (strcmp(PEP_STATUS_CLASSNAME,map_type) != 0) {
-		fprintf(stderr,"ERROR:pep_status_unmarshal: wrong Hessian map type: %s.\n",map_type);
+		log_error("pep_status_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
 	pep_status_t * status= pep_status_create(NULL);
 	if (status == NULL) {
-		fprintf(stderr,"ERROR:pep_status_unmarshal: can't create PEP status.\n");
+		log_error("pep_status_unmarshal: can't create PEP status.");
 		return PEP_IO_ERROR;
 	}
 	// parse all map pair<key>s
@@ -1382,13 +1385,13 @@ static int pep_status_unmarshal(pep_status_t ** st, const hessian_object_t * h_s
 	for(i= 0; i<map_l; i++) {
 		hessian_object_t * h_map_key= hessian_map_getkey(h_status,i);
 		if (hessian_gettype(h_map_key) != HESSIAN_STRING) {
-			fprintf(stderr,"ERROR:pep_status_unmarshal: Hessian map<key> is not an Hessian string at: %d.\n",i);
+			log_error("pep_status_unmarshal: Hessian map<key> is not an Hessian string at: %d.",i);
 			pep_status_delete(status);
 			return PEP_IO_ERROR;
 		}
 		const char * key= hessian_string_getstring(h_map_key);
 		if (key == NULL) {
-			fprintf(stderr,"ERROR:pep_status_unmarshal: Hessian map<key>: NULL string at: %d.\n",i);
+			log_error("pep_status_unmarshal: Hessian map<key>: NULL string at: %d.",i);
 			pep_status_delete(status);
 			return PEP_IO_ERROR;
 		}
@@ -1396,13 +1399,13 @@ static int pep_status_unmarshal(pep_status_t ** st, const hessian_object_t * h_s
 		if (strcmp(PEP_STATUS_MESSAGE,key) == 0) {
 			hessian_object_t * h_string= hessian_map_getvalue(h_status,i);
 			if (hessian_gettype(h_string) != HESSIAN_STRING) {
-				fprintf(stderr,"ERROR:pep_status_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.\n",key,i);
+				log_error("pep_status_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.",key,i);
 				pep_status_delete(status);
 				return PEP_IO_ERROR;
 			}
 			const char * message = hessian_string_getstring(h_string);
 			if (pep_status_setmessage(status,message) != PEP_MODEL_OK) {
-				fprintf(stderr,"ERROR:pep_status_unmarshal: can't set message: %s to PEP status at: %d",message,i);
+				log_error("pep_status_unmarshal: can't set message: %s to PEP status at: %d",message,i);
 				pep_status_delete(status);
 				return PEP_IO_ERROR;
 			}
@@ -1413,23 +1416,23 @@ static int pep_status_unmarshal(pep_status_t ** st, const hessian_object_t * h_s
 			if (hessian_gettype(h_status) != HESSIAN_NULL) {
 				pep_status_code_t * statuscode= NULL;
 				if (pep_statuscode_unmarshal(&statuscode,h_statuscode) != PEP_IO_OK) {
-					fprintf(stderr,"ERROR:pep_status_unmarshal: can't unmarshal PEP statuscode at: %d.\n", i);
+					log_error("pep_status_unmarshal: can't unmarshal PEP statuscode at: %d.", i);
 					pep_status_delete(status);
 					return PEP_IO_ERROR;
 				}
 				if (pep_status_setcode(status,statuscode) != PEP_MODEL_OK) {
-					fprintf(stderr,"ERROR:pep_status_unmarshal: can't set PEP statuscode to PEP status.\n");
+					log_error("pep_status_unmarshal: can't set PEP statuscode to PEP status.");
 					pep_status_delete(status);
 					pep_status_code_delete(statuscode);
 					return PEP_IO_ERROR;
 				}
 			}
 			else {
-				fprintf(stderr,"WARN:pep_status_unmarshal: subcode PEP statuscode is NULL.\n");
+				log_warn("pep_status_unmarshal: subcode PEP statuscode is NULL.");
 			}
 		}
 		else {
-			fprintf(stderr,"WARN:pep_status_unmarshal: unknown Hessian map<key>: %s at: %d.\n",key,i);
+			log_warn("pep_status_unmarshal: unknown Hessian map<key>: %s at: %d.",key,i);
 		}
 	}
 	*st= status;
@@ -1439,22 +1442,22 @@ static int pep_status_unmarshal(pep_status_t ** st, const hessian_object_t * h_s
 // OK
 static int pep_statuscode_unmarshal(pep_status_code_t ** stc, const hessian_object_t * h_statuscode) {
 	if (hessian_gettype(h_statuscode) != HESSIAN_MAP) {
-		fprintf(stderr,"ERROR:pep_statuscode_unmarshal: wrong Hessian type: %d (%s).\n", hessian_gettype(h_statuscode), hessian_getclassname(h_statuscode));
+		log_error("pep_statuscode_unmarshal: wrong Hessian type: %d (%s).", hessian_gettype(h_statuscode), hessian_getclassname(h_statuscode));
 		return PEP_IO_ERROR;
 	}
 	const char * map_type= hessian_map_gettype(h_statuscode);
 	if (map_type == NULL) {
-		fprintf(stderr,"ERROR:pep_statuscode_unmarshal: NULL Hessian map type.\n");
+		log_error("pep_statuscode_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
 	if (strcmp(PEP_STATUS_CODE_CLASSNAME,map_type) != 0) {
-		fprintf(stderr,"ERROR:pep_statuscode_unmarshal: wrong Hessian map type: %s.\n",map_type);
+		log_error("pep_statuscode_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
 
 	pep_status_code_t * statuscode= pep_status_code_create(NULL);
 	if (statuscode == NULL) {
-		fprintf(stderr,"ERROR:pep_statuscode_unmarshal: cant't create PEP statuscode.\n");
+		log_error("pep_statuscode_unmarshal: cant't create PEP statuscode.");
 		return PEP_IO_ERROR;
 	}
 
@@ -1464,13 +1467,13 @@ static int pep_statuscode_unmarshal(pep_status_code_t ** stc, const hessian_obje
 	for(i= 0; i<map_l; i++) {
 		hessian_object_t * h_map_key= hessian_map_getkey(h_statuscode,i);
 		if (hessian_gettype(h_map_key) != HESSIAN_STRING) {
-			fprintf(stderr,"ERROR:pep_statuscode_unmarshal: Hessian map<key> is not an Hessian string at: %d.\n",i);
+			log_error("pep_statuscode_unmarshal: Hessian map<key> is not an Hessian string at: %d.",i);
 			pep_status_code_delete(statuscode);
 			return PEP_IO_ERROR;
 		}
 		const char * key= hessian_string_getstring(h_map_key);
 		if (key == NULL) {
-			fprintf(stderr,"ERROR:pep_statuscode_unmarshal: Hessian map<key>: NULL string at: %d.\n",i);
+			log_error("pep_statuscode_unmarshal: Hessian map<key>: NULL string at: %d.",i);
 			pep_status_code_delete(statuscode);
 			return PEP_IO_ERROR;
 		}
@@ -1478,13 +1481,13 @@ static int pep_statuscode_unmarshal(pep_status_code_t ** stc, const hessian_obje
 		if (strcmp(PEP_STATUS_CODE_CODE,key) == 0) {
 			hessian_object_t * h_string= hessian_map_getvalue(h_statuscode,i);
 			if (hessian_gettype(h_string) != HESSIAN_STRING) {
-				fprintf(stderr,"ERROR:pep_statuscode_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.\n",key,i);
+				log_error("pep_statuscode_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.",key,i);
 				pep_status_code_delete(statuscode);
 				return PEP_IO_ERROR;
 			}
 			const char * code = hessian_string_getstring(h_string);
 			if (pep_status_code_setcode(statuscode,code) != PEP_MODEL_OK) {
-				fprintf(stderr,"ERROR:pep_statuscode_unmarshal: can't set code: %s to PEP statuscode at: %d",code,i);
+				log_error("pep_statuscode_unmarshal: can't set code: %s to PEP statuscode at: %d",code,i);
 				pep_status_code_delete(statuscode);
 				return PEP_IO_ERROR;
 			}
@@ -1496,23 +1499,23 @@ static int pep_statuscode_unmarshal(pep_status_code_t ** stc, const hessian_obje
 			if (hessian_gettype(h_subcode) != HESSIAN_NULL) {
 				pep_status_code_t * subcode= NULL;
 				if (pep_statuscode_unmarshal(&subcode,h_subcode) != PEP_IO_OK) {
-					fprintf(stderr,"ERROR:pep_statuscode_unmarshal: can't unmarshal subcode PEP statuscode at: %d.\n",i);
+					log_error("pep_statuscode_unmarshal: can't unmarshal subcode PEP statuscode at: %d.",i);
 					pep_status_code_delete(statuscode);
 					return PEP_IO_ERROR;
 				}
 				if (pep_status_code_setsubcode(statuscode,subcode) != PEP_MODEL_OK) {
-					fprintf(stderr,"ERROR:pep_statuscode_unmarshal: can't set subcode PEP statuscode to PEP statuscode at: %d",i);
+					log_error("pep_statuscode_unmarshal: can't set subcode PEP statuscode to PEP statuscode at: %d",i);
 					pep_status_code_delete(statuscode);
 					pep_status_code_delete(subcode);
 					return PEP_IO_ERROR;
 				}
 			}
 			//else {
-			//	fprintf(stderr,"WARN:pep_statuscode_unmarshal: subcode PEP statuscode is NULL.\n");
+			//	log_warn("pep_statuscode_unmarshal: subcode PEP statuscode is NULL.");
 			//}
 		}
 		else {
-			fprintf(stderr,"WARN:pep_statuscode_unmarshal: unknown Hessian map<key>: %s at: %d.\n",key,i);
+			log_warn("pep_statuscode_unmarshal: unknown Hessian map<key>: %s at: %d.",key,i);
 		}
 	}
 	*stc= statuscode;
@@ -1521,21 +1524,21 @@ static int pep_statuscode_unmarshal(pep_status_code_t ** stc, const hessian_obje
 
 static int pep_obligation_unmarshal(pep_obligation_t ** obl, const hessian_object_t * h_obligation) {
 	if (hessian_gettype(h_obligation) != HESSIAN_MAP) {
-		fprintf(stderr,"ERROR:pep_obligation_unmarshal: wrong Hessian type: %d (%s).\n", hessian_gettype(h_obligation), hessian_getclassname(h_obligation));
+		log_error("pep_obligation_unmarshal: wrong Hessian type: %d (%s).", hessian_gettype(h_obligation), hessian_getclassname(h_obligation));
 		return PEP_IO_ERROR;
 	}
 	const char * map_type= hessian_map_gettype(h_obligation);
 	if (map_type == NULL) {
-		fprintf(stderr,"ERROR:pep_obligation_unmarshal: NULL Hessian map type.\n");
+		log_error("pep_obligation_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
 	if (strcmp(PEP_OBLIGATION_CLASSNAME,map_type) != 0) {
-		fprintf(stderr,"ERROR:pep_obligation_unmarshal: wrong Hessian map type: %s.\n",map_type);
+		log_error("pep_obligation_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
 	pep_obligation_t * obligation= pep_obligation_create(NULL);
 	if (obligation == NULL) {
-		fprintf(stderr,"ERROR:pep_obligation_unmarshal: can't create PEP obligation.\n");
+		log_error("pep_obligation_unmarshal: can't create PEP obligation.");
 		return PEP_IO_ERROR;
 	}
 
@@ -1545,13 +1548,13 @@ static int pep_obligation_unmarshal(pep_obligation_t ** obl, const hessian_objec
 	for(i= 0; i<map_l; i++) {
 		hessian_object_t * h_map_key= hessian_map_getkey(h_obligation,i);
 		if (hessian_gettype(h_map_key) != HESSIAN_STRING) {
-			fprintf(stderr,"ERROR:pep_obligation_unmarshal: Hessian map<key> is not an Hessian string at: %d.\n",i);
+			log_error("pep_obligation_unmarshal: Hessian map<key> is not an Hessian string at: %d.",i);
 			pep_obligation_delete(obligation);
 			return PEP_IO_ERROR;
 		}
 		const char * key= hessian_string_getstring(h_map_key);
 		if (key == NULL) {
-			fprintf(stderr,"ERROR:pep_obligation_unmarshal: Hessian map<key>: NULL string at: %d.\n",i);
+			log_error("pep_obligation_unmarshal: Hessian map<key>: NULL string at: %d.",i);
 			pep_obligation_delete(obligation);
 			return PEP_IO_ERROR;
 		}
@@ -1560,13 +1563,13 @@ static int pep_obligation_unmarshal(pep_obligation_t ** obl, const hessian_objec
 		if (strcmp(PEP_OBLIGATION_ID,key) == 0) {
 			hessian_object_t * h_string= hessian_map_getvalue(h_obligation,i);
 			if (hessian_gettype(h_string) != HESSIAN_STRING) {
-				fprintf(stderr,"ERROR:pep_obligation_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.\n",key,i);
+				log_error("pep_obligation_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.",key,i);
 				pep_obligation_delete(obligation);
 				return PEP_IO_ERROR;
 			}
 			const char * id = hessian_string_getstring(h_string);
 			if (pep_obligation_setid(obligation,id) != PEP_MODEL_OK) {
-				fprintf(stderr,"ERROR:pep_obligation_unmarshal: can't set id: %s to PEP obligation at: %d",id,i);
+				log_error("pep_obligation_unmarshal: can't set id: %s to PEP obligation at: %d",id,i);
 				pep_obligation_delete(obligation);
 				return PEP_IO_ERROR;
 			}
@@ -1575,13 +1578,13 @@ static int pep_obligation_unmarshal(pep_obligation_t ** obl, const hessian_objec
 		else if (strcmp(PEP_OBLIGATION_FULFILLON,key) == 0) {
 			hessian_object_t * h_integer= hessian_map_getvalue(h_obligation,i);
 			if (hessian_gettype(h_integer) != HESSIAN_INTEGER) {
-				fprintf(stderr,"ERROR:pep_obligation_unmarshal: Hessian map<'%s',value> is not a Hessian integer at: %d.\n",key,i);
+				log_error("pep_obligation_unmarshal: Hessian map<'%s',value> is not a Hessian integer at: %d.",key,i);
 				pep_obligation_delete(obligation);
 				return PEP_IO_ERROR;
 			}
 			int32_t fulfillon= hessian_integer_getvalue(h_integer);
 			if (pep_obligation_setfulfillon(obligation,fulfillon) != PEP_MODEL_OK) {
-				fprintf(stderr,"ERROR:pep_obligation_unmarshal: can't set fulfillon: %d to PEP obligation at: %d",(int)fulfillon,i);
+				log_error("pep_obligation_unmarshal: can't set fulfillon: %d to PEP obligation at: %d",(int)fulfillon,i);
 				pep_obligation_delete(obligation);
 				return PEP_IO_ERROR;
 			}
@@ -1590,7 +1593,7 @@ static int pep_obligation_unmarshal(pep_obligation_t ** obl, const hessian_objec
 		else if (strcmp(PEP_OBLIGATION_ASSIGNMENTS,key) == 0) {
 			hessian_object_t * h_assignments= hessian_map_getvalue(h_obligation,i);
 			if (hessian_gettype(h_assignments) != HESSIAN_LIST) {
-				fprintf(stderr,"ERROR:pep_obligation_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.\n",key, i);
+				log_error("pep_obligation_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.",key, i);
 				pep_obligation_delete(obligation);
 				return PEP_IO_ERROR;
 			}
@@ -1600,12 +1603,12 @@ static int pep_obligation_unmarshal(pep_obligation_t ** obl, const hessian_objec
 				hessian_object_t * h_assignment= hessian_list_get(h_assignments,j);
 				pep_attribute_assignment_t * attribute= NULL;
 				if (pep_attributeassignment_unmarshal(&attribute,h_assignment) != PEP_IO_OK) {
-					fprintf(stderr,"ERROR:pep_obligation_unmarshal: can't unmarshal PEP attribute assignment at: %d.\n",j);
+					log_error("pep_obligation_unmarshal: can't unmarshal PEP attribute assignment at: %d.",j);
 					pep_obligation_delete(obligation);
 					return PEP_IO_ERROR;
 				}
 				if (pep_obligation_addattributeassignment(obligation,attribute) != PEP_MODEL_OK) {
-					fprintf(stderr,"ERROR:pep_obligation_unmarshal: can't add PEP attribute assignment to PEP obligation at: %d",j);
+					log_error("pep_obligation_unmarshal: can't add PEP attribute assignment to PEP obligation at: %d",j);
 					pep_obligation_delete(obligation);
 					pep_attribute_assignment_delete(attribute);
 					return PEP_IO_ERROR;
@@ -1613,7 +1616,7 @@ static int pep_obligation_unmarshal(pep_obligation_t ** obl, const hessian_objec
 			}
 		}
 		else {
-			fprintf(stderr,"WARNING:pep_obligation_unmarshal: unknown Hessian map<key>: %s at: %d.\n",key,i);
+			log_warn("pep_obligation_unmarshal: unknown Hessian map<key>: %s at: %d.",key,i);
 		}
 	}
 
@@ -1624,22 +1627,22 @@ static int pep_obligation_unmarshal(pep_obligation_t ** obl, const hessian_objec
 
 static int pep_attributeassignment_unmarshal(pep_attribute_assignment_t ** attr, const hessian_object_t * h_attribute) {
 	if (hessian_gettype(h_attribute) != HESSIAN_MAP) {
-		fprintf(stderr,"ERROR:pep_attributeassignment_unmarshal: wrong Hessian type: %d (%s).\n", hessian_gettype(h_attribute), hessian_getclassname(h_attribute));
+		log_error("pep_attributeassignment_unmarshal: wrong Hessian type: %d (%s).", hessian_gettype(h_attribute), hessian_getclassname(h_attribute));
 		return PEP_IO_ERROR;
 	}
 	const char * map_type= hessian_map_gettype(h_attribute);
 	if (map_type == NULL) {
-		fprintf(stderr,"ERROR:pep_attributeassignment_unmarshal: NULL Hessian map type.\n");
+		log_error("pep_attributeassignment_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
 	if (strcmp(PEP_ATTRIBUTEASSIGNMENT_CLASSNAME,map_type) != 0) {
-		fprintf(stderr,"ERROR:pep_attributeassignment_unmarshal: wrong Hessian map type: %s.\n",map_type);
+		log_error("pep_attributeassignment_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
 
 	pep_attribute_assignment_t * attribute= pep_attribute_assignment_create(NULL);
 	if (attribute == NULL) {
-		fprintf(stderr,"ERROR:pep_attributeassignment_unmarshal: can't create PEP attribute assignment.\n");
+		log_error("pep_attributeassignment_unmarshal: can't create PEP attribute assignment.");
 		return PEP_IO_ERROR;
 	}
 
@@ -1649,13 +1652,13 @@ static int pep_attributeassignment_unmarshal(pep_attribute_assignment_t ** attr,
 	for(i= 0; i<map_l; i++) {
 		hessian_object_t * h_map_key= hessian_map_getkey(h_attribute,i);
 		if (hessian_gettype(h_map_key) != HESSIAN_STRING) {
-			fprintf(stderr,"ERROR:pep_attributeassignment_unmarshal: Hessian map<key> is not an Hessian string at: %d.\n",i);
+			log_error("pep_attributeassignment_unmarshal: Hessian map<key> is not an Hessian string at: %d.",i);
 			pep_attribute_assignment_delete(attribute);
 			return PEP_IO_ERROR;
 		}
 		const char * key= hessian_string_getstring(h_map_key);
 		if (key == NULL) {
-			fprintf(stderr,"ERROR:pep_attributeassignment_unmarshal: Hessian map<key>: NULL string at: %d.\n",i);
+			log_error("pep_attributeassignment_unmarshal: Hessian map<key>: NULL string at: %d.",i);
 			pep_attribute_assignment_delete(attribute);
 			return PEP_IO_ERROR;
 		}
@@ -1664,13 +1667,13 @@ static int pep_attributeassignment_unmarshal(pep_attribute_assignment_t ** attr,
 		if (strcmp(PEP_ATTRIBUTEASSIGNMENT_ID,key) == 0) {
 			hessian_object_t * h_string= hessian_map_getvalue(h_attribute,i);
 			if (hessian_gettype(h_string) != HESSIAN_STRING) {
-				fprintf(stderr,"ERROR:pep_attributeassignment_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.\n",key,i);
+				log_error("pep_attributeassignment_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.",key,i);
 				pep_attribute_assignment_delete(attribute);
 				return PEP_IO_ERROR;
 			}
 			const char * id = hessian_string_getstring(h_string);
 			if (pep_attribute_assignment_setid(attribute,id) != PEP_MODEL_OK) {
-				fprintf(stderr,"ERROR:pep_attributeassignment_unmarshal: can't set id: %s to PEP attribute assignment at: %d",id,i);
+				log_error("pep_attributeassignment_unmarshal: can't set id: %s to PEP attribute assignment at: %d",id,i);
 				pep_attribute_assignment_delete(attribute);
 				return PEP_IO_ERROR;
 			}
@@ -1679,7 +1682,7 @@ static int pep_attributeassignment_unmarshal(pep_attribute_assignment_t ** attr,
 		else if (strcmp(PEP_ATTRIBUTEASSIGNMENT_VALUES,key) == 0) {
 			hessian_object_t * h_values= hessian_map_getvalue(h_attribute,i);
 			if (hessian_gettype(h_values) != HESSIAN_LIST) {
-				fprintf(stderr,"ERROR:pep_attributeassignment_unmarshal: Hessian map<'%s',value> is not a Hessian list.\n",key);
+				log_error("pep_attributeassignment_unmarshal: Hessian map<'%s',value> is not a Hessian list.",key);
 				pep_attribute_assignment_delete(attribute);
 				return PEP_IO_ERROR;
 			}
@@ -1688,13 +1691,13 @@ static int pep_attributeassignment_unmarshal(pep_attribute_assignment_t ** attr,
 			for(j= 0; j<h_values_l; j++) {
 				hessian_object_t * h_value= hessian_list_get(h_values,j);
 				if (hessian_gettype(h_value) != HESSIAN_STRING) {
-					fprintf(stderr,"ERROR:pep_attributeassignment_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.\n",key,i);
+					log_error("pep_attributeassignment_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.",key,i);
 					pep_attribute_assignment_delete(attribute);
 					return PEP_IO_ERROR;
 				}
 				const char * value = hessian_string_getstring(h_value);
 				if (pep_attribute_assignment_addvalue(attribute,value) != PEP_MODEL_OK) {
-					fprintf(stderr,"ERROR:pep_attributeassignment_unmarshal: can't add value: %s to PEP attribute at: %d",value,j);
+					log_error("pep_attributeassignment_unmarshal: can't add value: %s to PEP attribute at: %d",value,j);
 					pep_attribute_assignment_delete(attribute);
 					return PEP_IO_ERROR;
 				}
@@ -1702,7 +1705,7 @@ static int pep_attributeassignment_unmarshal(pep_attribute_assignment_t ** attr,
 
 		}
 		else {
-			fprintf(stderr,"WARNING:pep_attributeassignment_unmarshal: unknown Hessian map<key>: %s at: %d.\n",key,i);
+			log_warn("pep_attributeassignment_unmarshal: unknown Hessian map<key>: %s at: %d.",key,i);
 		}
 	}
 	*attr= attribute;

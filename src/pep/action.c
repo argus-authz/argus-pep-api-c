@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: action.c,v 1.1 2008/12/12 11:34:27 vtschopp Exp $
+ * $Id: action.c,v 1.2 2009/01/29 17:16:36 vtschopp Exp $
  */
-#include <stdio.h>
 #include <stdlib.h>
 
 #include "util/linkedlist.h"
+#include "util/log.h"
 #include "pep/model.h"
 
 struct pep_action {
@@ -28,12 +28,12 @@ struct pep_action {
 pep_action_t * pep_action_create() {
 	pep_action_t * action= calloc(1,sizeof(pep_action_t));
 	if (action == NULL) {
-		fprintf(stderr,"ERROR:pep_action_create: can't allocate pep_action_t.\n");
+		log_error("pep_action_create: can't allocate pep_action_t.");
 		return NULL;
 	}
 	action->attributes= llist_create();
 	if (action->attributes == NULL) {
-		fprintf(stderr,"ERROR:pep_action_create: can't create attributes list.\n");
+		log_error("pep_action_create: can't create attributes list.");
 		free(action);
 		return NULL;
 	}
@@ -42,11 +42,11 @@ pep_action_t * pep_action_create() {
 
 int pep_action_addattribute(pep_action_t * action, pep_attribute_t * attr) {
 	if (action == NULL || attr == NULL) {
-		fprintf(stderr,"ERROR:pep_action_addattribute: NULL action or attribute.\n");
+		log_error("pep_action_addattribute: NULL action or attribute.");
 		return PEP_MODEL_ERROR;
 	}
 	if (llist_add(action->attributes,attr) != LLIST_OK) {
-		fprintf(stderr,"ERROR:pep_action_addattribute: can't add attribute to list.\n");
+		log_error("pep_action_addattribute: can't add attribute to list.");
 		return PEP_MODEL_ERROR;
 	}
 	else return PEP_MODEL_OK;
@@ -62,7 +62,7 @@ void pep_action_delete(pep_action_t * action) {
 
 size_t pep_action_attributes_length(const pep_action_t * action) {
 	if (action == NULL) {
-		fprintf(stderr,"ERROR:pep_action_attributes_length: NULL action.\n");
+		log_error("pep_action_attributes_length: NULL action.");
 		return PEP_MODEL_ERROR;
 	}
 	return llist_length(action->attributes);
@@ -70,7 +70,7 @@ size_t pep_action_attributes_length(const pep_action_t * action) {
 
 pep_attribute_t * pep_action_getattribute(const pep_action_t * action, int index) {
 	if (action == NULL) {
-		fprintf(stderr,"ERROR:pep_action_getattribute: NULL action.\n");
+		log_error("pep_action_getattribute: NULL action.");
 		return NULL;
 	}
 	return llist_get(action->attributes, index);

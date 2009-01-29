@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: response.c,v 1.1 2008/12/12 11:34:27 vtschopp Exp $
+ * $Id: response.c,v 1.2 2009/01/29 17:16:36 vtschopp Exp $
  */
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "util/linkedlist.h"
+#include "util/log.h"
 #include "pep/model.h"
 
 struct pep_response {
@@ -30,12 +30,12 @@ struct pep_response {
 pep_response_t * pep_response_create() {
 	pep_response_t * response= calloc(1,sizeof(pep_response_t));
 	if (response == NULL) {
-		fprintf(stderr,"ERROR:pep_response_create: can't allocate pep_response_t.\n");
+		log_error("pep_response_create: can't allocate pep_response_t.");
 		return NULL;
 	}
 	response->results= llist_create();
 	if (response->results == NULL) {
-		fprintf(stderr,"ERROR:pep_response_create: can't create results list.\n");
+		log_error("pep_response_create: can't create results list.");
 		free(response);
 		return NULL;
 	}
@@ -45,7 +45,7 @@ pep_response_t * pep_response_create() {
 
 int pep_response_setrequest(pep_response_t * response, pep_request_t * request) {
 	if (response == NULL || request == NULL) {
-		fprintf(stderr,"ERROR:pep_response_setrequest: NULL response or request.\n");
+		log_error("pep_response_setrequest: NULL response or request.");
 		return PEP_MODEL_ERROR;
 	}
 	if (response->request != NULL) pep_request_delete(response->request);
@@ -55,7 +55,7 @@ int pep_response_setrequest(pep_response_t * response, pep_request_t * request) 
 
 pep_request_t * pep_response_getrequest(const pep_response_t * response) {
 	if (response == NULL) {
-		fprintf(stderr,"ERROR:pep_response_getrequest: NULL response.\n");
+		log_error("pep_response_getrequest: NULL response.");
 		return NULL;
 	}
 	return response->request;
@@ -63,11 +63,11 @@ pep_request_t * pep_response_getrequest(const pep_response_t * response) {
 
 int pep_response_addresult(pep_response_t * response, pep_result_t * result) {
 	if (response == NULL || result == NULL) {
-		fprintf(stderr,"ERROR:pep_response_addresult: NULL response or result.\n");
+		log_error("pep_response_addresult: NULL response or result.");
 		return PEP_MODEL_ERROR;
 	}
 	if (llist_add(response->results,result) != LLIST_OK) {
-		fprintf(stderr,"ERROR:pep_response_addresult: can't add result to list.\n");
+		log_error("pep_response_addresult: can't add result to list.");
 		return PEP_MODEL_ERROR;
 	}
 	else return PEP_MODEL_OK;
@@ -75,7 +75,7 @@ int pep_response_addresult(pep_response_t * response, pep_result_t * result) {
 
 size_t pep_response_results_length(const pep_response_t * response) {
 	if (response == NULL) {
-		fprintf(stderr,"ERROR:pep_response_results_length: NULL response.\n");
+		log_error("pep_response_results_length: NULL response.");
 		return PEP_MODEL_ERROR;
 	}
 	return llist_length(response->results);
@@ -83,7 +83,7 @@ size_t pep_response_results_length(const pep_response_t * response) {
 
 pep_result_t * pep_response_getresult(const pep_response_t * response, int index) {
 	if (response == NULL) {
-		fprintf(stderr,"ERROR:pep_response_getresult: NULL response.\n");
+		log_error("pep_response_getresult: NULL response.");
 		return NULL;
 	}
 	return llist_get(response->results,index);

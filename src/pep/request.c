@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: request.c,v 1.2 2008/12/17 15:27:04 vtschopp Exp $
+ * $Id: request.c,v 1.3 2009/01/29 17:16:36 vtschopp Exp $
  */
 #include <stdlib.h>
-#include <stdio.h>
 
 #include "util/linkedlist.h"
+#include "util/log.h"
 #include "pep/model.h"
 
 struct pep_request {
@@ -34,18 +34,18 @@ struct pep_request {
 pep_request_t * pep_request_create() {
 	pep_request_t * request= calloc(1,sizeof(pep_request_t));
 	if (request == NULL) {
-		fprintf(stderr,"ERROR:pep_request_create: can't allocate pep_request_t.\n");
+		log_error("pep_request_create: can't allocate pep_request_t.");
 		return NULL;
 	}
 	request->subjects= llist_create();
 	if (request->subjects == NULL) {
-		fprintf(stderr,"ERROR:pep_request_create: can't create subjects list.\n");
+		log_error("pep_request_create: can't create subjects list.");
 		free(request);
 		return NULL;
 	}
 	request->resources= llist_create();
 	if (request->resources == NULL) {
-		fprintf(stderr,"ERROR:pep_request_create: can't create resources list.\n");
+		log_error("pep_request_create: can't create resources list.");
 		llist_delete(request->subjects);
 		free(request);
 		return NULL;
@@ -57,11 +57,11 @@ pep_request_t * pep_request_create() {
 
 int pep_request_addsubject(pep_request_t * request, pep_subject_t * subject) {
 	if (request == NULL || subject == NULL) {
-		fprintf(stderr,"ERROR:pep_request_addsubject: NULL request or subject.\n");
+		log_error("pep_request_addsubject: NULL request or subject.");
 		return PEP_MODEL_ERROR;
 	}
 	if (llist_add(request->subjects,subject) != LLIST_OK) {
-		fprintf(stderr,"ERROR:pep_request_addsubject: can't add subject to list.\n");
+		log_error("pep_request_addsubject: can't add subject to list.");
 		return PEP_MODEL_ERROR;
 	}
 	else return PEP_MODEL_OK;
@@ -69,7 +69,7 @@ int pep_request_addsubject(pep_request_t * request, pep_subject_t * subject) {
 
 size_t pep_request_subjects_length(const pep_request_t * request) {
 	if (request == NULL) {
-		fprintf(stderr,"ERROR:pep_request_subjects_length: NULL request.\n");
+		log_error("pep_request_subjects_length: NULL request.");
 		return PEP_MODEL_ERROR;
 	}
 	return llist_length(request->subjects);
@@ -77,7 +77,7 @@ size_t pep_request_subjects_length(const pep_request_t * request) {
 
 pep_subject_t * pep_request_getsubject(const pep_request_t * request, int index) {
 	if (request == NULL) {
-		fprintf(stderr,"ERROR:pep_request_getsubject: NULL request.\n");
+		log_error("pep_request_getsubject: NULL request.");
 		return NULL;
 	}
 	return llist_get(request->subjects,index);
@@ -85,11 +85,11 @@ pep_subject_t * pep_request_getsubject(const pep_request_t * request, int index)
 
 int pep_request_addresource(pep_request_t * request, pep_resource_t * resource) {
 	if (request == NULL || resource == NULL) {
-		fprintf(stderr,"ERROR:pep_request_addresource: NULL request or resource.\n");
+		log_error("pep_request_addresource: NULL request or resource.");
 		return PEP_MODEL_ERROR;
 	}
 	if (llist_add(request->resources,resource) != LLIST_OK) {
-		fprintf(stderr,"ERROR:pep_request_addresource: can't add resource to list.\n");
+		log_error("pep_request_addresource: can't add resource to list.");
 		return PEP_MODEL_ERROR;
 	}
 	else return PEP_MODEL_OK;
@@ -97,7 +97,7 @@ int pep_request_addresource(pep_request_t * request, pep_resource_t * resource) 
 
 size_t pep_request_resources_length(const pep_request_t * request) {
 	if (request == NULL) {
-		fprintf(stderr,"ERROR:pep_request_resources_length: NULL request.\n");
+		log_error("pep_request_resources_length: NULL request.");
 		return PEP_MODEL_ERROR;
 	}
 	return llist_length(request->resources);
@@ -105,7 +105,7 @@ size_t pep_request_resources_length(const pep_request_t * request) {
 
 pep_resource_t * pep_request_getresource(const pep_request_t * request, int index) {
 	if (request == NULL) {
-		fprintf(stderr,"ERROR:pep_request_getresource: NULL request.\n");
+		log_error("pep_request_getresource: NULL request.");
 		return NULL;
 	}
 	return llist_get(request->resources,index);
@@ -113,7 +113,7 @@ pep_resource_t * pep_request_getresource(const pep_request_t * request, int inde
 
 int pep_request_setaction(pep_request_t * request, pep_action_t * action) {
 	if (request == NULL) {
-		fprintf(stderr,"ERROR:pep_request_setaction: NULL request.\n");
+		log_error("pep_request_setaction: NULL request.");
 		return PEP_MODEL_ERROR;
 	}
 	if (request->action != NULL) pep_action_delete(request->action);
@@ -123,7 +123,7 @@ int pep_request_setaction(pep_request_t * request, pep_action_t * action) {
 
 pep_action_t * pep_request_getaction(const pep_request_t * request) {
 	if (request == NULL) {
-		fprintf(stderr,"ERROR:pep_request_getaction: NULL request.\n");
+		log_error("pep_request_getaction: NULL request.");
 		return NULL;
 	}
 	return request->action;
@@ -131,7 +131,7 @@ pep_action_t * pep_request_getaction(const pep_request_t * request) {
 
 int pep_request_setenvironment(pep_request_t * request, pep_environment_t * env) {
 	if (request == NULL) {
-		fprintf(stderr,"ERROR:pep_request_setenvironment: NULL request.\n");
+		log_error("pep_request_setenvironment: NULL request.");
 		return PEP_MODEL_ERROR;
 	}
 	if (request->environment != NULL) pep_environment_delete(request->environment);
@@ -141,7 +141,7 @@ int pep_request_setenvironment(pep_request_t * request, pep_environment_t * env)
 
 pep_environment_t * pep_request_getenvironment(const pep_request_t * request) {
 	if (request == NULL) {
-		fprintf(stderr,"ERROR:pep_request_getenvironment: NULL request.\n");
+		log_error("pep_request_getenvironment: NULL request.");
 		return NULL;
 	}
 	return request->environment;

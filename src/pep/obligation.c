@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: obligation.c,v 1.1 2008/12/12 11:34:27 vtschopp Exp $
+ * $Id: obligation.c,v 1.2 2009/01/29 17:16:36 vtschopp Exp $
  */
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "util/linkedlist.h"
+#include "util/log.h"
 #include "pep/model.h"
 
 struct pep_obligation {
@@ -32,7 +32,7 @@ struct pep_obligation {
 pep_obligation_t * pep_obligation_create(const char * id) {
 	pep_obligation_t * obligation= calloc(1,sizeof(pep_obligation_t));
 	if (obligation == NULL) {
-		fprintf(stderr,"ERROR:pep_obligation_create: can't allocate pep_obligation_t.\n");
+		log_error("pep_obligation_create: can't allocate pep_obligation_t.");
 		return NULL;
 	}
 	obligation->id= NULL;
@@ -40,7 +40,7 @@ pep_obligation_t * pep_obligation_create(const char * id) {
 		size_t size= strlen(id);
 		obligation->id= calloc(size + 1,sizeof(char));
 		if (obligation->id == NULL) {
-			fprintf(stderr,"ERROR:pep_obligation_create: can't allocate id (%d bytes).\n",(int)size);
+			log_error("pep_obligation_create: can't allocate id (%d bytes).",(int)size);
 			free(obligation);
 			return NULL;
 		}
@@ -48,7 +48,7 @@ pep_obligation_t * pep_obligation_create(const char * id) {
 	}
 	obligation->assignments= llist_create();
 	if (obligation->assignments == NULL) {
-		fprintf(stderr,"ERROR:pep_obligation_create: can't create assignments list.\n");
+		log_error("pep_obligation_create: can't create assignments list.");
 		free(obligation->id);
 		free(obligation);
 		return NULL;
@@ -60,11 +60,11 @@ pep_obligation_t * pep_obligation_create(const char * id) {
 // id can't be NULL
 int pep_obligation_setid(pep_obligation_t * obligation, const char * id) {
 	if (obligation == NULL) {
-		fprintf(stderr,"ERROR:pep_obligation_setid: NULL obligation.\n");
+		log_error("pep_obligation_setid: NULL obligation.");
 		return PEP_MODEL_ERROR;
 	}
 	if (id == NULL) {
-		fprintf(stderr,"ERROR:pep_obligation_setid: NULL id.\n");
+		log_error("pep_obligation_setid: NULL id.");
 		return PEP_MODEL_ERROR;
 	}
 	if (obligation->id != NULL) {
@@ -73,7 +73,7 @@ int pep_obligation_setid(pep_obligation_t * obligation, const char * id) {
 	size_t size= strlen(id);
 	obligation->id= calloc(size + 1,sizeof(char));
 	if (obligation->id == NULL) {
-		fprintf(stderr,"ERROR:pep_obligation_setid: can't allocate id (%d bytes).\n", (int)size);
+		log_error("pep_obligation_setid: can't allocate id (%d bytes).", (int)size);
 		return PEP_MODEL_ERROR;
 	}
 	strncpy(obligation->id,id,size);
@@ -82,7 +82,7 @@ int pep_obligation_setid(pep_obligation_t * obligation, const char * id) {
 }
 const char * pep_obligation_getid(const pep_obligation_t * obligation) {
 	if (obligation == NULL) {
-		fprintf(stderr,"ERROR:pep_obligation_getfulfillon: NULL obligation.\n");
+		log_error("pep_obligation_getfulfillon: NULL obligation.");
 		return NULL;
 	}
 	return obligation->id;
@@ -91,7 +91,7 @@ const char * pep_obligation_getid(const pep_obligation_t * obligation) {
 
 pep_fulfillon_t pep_obligation_getfulfillon(const pep_obligation_t * obligation) {
 	if (obligation == NULL) {
-		fprintf(stderr,"ERROR:pep_obligation_getfulfillon: NULL obligation.\n");
+		log_error("pep_obligation_getfulfillon: NULL obligation.");
 		return PEP_MODEL_ERROR;
 	}
 	return obligation->fulfillon;
@@ -99,7 +99,7 @@ pep_fulfillon_t pep_obligation_getfulfillon(const pep_obligation_t * obligation)
 
 int pep_obligation_setfulfillon(pep_obligation_t * obligation, pep_fulfillon_t fulfillon) {
 	if (obligation == NULL) {
-		fprintf(stderr,"ERROR:pep_obligation_setfulfillon: NULL obligation.\n");
+		log_error("pep_obligation_setfulfillon: NULL obligation.");
 		return PEP_MODEL_ERROR;
 	}
 	switch (fulfillon) {
@@ -108,7 +108,7 @@ int pep_obligation_setfulfillon(pep_obligation_t * obligation, pep_fulfillon_t f
 			obligation->fulfillon= fulfillon;
 			break;
 		default:
-			fprintf(stderr,"ERROR:pep_obligation_setfulfillon: invalid fulfillon: %d.\n", fulfillon);
+			log_error("pep_obligation_setfulfillon: invalid fulfillon: %d.", fulfillon);
 			return PEP_MODEL_ERROR;
 			break;
 	}
@@ -117,15 +117,15 @@ int pep_obligation_setfulfillon(pep_obligation_t * obligation, pep_fulfillon_t f
 
 int pep_obligation_addattributeassignment(pep_obligation_t * obligation, pep_attribute_assignment_t * attr) {
 	if (obligation == NULL) {
-		fprintf(stderr,"ERROR:pep_obligation_addattributeassignment: NULL obligation.\n");
+		log_error("pep_obligation_addattributeassignment: NULL obligation.");
 		return PEP_MODEL_ERROR;
 	}
 	if (attr == NULL) {
-		fprintf(stderr,"ERROR:pep_obligation_addattributeassignment: NULL attribute assignment.\n");
+		log_error("pep_obligation_addattributeassignment: NULL attribute assignment.");
 		return PEP_MODEL_ERROR;
 	}
 	if (llist_add(obligation->assignments,attr) != LLIST_OK) {
-		fprintf(stderr,"ERROR:pep_obligation_addattributeassignment: can't add attribute assignment to list.\n");
+		log_error("pep_obligation_addattributeassignment: can't add attribute assignment to list.");
 		return PEP_MODEL_ERROR;
 
 	}
@@ -134,7 +134,7 @@ int pep_obligation_addattributeassignment(pep_obligation_t * obligation, pep_att
 
 size_t pep_obligation_attributeassignments_length(const pep_obligation_t * obligation) {
 	if (obligation == NULL) {
-		fprintf(stderr,"ERROR:pep_obligation_attributeassignments_length: NULL obligation.\n");
+		log_error("pep_obligation_attributeassignments_length: NULL obligation.");
 		return PEP_MODEL_ERROR;
 	}
 	return llist_length(obligation->assignments);
@@ -142,7 +142,7 @@ size_t pep_obligation_attributeassignments_length(const pep_obligation_t * oblig
 
 pep_attribute_assignment_t * pep_obligation_getattributeassignment(const pep_obligation_t * obligation,int i) {
 	if (obligation == NULL) {
-		fprintf(stderr,"ERROR:pep_obligation_getattributeassignment: NULL obligation.\n");
+		log_error("pep_obligation_getattributeassignment: NULL obligation.");
 		return NULL;
 	}
 	return llist_get(obligation->assignments,i);
