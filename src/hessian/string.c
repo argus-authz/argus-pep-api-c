@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: string.c,v 1.1 2008/12/12 11:33:43 vtschopp Exp $
+ * $Id: string.c,v 1.2 2009/01/29 16:04:55 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "hessian/hessian.h"
+#include "util/log.h"
 
 /**
  * Method prototypes
@@ -52,18 +53,18 @@ const void * hessian_string_class = &_hessian_string_descr;
 hessian_object_t * hessian_string_ctor (hessian_object_t * object, va_list * ap) {
     hessian_string_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_string_ctor: NULL object pointer.\n");
+		log_error("hessian_string_ctor: NULL object pointer.");
     	return NULL;
     }
     const char * str = va_arg( *ap, const char *);
     if (str == NULL) {
-		fprintf(stderr,"ERROR:hessian_string_ctor: NULL string parameter 2.\n");
+		log_error("hessian_string_ctor: NULL string parameter 2.");
     	return NULL;
     }
     size_t size= strlen(str);
     self->string= calloc(size + 1,sizeof(char));
     if (self->string == NULL) {
-		fprintf(stderr,"ERROR:hessian_string_ctor: can't allocate string (%d chars).\n",(int)size);
+		log_error("hessian_string_ctor: can't allocate string (%d chars).",(int)size);
     	return NULL;
     }
     strncpy(self->string,str,size);
@@ -76,7 +77,7 @@ hessian_object_t * hessian_string_ctor (hessian_object_t * object, va_list * ap)
 int hessian_string_dtor (hessian_object_t * object) {
     hessian_string_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_string_dtor: NULL object pointer.\n");
+		log_error("hessian_string_dtor: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     if (self->string != NULL) {
@@ -92,16 +93,16 @@ int hessian_string_dtor (hessian_object_t * object) {
 int hessian_string_serialize (const hessian_object_t * object, BUFFER * output) {
     const hessian_string_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_string_serialize: NULL object pointer.\n");
+		log_error("hessian_string_serialize: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_string_serialize: NULL class descriptor.\n");
+		log_error("hessian_string_serialize: NULL class descriptor.");
     	return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_STRING && class->type != HESSIAN_XML) {
-		fprintf(stderr,"ERROR:hessian_string_serialize: wrong class type: %d.\n",class->type);
+		log_error("hessian_string_serialize: wrong class type: %d.",class->type);
     	return HESSIAN_ERROR;
     }
     size_t str_l= strlen(self->string); // effective chars (bytes)
@@ -118,7 +119,7 @@ int hessian_string_serialize (const hessian_object_t * object, BUFFER * output) 
         buffer_putc(b8,output);
         // write HESSIAN_CHUNK_SIZE utf8 chars
         const char *chunk= &(self->string[pos]);
-        //XXX printf("XXX:hessian_string_serialize: string[%ld]: start of chunk utf8s\n", pos);
+        //XXX printf("XXX:hessian_string_serialize: string[%ld]: start of chunk utf8s", pos);
         // number of effective bytes
         size_t start_pos= pos;
         int n_utf8s= 0;
@@ -131,7 +132,7 @@ int hessian_string_serialize (const hessian_object_t * object, BUFFER * output) 
                 else if ((byte & 0xF0) == 0xF0) pos+= 3; // start of the 4-byte seq.
             }
         }
-        //printf("XXX:string_serialize: write %ld chunk bytes (%d utf8s)\n", (pos - start_pos), n_utf8s);
+        //printf("XXX:string_serialize: write %ld chunk bytes (%d utf8s)", (pos - start_pos), n_utf8s);
         buffer_write(chunk,1,(pos - start_pos),output);
         utf8_l= utf8_l - HESSIAN_CHUNK_SIZE;
     }
@@ -142,7 +143,7 @@ int hessian_string_serialize (const hessian_object_t * object, BUFFER * output) 
     buffer_putc(b16,output);
     buffer_putc(b8,output);
     const char *rest= &(self->string[pos]);
-    //printf("XXX:string_serialize: write %ld final bytes (%ld utf8s)\n", (str_l - pos), utf8_l);
+    //printf("XXX:string_serialize: write %ld final bytes (%ld utf8s)", (str_l - pos), utf8_l);
     buffer_write(rest,1,(str_l - pos),output);
 
     return HESSIAN_OK;
@@ -154,21 +155,21 @@ int hessian_string_serialize (const hessian_object_t * object, BUFFER * output) 
 int hessian_string_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
     hessian_string_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_string_deserialize: NULL object pointer.\n");
+		log_error("hessian_string_deserialize: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_string_deserialize: NULL class descriptor.\n");
+		log_error("hessian_string_deserialize: NULL class descriptor.");
     	return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_STRING && class->type != HESSIAN_XML) {
-		fprintf(stderr,"ERROR:hessian_string_deserialize: wrong class type: %d.\n",class->type);
+		log_error("hessian_string_deserialize: wrong class type: %d.",class->type);
     	return HESSIAN_ERROR;
     }
     // tag is 's' for chunks and 'S' for final
     if (tag != class->tag && tag != class->chunk_tag) {
-		fprintf(stderr,"ERROR:hessian_string_deserialize: invalid tag: %c (%d).\n",(char)tag,tag);
+		log_error("hessian_string_deserialize: invalid tag: %c (%d).",(char)tag,tag);
     	return HESSIAN_ERROR;
     }
 	// use a string buffer as tmp
@@ -176,7 +177,7 @@ int hessian_string_deserialize (hessian_object_t * object, int tag, BUFFER * inp
     if (tag == class->chunk_tag) sb_size= HESSIAN_CHUNK_SIZE;
 	BUFFER * sb= buffer_create(sb_size);
 	if (sb == NULL) {
-		fprintf(stderr,"ERROR:hessian_string_deserialize: can't create temp buffer (%d bytes).\n",(int)sb_size);
+		log_error("hessian_string_deserialize: can't create temp buffer (%d bytes).",(int)sb_size);
     	return HESSIAN_ERROR;
 	}
     int fully_read= FALSE;
@@ -185,7 +186,7 @@ int hessian_string_deserialize (hessian_object_t * object, int tag, BUFFER * inp
 		int b16= buffer_getc(input);
 		int b8= buffer_getc(input);
 		size_t utf8_l= (b16 << 8) + b8;
-		//printf("XXX:string_deserialize: %c %ld (0x%0X%0X)\n", tag, utf8_l, b16, b8);
+		//printf("XXX:string_deserialize: %c %ld (0x%0X%0X)", tag, utf8_l, b16, b8);
 		// fully read UTF8 string (chunk)
 		char * utf8= utf8_bgets(utf8_l,input);
 		// FIXME: utf8 == NULL ??
@@ -194,7 +195,7 @@ int hessian_string_deserialize (hessian_object_t * object, int tag, BUFFER * inp
 		// was it final chunk?
 		if (tag == class->chunk_tag) {
 			tag= buffer_getc(input);
-		    //printf("XXX:string_deserialize: one more chunk: %c\n", tag);
+		    //printf("XXX:string_deserialize: one more chunk: %c", tag);
 		}
 		else {
 			// tag == class->tag (final)
@@ -204,10 +205,10 @@ int hessian_string_deserialize (hessian_object_t * object, int tag, BUFFER * inp
 
     // copy the string buffer into the hessian string
     size_t sb_l= buffer_length(sb);
-    //printf("XXX:string_deserialize: string buffer length: %ld\n", sb_l);
+    //printf("XXX:string_deserialize: string buffer length: %ld", sb_l);
     self->string= calloc(sb_l + 1,sizeof(char));
 	if (self->string == NULL) {
-		fprintf(stderr,"ERROR:hessian_string_deserialize: can't allocate string (%d chars).\n", (int)sb_l);
+		log_error("hessian_string_deserialize: can't allocate string (%d chars).", (int)sb_l);
     	buffer_delete(sb);
 		return HESSIAN_ERROR;
 	}
@@ -222,16 +223,16 @@ int hessian_string_deserialize (hessian_object_t * object, int tag, BUFFER * inp
 const char * hessian_string_getstring(const hessian_object_t * object) {
     const hessian_string_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_string_getstring: NULL object pointer.\n");
+		log_error("hessian_string_getstring: NULL object pointer.");
     	return NULL;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_string_getstring: NULL class descriptor.\n");
+		log_error("hessian_string_getstring: NULL class descriptor.");
     	return NULL;
     }
     if (class->type != HESSIAN_STRING && class->type != HESSIAN_XML) {
-		fprintf(stderr,"ERROR:hessian_string_getstring: wrong class type: %d.\n",class->type);
+		log_error("hessian_string_getstring: wrong class type: %d.",class->type);
     	return NULL;
     }
     return self->string;
@@ -247,7 +248,7 @@ char * utf8_bgets(size_t utf8_l, BUFFER * input) {
 	// use a tmp buffer
 	BUFFER * tmp= buffer_create(utf8_l);
 	if (tmp == NULL) {
-		fprintf(stderr,"ERROR:utf8_bgets: can't create temp buffer (%d bytes).\n", (int)utf8_l);
+		log_error("utf8_bgets: can't create temp buffer (%d bytes).", (int)utf8_l);
     	return NULL;
 	}
 	size_t n_utf8= 0;
@@ -260,7 +261,7 @@ char * utf8_bgets(size_t utf8_l, BUFFER * input) {
 			if ((byte & 0xF0) == 0xC0) n_mbyte= 1; // c is start of the 2-byte seq.
 			else if ((byte & 0xF0) == 0xE0) n_mbyte= 2; // c is start of the 3-byte seq.
 			else if ((byte & 0xF0) == 0xF0) n_mbyte= 3; // c is start of the 4-byte seq.
-			else fprintf(stderr,"ERROR:utf8_gets: unknown multi-bytes utf8 sequence: 0x%0X\n",byte);
+			else log_error("utf8_gets: unknown multi-bytes utf8 sequence: 0x%0X",byte);
 			// read additional bytes
 			while (n_mbyte-- > 0) {
 				int mbyte= buffer_getc(input);
@@ -273,7 +274,7 @@ char * utf8_bgets(size_t utf8_l, BUFFER * input) {
 	size_t tmp_l= buffer_length(tmp);
 	char * utf8= calloc(tmp_l + 1, sizeof(char));
 	if (utf8 == NULL) {
-		fprintf(stderr,"ERROR:utf8_bgets: can't allocate string (%d chars).\n", (int)tmp_l);
+		log_error("utf8_bgets: can't allocate string (%d chars).", (int)tmp_l);
 		buffer_delete(tmp);
     	return NULL;
 	}
@@ -288,7 +289,7 @@ char * utf8_bgets(size_t utf8_l, BUFFER * input) {
  */
 size_t utf8_strlen(const char *s) {
 	if (s == NULL) {
-		fprintf(stderr,"ERROR:utf8_strlen: NULL string pointer.\n");
+		log_error("utf8_strlen: NULL string pointer.");
     	return HESSIAN_ERROR;
 	}
 	int i = 0;
@@ -318,16 +319,16 @@ int is_ascii(const int byte) {
 size_t hessian_string_utf8_length(const hessian_object_t * object) {
     const hessian_string_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_string_utf8_length: NULL object pointer.\n");
+		log_error("hessian_string_utf8_length: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_string_utf8_length: NULL class descriptor.\n");
+		log_error("hessian_string_utf8_length: NULL class descriptor.");
     	return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_STRING && class->type != HESSIAN_XML) {
-		fprintf(stderr,"ERROR:hessian_string_utf8_length: wrong class type: %d.\n",class->type);
+		log_error("hessian_string_utf8_length: wrong class type: %d.",class->type);
     	return HESSIAN_ERROR;
     }
     return utf8_strlen(self->string);
@@ -339,16 +340,16 @@ size_t hessian_string_utf8_length(const hessian_object_t * object) {
 size_t hessian_string_length(const hessian_object_t * object) {
     const hessian_string_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_string_length: NULL object pointer.\n");
+		log_error("hessian_string_length: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_string_length: NULL class descriptor.\n");
+		log_error("hessian_string_length: NULL class descriptor.");
     	return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_STRING && class->type != HESSIAN_XML) {
-		fprintf(stderr,"ERROR:hessian_string_length: wrong class type: %d.\n",class->type);
+		log_error("hessian_string_length: wrong class type: %d.",class->type);
     	return HESSIAN_ERROR;
     }
     return strlen(self->string);
@@ -360,16 +361,16 @@ size_t hessian_string_length(const hessian_object_t * object) {
 int hessian_string_equals(const hessian_object_t * object, const char *str) {
     const hessian_string_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_string_length: NULL object pointer.\n");
+		log_error("hessian_string_length: NULL object pointer.");
     	return HESSIAN_ERROR;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_string_length: NULL class descriptor.\n");
+		log_error("hessian_string_length: NULL class descriptor.");
     	return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_STRING && class->type != HESSIAN_XML) {
-		fprintf(stderr,"ERROR:hessian_string_length: wrong class type: %d.\n",class->type);
+		log_error("hessian_string_length: wrong class type: %d.",class->type);
     	return HESSIAN_ERROR;
     }
 	if (self->string == str) {
