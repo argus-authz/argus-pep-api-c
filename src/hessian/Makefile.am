@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.3 2009/01/29 16:11:07 vtschopp Exp $
+# $Id: Makefile.am,v 1.4 2009/01/29 16:19:58 vtschopp Exp $
 #
 
 include $(top_srcdir)/Makefile.flags.am 
@@ -9,7 +9,6 @@ noinst_LTLIBRARIES = libhessian.la
 libhessian_la_SOURCES = \
 binary.c \
 boolean.c \
-date.c \
 double.c \
 hessian.c \
 hessian.h \

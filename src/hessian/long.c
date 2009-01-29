@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: long.c,v 1.2 2009/01/29 15:24:59 vtschopp Exp $
+ * $Id: long.c,v 1.3 2009/01/29 16:19:58 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -22,12 +22,16 @@
 #include "hessian/hessian.h"
 #include "util/log.h"
 
+/*********************************
+ * Hessian long and date objects *
+ *********************************/
+
 /**
  * Method prototypes
  */
-OBJECT_CTOR(hessian_long);
-OBJECT_SERIALIZE(hessian_long);
-OBJECT_DESERIALIZE(hessian_long);
+static OBJECT_CTOR(hessian_long);
+static OBJECT_SERIALIZE(hessian_long);
+static OBJECT_DESERIALIZE(hessian_long);
 
 
 /**
@@ -48,7 +52,7 @@ const void * hessian_long_class = &_hessian_long_descr;
 /**
  * Hessian long constructor.
  */
-hessian_object_t * hessian_long_ctor (hessian_object_t * object, va_list * ap) {
+static hessian_object_t * hessian_long_ctor (hessian_object_t * object, va_list * ap) {
     hessian_long_t * self= object;
     if (self == NULL) {
 		log_error("hessian_long_ctor: NULL object pointer.");
@@ -62,7 +66,7 @@ hessian_object_t * hessian_long_ctor (hessian_object_t * object, va_list * ap) {
 /**
  * hessian_long serialize method.
  */
-int hessian_long_serialize (const hessian_object_t * object, BUFFER * output) {
+static int hessian_long_serialize (const hessian_object_t * object, BUFFER * output) {
     const hessian_long_t * self= object;
     if (self == NULL) {
 		log_error("hessian_long_serialize: NULL object pointer.");
@@ -101,7 +105,7 @@ int hessian_long_serialize (const hessian_object_t * object, BUFFER * output) {
 /**
  * hessian_long deserialize method.
  */
-int hessian_long_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
+static int hessian_long_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
     hessian_long_t * self= object;
     if (self == NULL) {
 		log_error("hessian_long_serialize: NULL object pointer.");
@@ -161,5 +165,27 @@ int64_t hessian_long_getvalue(const hessian_object_t * object) {
     	return INT64_MIN;
     }
 	return self->value;
+}
+
+/**
+ * Initializes and registers the internal Hessian date class descriptor.
+ */
+static const hessian_class_t _hessian_date_descr = {
+    HESSIAN_DATE,
+    "hessian.Date",
+    sizeof(hessian_date_t),
+    'd', 0,
+    hessian_long_ctor,
+    NULL, // nothing to release
+    hessian_long_serialize,
+    hessian_long_deserialize
+};
+const void * hessian_date_class = &_hessian_date_descr;
+
+/**
+ * Returns the 64-bit long Hessian date (epoch). INT64_MIN (-9,223,372,036,854,775,808) on error.
+ */
+int64_t hessian_date_getvalue(const hessian_object_t * self) {
+	return hessian_long_getvalue(self);
 }
 
