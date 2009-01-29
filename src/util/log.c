@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: log.c,v 1.3 2009/01/29 14:51:16 vtschopp Exp $
+ * $Id: log.c,v 1.4 2009/01/29 14:59:30 vtschopp Exp $
  */
 
 #include <stdio.h>
@@ -125,6 +125,8 @@ static int log_vfprintf(FILE * out, time_t * epoch, const char * level, const ch
 	strncat(BUFFER,": ",size);
 	size= size - strlen(BUFFER);
 	strncat(BUFFER,fmt,size);
+	size= size - strlen(BUFFER);
+	strncat(BUFFER,"\n",size);
 	vfprintf(out,BUFFER,args);
 	memset(BUFFER,0,BUFFER_SIZE);
 	return LOG_OK;
