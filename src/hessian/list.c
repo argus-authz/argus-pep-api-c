@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: list.c,v 1.2 2009/01/29 15:21:11 vtschopp Exp $
+ * $Id: list.c,v 1.3 2009/01/29 15:23:14 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -27,10 +27,10 @@
 /**
  * Method prototypes
  */
-OBJECT_CTOR(hessian_list);
-OBJECT_DTOR(hessian_list);
-OBJECT_SERIALIZE(hessian_list);
-OBJECT_DESERIALIZE(hessian_list);
+static OBJECT_CTOR(hessian_list);
+static OBJECT_DTOR(hessian_list);
+static OBJECT_SERIALIZE(hessian_list);
+static OBJECT_DESERIALIZE(hessian_list);
 
 /**
  * Initializes and registers the Hessian list class.
@@ -53,7 +53,7 @@ const void * hessian_list_class = &_hessian_list_descr;
  *
  * hessian_object_t * list= hessian_create(HESSIAN_LIST);
  */
-hessian_object_t * hessian_list_ctor (hessian_object_t * list, va_list * ap) {
+static hessian_object_t * hessian_list_ctor (hessian_object_t * list, va_list * ap) {
     hessian_list_t * self= list;
     if (self == NULL) {
 		log_error("hessian_list_ctor: NULL object pointer.");
@@ -72,7 +72,7 @@ hessian_object_t * hessian_list_ctor (hessian_object_t * list, va_list * ap) {
 /**
  * Hessian list destructor. Recursively delete the contained objects.
  */
-int hessian_list_dtor (hessian_object_t * list) {
+static int hessian_list_dtor (hessian_object_t * list) {
     hessian_list_t * self= list;
     if (self == NULL) {
 		log_error("hessian_list_dtor: NULL object pointer.");
@@ -114,7 +114,7 @@ int hessian_list_add(hessian_object_t * list, hessian_object_t * object) {
 /**
  * Hessian list serialize method.
  */
-int hessian_list_serialize (const hessian_object_t * list, BUFFER * output) {
+static int hessian_list_serialize (const hessian_object_t * list, BUFFER * output) {
     const hessian_list_t * self= list;
     if (self == NULL) {
 		log_error("hessian_list_add: NULL object pointer.");
@@ -181,7 +181,7 @@ int hessian_list_serialize (const hessian_object_t * list, BUFFER * output) {
 /**
  * Hessian list deserialize method.
  */
-int hessian_list_deserialize (hessian_object_t * list, int tag, BUFFER * input) {
+static int hessian_list_deserialize (hessian_object_t * list, int tag, BUFFER * input) {
     hessian_list_t * self= list;
     if (self == NULL) {
 		log_error("hessian_list_deserialize: NULL object pointer.");
