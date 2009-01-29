@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: string.c,v 1.2 2009/01/29 16:04:55 vtschopp Exp $
+ * $Id: string.c,v 1.3 2009/01/29 16:28:02 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -22,13 +22,17 @@
 #include "hessian/hessian.h"
 #include "util/log.h"
 
+/**********************************
+ * Hessian string and xml objects *
+ **********************************/
+
 /**
  * Method prototypes
  */
-OBJECT_CTOR(hessian_string);
-OBJECT_DTOR(hessian_string);
-OBJECT_SERIALIZE(hessian_string);
-OBJECT_DESERIALIZE(hessian_string);
+static OBJECT_CTOR(hessian_string);
+static OBJECT_DTOR(hessian_string);
+static OBJECT_SERIALIZE(hessian_string);
+static OBJECT_DESERIALIZE(hessian_string);
 
 
 /**
@@ -50,7 +54,7 @@ const void * hessian_string_class = &_hessian_string_descr;
 /**
  * Hessian UTF8 string constructor.
  */
-hessian_object_t * hessian_string_ctor (hessian_object_t * object, va_list * ap) {
+static hessian_object_t * hessian_string_ctor (hessian_object_t * object, va_list * ap) {
     hessian_string_t * self= object;
     if (self == NULL) {
 		log_error("hessian_string_ctor: NULL object pointer.");
@@ -74,7 +78,7 @@ hessian_object_t * hessian_string_ctor (hessian_object_t * object, va_list * ap)
 /**
  * string destructor.
  */
-int hessian_string_dtor (hessian_object_t * object) {
+static int hessian_string_dtor (hessian_object_t * object) {
     hessian_string_t * self= object;
     if (self == NULL) {
 		log_error("hessian_string_dtor: NULL object pointer.");
@@ -90,7 +94,7 @@ int hessian_string_dtor (hessian_object_t * object) {
 /**
  * string serialize method.
  */
-int hessian_string_serialize (const hessian_object_t * object, BUFFER * output) {
+static int hessian_string_serialize (const hessian_object_t * object, BUFFER * output) {
     const hessian_string_t * self= object;
     if (self == NULL) {
 		log_error("hessian_string_serialize: NULL object pointer.");
@@ -152,7 +156,7 @@ int hessian_string_serialize (const hessian_object_t * object, BUFFER * output) 
 /**
  * Hessian string deserialize method.
  */
-int hessian_string_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
+static int hessian_string_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
     hessian_string_t * self= object;
     if (self == NULL) {
 		log_error("hessian_string_deserialize: NULL object pointer.");
@@ -382,3 +386,28 @@ int hessian_string_equals(const hessian_object_t * object, const char *str) {
 	return (strcmp(self->string, str) == 0) ? TRUE : FALSE;
 }
 
+/**
+ * Initializes and registers the HessianXml class.
+ */
+static const hessian_class_t _hessian_xml_descr = {
+    HESSIAN_XML,
+    "hessian.Xml",
+    sizeof(hessian_xml_t),
+    'X', 'x',
+    hessian_string_ctor,
+    hessian_string_dtor,
+    hessian_string_serialize,
+    hessian_string_deserialize
+};
+
+const void * hessian_xml_class = &_hessian_xml_descr;
+
+size_t hessian_xml_utf8_length(const hessian_object_t * xml) {
+	return hessian_string_utf8_length(xml);
+}
+size_t hessian_xml_length(const hessian_object_t * xml) {
+	return hessian_string_length(xml);
+}
+const char * hessian_xml_getxml(const hessian_object_t *xml) {
+	return hessian_string_getstring(xml);
+}

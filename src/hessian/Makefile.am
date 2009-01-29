@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.4 2009/01/29 16:19:58 vtschopp Exp $
+# $Id: Makefile.am,v 1.5 2009/01/29 16:28:02 vtschopp Exp $
 #
 
 include $(top_srcdir)/Makefile.flags.am 
@@ -19,5 +19,4 @@ map.c \
 null.c \
 remote.c \
 string.c \
-types.h \
-xml.c
+types.h
