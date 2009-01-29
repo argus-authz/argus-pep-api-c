@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: linkedlist.c,v 1.1 2008/12/12 11:32:49 vtschopp Exp $
+ * $Id: linkedlist.c,v 1.2 2009/01/29 15:04:08 vtschopp Exp $
  */
 
 #include <stdlib.h>
@@ -41,7 +41,7 @@ struct linkedlist {
 linkedlist_t * llist_create( void ) {
 	linkedlist_t * list= calloc(1,sizeof(linkedlist_t));
 	if (list == NULL) {
-		fprintf(stderr,"ERROR:llist_create: can't allocate linkedlist_t.");
+		log_error("llist_create: can't allocate linkedlist_t.");
 		return NULL;
 	}
 	list->head= NULL;
@@ -52,7 +52,7 @@ linkedlist_t * llist_create( void ) {
 
 size_t llist_length(const linkedlist_t * list) {
 	if (list == NULL) {
-		fprintf(stderr,"ERROR:llist_length: NULL pointer list.");
+		log_error("llist_length: NULL pointer list.");
 		return LLIST_ERROR;
 	}
 	return list->length;
@@ -60,12 +60,12 @@ size_t llist_length(const linkedlist_t * list) {
 
 int llist_add(linkedlist_t * list, void * element) {
 	if (list == NULL) {
-		fprintf(stderr,"ERROR:llist_add: NULL pointer list.");
+		log_error("llist_add: NULL pointer list.");
 		return LLIST_ERROR;
 	}
     struct linkedlist_node * node= calloc(1,sizeof(struct linkedlist_node));
 	if (node == NULL) {
-		fprintf(stderr,"ERROR:llist_add: can't allocate linkedlist node.");
+		log_error("llist_add: can't allocate linkedlist node.");
 		return LLIST_ERROR;
 	}
     node->element= element;
@@ -84,21 +84,22 @@ int llist_add(linkedlist_t * list, void * element) {
 
 void * llist_get(linkedlist_t * list, int i) {
 	if (list == NULL) {
-		fprintf(stderr,"ERROR:llist_get: NULL pointer list.");
+		log_error("llist_get: NULL pointer list.");
 		return NULL;
 	}
 	if (i < 0 || i >= list->length) {
-		fprintf(stderr,"ERROR:llist_get: index %d out of range.", i);
+		log_error("llist_get: index %d out of range.", i);
 		return NULL;
 	}
 	int j= 0;
 	struct linkedlist_node * current= list->head;
-	while( j++ < i ) {
+	while( j < i ) {
 		if (current == NULL) {
-			// TODO: error handling
-			break;
+			log_error("llist_get: element at %d is NULL.",j);
+			return NULL;
 		}
 		current= current->next;
+		j++;
 	}
 	return current->element;
 }
@@ -109,11 +110,11 @@ void * llist_get(linkedlist_t * list, int i) {
  */
 void * llist_remove(linkedlist_t * list, int i) {
 	if (list == NULL) {
-		fprintf(stderr,"ERROR:llist_remove: NULL pointer list.");
+		log_error("llist_remove: NULL pointer list.");
 		return NULL;
 	}
 	if (i < 0 || i >= list->length) {
-		fprintf(stderr,"ERROR:llist_remove: index %d out of range.", i);
+		log_error("llist_remove: index %d out of range.", i);
 		return NULL; // empty list case included
 	}
 	int j= 0;
@@ -121,7 +122,7 @@ void * llist_remove(linkedlist_t * list, int i) {
 	struct linkedlist_node * previous= NULL;
 	while( j++ < i ) {
 		if (current == NULL) {
-			fprintf(stderr,"ERROR:llist_remove: index %d not found, NULL at %d.", i, j);
+			log_error("llist_remove: index %d not found, NULL at %d.", i, j);
 			return NULL;
 		}
 		previous= current;
@@ -148,7 +149,7 @@ void * llist_remove(linkedlist_t * list, int i) {
 
 int llist_delete_elements(linkedlist_t * list, delete_element_func deletef) {
 	if (list == NULL) {
-		fprintf(stderr,"ERROR:llist_delete_elements: NULL pointer list.");
+		log_error("llist_delete_elements: NULL pointer list.");
 		return LLIST_ERROR;
 	}
 	// WARN: the list can contains many times the same element (same memory address)
@@ -185,7 +186,7 @@ int llist_delete_elements(linkedlist_t * list, delete_element_func deletef) {
 
 int llist_delete(linkedlist_t * list) {
 	if (list == NULL) {
-		fprintf(stderr,"ERROR:llist_delete: NULL pointer list.");
+		log_error("llist_delete: NULL pointer list.");
 		return LLIST_ERROR;
 	}
 	struct linkedlist_node * current= list->head;
