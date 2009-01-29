@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: boolean.c,v 1.2 2009/01/29 15:12:55 vtschopp Exp $
+ * $Id: boolean.c,v 1.3 2009/01/29 16:15:32 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -25,9 +25,9 @@
 /**
  * Method prototypes
  */
-OBJECT_CTOR(hessian_boolean);
-OBJECT_SERIALIZE(hessian_boolean);
-OBJECT_DESERIALIZE(hessian_boolean);
+static OBJECT_CTOR(hessian_boolean);
+static OBJECT_SERIALIZE(hessian_boolean);
+static OBJECT_DESERIALIZE(hessian_boolean);
 
 
 /**
@@ -50,7 +50,7 @@ const void * hessian_boolean_class = &_hessian_boolean_descr;
  *
  * hessian_object_t * boolean= hessian_create(HESSIAN_BOOLEAN, FALSE);
  */
-hessian_object_t * hessian_boolean_ctor (hessian_object_t * _self, va_list * ap) {
+static hessian_object_t * hessian_boolean_ctor (hessian_object_t * _self, va_list * ap) {
     hessian_boolean_t * self= _self;
     if (self == NULL) {
 		log_error("hessian_boolean_ctor: NULL pointer.");
@@ -66,7 +66,7 @@ hessian_object_t * hessian_boolean_ctor (hessian_object_t * _self, va_list * ap)
 /**
  * Hessian boolean serialize method.
  */
-int hessian_boolean_serialize (const hessian_object_t * object, BUFFER * output) {
+static int hessian_boolean_serialize (const hessian_object_t * object, BUFFER * output) {
     const hessian_boolean_t * self= object;
     if (self == NULL) {
     	log_error("hessian_boolean_serialize: NULL object pointer.");
@@ -90,7 +90,7 @@ int hessian_boolean_serialize (const hessian_object_t * object, BUFFER * output)
 /**
  * Hessian boolean deserialize method.
  */
-int hessian_boolean_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
+static int hessian_boolean_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
     hessian_boolean_t * self= object;
     if (self == NULL) {
     	log_error("hessian_boolean_deserialize: NULL object pointer.");

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: binary.c,v 1.2 2009/01/29 15:09:22 vtschopp Exp $
+ * $Id: binary.c,v 1.3 2009/01/29 16:13:40 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -25,10 +25,10 @@
 /**
  * Method prototypes
  */
-OBJECT_CTOR(hessian_binary);
-OBJECT_DTOR(hessian_binary);
-OBJECT_SERIALIZE(hessian_binary);
-OBJECT_DESERIALIZE(hessian_binary);
+static OBJECT_CTOR(hessian_binary);
+static OBJECT_DTOR(hessian_binary);
+static OBJECT_SERIALIZE(hessian_binary);
+static OBJECT_DESERIALIZE(hessian_binary);
 
 /**
  * Initializes and registers the internal Hessian binary class descriptor.
@@ -52,7 +52,7 @@ const void * hessian_binary_class = &_hessian_binary_descr;
  *                                      (size_t)size,
  *                                      (const char *)data);
  */
-hessian_object_t * hessian_binary_ctor (hessian_object_t * object, va_list * ap) {
+static hessian_object_t * hessian_binary_ctor (hessian_object_t * object, va_list * ap) {
     hessian_binary_t * self= object;
     if (self == NULL) {
 		log_error("hessian_binary_ctor: NULL object pointer.");
@@ -77,7 +77,7 @@ hessian_object_t * hessian_binary_ctor (hessian_object_t * object, va_list * ap)
 /**
  * Hessian binary destructor.
  */
-int hessian_binary_dtor (hessian_object_t * object) {
+static int hessian_binary_dtor (hessian_object_t * object) {
     hessian_binary_t * self= object;
     if (self == NULL) {
 		log_error("hessian_binary_dtor: NULL object pointer.");
@@ -92,7 +92,7 @@ int hessian_binary_dtor (hessian_object_t * object) {
 /**
  * hessian_binary deserialize method.
  */
-int hessian_binary_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
+static int hessian_binary_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
     hessian_binary_t * self= object;
     if (self == NULL) {
 		log_error("hessian_binary_deserialize: NULL object pointer.");
@@ -158,7 +158,7 @@ int hessian_binary_deserialize (hessian_object_t * object, int tag, BUFFER * inp
 /**
  * hessian_binary serialize method.
  */
-int hessian_binary_serialize (const hessian_object_t * object, BUFFER * output) {
+static int hessian_binary_serialize (const hessian_object_t * object, BUFFER * output) {
     hessian_binary_t * self= (hessian_object_t *) object;
     if (self == NULL) {
 		log_error("hessian_binary_serialize: NULL object pointer.");
