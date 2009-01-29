@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: ref.c,v 1.1 2008/12/12 11:33:43 vtschopp Exp $
+ * $Id: ref.c,v 1.2 2009/01/29 15:36:10 vtschopp Exp $
  */
 #include "hessian/hessian.h"
-
+#include "util/log.h"
 /**
  * Uses the integer generic methods.
  */
@@ -46,16 +46,16 @@ const void * hessian_ref_class = &_hessian_ref_descr;
 int32_t hessian_ref_getvalue(const hessian_object_t * object) {
     const hessian_ref_t * self= object;
     if (self == NULL) {
-		fprintf(stderr,"ERROR:hessian_ref_getvalue: NULL object pointer.\n");
+		log_error("hessian_ref_getvalue: NULL object pointer.");
 		return INT32_MIN;
 	}
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_ref_getvalue: NULL class descriptor.\n");
+		log_error("hessian_ref_getvalue: NULL class descriptor.");
 		return INT32_MIN;
     }
     if (class->type != HESSIAN_REF) {
-		fprintf(stderr,"ERROR:hessian_ref_getvalue: wrong class type: %d.\n", class->type);
+		log_error("hessian_ref_getvalue: wrong class type: %d.", class->type);
 		return INT32_MIN;
     }
     return self->value;

@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: null.c,v 1.1 2008/12/12 11:33:43 vtschopp Exp $
+ * $Id: null.c,v 1.2 2009/01/29 15:33:17 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "hessian/hessian.h"
+#include "util/log.h"
 
 /**
  * Method prototypes
  */
-OBJECT_SERIALIZE(hessian_null);
-OBJECT_DESERIALIZE(hessian_null);
+static OBJECT_SERIALIZE(hessian_null);
+static OBJECT_DESERIALIZE(hessian_null);
 
 /**
  * Initializes and registers the Hessian null class.
@@ -45,14 +46,14 @@ const void * hessian_null_class = &_hessian_null_descr;
 /**
  * Hessian null serialize method.
  */
-int hessian_null_serialize (const hessian_object_t * object, BUFFER * output) {
+static int hessian_null_serialize (const hessian_object_t * object, BUFFER * output) {
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_null_serialize: NULL class descriptor.\n");
+		log_error("hessian_null_serialize: NULL class descriptor.");
 		return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_NULL) {
-		fprintf(stderr,"ERROR:hessian_null_serialize: wrong class type: %d.\n", class->type);
+		log_error("hessian_null_serialize: wrong class type: %d.", class->type);
 		return HESSIAN_ERROR;
     }
     buffer_putc(class->tag,output);
@@ -62,14 +63,14 @@ int hessian_null_serialize (const hessian_object_t * object, BUFFER * output) {
 /**
  * Hessian null deserialize method.
  */
-int hessian_null_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
+static int hessian_null_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		fprintf(stderr,"ERROR:hessian_null_deserialize: NULL class descriptor.\n");
+		log_error("hessian_null_deserialize: NULL class descriptor.");
 		return HESSIAN_ERROR;
     }
     if (tag != class->tag) {
-		fprintf(stderr,"ERROR:hessian_null_deserialize: invalid tag: %c (%d).\n",(char)tag,tag);
+		log_error("hessian_null_deserialize: invalid tag: %c (%d).",(char)tag,tag);
     	return HESSIAN_ERROR;
     }
     return HESSIAN_OK;
