@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: pep.c,v 1.4 2009/01/29 17:16:36 vtschopp Exp $
+ * $Id: pep.c,v 1.5 2009/01/30 16:47:34 vtschopp Exp $
  */
 #include <stdarg.h>  /* va_list, va_arg, ... */
 #include <string.h>
@@ -46,7 +46,7 @@ static CURL * curl= NULL;
 
 /** Options */
 static int option_loglevel= PEP_LOGLEVEL_NONE;
-static char * option_logengine= NULL;
+static FILE * option_logout= NULL;
 static char * option_url= NULL;
 static long option_timeout= 10L;
 
@@ -124,6 +124,7 @@ pep_error_t pep_setoption(pep_option_t option, ... ) {
 	va_start(args,option);
 	char * str;
 	int value;
+	FILE * file;
 	switch (option) {
 		case PEP_OPTION_ENDPOINT_URL:
 			str= va_arg(args,char *);
@@ -144,21 +145,43 @@ pep_error_t pep_setoption(pep_option_t option, ... ) {
 				break;
 			}
 			strncpy(option_url,str,size);
+			log_info("pep_setoption: PEP_OPTION_ENDPOINT_URL: %s",option_url);
 			break;
 		case PEP_OPTION_ENABLE_PIPS:
 			value= va_arg(args,int);
 			if (value > 0) {
 				option_pips_enabled= TRUE;
 			}
+			log_info("pep_setoption: PEP_OPTION_ENABLE_PIPS: %s",(option_pips_enabled == TRUE) ? "TRUE" : "FALSE");
 			break;
 		case PEP_OPTION_ENABLE_OBLIGATIONHANDLERS:
 			value= va_arg(args,int);
 			if (value > 0) {
 				option_ohs_enabled= TRUE;
 			}
+			log_info("pep_setoption: PEP_OPTION_ENABLE_OBLIGATIONHANDLERS: %s",(option_ohs_enabled == TRUE) ? "TRUE" : "FALSE");
+			break;
+		case PEP_OPTION_LOG_LEVEL:
+			value= va_arg(args,int);
+			if (PEP_LOGLEVEL_NONE <= value && value <= PEP_LOGLEVEL_DEBUG) {
+				option_loglevel= value;
+				log_setlevel(option_loglevel);
+			}
+			log_info("pep_setoption: PEP_OPTION_LOG_LEVEL: %d",option_loglevel);
+			break;
+		case PEP_OPTION_LOG_STDERR:
+			file= va_arg(args,FILE *);
+			if (file != NULL) {
+				option_logout= file;
+				log_setout(file);
+			}
+			log_info("pep_setoption: PEP_OPTION_LOG_STDERR: 0x%04X",(unsigned int)option_logout);
 			break;
 		default:
-			log_debug("pep_setoption: %d option NOT YET IMPLEMENTED.", option);
+			//XXX
+			printf("XXX:pep_setoption: %d option NOT YET IMPLEMENTED.", option);
+			log_error("pep_setoption: %d invalid option.", option);
+			rc= PEP_ERR_OPTION_INVALID;
 			break;
 	}
 	va_end(args);
@@ -179,6 +202,7 @@ pep_error_t pep_authorize(pep_request_t ** inout_request, pep_response_t ** out_
 		for (i= 0; i<pips_l; i++) {
 			pep_pip_t * pip= llist_get(pips,i);
 			if (pip != NULL) {
+				log_debug("pep_authorize: calling pip[%s]->process(request)...",pip->id);
 				pip_rc= pip->process(&request);
 				if (pip_rc != 0) {
 					log_error("pep_authorize: PIP[%s] process(request) failed: %d", pip->id, pip_rc);
@@ -216,7 +240,10 @@ pep_error_t pep_authorize(pep_request_t ** inout_request, pep_response_t ** out_
 
 	// set the CURL related options
 	//XXX: options debug and timeout
-	curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+	if (option_loglevel >= PEP_LOGLEVEL_DEBUG) {
+		log_debug("pep_authorize: setting curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L).");
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+	}
     curl_easy_setopt(curl, CURLOPT_USERAGENT, PACKAGE_NAME "/" PACKAGE_VERSION);
 
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, option_timeout);
@@ -279,12 +306,13 @@ pep_error_t pep_authorize(pep_request_t ** inout_request, pep_response_t ** out_
 	}
 
 	// send the request
+	log_debug("pep_authorize: POST request with CURL...");
 	curl_rc= curl_easy_perform(curl);
 	if (curl_rc != CURLE_OK) {
 		log_error("pep_authorize: CURL failed to perform the POST operation: %s.",curl_easy_strerror(curl_rc));
 		buffer_delete(b64output);
 		buffer_delete(b64input);
-		return PEP_ERR_AUTHZ_CURL;
+		return PEP_ERR_AUTHZ_CURL_PROCESS;
 	}
 
 	// check for HTTP 200 response code
@@ -297,7 +325,7 @@ pep_error_t pep_authorize(pep_request_t ** inout_request, pep_response_t ** out_
 		return PEP_ERR_AUTHZ_CURL;
 	}
 	if (http_code != 200) {
-		log_error("pep_authorize: HTTP status code: %ld.",http_code);
+		log_error("pep_authorize: HTTP status code: %d.",(int)http_code);
 		buffer_delete(b64output);
 		buffer_delete(b64input);
 		return PEP_ERR_AUTHZ_REQUEST;
@@ -334,9 +362,10 @@ pep_error_t pep_authorize(pep_request_t ** inout_request, pep_response_t ** out_
 		for (i= 0; i<ohs_l; i++) {
 			pep_obligationhandler_t * oh= llist_get(ohs,i);
 			if (oh != NULL) {
+				log_debug("pep_authorize: calling OH[%s]->process(request,response)...", oh->id);
 				oh_rc = oh->process(&request,&response);
 				if (oh_rc != 0) {
-					log_error("pep_authorize OH[%s] process(request,response) failed: %d\n.", oh->id,oh_rc);
+					log_error("pep_authorize: OH[%s] process(request,response) failed: %d.", oh->id,oh_rc);
 					return PEP_ERR_AUTHZ_OH_PROCESS;
 				}
 			}
@@ -348,7 +377,6 @@ pep_error_t pep_authorize(pep_request_t ** inout_request, pep_response_t ** out_
 // TODO: return code...
 pep_error_t pep_destroy(void) {
 	// free options...
-	if (option_logengine) free(option_logengine);
 	if (option_url) free(option_url);
 	// FIXME: free all char options
 
