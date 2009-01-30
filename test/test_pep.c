@@ -335,7 +335,7 @@ int main(int argc, char **argv) {
 
 	info("set LOG options...");
 	pep_setoption(PEP_OPTION_LOG_STDERR, stderr);
-	pep_setoption(PEP_OPTION_LOG_LEVEL, PEP_LOGLEVEL_NONE);
+	pep_setoption(PEP_OPTION_LOG_LEVEL, PEP_LOGLEVEL_DEBUG);
 
 	char * url= "http://localhost:8080/PEPd/authz?random";
 	if (argc == 2) {
