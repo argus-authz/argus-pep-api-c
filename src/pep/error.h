@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: error.h,v 1.2 2008/12/18 11:46:26 vtschopp Exp $
+ * $Id: error.h,v 1.3 2009/01/30 16:47:17 vtschopp Exp $
  */
 #ifndef _PEP_ERROR_H_
 #define _PEP_ERROR_H_
@@ -38,6 +38,7 @@ typedef enum pep_error {
 	PEP_ERR_OPTION_INVALID,
 	PEP_ERR_AUTHZ_PIP_PROCESS,
 	PEP_ERR_AUTHZ_CURL,
+	PEP_ERR_AUTHZ_CURL_PROCESS,
 	PEP_ERR_AUTHZ_REQUEST,
 	PEP_ERR_AUTHZ_OH_PROCESS,
 	PEP_ERR_MARSHALLING_HESSIAN,
