@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: linkedlist.c,v 1.2 2009/01/29 15:04:08 vtschopp Exp $
+ * $Id: linkedlist.c,v 1.3 2009/01/30 12:07:13 vtschopp Exp $
  */
 
 #include <stdlib.h>
 #include <stdio.h>
 
 #include "linkedlist.h"
+#include "util/log.h"
 
 /**
  * List node
