@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: log.h,v 1.2 2009/01/29 14:51:16 vtschopp Exp $
+ * $Id: log.h,v 1.3 2009/01/30 16:49:08 vtschopp Exp $
  */
 #ifndef _LOG_H_
 #define _LOG_H_
@@ -21,6 +21,8 @@
 #ifdef  __cplusplus
 extern "C" {
 #endif
+
+#include <stdio.h> // FILE
 
 /** function return codes */
 #define LOG_OK 0
@@ -48,7 +50,7 @@ log_level_t log_getlevel(void);
 /**
  * Sets the file descriptor fd as logging file descriptor. NULL for no logging.
  */
-int log_setfout(FILE * fd);
+int log_setout(FILE * fd);
 
 /**
  * Returns the current output stream for logging. NULL if not enable.
