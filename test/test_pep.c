@@ -8,17 +8,12 @@
 #include "pep/pep.h"
 
 /**
- * simple logging functions
+ * local logging functions
  */
 static void _vfprintf(FILE * fd, const char * level, const char * format, va_list args) {
 	int BUFFER_SIZE= 1024;
 	char BUFFER[BUFFER_SIZE];
 	memset(BUFFER,0,BUFFER_SIZE);
-//	time_t epoch;
-//	time(&epoch);
-//	struct tm * time= localtime(&epoch);
-//	strftime(BUFFER,BUFFER_SIZE,"%F %T ",time);
-//	size_t size= BUFFER_SIZE - strlen(BUFFER);
 	size_t size= BUFFER_SIZE;
 	strncat(BUFFER,level,size);
 	size= size - strlen(BUFFER);
@@ -206,7 +201,7 @@ static int dump_response(pep_response_t ** response_ptr) {
 }
 
 /**
- * PIP init
+ * PIP init function called by the PEP at pep_addpip(...);
  */
 static int pip_init(void) {
 	debug("pip_init() called...");
@@ -214,7 +209,7 @@ static int pip_init(void) {
 }
 
 /**
- * PIP processes the PEP request before submitting to PEPd
+ * PIP process function called by the PEP before submitting to PEPd in pep_authorize(...)
  */
 static int pip_process(pep_request_t ** request) {
 	debug("pip_process(request) called...");
@@ -224,7 +219,7 @@ static int pip_process(pep_request_t ** request) {
 
 
 /**
- * PIP destroy
+ * PIP destroy function called by the PEP at pep_destroy();
  */
 static int pip_destroy(void) {
 	debug("pip_destroy() called...");
@@ -270,7 +265,7 @@ static int pip_delete(pep_pip_t * pip) {
 
 
 /**
- * OH init
+ * OH init function called by the PEP at pep_addobligationhandler(...)
  */
 static int oh_init(void) {
 	debug("oh_init() called...");
@@ -278,7 +273,7 @@ static int oh_init(void) {
 }
 
 /**
- * OH process(request,response)
+ * OH process(request,response) called by the PEP after receiving the PEPd reponse in pep_authorize(...)
  */
 static int oh_process(pep_request_t ** request, pep_response_t ** response) {
 	debug("oh_process(request,response) called...");
@@ -287,7 +282,7 @@ static int oh_process(pep_request_t ** request, pep_response_t ** response) {
 }
 
 /**
- * OH destroy
+ * OH destroy called by the PEP at pep_destroy()
  */
 static int oh_destroy(void) {
 	debug("oh_destroy() called...");
@@ -340,12 +335,9 @@ int main(int argc, char **argv) {
 
 	info("set LOG options...");
 	pep_setoption(PEP_OPTION_LOG_STDERR, stderr);
-	pep_setoption(PEP_OPTION_LOG_LEVEL, PEP_LOGLEVEL_DEBUG);
+	pep_setoption(PEP_OPTION_LOG_LEVEL, PEP_LOGLEVEL_NONE);
 
 	char * url= "http://localhost:8080/PEPd/authz?random";
-	//char * url= "http://localhost:8081/PEPd/authz"; // TCPMon
-	//char * url= "http://130.59.4.166:8080/authz"; // Chad Jetty
-	//char * url= "http://localhost:8081/authz"; // TCPMon
 	if (argc == 2) {
 		url= argv[1];
 		info("%s: using endpoint URL: %s",argv[0], url);
