@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: pep.c,v 1.7 2009/02/04 09:29:13 vtschopp Exp $
+ * $Id: pep.c,v 1.8 2009/02/04 09:51:00 vtschopp Exp $
  */
 #include <stdarg.h>  /* va_list, va_arg, ... */
 #include <string.h>
@@ -50,8 +50,8 @@ static FILE * option_logout= NULL;
 static char * option_url= NULL;
 static long option_timeout= 10L;
 
-static int option_pips_enabled= FALSE;
-static int option_ohs_enabled= FALSE;
+static int option_pips_enabled= TRUE;
+static int option_ohs_enabled= TRUE;
 
 pep_error_t pep_initialize(void) {
 	// clear all err message
@@ -164,15 +164,21 @@ pep_error_t pep_setoption(pep_option_t option, ... ) {
 			break;
 		case PEP_OPTION_ENABLE_PIPS:
 			value= va_arg(args,int);
-			if (value > 0) {
+			if (value == 1) {
 				option_pips_enabled= TRUE;
+			}
+			else {
+				option_pips_enabled= FALSE;
 			}
 			log_info("pep_setoption: PEP_OPTION_ENABLE_PIPS: %s",(option_pips_enabled == TRUE) ? "TRUE" : "FALSE");
 			break;
 		case PEP_OPTION_ENABLE_OBLIGATIONHANDLERS:
 			value= va_arg(args,int);
-			if (value > 0) {
+			if (value == 1) {
 				option_ohs_enabled= TRUE;
+			}
+			else {
+				option_ohs_enabled= FALSE;
 			}
 			log_info("pep_setoption: PEP_OPTION_ENABLE_OBLIGATIONHANDLERS: %s",(option_ohs_enabled == TRUE) ? "TRUE" : "FALSE");
 			break;

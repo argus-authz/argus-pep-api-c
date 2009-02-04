@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: pep.h,v 1.3 2009/01/29 17:16:36 vtschopp Exp $
+ * $Id: pep.h,v 1.4 2009/02/04 09:51:00 vtschopp Exp $
  */
 #ifndef _PEP_H_
 #define _PEP_H_
@@ -87,8 +87,8 @@ typedef enum pep_option {
 	PEP_OPTION_ENDPOINT_SERVER_CERT, // PEP daemon server SSL cert: filename
 	PEP_OPTION_ENDPOINT_CLIENT_CERT, // PEP client SSL cert: filename
 	PEP_OPTION_ENDPOINT_TIMEOUT, // Timeout for the connection to endpoint URL in second (default 10s)
-	PEP_OPTION_ENABLE_PIPS, // Enable PIPs pre-processing: 0 or 1 (default 0)
-	PEP_OPTION_ENABLE_OBLIGATIONHANDLERS // Enable OHs post-processing: 0 or 1 (default 0)
+	PEP_OPTION_ENABLE_PIPS, // Enable PIPs pre-processing: 0 or 1 (default 1)
+	PEP_OPTION_ENABLE_OBLIGATIONHANDLERS // Enable OHs post-processing: 0 or 1 (default 1)
 } pep_option_t;
 
 /******************************************************************/
@@ -127,10 +127,13 @@ pep_error_t pep_addobligationhandler(pep_obligationhandler_t * oh);
  *
  * @return pep_error_t PEP_OK on success or an error code.
  *
- * Example:
+ * Available options:
  *   pep_setoption(PEP_OPTION_ENDPOINT_URL, "https://pep.switch.ch:8080/authz");
- *   pep_setoption(PEP_OPTION_ENDPOINT_SSL_VALIDATION, 1);
- *   pep_setoption(PEP_OPTION_ENDPOINT_SERVER_CERT, "/opt/glite/authz/pep.switch.ch.pem");
+ *   pep_setoption(PEP_OPTION_LOG_STDERR, mylogfile);
+ *   pep_setoption(PEP_OPTION_LOG_LEVEL, PEP_LOGLEVEL_WARN);
+ *   pep_setoption(PEP_OPTION_ENABLE_PIPS,0); // disable PIP processing
+ *   pep_setoption(PEP_OPTION_ENABLE_OBLIGATIONHANDLERS,1); // enable OH processing (default is enabled)
+ *
  */
 pep_error_t pep_setoption(pep_option_t option, ... );
 
