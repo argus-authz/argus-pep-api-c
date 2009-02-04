@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: log.c,v 1.4 2009/01/29 14:59:30 vtschopp Exp $
+ * $Id: log.c,v 1.5 2009/02/04 09:28:24 vtschopp Exp $
  */
 
 #include <stdio.h>
@@ -25,8 +25,8 @@
 #include "util/log.h"
 
 // tmp buffer for logging
-#define BUFFER_SIZE 1024
-static char BUFFER[BUFFER_SIZE];
+#define LOG_BUFFER_SIZE 1024
+static char LOG_BUFFER[LOG_BUFFER_SIZE];
 
 // output file handler
 static FILE * log_out= NULL;
@@ -117,17 +117,17 @@ int log_debug(const char *fmt, ...) {
 
 
 static int log_vfprintf(FILE * out, time_t * epoch, const char * level, const char * fmt, va_list args) {
+	memset(LOG_BUFFER,0,LOG_BUFFER_SIZE);
 	struct tm * time= localtime(epoch);
-	strftime(BUFFER,BUFFER_SIZE,"%F %T ",time);
-	size_t size= BUFFER_SIZE - strlen(BUFFER);
-	strncat(BUFFER,level,size);
-	size= size - strlen(BUFFER);
-	strncat(BUFFER,": ",size);
-	size= size - strlen(BUFFER);
-	strncat(BUFFER,fmt,size);
-	size= size - strlen(BUFFER);
-	strncat(BUFFER,"\n",size);
-	vfprintf(out,BUFFER,args);
-	memset(BUFFER,0,BUFFER_SIZE);
+	strftime(LOG_BUFFER,LOG_BUFFER_SIZE,"%F %T ",time);
+	size_t size= LOG_BUFFER_SIZE - strlen(LOG_BUFFER);
+	strncat(LOG_BUFFER,level,size);
+	size= size - strlen(LOG_BUFFER);
+	strncat(LOG_BUFFER,": ",size);
+	size= size - strlen(LOG_BUFFER);
+	strncat(LOG_BUFFER,fmt,size);
+	size= size - strlen(LOG_BUFFER);
+	strncat(LOG_BUFFER,"\n",size);
+	vfprintf(out,LOG_BUFFER,args);
 	return LOG_OK;
 }
