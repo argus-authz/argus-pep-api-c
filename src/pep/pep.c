@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: pep.c,v 1.8 2009/02/04 09:51:00 vtschopp Exp $
+ * $Id: pep.c,v 1.9 2009/02/04 12:17:51 vtschopp Exp $
  */
 #include <stdarg.h>  /* va_list, va_arg, ... */
 #include <string.h>
@@ -196,7 +196,7 @@ pep_error_t pep_setoption(pep_option_t option, ... ) {
 				option_logout= file;
 				log_setout(file);
 			}
-			log_info("pep_setoption: PEP_OPTION_LOG_STDERR: 0x%04X",(unsigned int)option_logout);
+			log_info("pep_setoption: PEP_OPTION_LOG_STDERR: 0x%04X",(int)option_logout);
 			break;
 		default:
 			//XXX
