@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: io.c,v 1.3 2009/01/29 17:16:36 vtschopp Exp $
+ * $Id: io.c,v 1.4 2009/02/04 08:31:44 vtschopp Exp $
  */
 
 #include <string.h>
@@ -1108,11 +1108,13 @@ pep_error_t pep_request_marshalling(const pep_request_t * request, BUFFER * outp
 	hessian_object_t * h_request= NULL;
 	if (pep_request_marshal(request,&h_request) != PEP_IO_OK) {
 		log_error("pep_request_marshalling: can't marshal PEP request into Hessian object.");
+		pep_errmsg("failed to marshal PEP request into Hessian object");
 		return PEP_ERR_MARSHALLING_HESSIAN;
 	}
 	if (hessian_serialize(h_request,output) != HESSIAN_OK) {
 		log_error("pep_request_marshalling: failed to serialize Hessian object.");
 		hessian_delete(h_request);
+		pep_errmsg("failed to serialize Hessian object");
 		return PEP_ERR_MARSHALLING_IO;
 	}
 	hessian_delete(h_request);
@@ -1124,11 +1126,13 @@ pep_error_t pep_response_unmarshalling(pep_response_t ** response, BUFFER * inpu
 	hessian_object_t * h_response= hessian_deserialize(input);
 	if (h_response == NULL) {
 		log_error("pep_response_unmarshalling: failed to deserialize Hessian object.");
+		pep_errmsg("failed to deserialize base64 encoded Hessian object");
 		return PEP_ERR_UNMARSHALLING_IO;
 	}
 	if (pep_response_unmarshal(response, h_response) != PEP_IO_OK) {
 		log_error("pep_response_unmarshalling: can't unmarshal PEP response from Hessian object.");
 		hessian_delete(h_response);
+		pep_errmsg("failed to unmarshal PEP response from Hessian object");
 		return PEP_ERR_UNMARSHALLING_HESSIAN;
 	}
 	hessian_delete(h_response);
