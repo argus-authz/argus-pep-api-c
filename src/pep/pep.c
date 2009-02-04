@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: pep.c,v 1.6 2009/02/04 09:19:26 vtschopp Exp $
+ * $Id: pep.c,v 1.7 2009/02/04 09:29:13 vtschopp Exp $
  */
 #include <stdarg.h>  /* va_list, va_arg, ... */
 #include <string.h>
@@ -400,7 +400,6 @@ pep_error_t pep_authorize(pep_request_t ** inout_request, pep_response_t ** out_
 		// pep_errmsg already called in pep_response_unmarshalling(...)
 		return unmarshal_rc;
 	}
-	*out_response= response;
 
 	// apply obligation handlers if enabled and any
 	int oh_rc= 0;
@@ -420,6 +419,10 @@ pep_error_t pep_authorize(pep_request_t ** inout_request, pep_response_t ** out_
 			}
 		}
 	}
+
+	// return response
+	*out_response= response;
+
 	return PEP_OK;
 }
 
