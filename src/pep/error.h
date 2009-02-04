@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: error.h,v 1.3 2009/01/30 16:47:17 vtschopp Exp $
+ * $Id: error.h,v 1.4 2009/02/04 08:31:22 vtschopp Exp $
  */
 #ifndef _PEP_ERROR_H_
 #define _PEP_ERROR_H_
@@ -54,6 +54,16 @@ typedef enum pep_error {
  * @return const char * the error message describing the error.
  */
 const char * pep_strerror(pep_error_t errno);
+
+/**
+ * Sets an optional error message.
+ */
+void pep_errmsg(const char * format, ...);
+
+/**
+ * Reset all the error messages previously set.
+ */
+void pep_clearerr(void);
 
 #ifdef  __cplusplus
 }
