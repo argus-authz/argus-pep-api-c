@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Members of the EGEE Collaboration.
+ * Copyright 2008-2009 Members of the EGEE Collaboration.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,8 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * $Id: pep.h,v 1.5 2009/02/05 16:00:55 vtschopp Exp $
+ */
+/*
+ * $Id: pep.h,v 1.6 2009/02/11 14:21:59 vtschopp Exp $
+ * @author Valery Tschopp <valery.tschopp@switch.ch>
+ * @version 1.0
  */
 #ifndef _PEP_H_
 #define _PEP_H_
@@ -22,20 +25,55 @@
 extern "C" {
 #endif
 
+/** @defgroup PEPClient PEP-C Client
+ * PEP client used to send PEP request to the PEP daemon and receive PEP response back.
+ */
+
+/** @defgroup Logging Log level and output
+ *
+ */
+
 #include "pep/model.h"
 #include "pep/error.h"
 
-/*
- * PEP log levels
+/** @addtogroup Logging
+ *
+ * Sets PEP client log levels and log output.
+ *
+ * By default the log level is {@link #PEP_LOGLEVEL_NONE} and the log output is NULL, therefore,
+ * the PEP client doesn't log anything.
+ *
+ * See @ref Error for example how to handle error in your code.
+ *
+ * Example to debug in a log file:
+ * @code
+ * ...
+ * // set log output to mylogfile
+ * rc= pep_setoption(PEP_OPTION_LOG_STDERR, mylogfile);
+ * if (rc != PEP_OK) {
+ *    fprintf(stderr,"ERROR: %s\n",pep_strerror(rc));
+ * }
+ * // set log level to DEBUG
+ * rc= pep_setoption(PEP_OPTION_LOG_LEVEL, PEP_LOGLEVEL_DEBUG);
+ * if (rc != PEP_OK) {
+ *    fprintf(stderr,"ERROR: %s\n",pep_strerror(rc));
+ * }
+ * ...
+ * @endcode
+ *
+ * @see pep_setoption(pep_option_t option,...)
+ *
+ * @{
  */
 #define PEP_LOGLEVEL_NONE  0 /**< No logging at all */
 #define PEP_LOGLEVEL_ERROR 1 /**< Log only ERROR messages */
 #define PEP_LOGLEVEL_WARN  2 /**< Log ERROR and WARN messages */
 #define PEP_LOGLEVEL_INFO  3 /**< Log ERROR, WARN and INFO messages */
 #define PEP_LOGLEVEL_DEBUG 4 /**< Log ERROR, WARN, INFO and DEBUG messages */
+/** @} */
 
-/*
- * PEP PIP function prototypes and type.
+/** @addtogroup PIP Policy Information Point (PIP)
+ * PEP client PIP function prototypes and type.
  *
  * These function prototypes allow to implement a PIP. The PIP
  * pre-processes the PEP request, before the PEP client sends it to the
@@ -44,6 +82,7 @@ extern "C" {
  * The PIP functions must return 0 on success or an error code.
  *
  * PIP must be added to the PEP client before sending the request.
+ * @{
  */
 /**
  * PIP init function prototype.
@@ -61,6 +100,7 @@ typedef int pip_init_func(void);
  * The process(request) function is called before the PEP client
  * submit the authorization request to the PEP daemon.
  *
+ * @param pep_request_t ** address of the pointer to the PEP request
  * @return 0 on success or an error code.
  * @see pep_authorize(pep_request_t **, pep_response_t **)
  */
@@ -79,23 +119,26 @@ typedef int pip_destroy_func(void);
 /**
  * PIP type.
  */
-typedef struct {
+typedef struct pep_pip {
 	char * id; /**< unique identifier for the PIP */
 	pip_init_func * init; /**< pointer to the PIP init function */
 	pip_process_func * process; /**< pointer to PIP process function */
 	pip_destroy_func * destroy; /**< pointer to the PIP destroy function */
 } pep_pip_t;
 
-/*
- * PEP Obligation handler function prototypes and type.
+/** @} */
+
+/** @addtogroup ObligationHandler Obligation Handler
+ * PEP client Obligation handler function prototypes and type.
  *
- * The function prototypes allow to implement a Obligation Handler (OH).
- * The OH does the post-processing of the PEP request and response, after
- * the PEP have send the request and receive the response.
+ * The OH function prototypes allow to implement a Obligation Handler (OH).
+ * The Obligation Handler does the post-processing of the PEP request and response, after
+ * the PEP client have send the request and receive the response.
  *
  * The OH functions must return 0 on success or an error code.
  *
  * OH must be added to the PEP client before sending the request.
+ * @{
  */
 /**
  * Obligation handler init function prototype.
@@ -134,19 +177,24 @@ typedef int oh_destroy_func(void);
 /**
  * ObligationHandler type.
  */
-typedef struct {
+typedef struct pep_obligationhandler {
 	char * id; /**< unique identifier for the OH */
 	oh_init_func * init; /**< pointer to the OH init function */
 	oh_process_func * process; /**< pointer to the OH process function */
 	oh_destroy_func * destroy; /**< pointer to the OH destroy function */
 } pep_obligationhandler_t;
+/** @} */
+
+/** @addtogroup PEPClient
+ * @{
+ */
 
 /**
  * PEP client configuration options.
  *
  * @see pep_setoption(option, ...) to set a configuration option.
  */
-typedef enum {
+typedef enum pep_option {
 	PEP_OPTION_LOG_LEVEL,  /**< Set log level (default {@link #PEP_LOGLEVEL_NONE}) */
 	PEP_OPTION_LOG_STDERR,  /**< Set log engine file descriptor: stderr, stdout, NULL (default NULL) */
 	PEP_OPTION_ENDPOINT_URL, /**< PEP daemon URL. Example: http://localhost:8080/pepd/authz */
@@ -161,44 +209,46 @@ typedef enum {
 /**
  * Initializes the PEP client.
  *
- * @return pep_error_t PEP_OK on success or an error code.
+ * @return {@link #pep_error_t} PEP_OK on success or an error code.
  */
 pep_error_t pep_initialize(void);
 
 /**
  * Adds a PIP request pre-processor to the PEP client.
  *
- * @param pip pointer to the {@link pep_pip_t} to add.
+ * @param pip pointer to the {@link #pep_pip_t} to add. See @ref PIP for more info.
  *
- * @return pep_error_t PEP_OK on success or an error code.
+ * @return {@link #pep_error_t} PEP_OK on success or an error code.
  */
 pep_error_t pep_addpip(pep_pip_t * pip);
 
 /**
  * Adds an Obligation Handler post-processor to the
- * PEP client.
+ * PEP client. See @ref ObligationHandler for more info.
  *
- * @param oh pointer to the {@link pep_obligationhandler_t} to add.
+ * @param oh pointer to the {@link #pep_obligationhandler_t} to add.
  *
- * @return pep_error_t PEP_OK on success or an error code.
+ * @return {@link #pep_error_t} PEP_OK on success or an error code.
  */
 pep_error_t pep_addobligationhandler(pep_obligationhandler_t * oh);
 
 /**
  * Sets a PEP client configuration option.
  *
+ * Available options:
+ * @code
+ *   pep_setoption(PEP_OPTION_ENDPOINT_URL, "https://pep.switch.ch:8080/authz"); // PEP daemon URL
+ *   pep_setoption(PEP_OPTION_LOG_STDERR, mylogfile); // logs in mylogfile
+ *   pep_setoption(PEP_OPTION_LOG_LEVEL, PEP_LOGLEVEL_WARN); // log level to WARN (error + warning)
+ *   pep_setoption(PEP_OPTION_ENABLE_PIPS,0); // disable PIP processing
+ *   pep_setoption(PEP_OPTION_ENABLE_OBLIGATIONHANDLERS,1); // enable OH processing (default is enabled)
+ * @endcode
+ *
  * @param option the PEP client option to set.
  * @param ... argument(s) for the PEP option.
  *
- * @return pep_error_t PEP_OK on success or an error code.
+ * @return {@link #pep_error_t} PEP_OK on success or an error code.
  * @see pep_option_t
- *
- * Available options:
- *   pep_setoption(PEP_OPTION_ENDPOINT_URL, "https://pep.switch.ch:8080/authz");
- *   pep_setoption(PEP_OPTION_LOG_STDERR, mylogfile);
- *   pep_setoption(PEP_OPTION_LOG_LEVEL, PEP_LOGLEVEL_WARN);
- *   pep_setoption(PEP_OPTION_ENABLE_PIPS,0); // disable PIP processing
- *   pep_setoption(PEP_OPTION_ENABLE_OBLIGATIONHANDLERS,1); // enable OH processing (default is enabled)
  *
  */
 pep_error_t pep_setoption(pep_option_t option, ... );
@@ -213,16 +263,22 @@ pep_error_t pep_setoption(pep_option_t option, ... );
  * @param request address of the pointer to the {@link #pep_request_t} to send.
  * @param response address of pointer to the {@link #pep_response_t} received.
  *
- * @return pep_error_t PEP_OK on success or an error code.
+ * @return {@link #pep_error_t} PEP_OK on success or an error code.
  */
 pep_error_t pep_authorize(pep_request_t ** request, pep_response_t ** response);
 
 /**
  * Cleanups and destroys the PEP client.
  *
- * @return pep_error_t PEP_OK on success or an error code.
+ * @return {@link #pep_error_t} PEP_OK on success or an error code.
  */
 pep_error_t pep_destroy(void);
+
+/** @example test_pep.c
+ * This is an example how to use the PEP client.
+ */
+
+/** @} */
 
 #ifdef  __cplusplus
 }
