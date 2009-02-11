@@ -5,9 +5,13 @@
 #include <time.h>
 #include <stdarg.h>
 
+/*
+ * compiler flags: CFLAGS=-I/opt/glite/include
+ * linker flags: LDFLAGS=-L/opt/glite/lib
+ */
 #include "pep/pep.h"
 
-/**
+/*
  * local logging functions
  */
 static void _vfprintf(FILE * fd, const char * level, const char * format, va_list args) {
@@ -46,7 +50,7 @@ static void debug(const char * format, ...) {
 	va_end(args);
 }
 
-/**
+/*
  * Returns the string representation of the decision.
  */
 static const char * decision_str(int decision) {
@@ -69,8 +73,8 @@ static const char * decision_str(int decision) {
     }
 }
 
-/**
- * Dumps the request.
+/*
+ * Dumps a PEP request.
  */
 static int dump_request(pep_request_t ** request) {
 	pep_request_t * request2= *request;
@@ -155,6 +159,9 @@ static int dump_request(pep_request_t ** request) {
 	return 0;
 }
 
+/*
+ * Dumps a PEP response.
+ */
 static int dump_response(pep_response_t ** response_ptr) {
 	pep_response_t * response= *response_ptr;
 	if (response == NULL) {
@@ -200,16 +207,16 @@ static int dump_response(pep_response_t ** response_ptr) {
 	return 0;
 }
 
-/**
- * PIP init function called by the PEP at pep_addpip(...);
+/*
+ * PIP init function called by the PEP client in pep_addpip(...);
  */
 static int pip_init(void) {
 	debug("pip_init() called...");
 	return 0;
 }
 
-/**
- * PIP process function called by the PEP before submitting to PEPd in pep_authorize(...)
+/*
+ * PIP process function called by the PEP client before submitting to PEPd in pep_authorize(...)
  */
 static int pip_process(pep_request_t ** request) {
 	debug("pip_process(request) called...");
@@ -218,18 +225,18 @@ static int pip_process(pep_request_t ** request) {
 }
 
 
-/**
- * PIP destroy function called by the PEP at pep_destroy();
+/*
+ * PIP destroy function called by the PEP client in pep_destroy();
  */
 static int pip_destroy(void) {
 	debug("pip_destroy() called...");
 	return 0;
 }
 
-/**
- * Allocate and initialize the PIP struct.
+/*
+ * Allocates and initializes a PIP struct.
  */
-static pep_pip_t * pip_create(const char * id, pip_init_func init, pip_process_func process, pip_destroy_func destroy) {
+static pep_pip_t * pip_create(const char * id, pip_init_func * init, pip_process_func * process, pip_destroy_func * destroy) {
 	pep_pip_t * pip= calloc(1,sizeof(pep_pip_t));
 	if (pip == NULL) {
 		error("can't allocate pep_pip_t");
@@ -249,8 +256,8 @@ static pep_pip_t * pip_create(const char * id, pip_init_func init, pip_process_f
 	return pip;
 }
 
-/**
- * Free the allocated PIP struct.
+/*
+ * Free an allocated PIP struct.
  */
 static int pip_delete(pep_pip_t * pip) {
 	if (pip != NULL) {
@@ -264,16 +271,16 @@ static int pip_delete(pep_pip_t * pip) {
 }
 
 
-/**
- * OH init function called by the PEP at pep_addobligationhandler(...)
+/*
+ * OH init function called by the PEP client in pep_addobligationhandler(...)
  */
 static int oh_init(void) {
 	debug("oh_init() called...");
 	return 0;
 }
 
-/**
- * OH process(request,response) called by the PEP after receiving the PEPd reponse in pep_authorize(...)
+/*
+ * OH process(request,response) called by the PEP client after receiving the PEPd reponse in pep_authorize(...)
  */
 static int oh_process(pep_request_t ** request, pep_response_t ** response) {
 	debug("oh_process(request,response) called...");
@@ -281,18 +288,18 @@ static int oh_process(pep_request_t ** request, pep_response_t ** response) {
 	return dump_response(response);
 }
 
-/**
- * OH destroy called by the PEP at pep_destroy()
+/*
+ * OH destroy called by the PEP client in pep_destroy()
  */
 static int oh_destroy(void) {
 	debug("oh_destroy() called...");
 	return 0;
 }
 
-/**
+/*
  * Allocates and initialize an OH struct.
  */
-static pep_obligationhandler_t * oh_create(const char * id, oh_init_func init, oh_process_func process, oh_destroy_func destroy) {
+static pep_obligationhandler_t * oh_create(const char * id, oh_init_func * init, oh_process_func * process, oh_destroy_func * destroy) {
 	pep_obligationhandler_t * oh= calloc(1,sizeof(pep_obligationhandler_t));
 	if (oh == NULL) {
 		error("can't allocate pep_obligationhandler_t");
@@ -312,8 +319,8 @@ static pep_obligationhandler_t * oh_create(const char * id, oh_init_func init, o
 	return oh;
 }
 
-/**
- * Free the allocated OH struct.
+/*
+ * Free an allocated OH struct.
  */
 static int oh_delete(pep_obligationhandler_t * oh) {
 	if (oh != NULL) {
@@ -326,7 +333,7 @@ static int oh_delete(pep_obligationhandler_t * oh) {
 	return -1;
 }
 
-/**
+/*
  * MAIN
  *
  * usage: ./test-pep <URL>
@@ -390,7 +397,7 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 
-
+	// create a PEP request
 	info("create PEP request...");
 	pep_request_t * request= pep_request_create();
 	assert(request);
