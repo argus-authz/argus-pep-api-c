@@ -1,7 +1,7 @@
 #                                              -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 #
-# $Id: configure.ac,v 1.4 2008/12/18 11:44:14 vtschopp Exp $
+# $Id: configure.ac,v 1.5 2009/02/11 14:07:18 vtschopp Exp $
 #
 
 AC_INIT(glite-authz-pep-c, 1.0.0, grid@switch.ch)
@@ -11,8 +11,10 @@ AM_INIT_AUTOMAKE
 # Checks for programs.
 AC_PROG_LIBTOOL
 AC_PROG_CC
-#CFLAGS="-Wall -g -O2"
+AC_CHECK_PROG(DOXYGEN,doxygen,doxygen,$ac_aux_dir/missing doxygen)
 
+
+# <prefix>/lib64 for x86_64 cpu 
 if test "x$host_cpu" = "xx86_64"; then
     AC_SUBST([libdir], ['${exec_prefix}/lib64'])
 fi
@@ -38,6 +40,7 @@ AC_TYPE_SIZE_T
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([strerror strrchr calloc])
 
+# Sets default prefix
 AC_PREFIX_DEFAULT("/opt/glite")
 
 AC_CONFIG_SRCDIR(src)
