@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: status.c,v 1.2 2009/01/29 17:16:36 vtschopp Exp $
+ * $Id: status.c,v 1.3 2009/02/18 16:04:44 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <string.h>
@@ -116,59 +116,59 @@ void pep_status_delete(pep_status_t * status) {
  * PEP StatusCode functions
  */
 struct pep_status_code {
-	char * code;
+	char * value;
 	struct pep_status_code * subcode;
 };
 
-// code can be NULL, not recommended
-pep_status_code_t * pep_status_code_create(const char * code) {
+// value can be NULL, not recommended
+pep_status_code_t * pep_status_code_create(const char * value) {
 	pep_status_code_t * status_code= calloc(1,sizeof(pep_status_code_t));
 	if (status_code == NULL) {
 		log_error("pep_status_code_create: can't allocate pep_status_code_t.");
 		return NULL;
 	}
-	status_code->code= NULL;
-	if (code != NULL) {
-		size_t size= strlen(code);
-		status_code->code= calloc(size + 1,sizeof(char));
-		if (status_code->code == NULL) {
-			log_error("pep_status_code_create: can't allocate code (%d bytes).",(int)size);
+	status_code->value= NULL;
+	if (value != NULL) {
+		size_t size= strlen(value);
+		status_code->value= calloc(size + 1,sizeof(char));
+		if (status_code->value == NULL) {
+			log_error("pep_status_code_create: can't allocate value (%d bytes).",(int)size);
 			free(status_code);
 			return NULL;
 		}
-		strncpy(status_code->code,code,size);
+		strncpy(status_code->value,value,size);
 	}
 	status_code->subcode= NULL;
 	return status_code;
 }
 
-// code NULL not allowed
-int pep_status_code_setcode(pep_status_code_t * status_code, const char * code) {
+// value NULL not allowed
+int pep_status_code_setvalue(pep_status_code_t * status_code, const char * value) {
 	if (status_code == NULL) {
 		log_error("pep_status_code_setcode: NULL status_code object.");
 		return PEP_MODEL_ERROR;
 	}
-	if (code == NULL) {
-		log_error("pep_status_code_setcode: NULL code string.");
+	if (value == NULL) {
+		log_error("pep_status_code_setcode: NULL value string.");
 		return PEP_MODEL_ERROR;
 	}
-	if (status_code->code != NULL) free(status_code->code);
-	size_t size= strlen(code);
-	status_code->code= calloc(size + 1,sizeof(char));
-	if (status_code->code == NULL) {
-		log_error("pep_status_code_setcode: can't allocate code (%d bytes).",(int)size);
+	if (status_code->value != NULL) free(status_code->value);
+	size_t size= strlen(value);
+	status_code->value= calloc(size + 1,sizeof(char));
+	if (status_code->value == NULL) {
+		log_error("pep_status_code_setcode: can't allocate value (%d bytes).",(int)size);
 		return PEP_MODEL_ERROR;
 	}
-	strncpy(status_code->code,code,size);
+	strncpy(status_code->value,value,size);
 	return PEP_MODEL_OK;
 }
 
-const char * pep_status_code_getcode(const pep_status_code_t * status_code) {
+const char * pep_status_code_getvalue(const pep_status_code_t * status_code) {
 	if (status_code == NULL) {
 		log_error("pep_status_code_getcode: NULL status_code object.");
 		return NULL;
 	}
-	return status_code->code;
+	return status_code->value;
 }
 
 int pep_status_code_setsubcode(pep_status_code_t * status_code, pep_status_code_t * subcode) {
@@ -194,7 +194,7 @@ pep_status_code_t * pep_status_code_getsubcode(const pep_status_code_t * status_
 
 void pep_status_code_delete(pep_status_code_t * status_code) {
 	if (status_code == NULL) return;
-	if (status_code->code != NULL) free(status_code->code);
+	if (status_code->value != NULL) free(status_code->value);
 	if (status_code->subcode != NULL) {
 		pep_status_code_delete(status_code->subcode);
 	}
