@@ -178,10 +178,10 @@ static int dump_response(pep_response_t ** response_ptr) {
 		pep_status_t * status= pep_result_getstatus(result);
 		info("response.result[%d].status.message= %s", i, pep_status_getmessage(status));
 		pep_status_code_t * statuscode= pep_status_getcode(status);
-		info("response.result[%d].status.code.code= %s", i, pep_status_code_getcode(statuscode));
+		info("response.result[%d].status.code.value= %s", i, pep_status_code_getvalue(statuscode));
 		pep_status_code_t * subcode= pep_status_code_getsubcode(statuscode);
 		if (subcode != NULL) {
-			info("response.result[%d].status.code.subcode.code= %s", i, pep_status_code_getcode(subcode));
+			info("response.result[%d].status.code.subcode.value= %s", i, pep_status_code_getvalue(subcode));
 		}
 		size_t obligations_l= pep_result_obligations_length(result);
 		info("response.result[%d]: %d obligations", i, (int)obligations_l);
@@ -343,6 +343,8 @@ int main(int argc, char **argv) {
 	info("set LOG options...");
 	pep_setoption(PEP_OPTION_LOG_STDERR, stderr);
 	pep_setoption(PEP_OPTION_LOG_LEVEL, PEP_LOGLEVEL_DEBUG);
+	//pep_setoption(PEP_OPTION_LOG_STDERR, NULL);
+	//pep_setoption(PEP_OPTION_LOG_LEVEL, PEP_LOGLEVEL_NONE);
 
 	char * url= "http://localhost:8080/PEPd/authz?random";
 	if (argc == 2) {
