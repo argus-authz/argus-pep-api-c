@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: pep.c,v 1.9 2009/02/04 12:17:51 vtschopp Exp $
+ * $Id: pep.c,v 1.10 2009/02/18 17:04:48 vtschopp Exp $
  */
 #include <stdarg.h>  /* va_list, va_arg, ... */
 #include <string.h>
@@ -136,9 +136,10 @@ pep_error_t pep_setoption(pep_option_t option, ... ) {
 	pep_error_t rc= PEP_OK;
 	va_list args;
 	va_start(args,option);
-	char * str;
-	int value;
-	FILE * file;
+	char * str= NULL;
+	int value= -1;
+	FILE * file= NULL;
+	pep_log_handler_callback * log_handler= NULL;
 	switch (option) {
 		case PEP_OPTION_ENDPOINT_URL:
 			str= va_arg(args,char *);
@@ -160,7 +161,7 @@ pep_error_t pep_setoption(pep_option_t option, ... ) {
 				break;
 			}
 			strncpy(option_url,str,size);
-			log_info("pep_setoption: PEP_OPTION_ENDPOINT_URL: %s",option_url);
+			log_debug("pep_setoption: PEP_OPTION_ENDPOINT_URL: %s",option_url);
 			break;
 		case PEP_OPTION_ENABLE_PIPS:
 			value= va_arg(args,int);
@@ -170,7 +171,7 @@ pep_error_t pep_setoption(pep_option_t option, ... ) {
 			else {
 				option_pips_enabled= FALSE;
 			}
-			log_info("pep_setoption: PEP_OPTION_ENABLE_PIPS: %s",(option_pips_enabled == TRUE) ? "TRUE" : "FALSE");
+			log_debug("pep_setoption: PEP_OPTION_ENABLE_PIPS: %s",(option_pips_enabled == TRUE) ? "TRUE" : "FALSE");
 			break;
 		case PEP_OPTION_ENABLE_OBLIGATIONHANDLERS:
 			value= va_arg(args,int);
@@ -180,7 +181,7 @@ pep_error_t pep_setoption(pep_option_t option, ... ) {
 			else {
 				option_ohs_enabled= FALSE;
 			}
-			log_info("pep_setoption: PEP_OPTION_ENABLE_OBLIGATIONHANDLERS: %s",(option_ohs_enabled == TRUE) ? "TRUE" : "FALSE");
+			log_debug("pep_setoption: PEP_OPTION_ENABLE_OBLIGATIONHANDLERS: %s",(option_ohs_enabled == TRUE) ? "TRUE" : "FALSE");
 			break;
 		case PEP_OPTION_LOG_LEVEL:
 			value= va_arg(args,int);
@@ -188,15 +189,18 @@ pep_error_t pep_setoption(pep_option_t option, ... ) {
 				option_loglevel= value;
 				log_setlevel(option_loglevel);
 			}
-			log_info("pep_setoption: PEP_OPTION_LOG_LEVEL: %d",option_loglevel);
+			log_debug("pep_setoption: PEP_OPTION_LOG_LEVEL: %d",option_loglevel);
 			break;
 		case PEP_OPTION_LOG_STDERR:
 			file= va_arg(args,FILE *);
-			if (file != NULL) {
-				option_logout= file;
-				log_setout(file);
-			}
-			log_info("pep_setoption: PEP_OPTION_LOG_STDERR: 0x%04X",(int)option_logout);
+			option_logout= file;
+			log_setout(file);
+			log_debug("pep_setoption: PEP_OPTION_LOG_STDERR: 0x%04X",(int)option_logout);
+			break;
+		case PEP_OPTION_LOG_HANDLER:
+			log_handler= va_arg(args,pep_log_handler_callback *);
+			log_sethandler(log_handler);
+			log_debug("pep_setoption: PEP_OPTION_LOG_HANDLER: 0x%04X",(int)log_handler);
 			break;
 		default:
 			//XXX
