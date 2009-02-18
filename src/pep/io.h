@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: io.h,v 1.1 2008/12/12 11:34:27 vtschopp Exp $
+ * $Id: io.h,v 1.2 2009/02/18 16:06:05 vtschopp Exp $
  */
 #ifndef _PEP_IO_H_
 #define _PEP_IO_H_
@@ -92,7 +92,7 @@ static const char PEP_REQUEST_ACTION[]= "action";
 static const char PEP_REQUEST_ENVIRONMENT[]= "environment";
 
 static const char PEP_STATUS_CODE_CLASSNAME[]= "org.glite.authz.pep.model.StatusCode";
-static const char PEP_STATUS_CODE_CODE[]= "code";
+static const char PEP_STATUS_CODE_VALUE[]= "code";
 static const char PEP_STATUS_CODE_SUBCODE[]= "subCode";
 
 static const char PEP_STATUS_CLASSNAME[]= "org.glite.authz.pep.model.Status";

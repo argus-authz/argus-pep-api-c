@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: io.c,v 1.4 2009/02/04 08:31:44 vtschopp Exp $
+ * $Id: io.c,v 1.5 2009/02/18 16:06:05 vtschopp Exp $
  */
 
 #include <string.h>
@@ -1482,7 +1482,7 @@ static int pep_statuscode_unmarshal(pep_status_code_t ** stc, const hessian_obje
 			return PEP_IO_ERROR;
 		}
 		// code (mandatory)
-		if (strcmp(PEP_STATUS_CODE_CODE,key) == 0) {
+		if (strcmp(PEP_STATUS_CODE_VALUE,key) == 0) {
 			hessian_object_t * h_string= hessian_map_getvalue(h_statuscode,i);
 			if (hessian_gettype(h_string) != HESSIAN_STRING) {
 				log_error("pep_statuscode_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.",key,i);
@@ -1490,8 +1490,8 @@ static int pep_statuscode_unmarshal(pep_status_code_t ** stc, const hessian_obje
 				return PEP_IO_ERROR;
 			}
 			const char * code = hessian_string_getstring(h_string);
-			if (pep_status_code_setcode(statuscode,code) != PEP_MODEL_OK) {
-				log_error("pep_statuscode_unmarshal: can't set code: %s to PEP statuscode at: %d",code,i);
+			if (pep_status_code_setvalue(statuscode,code) != PEP_MODEL_OK) {
+				log_error("pep_statuscode_unmarshal: can't set value: %s to PEP statuscode at: %d",code,i);
 				pep_status_code_delete(statuscode);
 				return PEP_IO_ERROR;
 			}
