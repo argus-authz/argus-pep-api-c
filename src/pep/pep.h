@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * $Id: pep.h,v 1.7 2009/02/11 14:26:44 vtschopp Exp $
+ * $Id: pep.h,v 1.8 2009/02/18 17:05:24 vtschopp Exp $
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.0
@@ -26,13 +26,18 @@
 extern "C" {
 #endif
 
-/** @defgroup PEPClient PEP-C Client
- * PEP client used to send PEP request to the PEP daemon and receive PEP response back.
- */
-
-/** @defgroup Logging Log level and output
+/** @mainpage PEP client C library
+ *
+ * This is the PEP client library for C, used to talk with the PEP daemon.
  *
  */
+
+/** @defgroup PEPClient PEP-C Client */
+/** @defgroup PIP Policy Information Point (PIP) */
+/** @defgroup ObligationHandler Obligation Handler (OH) */
+/** @defgroup Error Error Reporting */
+/** @defgroup Logging Log Level and Output */
+/** @defgroup Model PEP XACML Objects Model */
 
 #include "pep/model.h"
 #include "pep/error.h"
@@ -50,7 +55,7 @@ extern "C" {
  * @code
  * ...
  * // set log output to mylogfile
- * rc= pep_setoption(PEP_OPTION_LOG_STDERR, mylogfile);
+ * rc= pep_setoption(PEP_OPTION_LOG_STDERR, my_logfile);
  * if (rc != PEP_OK) {
  *    fprintf(stderr,"ERROR: %s\n",pep_strerror(rc));
  * }
@@ -62,7 +67,34 @@ extern "C" {
  * ...
  * @endcode
  *
+ * Example to use your own logging callback function:
+ * @code
+ * ...
+ * // functions to log messages to my log file
+ * int my_vlog(int level, const char *fmt, va_list args) {
+ *    if (level >= my_log_level) {
+ *       vfprintf(my_logfile,fmt,args);
+ *    }
+ *    return 0;
+ * }
+ * int my_log_error(const char *fmt, ...) {
+ *     va_list args;
+ *     va_start(args,fmt);
+ *     int rc= my_vlog(MY_LOG_ERROR,fmt,args);
+ *     va_end(args);
+ *     return rc;
+ * }
+ * ...
+ * // set my log function as log handler callback function
+ * rc= pep_setoption(PEP_OPTION_LOG_HANDLER, (pep_log_handler_callback)my_vlog);
+ * if (rc != PEP_OK) {
+ *    my_log_error("pep_setoption(PEP_OPTION_LOG_HANDLER,...) failed: %s\n",pep_strerror(rc));
+ * }
+ * ...
+ * @endcode
+ *
  * @see pep_setoption(pep_option_t option,...)
+ * @see pep_log_handler_callback function prototype
  *
  * @{
  */
@@ -71,9 +103,20 @@ extern "C" {
 #define PEP_LOGLEVEL_WARN  2 /**< Log ERROR and WARN messages */
 #define PEP_LOGLEVEL_INFO  3 /**< Log ERROR, WARN and INFO messages */
 #define PEP_LOGLEVEL_DEBUG 4 /**< Log ERROR, WARN, INFO and DEBUG messages */
+
+/**
+ * Optional log handler function callback prototype.
+ * You can implement your own callback function to @b replace the default log handler.
+ * @param level The log level
+ * @param format The format string
+ * @param args The variable arguments list
+ * @return int 0 or an error code.
+ */
+typedef int pep_log_handler_callback(int level, const char * format, va_list args);
+
 /** @} */
 
-/** @addtogroup PIP Policy Information Point (PIP)
+/** @addtogroup PIP
  * PEP client PIP function prototypes and type.
  *
  * These function prototypes allow to implement a PIP. The PIP
@@ -129,7 +172,7 @@ typedef struct pep_pip {
 
 /** @} */
 
-/** @addtogroup ObligationHandler Obligation Handler
+/** @addtogroup ObligationHandler
  * PEP client Obligation handler function prototypes and type.
  *
  * The OH function prototypes allow to implement a Obligation Handler (OH).
@@ -187,6 +230,7 @@ typedef struct pep_obligationhandler {
 /** @} */
 
 /** @addtogroup PEPClient
+ * PEP client used to send PEP request to the PEP daemon and receive PEP response back.
  * @{
  */
 
@@ -198,6 +242,7 @@ typedef struct pep_obligationhandler {
 typedef enum pep_option {
 	PEP_OPTION_LOG_LEVEL,  /**< Set log level (default {@link #PEP_LOGLEVEL_NONE}) */
 	PEP_OPTION_LOG_STDERR,  /**< Set log engine file descriptor: stderr, stdout, NULL (default NULL) */
+	PEP_OPTION_LOG_HANDLER,  /**< Set the optional log handler callback function pointer (default NULL) */
 	PEP_OPTION_ENDPOINT_URL, /**< PEP daemon URL. Example: http://localhost:8080/pepd/authz */
 	PEP_OPTION_ENDPOINT_SSL_VALIDATION, /**< Enable SSL validation: 0 or 1 (default 1) */
 	PEP_OPTION_ENDPOINT_SERVER_CERT, /**< PEP daemon server SSL certificate: absolute filename */
