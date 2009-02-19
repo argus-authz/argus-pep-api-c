@@ -1,7 +1,7 @@
 #                                              -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 #
-# $Id: configure.ac,v 1.6 2009/02/19 15:44:33 vtschopp Exp $
+# $Id: configure.ac,v 1.7 2009/02/19 16:53:48 vtschopp Exp $
 #
 
 AC_INIT(glite-authz-pep-c, 1.0.0, grid@switch.ch)
@@ -11,7 +11,7 @@ AM_INIT_AUTOMAKE
 # Checks for programs.
 AC_PROG_LIBTOOL
 AC_PROG_CC
-AC_CHECK_PROG(DOXYGEN,doxygen,doxygen,$ac_aux_dir/missing doxygen)
+AC_CHECK_PROG(DOXYGEN,doxygen,doxygen,$ac_aux_dir/missing --run doxygen)
 AC_SUBST(DOXYGEN)
 
 
