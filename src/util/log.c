@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: log.c,v 1.5 2009/02/04 09:28:24 vtschopp Exp $
+ * $Id: log.c,v 1.6 2009/02/19 08:44:15 vtschopp Exp $
  */
 
 #include <stdio.h>
@@ -28,10 +28,18 @@
 #define LOG_BUFFER_SIZE 1024
 static char LOG_BUFFER[LOG_BUFFER_SIZE];
 
+// optional log handler function pointer
+static log_handler_func * log_handler= NULL;
+
 // output file handler
 static FILE * log_out= NULL;
 // log level
 static log_level_t log_level= LOG_LEVEL_NONE;
+
+int log_sethandler(log_handler_func * handler) {
+	log_handler= handler;
+	return LOG_OK;
+}
 
 int log_setlevel(log_level_t level) {
 	log_level= level;
@@ -57,14 +65,17 @@ static int log_vfprintf(FILE * out, time_t * epoch, const char * level, const ch
 int log_info(const char *fmt, ...) {
 	int rc= LOG_OK;
 	if (log_level >= LOG_LEVEL_INFO) {
-		if (log_out != NULL) {
+		va_list args;
+		va_start(args,fmt);
+		if (log_handler != NULL) {
+			rc= log_handler(LOG_LEVEL_INFO,fmt,args);
+		}
+		else if (log_out != NULL) {
 			time_t epoch;
 			time(&epoch);
-			va_list args;
-			va_start(args,fmt);
 			rc= log_vfprintf(log_out, &epoch, "INFO", fmt, args);
-			va_end(args);
 		}
+		va_end(args);
 	}
 	return rc;
 }
@@ -72,14 +83,17 @@ int log_info(const char *fmt, ...) {
 int log_warn(const char *fmt, ...) {
 	int rc= LOG_OK;
 	if (log_level >= LOG_LEVEL_WARN) {
-		if (log_out != NULL) {
+		va_list args;
+		va_start(args,fmt);
+		if (log_handler != NULL) {
+			rc= log_handler(LOG_LEVEL_WARN,fmt,args);
+		}
+		else if (log_out != NULL) {
 			time_t epoch;
 			time(&epoch);
-			va_list args;
-			va_start(args,fmt);
 			rc= log_vfprintf(log_out, &epoch, "WARN", fmt, args);
-			va_end(args);
 		}
+		va_end(args);
 	}
 	return rc;
 }
@@ -87,14 +101,17 @@ int log_warn(const char *fmt, ...) {
 int log_error(const char *fmt, ...) {
 	int rc= LOG_OK;
 	if (log_level >= LOG_LEVEL_ERROR) {
-		if (log_out != NULL) {
+		va_list args;
+		va_start(args,fmt);
+		if (log_handler != NULL) {
+			rc= log_handler(LOG_LEVEL_ERROR,fmt,args);
+		}
+		else if (log_out != NULL) {
 			time_t epoch;
 			time(&epoch);
-			va_list args;
-			va_start(args,fmt);
 			rc= log_vfprintf(log_out, &epoch, "ERROR", fmt, args);
-			va_end(args);
 		}
+		va_end(args);
 	}
 	return rc;
 }
@@ -102,14 +119,17 @@ int log_error(const char *fmt, ...) {
 int log_debug(const char *fmt, ...) {
 	int rc= LOG_OK;
 	if (log_level >= LOG_LEVEL_DEBUG) {
-		if (log_out != NULL) {
+		va_list args;
+		va_start(args,fmt);
+		if (log_handler != NULL) {
+			rc= log_handler(LOG_LEVEL_DEBUG,fmt,args);
+		}
+		else if (log_out != NULL) {
 			time_t epoch;
 			time(&epoch);
-			va_list args;
-			va_start(args,fmt);
 			rc= log_vfprintf(log_out, &epoch, "DEBUG", fmt, args);
-			va_end(args);
 		}
+		va_end(args);
 	}
 	return rc;
 }
@@ -118,16 +138,18 @@ int log_debug(const char *fmt, ...) {
 
 static int log_vfprintf(FILE * out, time_t * epoch, const char * level, const char * fmt, va_list args) {
 	memset(LOG_BUFFER,0,LOG_BUFFER_SIZE);
-	struct tm * time= localtime(epoch);
-	strftime(LOG_BUFFER,LOG_BUFFER_SIZE,"%F %T ",time);
-	size_t size= LOG_BUFFER_SIZE - strlen(LOG_BUFFER);
-	strncat(LOG_BUFFER,level,size);
-	size= size - strlen(LOG_BUFFER);
-	strncat(LOG_BUFFER,": ",size);
-	size= size - strlen(LOG_BUFFER);
-	strncat(LOG_BUFFER,fmt,size);
-	size= size - strlen(LOG_BUFFER);
-	strncat(LOG_BUFFER,"\n",size);
-	vfprintf(out,LOG_BUFFER,args);
+	if (out != NULL) {
+		struct tm * time= localtime(epoch);
+		strftime(LOG_BUFFER,LOG_BUFFER_SIZE,"%F %T ",time);
+		size_t size= LOG_BUFFER_SIZE - strlen(LOG_BUFFER);
+		strncat(LOG_BUFFER,level,size);
+		size= size - strlen(LOG_BUFFER);
+		strncat(LOG_BUFFER,": ",size);
+		size= size - strlen(LOG_BUFFER);
+		strncat(LOG_BUFFER,fmt,size);
+		size= size - strlen(LOG_BUFFER);
+		strncat(LOG_BUFFER,"\n",size);
+		vfprintf(out,LOG_BUFFER,args);
+	}
 	return LOG_OK;
 }

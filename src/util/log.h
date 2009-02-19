@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Members of the EGEE Collaboration.
+ * Copyright 2008-2009 Members of the EGEE Collaboration.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: log.h,v 1.3 2009/01/30 16:49:08 vtschopp Exp $
+ * $Id: log.h,v 1.4 2009/02/19 08:43:19 vtschopp Exp $
  */
 #ifndef _LOG_H_
 #define _LOG_H_
@@ -22,9 +22,11 @@
 extern "C" {
 #endif
 
-#include <stdio.h> // FILE
+#include <stdio.h> /* FILE */
+#include <stdarg.h>  /* va_list, va_arg, ... */
 
-/** function return codes */
+
+/** log function return codes */
 #define LOG_OK 0
 #define LOG_ERROR -1
 
@@ -34,34 +36,75 @@ typedef enum {
 	LOG_LEVEL_ERROR,
 	LOG_LEVEL_WARN,
 	LOG_LEVEL_INFO,
-	LOG_LEVEL_DEBUG
+	LOG_LEVEL_DEBUG,
+	LOG_LEVEL_TRACE
 } log_level_t;
 
 /**
+ * Optional log_handler function prototype
+ *
+ * @param level the level to log
+ * @param fmt the format string
+ * @param args the variable arguments list
+ * @return int 0 on success or an error code
+ */
+typedef int log_handler_func(int level,const char * fmt, va_list args);
+
+/**
+ * Sets the optional log handler function.
+ *
+ * @param handler function pointer to the optional log handler
+ * @return {@link #LOG_OK} or {@link #LOG_ERROR} on error
+ *
+ * @note If the optional log handler function is set, the log messages will
+ * be send to the handler and not written to the logging output anymore.
+ */
+int log_sethandler(log_handler_func * handler);
+
+/**
  * Sets the log level to level.
+ * @return {@link #LOG_OK} or {@link #LOG_ERROR} on error
  */
 int log_setlevel(log_level_t level);
 
 /**
  * Returns the current log level
+ * @return {@link #LOG_OK} or {@link #LOG_ERROR} on error
  */
 log_level_t log_getlevel(void);
 
 /**
  * Sets the file descriptor fd as logging file descriptor. NULL for no logging.
+ * @return {@link #LOG_OK} or {@link #LOG_ERROR} on error
  */
 int log_setout(FILE * fd);
 
 /**
- * Returns the current output stream for logging. NULL if not enable.
+ * Returns the current output stream for logging.
+ * @return FILE * pointer to the log file or @a NULL if not enabled.
  */
 FILE * log_getout(void);
 
+/**
+ * Logs message at LOG_LEVEL_INFO level.
+ * @return {@link #LOG_OK} or {@link #LOG_ERROR} on error
+ */
 int log_info(const char *, ...);
+/**
+ * Logs message at LOG_LEVEL_WARN level.
+ * @return {@link #LOG_OK} or {@link #LOG_ERROR} on error
+ */
 int log_warn(const char *, ...);
+/**
+ * Logs message at LOG_LEVEL_ERROR level.
+ * @return {@link #LOG_OK} or {@link #LOG_ERROR} on error
+ */
 int log_error(const char *, ...);
+/**
+ * Logs message at LOG_LEVEL_DEBUG level.
+ * @return {@link #LOG_OK} or {@link #LOG_ERROR} on error
+ */
 int log_debug(const char *, ...);
-
 
 #ifdef  __cplusplus
 }
