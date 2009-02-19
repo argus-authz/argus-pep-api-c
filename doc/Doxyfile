@@ -1,4 +1,4 @@
-# $Id: Doxyfile,v 1.4 2009/02/18 16:59:18 vtschopp Exp $
+# $Id: Doxyfile,v 1.5 2009/02/19 16:40:25 vtschopp Exp $
 
 # Doxyfile 1.5.7
 
@@ -279,7 +279,7 @@ TYPEDEF_HIDES_STRUCT   = NO
 # 2^(16+SYMBOL_CACHE_SIZE). The valid range is 0..9, the default is 0, 
 # corresponding to a cache size of 2^16 = 65536 symbols
 
-SYMBOL_CACHE_SIZE      = 0
+#SYMBOL_CACHE_SIZE      = 0
 
 #---------------------------------------------------------------------------
 # Build related configuration options
@@ -496,7 +496,7 @@ FILE_VERSION_FILTER    =
 # file name after the option, if omitted DoxygenLayout.xml will be used as the name 
 # of the layout file.
 
-LAYOUT_FILE            = 
+#LAYOUT_FILE            = 
 
 #---------------------------------------------------------------------------
 # configuration options related to warning and progress messages
@@ -867,32 +867,32 @@ TOC_EXPAND             = NO
 # Qt's qhelpgenerator to generate a Qt Compressed Help (.qch) of the generated 
 # HTML documentation.
 
-GENERATE_QHP           = NO
+#GENERATE_QHP           = NO
 
 # If the QHG_LOCATION tag is specified, the QCH_FILE tag can 
 # be used to specify the file name of the resulting .qch file. 
 # The path specified is relative to the HTML output folder.
 
-QCH_FILE               = 
+#QCH_FILE               = 
 
 # The QHP_NAMESPACE tag specifies the namespace to use when generating 
 # Qt Help Project output. For more information please see 
 # <a href="http://doc.trolltech.com/qthelpproject.html#namespace">Qt Help Project / Namespace</a>.
 
-QHP_NAMESPACE          = org.doxygen.Project
+#QHP_NAMESPACE          = org.doxygen.Project
 
 # The QHP_VIRTUAL_FOLDER tag specifies the namespace to use when generating 
 # Qt Help Project output. For more information please see 
 # <a href="http://doc.trolltech.com/qthelpproject.html#virtual-folders">Qt Help Project / Virtual Folders</a>.
 
-QHP_VIRTUAL_FOLDER     = doc
+#QHP_VIRTUAL_FOLDER     = doc
 
 # If the GENERATE_QHP tag is set to YES, the QHG_LOCATION tag can 
 # be used to specify the location of Qt's qhelpgenerator. 
 # If non-empty doxygen will try to run qhelpgenerator on the generated 
 # .qhp file .
 
-QHG_LOCATION           = 
+#QHG_LOCATION           = 
 
 # The DISABLE_INDEX tag can be used to turn on/off the condensed index at 
 # top of each HTML page. The value NO (the default) enables the index and 
