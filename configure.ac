@@ -1,7 +1,7 @@
 #                                              -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 #
-# $Id: configure.ac,v 1.5 2009/02/11 14:07:18 vtschopp Exp $
+# $Id: configure.ac,v 1.6 2009/02/19 15:44:33 vtschopp Exp $
 #
 
 AC_INIT(glite-authz-pep-c, 1.0.0, grid@switch.ch)
@@ -12,6 +12,7 @@ AM_INIT_AUTOMAKE
 AC_PROG_LIBTOOL
 AC_PROG_CC
 AC_CHECK_PROG(DOXYGEN,doxygen,doxygen,$ac_aux_dir/missing doxygen)
+AC_SUBST(DOXYGEN)
 
 
 # <prefix>/lib64 for x86_64 cpu 
@@ -21,7 +22,7 @@ fi
 
 # Checks for curl headers and library
 # will automatically add -lcurl in LDFLAGS
-AC_CHECK_HEADERS(curl/curl.h)
+AC_CHECK_HEADER([curl/curl.h],,[AC_MSG_ERROR(can not find libcurl header)])
 AC_CHECK_LIB(curl,curl_easy_init)
 
 # Checks for header files.
