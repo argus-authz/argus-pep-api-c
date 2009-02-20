@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * $Id: pep.h,v 1.8 2009/02/18 17:05:24 vtschopp Exp $
+ * $Id: pep.h,v 1.9 2009/02/20 11:56:32 vtschopp Exp $
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.0
@@ -67,6 +67,24 @@ extern "C" {
  * ...
  * @endcode
  *
+ * @{
+ */
+#define PEP_LOGLEVEL_NONE  -1 /**< No logging at all */
+#define PEP_LOGLEVEL_ERROR  0 /**< Logs only ERROR messages */
+#define PEP_LOGLEVEL_WARN   1 /**< Logs ERROR and WARN messages */
+#define PEP_LOGLEVEL_INFO   2 /**< Logs ERROR, WARN and INFO messages */
+#define PEP_LOGLEVEL_DEBUG  3 /**< Logs ERROR, WARN, INFO and DEBUG messages */
+
+/**
+ * Optional log handler function callback prototype.
+ * You can implement your own callback function to @b replace the default log handler.
+ * The PEP log message are @b not terminated with a "\n".
+ *
+ * @param level The log level to log
+ * @param format The format string
+ * @param args The variable arguments list
+ * @return int 0 or an error code.
+ *
  * Example to use your own logging callback function:
  * @code
  * ...
@@ -95,22 +113,6 @@ extern "C" {
  *
  * @see pep_setoption(pep_option_t option,...)
  * @see pep_log_handler_callback function prototype
- *
- * @{
- */
-#define PEP_LOGLEVEL_NONE  0 /**< No logging at all */
-#define PEP_LOGLEVEL_ERROR 1 /**< Log only ERROR messages */
-#define PEP_LOGLEVEL_WARN  2 /**< Log ERROR and WARN messages */
-#define PEP_LOGLEVEL_INFO  3 /**< Log ERROR, WARN and INFO messages */
-#define PEP_LOGLEVEL_DEBUG 4 /**< Log ERROR, WARN, INFO and DEBUG messages */
-
-/**
- * Optional log handler function callback prototype.
- * You can implement your own callback function to @b replace the default log handler.
- * @param level The log level
- * @param format The format string
- * @param args The variable arguments list
- * @return int 0 or an error code.
  */
 typedef int pep_log_handler_callback(int level, const char * format, va_list args);
 
@@ -281,20 +283,42 @@ pep_error_t pep_addobligationhandler(pep_obligationhandler_t * oh);
 /**
  * Sets a PEP client configuration option.
  *
- * Available options:
- * @code
- *   pep_setoption(PEP_OPTION_ENDPOINT_URL, "https://pep.switch.ch:8080/authz"); // PEP daemon URL
- *   pep_setoption(PEP_OPTION_LOG_STDERR, mylogfile); // logs in mylogfile
- *   pep_setoption(PEP_OPTION_LOG_LEVEL, PEP_LOGLEVEL_WARN); // log level to WARN (error + warning)
- *   pep_setoption(PEP_OPTION_ENABLE_PIPS,0); // disable PIP processing
- *   pep_setoption(PEP_OPTION_ENABLE_OBLIGATIONHANDLERS,1); // enable OH processing (default is enabled)
- * @endcode
- *
  * @param option the PEP client option to set.
- * @param ... argument(s) for the PEP option.
+ * @param ... argument(s) for the PEP client option.
  *
  * @return {@link #pep_error_t} PEP_OK on success or an error code.
- * @see pep_option_t
+ * @see pep_option for available options.
+ *
+ * Option {@link #PEP_OPTION_ENDPOINT_URL} @c const @c char @c * argument:
+ * @code
+ *   // set the PEP daemon endpoint URL
+ *   pep_setoption(PEP_OPTION_ENDPOINT_URL, (const char *)"https://pepd.switch.ch:8080/authz");
+ * @endcode
+ * Option {@link #PEP_OPTION_LOG_LEVEL} @c int argument:
+ * @code
+ *   // set logging level to WARN (only ERROR + WARN messages shown)
+ *   pep_setoption(PEP_OPTION_LOG_LEVEL, (int)PEP_LOGLEVEL_WARN);
+ * @endcode
+ * Option {@link #PEP_OPTION_LOG_STDERR} @c FILE @c * argument:
+ * @code
+ *   // set logging output to stderr
+ *   pep_setoption(PEP_OPTION_LOG_STDERR, (FILE *)stdout);
+ * @endcode
+ * Option {@link #PEP_OPTION_LOG_HANDLER} {@link #pep_log_handler_callback} @c * argument:
+ * @code
+ *   // override default logging handler with own logging callback function
+ *   pep_setoption(PEP_OPTION_LOG_HANDLER, (pep_log_handler_callback *)my_logging_callback);
+ * @endcode
+ * Option {@link #PEP_OPTION_ENABLE_PIPS} @c int (@a FALSE or @a TRUE) argument:
+ * @code
+ *   // disable PIPs processing
+ *   pep_setoption(PEP_OPTION_ENABLE_PIPS, (int)0);
+ * @endcode
+ * Option {@link #PEP_OPTION_ENABLE_OBLIGATIONHANDLERS} @c int (@a FALSE or @a TRUE) argument:
+ * @code
+ * 	 // already enabled by default, only for example purpose
+ *   pep_setoption(PEP_OPTION_ENABLE_OBLIGATIONHANDLERS, (int)1);
+ * @endcode
  *
  */
 pep_error_t pep_setoption(pep_option_t option, ... );
