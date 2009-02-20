@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: log.h,v 1.4 2009/02/19 08:43:19 vtschopp Exp $
+ * $Id: log.h,v 1.5 2009/02/20 12:00:18 vtschopp Exp $
  */
 #ifndef _LOG_H_
 #define _LOG_H_
@@ -32,12 +32,12 @@ extern "C" {
 
 /** Log levels */
 typedef enum {
-	LOG_LEVEL_NONE =0,
-	LOG_LEVEL_ERROR,
-	LOG_LEVEL_WARN,
-	LOG_LEVEL_INFO,
-	LOG_LEVEL_DEBUG,
-	LOG_LEVEL_TRACE
+	LOG_LEVEL_NONE = -1,
+	LOG_LEVEL_ERROR = 0,
+	LOG_LEVEL_WARN = 1,
+	LOG_LEVEL_INFO = 2,
+	LOG_LEVEL_DEBUG = 3,
+	LOG_LEVEL_TRACE = 4
 } log_level_t;
 
 /**
@@ -69,7 +69,7 @@ int log_setlevel(log_level_t level);
 
 /**
  * Returns the current log level
- * @return {@link #LOG_OK} or {@link #LOG_ERROR} on error
+ * @return log_level_t the current log level.
  */
 log_level_t log_getlevel(void);
 
@@ -100,11 +100,18 @@ int log_warn(const char *, ...);
  * @return {@link #LOG_OK} or {@link #LOG_ERROR} on error
  */
 int log_error(const char *, ...);
+
 /**
  * Logs message at LOG_LEVEL_DEBUG level.
  * @return {@link #LOG_OK} or {@link #LOG_ERROR} on error
  */
 int log_debug(const char *, ...);
+
+/**
+ * Logs message at LOG_LEVEL_TRACE level.
+ * @return {@link #LOG_OK} or {@link #LOG_ERROR} on error
+ */
+int log_trace(const char *, ...);
 
 #ifdef  __cplusplus
 }
