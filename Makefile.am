@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.9 2009/02/20 14:54:23 vtschopp Exp $
+# $Id: Makefile.am,v 1.10 2009/02/20 15:49:32 vtschopp Exp $
 #
 
 SUBDIRS = src 
@@ -22,8 +22,8 @@ uninstall-local: uninstall-html
 
 install-html: 
 	$(mkinstalldirs) $(htmldir)
-	if [ -f "doc/html/index.html" ] ; then \
-	for file in doc/html/*.html doc/html/*.css doc/html/*.png doc/html/*.gif ; do \
+	if [ -d "doc/html" ] ; then \
+	for file in doc/html/* ; do \
 		$(INSTALL_DATA) $$file $(htmldir)/`basename $$file`; \
 	done \
 	fi
@@ -32,4 +32,4 @@ uninstall-html:
 	$(RM) -fr $(htmldir) 
 
 distclean-local:
-	$(RM) -fr doc/html/*.html doc/html/*.css doc/html/*.png doc/html/*.gif doc/man
+	$(RM) -fr doc/html doc/man
