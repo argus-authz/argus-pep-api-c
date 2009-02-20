@@ -1,9 +1,11 @@
 #
-# $Id: Makefile.am,v 1.8 2009/02/20 14:36:28 vtschopp Exp $
+# $Id: Makefile.am,v 1.9 2009/02/20 14:54:23 vtschopp Exp $
 #
 
 SUBDIRS = src 
 EXTRA_DIST = LICENSE CHANGELOG autotools.sh project/version.properties test/test_pep.c test/Makefile doc/html
+
+docdir = $(datadir)/doc/$(PACKAGE)
 doc_DATA = AUTHORS CHANGELOG LICENSE
 
 # Generate doxygen doc
@@ -13,7 +15,6 @@ doxygen: doc/Doxyfile
 html-local: doxygen
 
 # Install doxygen doc in $(prefix)/share/doc/glite-authz-pep-c/api
-docdir = $(datarootdir)/doc/$(PACKAGE)
 htmldir = $(docdir)/api
 install-data-local: install-html
 
