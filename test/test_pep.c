@@ -29,6 +29,9 @@ static void _vfprintf(FILE * fd, const char * level, const char * format, va_lis
 	vfprintf(fd,BUFFER,args);
 }
 
+/*
+ * Logs an INFO message on stdout
+ */
 static void info(const char * format, ...) {
 	va_list args;
 	va_start(args,format);
@@ -36,6 +39,9 @@ static void info(const char * format, ...) {
 	va_end(args);
 }
 
+/*
+ * Logs an ERROR message on stderr
+ */
 static void error(const char * format, ...) {
 	va_list args;
 	va_start(args,format);
@@ -43,11 +49,23 @@ static void error(const char * format, ...) {
 	va_end(args);
 }
 
+/*
+ * Logs an DEBUG message on stdout
+ */
 static void debug(const char * format, ...) {
 	va_list args;
 	va_start(args,format);
 	_vfprintf(stdout,"DEBUG",format,args);
 	va_end(args);
+}
+
+/*
+ * PEP-C logging callback function
+ */
+static void log_handler_pep(int level, const char * format, va_list args) {
+	fprintf(stdout,"XXX:PEP-C[%d]: ",level);
+	vfprintf(stdout,format,args);
+	fprintf(stdout,"\n");
 }
 
 /*
@@ -340,11 +358,6 @@ static int oh_delete(pep_obligationhandler_t * oh) {
  */
 int main(int argc, char **argv) {
 
-	info("set LOG options...");
-	pep_setoption(PEP_OPTION_LOG_STDERR, stderr);
-	pep_setoption(PEP_OPTION_LOG_LEVEL, PEP_LOGLEVEL_DEBUG);
-	//pep_setoption(PEP_OPTION_LOG_STDERR, NULL);
-	//pep_setoption(PEP_OPTION_LOG_LEVEL, PEP_LOGLEVEL_NONE);
 
 	char * url= "http://localhost:8080/PEPd/authz?random";
 	if (argc == 2) {
@@ -359,6 +372,11 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 
+	info("set LOG options...");
+	pep_setoption(PEP_OPTION_LOG_STDERR,stderr);
+	pep_setoption(PEP_OPTION_LOG_LEVEL,PEP_LOGLEVEL_DEBUG); // DEBUG, INFO, WARN and ERROR
+	pep_setoption(PEP_OPTION_LOG_HANDLER,log_handler_pep); // will override stderr log handler
+
 	info("create PIP and add to PEP...");
 	pep_pip_t * pip= pip_create("PIPRequestDumper",pip_init,pip_process,pip_destroy);
 	if (pip == NULL) {
@@ -369,12 +387,6 @@ int main(int argc, char **argv) {
 	pep_rc= pep_addpip(pip);
 	if (pep_rc != PEP_OK) {
 		error("test_pep: pep_addpip() failed: %s",pep_strerror(pep_rc));
-		pep_destroy();
-		return -1;
-	}
-	pep_rc= pep_setoption(PEP_OPTION_ENABLE_PIPS,1);
-	if (pep_rc != PEP_OK) {
-		error("test_pep: pep_setoption(PEP_OPTION_ENABLE_PIPS,1) failed: %s",pep_strerror(pep_rc));
 		pep_destroy();
 		return -1;
 	}
@@ -389,12 +401,6 @@ int main(int argc, char **argv) {
 	pep_rc= pep_addobligationhandler(oh);
 	if (pep_rc != PEP_OK) {
 		error("test_pep: pep_addobligationhandler() failed: %s",pep_strerror(pep_rc));
-		pep_destroy();
-		return -1;
-	}
-	pep_rc= pep_setoption(PEP_OPTION_ENABLE_OBLIGATIONHANDLERS,1);
-	if (pep_rc != PEP_OK) {
-		error("test_pep: pep_setoption(PEP_OPTION_ENABLE_OBLIGATIONHANDLERS,1) failed: %s",pep_strerror(pep_rc));
 		pep_destroy();
 		return -1;
 	}
@@ -471,7 +477,7 @@ int main(int argc, char **argv) {
 		return pep_rc;
 	}
 
-	// WARNING: call this only AFTER pep_destroy()...
+	// WARNING: call these only AFTER pep_destroy()...
 	info("delete PIP and OH structs...");
 	pip_delete(pip);
 	oh_delete(oh);
