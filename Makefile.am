@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.6 2009/02/19 16:53:48 vtschopp Exp $
+# $Id: Makefile.am,v 1.7 2009/02/20 14:25:34 vtschopp Exp $
 #
 
 SUBDIRS = src 
@@ -13,7 +13,7 @@ doxygen: doc/Doxyfile
 html-local: doxygen
 
 # Install doxygen doc in $(prefix)/share/doc/glite-authz-pep-c/api
-htmldir = $(docdir)/api
+htmldir = $(datarootdir)/doc/$(PACKAGE)/api
 install-data-local: install-html
 
 uninstall-local: uninstall-html
