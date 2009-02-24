@@ -448,8 +448,18 @@ int main(int argc, char **argv) {
 	pep_environment_addattribute(environment,path);
 	pep_request_setenvironment(request,environment);
 
+	info("set PEPd endpoint: %s", "http://www.google.com");
+	pep_rc= pep_setoption(PEP_OPTION_ENDPOINT_URL, "http://www.google.com");
+	info("set PEPd endpoint: %s", "http://localhost:8080/PEPd/authz?s7");
+	pep_rc= pep_setoption(PEP_OPTION_ENDPOINT_URL, "http://localhost:8080/PEPd/authz?s7");
+	info("set PEPd endpoint: %s", "http://nasjflkasdjflj.com");
+	pep_rc= pep_setoption(PEP_OPTION_ENDPOINT_URL, "http://nasjflkasdjflj.com");
+	info("set PEPd endpoint: %s", "http://localhost:8080/PEPd/authz?s8");
+	pep_rc= pep_setoption(PEP_OPTION_ENDPOINT_URL, "http://localhost:8080/PEPd/authz?s8");
+	info("set PEPd endpoint: %s", "http://localhost:8080"); // respond OK 200
+	pep_rc= pep_setoption(PEP_OPTION_ENDPOINT_URL, "http://localhost:8080");
 	// send authz request and process
-	info("set PEP endpoint: %s", url);
+	info("set PEPd endpoint: %s", url);
 	pep_rc= pep_setoption(PEP_OPTION_ENDPOINT_URL, url);
 	if (pep_rc != PEP_OK) {
 		error("test_pep: pep_setoption(PEP_OPTION_ENDPOINT_URL,%s) failed: %s",url,pep_strerror(pep_rc));
@@ -457,12 +467,16 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 
-	info("send PEP request to: %s", url);
+	info("send authorization request to PEPd");
 	pep_response_t * response= NULL;
 	pep_rc= pep_authorize(&request,&response);
 	if (pep_rc != PEP_OK) {
 		error("test_pep: pep_authorize(request,response) failed: %s",pep_strerror(pep_rc));
+		pep_request_delete(request);
+		pep_response_delete(response);
 		pep_destroy();
+		pip_delete(pip);
+		oh_delete(oh);
 		return -1;
 	}
 
@@ -474,6 +488,8 @@ int main(int argc, char **argv) {
 	pep_rc= pep_destroy();
 	if (pep_rc != PEP_OK) {
 		error("test_pep: pep_destroy() failed: %s",pep_strerror(pep_rc));
+		pip_delete(pip);
+		oh_delete(oh);
 		return pep_rc;
 	}
 
