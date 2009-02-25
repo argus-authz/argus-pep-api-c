@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * $Id: pep.h,v 1.9 2009/02/20 11:56:32 vtschopp Exp $
+ * $Id: pep.h,v 1.10 2009/02/25 14:06:02 vtschopp Exp $
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.0
@@ -243,9 +243,9 @@ typedef struct pep_obligationhandler {
  */
 typedef enum pep_option {
 	PEP_OPTION_LOG_LEVEL,  /**< Set log level (default {@link #PEP_LOGLEVEL_NONE}) */
-	PEP_OPTION_LOG_STDERR,  /**< Set log engine file descriptor: stderr, stdout, NULL (default NULL) */
-	PEP_OPTION_LOG_HANDLER,  /**< Set the optional log handler callback function pointer (default NULL) */
-	PEP_OPTION_ENDPOINT_URL, /**< PEP daemon URL. Example: http://localhost:8080/pepd/authz */
+	PEP_OPTION_LOG_STDERR,  /**< Set log engine file descriptor: @c stderr, @c stdout, @c NULL (default @c NULL) */
+	PEP_OPTION_LOG_HANDLER,  /**< Set the optional log handler callback function pointer (default @c NULL) */
+	PEP_OPTION_ENDPOINT_URL, /**< Set the @b mandatory PEP daemon URL. You can set failover URLs by setting this option many times. */
 	PEP_OPTION_ENDPOINT_SSL_VALIDATION, /**< Enable SSL validation: 0 or 1 (default 1) */
 	PEP_OPTION_ENDPOINT_SERVER_CERT, /**< PEP daemon server SSL certificate: absolute filename */
 	PEP_OPTION_ENDPOINT_CLIENT_CERT, /**< PEP client SSL certificate for client authn: absolute filename */
@@ -291,8 +291,10 @@ pep_error_t pep_addobligationhandler(pep_obligationhandler_t * oh);
  *
  * Option {@link #PEP_OPTION_ENDPOINT_URL} @c const @c char @c * argument:
  * @code
- *   // set the PEP daemon endpoint URL
+ *   // set the PEP daemon endpoint URL (with failover URLs)
  *   pep_setoption(PEP_OPTION_ENDPOINT_URL, (const char *)"https://pepd.switch.ch:8080/authz");
+ *   pep_setoption(PEP_OPTION_ENDPOINT_URL, (const char *)"https://pepd-backup.switch.ch:8080/authz");
+ *   pep_setoption(PEP_OPTION_ENDPOINT_URL, (const char *)"https://pepd.example.ch/authz");
  * @endcode
  * Option {@link #PEP_OPTION_LOG_LEVEL} @c int argument:
  * @code
