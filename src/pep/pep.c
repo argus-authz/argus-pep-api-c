@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: pep.c,v 1.10 2009/02/18 17:04:48 vtschopp Exp $
+ * $Id: pep.c,v 1.11 2009/02/25 14:06:35 vtschopp Exp $
  */
 #include <stdarg.h>  /* va_list, va_arg, ... */
 #include <string.h>
@@ -47,7 +47,7 @@ static CURL * curl= NULL;
 /** Options */
 static int option_loglevel= PEP_LOGLEVEL_NONE;
 static FILE * option_logout= NULL;
-static char * option_url= NULL;
+static linkedlist_t * option_urls= NULL;
 static long option_timeout= 10L;
 
 static int option_pips_enabled= TRUE;
@@ -87,6 +87,15 @@ pep_error_t pep_initialize(void) {
 		llist_delete(ohs);
 		pep_errmsg("curl_easy_init() failed");
 		return PEP_ERR_INIT_CURL;
+	}
+	// create option_urls list
+	option_urls= llist_create();
+	if (option_urls == NULL) {
+		log_error("pep_initialize: can't create endpoint URLs list.");
+		llist_delete(pips);
+		llist_delete(ohs);
+		pep_errmsg("failed to create URLs list");
+		return PEP_ERR_INIT_LISTS;
 	}
 	return PEP_OK;
 }
@@ -148,20 +157,26 @@ pep_error_t pep_setoption(pep_option_t option, ... ) {
 				rc= PEP_ERR_OPTION_INVALID;
 				break;
 			}
-			if (option_url != NULL) {
-				free(option_url);
-				option_url= NULL;
-			}
+			// copy url
 			size_t size= strlen(str);
-			option_url= calloc(size + 1, sizeof(char));
-			if (option_url == NULL) {
-				log_error("pep_setoption: can't allocate option_url: %s.", str);
-				pep_errmsg("can't allocate option_url: %s.", str);
+			char * url= calloc(size + 1, sizeof(char));
+			if (url == NULL) {
+				log_error("pep_setoption: can't allocate url: %s.", str);
+				pep_errmsg("can't allocate url: %s.", str);
 				rc= PEP_ERR_MEMORY;
 				break;
 			}
-			strncpy(option_url,str,size);
-			log_debug("pep_setoption: PEP_OPTION_ENDPOINT_URL: %s",option_url);
+			strncpy(url,str,size);
+			// and add it to the urls list
+			int rc= llist_add(option_urls,url);
+			if (rc == LLIST_ERROR) {
+				free(url);
+				log_error("pep_setoption: can't add url: %s to list.", str);
+				pep_errmsg("can't add url: %s to list.", str);
+				rc= PEP_ERR_MEMORY;
+				break;
+			}
+			log_debug("pep_setoption: PEP_OPTION_ENDPOINT_URL: %s",url);
 			break;
 		case PEP_OPTION_ENABLE_PIPS:
 			value= va_arg(args,int);
@@ -226,7 +241,7 @@ pep_error_t pep_authorize(pep_request_t ** inout_request, pep_response_t ** out_
 	int pip_rc= -1;
 	if (option_pips_enabled && llist_length(pips) > 0) {
 		size_t pips_l= llist_length(pips);
-		log_info("pep_authorize: process %d PIP", (int)pips_l);
+		log_info("pep_authorize: %d PIPs available, processing...", (int)pips_l);
 		for (i= 0; i<pips_l; i++) {
 			pep_pip_t * pip= llist_get(pips,i);
 			if (pip != NULL) {
@@ -282,57 +297,50 @@ pep_error_t pep_authorize(pep_request_t ** inout_request, pep_response_t ** out_
 		}
 	}
 	// set the UserAgent string
-	curl_easy_setopt(curl, CURLOPT_USERAGENT, PACKAGE_NAME "/" PACKAGE_VERSION);
+	CURLcode curl_rc= curl_easy_setopt(curl, CURLOPT_USERAGENT, PACKAGE_NAME "/" PACKAGE_VERSION);
 
     // FIXME: check return code
-	curl_easy_setopt(curl, CURLOPT_TIMEOUT, option_timeout);
+	 curl_rc= curl_easy_setopt(curl, CURLOPT_TIMEOUT, option_timeout);
 
-	// set the endpoint url
-	CURLcode curl_rc= curl_easy_setopt(curl, CURLOPT_URL, option_url);
-	if (curl_rc != CURLE_OK) {
-		log_error("pep_authorize: curl_easy_setopt(curl, CURLOPT_URL, %s) failed: %s.",option_url,curl_easy_strerror(curl_rc));
-		buffer_delete(b64output);
-		pep_errmsg("curl_easy_setopt(curl, CURLOPT_URL, %s) failed: %s.",option_url,curl_easy_strerror(curl_rc));
-		return PEP_ERR_AUTHZ_CURL;
-	}
 
 	// configure curl handler to POST the base64 encoded marshalled PEP request buffer
 	curl_rc= curl_easy_setopt(curl, CURLOPT_POST, 1L);
 	if (curl_rc != CURLE_OK) {
-		log_error("pep_authorize: curl_easy_setopt(curl, CURLOPT_POST, 1L) failed: %s.",curl_easy_strerror(curl_rc));
+		log_error("pep_authorize: curl_easy_setopt(curl,CURLOPT_POST,1) failed: %s.",curl_easy_strerror(curl_rc));
 		buffer_delete(b64output);
-		pep_errmsg("curl_easy_setopt(curl, CURLOPT_POST, 1L) failed: %s.",curl_easy_strerror(curl_rc));
+		pep_errmsg("curl_easy_setopt(curl,CURLOPT_POST,1) failed: %s.",curl_easy_strerror(curl_rc));
 		return PEP_ERR_AUTHZ_CURL;
 	}
 
 	long b64output_l= (long)buffer_length(b64output);
 	curl_rc= curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, b64output_l);
 	if (curl_rc != CURLE_OK) {
-		log_error("pep_authorize: curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, %d) failed: %s.",(int)b64output_l,curl_easy_strerror(curl_rc));
+		log_error("pep_authorize: curl_easy_setopt(curl,CURLOPT_POSTFIELDSIZE,%d) failed: %s.",(int)b64output_l,curl_easy_strerror(curl_rc));
 		buffer_delete(b64output);
-		pep_errmsg("curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, %d) failed: %s.",(int)b64output_l,curl_easy_strerror(curl_rc));
+		pep_errmsg("curl_easy_setopt(curl,CURLOPT_POSTFIELDSIZE,%d) failed: %s.",(int)b64output_l,curl_easy_strerror(curl_rc));
 		return PEP_ERR_AUTHZ_CURL;
 	}
 
 	curl_rc= curl_easy_setopt(curl, CURLOPT_READDATA, b64output);
 	if (curl_rc != CURLE_OK) {
-		log_error("pep_authorize: curl_easy_setopt(curl, CURLOPT_READDATA, b64output) failed: %s.",curl_easy_strerror(curl_rc));
+		log_error("pep_authorize: curl_easy_setopt(curl,CURLOPT_READDATA,b64output) failed: %s.",curl_easy_strerror(curl_rc));
 		buffer_delete(b64output);
-		pep_errmsg("curl_easy_setopt(curl, CURLOPT_READDATA, b64output) failed: %s.",curl_easy_strerror(curl_rc));
+		pep_errmsg("curl_easy_setopt(curl,CURLOPT_READDATA,b64output) failed: %s.",curl_easy_strerror(curl_rc));
 		return PEP_ERR_AUTHZ_CURL;
 	}
 
 	curl_rc= curl_easy_setopt(curl, CURLOPT_READFUNCTION, buffer_read);
 	if (curl_rc != CURLE_OK) {
-		log_error("pep_authorize: curl_easy_setopt(curl, CURLOPT_READFUNCTION, buffer_read) failed: %s.",curl_easy_strerror(curl_rc));
+		log_error("pep_authorize: curl_easy_setopt(curl,CURLOPT_READFUNCTION,buffer_read) failed: %s.",curl_easy_strerror(curl_rc));
 		buffer_delete(b64output);
-		pep_errmsg("curl_easy_setopt(curl, CURLOPT_READFUNCTION, buffer_read) failed: %s.",curl_easy_strerror(curl_rc));
+		pep_errmsg("curl_easy_setopt(curl,CURLOPT_READFUNCTION,buffer_read) failed: %s.",curl_easy_strerror(curl_rc));
 		return PEP_ERR_AUTHZ_CURL;
 	}
 
 
 	// configure curl handler to read the base64 encoded HTTP response
-	BUFFER * b64input= buffer_create(1024); // FIXME: optimize size
+	// TODO: optimize size
+	BUFFER * b64input= buffer_create(1024);
 	if (b64input == NULL) {
 		log_error("pep_authorize: can't create base64 input buffer.");
 		buffer_delete(b64output);
@@ -342,80 +350,125 @@ pep_error_t pep_authorize(pep_request_t ** inout_request, pep_response_t ** out_
 
     curl_rc= curl_easy_setopt(curl, CURLOPT_WRITEDATA, b64input);
 	if (curl_rc != CURLE_OK) {
-		log_error("pep_authorize: curl_easy_setopt(curl, CURLOPT_WRITEDATA, b64input) failed: %s.",curl_easy_strerror(curl_rc));
+		log_error("pep_authorize: curl_easy_setopt(curl,CURLOPT_WRITEDATA,b64input) failed: %s.",curl_easy_strerror(curl_rc));
 		buffer_delete(b64output);
 		buffer_delete(b64input);
-		pep_errmsg("curl_easy_setopt(curl, CURLOPT_WRITEDATA, b64input) failed: %s.",curl_easy_strerror(curl_rc));
+		pep_errmsg("curl_easy_setopt(curl,CURLOPT_WRITEDATA,b64input) failed: %s.",curl_easy_strerror(curl_rc));
 		return PEP_ERR_AUTHZ_CURL;
 	}
     curl_rc= curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, buffer_write);
 	if (curl_rc != CURLE_OK) {
-		log_error("pep_authorize: curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, buffer_write) failed: %s.",curl_easy_strerror(curl_rc));
+		log_error("pep_authorize: curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,buffer_write) failed: %s.",curl_easy_strerror(curl_rc));
 		buffer_delete(b64output);
 		buffer_delete(b64input);
-		pep_errmsg("curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, buffer_write) failed: %s.",curl_easy_strerror(curl_rc));
+		pep_errmsg("curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,buffer_write) failed: %s.",curl_easy_strerror(curl_rc));
 		return PEP_ERR_AUTHZ_CURL;
 	}
 
-	// send the request
-	log_info("pep_authorize: send request to PEP: %s", option_url);
-	curl_rc= curl_easy_perform(curl);
-	if (curl_rc != CURLE_OK) {
-		log_error("pep_authorize: CURL failed to perform the POST operation: %s.",curl_easy_strerror(curl_rc));
-		buffer_delete(b64output);
-		buffer_delete(b64input);
-		pep_errmsg("curl_easy_perform() failed: %s",curl_easy_strerror(curl_rc));
-		return PEP_ERR_AUTHZ_CURL_PROCESS;
-	}
-
-	// check for HTTP 200 response code
-	long http_code= 0;
-	curl_rc= curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE, &http_code);
-	if (curl_rc != CURLE_OK) {
-		log_error("pep_authorize: curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE, &http_code) failed: %s.",curl_easy_strerror(curl_rc));
-		buffer_delete(b64output);
-		buffer_delete(b64input);
-		pep_errmsg("curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE, &http_code) failed: %s",curl_easy_strerror(curl_rc));
-		return PEP_ERR_AUTHZ_CURL;
-	}
-	if (http_code != 200) {
-		log_error("pep_authorize: HTTP status code: %d.",(int)http_code);
-		buffer_delete(b64output);
-		buffer_delete(b64input);
-		pep_errmsg("invalid HTTP status code: %d",(int)http_code);
-		return PEP_ERR_AUTHZ_REQUEST;
-	}
-
-	// not required anymore
-	buffer_delete(b64output);
-
-	// base64 decode the input buffer.
-	size_t b64input_l= buffer_length(b64input);
-	BUFFER * input= buffer_create(b64input_l);
+	// create the Hessian input buffer
+	// TODO: optimize size
+	BUFFER * input= buffer_create(1024);
 	if (output == NULL) {
 		log_error("pep_authorize: can't create input buffer.");
+		buffer_delete(b64output);
 		buffer_delete(b64input);
 		pep_errmsg("can't create input buffer");
 		return PEP_ERR_MEMORY;
 	}
-	base64_decode(b64input,input);
 
-	// unmarshal the PEP response
+	/*
+	 * FAILOVER BEGIN
+	 */
 	pep_response_t * response= NULL;
-	int unmarshal_rc= pep_response_unmarshalling(&response,input);
-	if ( unmarshal_rc != PEP_OK) {
-		log_error("pep_authorize: can't unmarshal the PEP response: %s.", pep_strerror(unmarshal_rc));
+	int failover_ok= FALSE;
+	// set the PEPd endpoint url
+	const char * url= NULL;
+	size_t url_l= llist_length(option_urls);
+	log_info("pep_authorize: %d PEPd failover URLs available",(int)url_l);
+
+	for (i= 0; i<url_l; i++) {
+
+		response= NULL;
+
+		url= (const char *)llist_get(option_urls,i);
+		log_debug("pep_authorize: trying PEPd[%s]...",url);
+		curl_rc= curl_easy_setopt(curl, CURLOPT_URL, url);
+		if (curl_rc != CURLE_OK) {
+			log_warn("pep_authorize: PEPd[%s]: curl_easy_setopt(curl,CURLOPT_URL,%s) failed: %s.",url,curl_easy_strerror(curl_rc));
+			// try next PEPd failover url
+			log_debug("pep_authorize: PEPd[%s] failed: trying next failover URL...",url);
+			continue;
+		}
+
+		// send the request
+		log_info("pep_authorize: send request to PEPd[%s]",url);
+		curl_rc= curl_easy_perform(curl);
+		if (curl_rc != CURLE_OK) {
+			log_warn("pep_authorize: PEPd[%s]: curl_easy_perform() failed:[%d] %s.",url,(int)curl_rc,curl_easy_strerror(curl_rc));
+			buffer_rewind(b64output);
+			buffer_reset(b64input);
+			buffer_reset(input);
+			log_debug("pep_authorize: PEPd[%s] failed: reset buffers, trying next failover URL...",url);
+			continue;
+		}
+
+		// check for HTTP 200 response code
+		long http_code= 0;
+		curl_rc= curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&http_code);
+		if (curl_rc != CURLE_OK) {
+			log_warn("pep_authorize: PEPd[%s]: curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&http_code) failed: %s.",url,curl_easy_strerror(curl_rc));
+		}
+		if (http_code != 200) {
+			log_warn("pep_authorize: PEPd[%s]: HTTP status code: %d.",url,(int)http_code);
+			buffer_rewind(b64output);
+			buffer_reset(b64input);
+			buffer_reset(input);
+			log_debug("pep_authorize: PEPd[%s]: reset buffers, trying next failover URL...",url);
+			continue;
+		}
+
+		log_debug("pep_authorize: PEPd[%s]: HTTP status code: %d.",url,(int)http_code);
+
+		// base64 decode the input buffer into the Hessian buffer.
+		base64_decode(b64input,input);
+
+		// unmarshal the PEP response
+		int unmarshal_rc= pep_response_unmarshalling(&response,input);
+		if ( unmarshal_rc != PEP_OK) {
+			log_warn("pep_authorize: PEPd[%s]: can't unmarshal the PEP response: %s.", url, pep_strerror(unmarshal_rc));
+			buffer_rewind(b64output);
+			buffer_reset(b64input);
+			buffer_reset(input);
+			log_debug("pep_authorize: PEPd[%s]: reset buffers, trying next failover URL...",url);
+			continue;
+		}
+
+		failover_ok= TRUE;
+		log_info("pep_authorize: PEPd[%s]: authorization Request decoded and unmarshalled.",url);
+		break;
+
+	} // failover loop
+
+	if (failover_ok != TRUE) {
+		log_error("pep_authorize: all %d PEPd failover URLs failed",(int)url_l);
+		buffer_delete(b64output);
 		buffer_delete(b64input);
 		buffer_delete(input);
-		// pep_errmsg already called in pep_response_unmarshalling(...)
-		return unmarshal_rc;
+		pep_errmsg("all %d PEPd failover URLs failed",(int)url_l);
+		return PEP_ERR_AUTHZ_REQUEST;
 	}
+	/*
+	 * FAILOVER END
+	 */
+
+	// not required anymore
+	buffer_delete(b64output);
 
 	// apply obligation handlers if enabled and any
 	int oh_rc= 0;
 	if (option_ohs_enabled && llist_length(ohs) > 0) {
 		size_t ohs_l= llist_length(ohs);
-		log_info("pep_authorize: process %d OH", (int)ohs_l);
+		log_info("pep_authorize: %d OHs available, processing...", (int)ohs_l);
 		for (i= 0; i<ohs_l; i++) {
 			pep_obligationhandler_t * oh= llist_get(ohs,i);
 			if (oh != NULL) {
@@ -439,12 +492,17 @@ pep_error_t pep_authorize(pep_request_t ** inout_request, pep_response_t ** out_
 // TODO: return code...
 pep_error_t pep_destroy(void) {
 	// free options...
-	if (option_url) free(option_url);
+	if (option_urls != NULL) {
+		llist_delete_elements(option_urls,free);
+		llist_delete(option_urls);
+		option_urls= NULL;
+	}
 	// FIXME: free all char options
 
 	// release curl
 	if (curl != NULL) {
 		curl_easy_cleanup(curl);
+		curl= NULL;
 	}
 	curl_global_cleanup();
 
