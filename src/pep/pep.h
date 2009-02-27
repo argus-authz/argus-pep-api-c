@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * $Id: pep.h,v 1.10 2009/02/25 14:06:02 vtschopp Exp $
+ * $Id: pep.h,v 1.11 2009/02/27 12:38:58 vtschopp Exp $
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.0
@@ -39,6 +39,7 @@ extern "C" {
 /** @defgroup Logging Log Level and Output */
 /** @defgroup Model PEP XACML Objects Model */
 
+#include <stdarg.h> // va_list
 #include "pep/model.h"
 #include "pep/error.h"
 
