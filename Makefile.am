@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.10 2009/02/20 15:49:32 vtschopp Exp $
+# $Id: Makefile.am,v 1.11 2009/02/27 12:39:27 vtschopp Exp $
 #
 
 SUBDIRS = src 
@@ -21,10 +21,10 @@ install-data-local: install-html
 uninstall-local: uninstall-html
 
 install-html: 
-	$(mkinstalldirs) $(htmldir)
+	[ -d "$(htmldir)" ] || $(mkinstalldirs) $(htmldir)
 	if [ -d "doc/html" ] ; then \
 	for file in doc/html/* ; do \
-		$(INSTALL_DATA) $$file $(htmldir)/`basename $$file`; \
+		[ -f "$$file" ] && $(INSTALL_DATA) $$file $(htmldir)/`basename $$file`; \
 	done \
 	fi
 
