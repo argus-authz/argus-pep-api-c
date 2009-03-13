@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: pep.c,v 1.11 2009/02/25 14:06:35 vtschopp Exp $
+ * $Id: pep.c,v 1.12 2009/03/13 12:02:17 vtschopp Exp $
  */
 #include <stdarg.h>  /* va_list, va_arg, ... */
 #include <string.h>
@@ -229,13 +229,13 @@ pep_error_t pep_setoption(pep_option_t option, ... ) {
 	return rc;
 }
 
-pep_error_t pep_authorize(pep_request_t ** inout_request, pep_response_t ** out_response) {
+pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** out_response) {
 	if (*inout_request == NULL) {
 		log_error("pep_authorize: NULL request pointer");
-		pep_errmsg("NULL pep_request_t pointer");
+		pep_errmsg("NULL xacml_request_t pointer");
 		return PEP_ERR_NULL_POINTER;
 	}
-	pep_request_t * request= *inout_request;
+	xacml_request_t * request= *inout_request;
 	int i= 0;
 	// apply pips if enabled and any
 	int pip_rc= -1;
@@ -263,7 +263,7 @@ pep_error_t pep_authorize(pep_request_t ** inout_request, pep_response_t ** out_
 		pep_errmsg("can't allocate output buffer (512 bytes)");
 		return PEP_ERR_MEMORY;
 	}
-	int marshal_rc= pep_request_marshalling(request,output);
+	int marshal_rc= xacml_request_marshalling(request,output);
 	if ( marshal_rc != PEP_OK ) {
 		log_error("pep_authorize: can't marshal PEP request: %s.", pep_strerror(marshal_rc));
 		buffer_delete(output);
@@ -379,7 +379,7 @@ pep_error_t pep_authorize(pep_request_t ** inout_request, pep_response_t ** out_
 	/*
 	 * FAILOVER BEGIN
 	 */
-	pep_response_t * response= NULL;
+	xacml_response_t * response= NULL;
 	int failover_ok= FALSE;
 	// set the PEPd endpoint url
 	const char * url= NULL;
@@ -433,7 +433,7 @@ pep_error_t pep_authorize(pep_request_t ** inout_request, pep_response_t ** out_
 		base64_decode(b64input,input);
 
 		// unmarshal the PEP response
-		int unmarshal_rc= pep_response_unmarshalling(&response,input);
+		int unmarshal_rc= xacml_response_unmarshalling(&response,input);
 		if ( unmarshal_rc != PEP_OK) {
 			log_warn("pep_authorize: PEPd[%s]: can't unmarshal the PEP response: %s.", url, pep_strerror(unmarshal_rc));
 			buffer_rewind(b64output);

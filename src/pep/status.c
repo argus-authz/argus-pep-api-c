@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: status.c,v 1.3 2009/02/18 16:04:44 vtschopp Exp $
+ * $Id: status.c,v 1.4 2009/03/13 12:02:17 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <string.h>
 
 #include "util/linkedlist.h"
 #include "util/log.h"
-#include "pep/model.h"
+#include "pep/xacml.h"
 
 /************************************************************
  * PEP Status functions
  */
-struct pep_status {
+struct xacml_status {
 	char * message;
-	pep_status_code_t * code;
+	xacml_statuscode_t * code;
 };
 
 // message can be null
-pep_status_t * pep_status_create(const char * message) {
-	pep_status_t * status= calloc(1,sizeof(pep_status_t));
+xacml_status_t * xacml_status_create(const char * message) {
+	xacml_status_t * status= calloc(1,sizeof(xacml_status_t));
 	if (status == NULL) {
-		log_error("pep_status_create: can't allocate pep_status_t.");
+		log_error("xacml_status_create: can't allocate xacml_status_t.");
 		return NULL;
 	}
 	status->message= NULL;
@@ -42,7 +42,7 @@ pep_status_t * pep_status_create(const char * message) {
 		size_t size= strlen(message);
 		status->message= calloc(size + 1,sizeof(char));
 		if (status->message == NULL) {
-			log_error("pep_status_create: can't allocate message (%d bytes).",(int)size);
+			log_error("xacml_status_create: can't allocate message (%d bytes).",(int)size);
 			free(status);
 			return NULL;
 		}
@@ -53,60 +53,60 @@ pep_status_t * pep_status_create(const char * message) {
 }
 
 // no NULL message allowed
-int pep_status_setmessage(pep_status_t * status, const char * message) {
+int xacml_status_setmessage(xacml_status_t * status, const char * message) {
 	if (status == NULL) {
-		log_error("pep_status_setmessage: NULL status object.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_status_setmessage: NULL status object.");
+		return PEP_XACML_ERROR;
 	}
 	if (message == NULL) {
-		log_error("pep_status_setmessage: NULL message.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_status_setmessage: NULL message.");
+		return PEP_XACML_ERROR;
 	}
 	if (status->message != NULL) free(status->message);
 	size_t size= strlen(message);
 	status->message= calloc(size + 1,sizeof(char));
 	if (status->message == NULL) {
-		log_error("pep_status_setmessage: can't allocate message (%d bytes).",(int)size);
-		return PEP_MODEL_ERROR;
+		log_error("xacml_status_setmessage: can't allocate message (%d bytes).",(int)size);
+		return PEP_XACML_ERROR;
 	}
 	strncpy(status->message,message,size);
-	return PEP_MODEL_OK;
+	return PEP_XACML_OK;
 }
 
 
-const char * pep_status_getmessage(const pep_status_t * status) {
+const char * xacml_status_getmessage(const xacml_status_t * status) {
 	if (status == NULL) {
-		log_error("pep_status_getmessage: NULL status.");
+		log_error("xacml_status_getmessage: NULL status.");
 		return NULL;
 	}
 	return status->message;
 }
 
-int pep_status_setcode(pep_status_t * status, pep_status_code_t * code) {
+int xacml_status_setcode(xacml_status_t * status, xacml_statuscode_t * code) {
 	if (status == NULL || code == NULL) {
-		log_error("pep_status_getcode: NULL status or code.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_status_getcode: NULL status or code.");
+		return PEP_XACML_ERROR;
 	}
 	if (status->code != NULL) {
-		pep_status_code_delete(status->code);
+		xacml_statuscode_delete(status->code);
 	}
 	status->code= code;
-	return PEP_MODEL_OK;
+	return PEP_XACML_OK;
 }
 
-pep_status_code_t * pep_status_getcode(const pep_status_t * status) {
+xacml_statuscode_t * xacml_status_getcode(const xacml_status_t * status) {
 	if (status == NULL) {
-		log_error("pep_status_getcode: NULL status.");
+		log_error("xacml_status_getcode: NULL status.");
 		return NULL;
 	}
 	return status->code;
 }
 
-void pep_status_delete(pep_status_t * status) {
+void xacml_status_delete(xacml_status_t * status) {
 	if (status == NULL) return;
 	if (status->message != NULL) free(status->message);
 	if (status->code != NULL) {
-		pep_status_code_delete(status->code);
+		xacml_statuscode_delete(status->code);
 	}
 	free(status);
 	status= NULL;
@@ -115,16 +115,16 @@ void pep_status_delete(pep_status_t * status) {
 /************************************************************
  * PEP StatusCode functions
  */
-struct pep_status_code {
+struct xacml_statuscode {
 	char * value;
-	struct pep_status_code * subcode;
+	struct xacml_statuscode * subcode;
 };
 
 // value can be NULL, not recommended
-pep_status_code_t * pep_status_code_create(const char * value) {
-	pep_status_code_t * status_code= calloc(1,sizeof(pep_status_code_t));
+xacml_statuscode_t * xacml_statuscode_create(const char * value) {
+	xacml_statuscode_t * status_code= calloc(1,sizeof(xacml_statuscode_t));
 	if (status_code == NULL) {
-		log_error("pep_status_code_create: can't allocate pep_status_code_t.");
+		log_error("xacml_statuscode_create: can't allocate xacml_statuscode_t.");
 		return NULL;
 	}
 	status_code->value= NULL;
@@ -132,7 +132,7 @@ pep_status_code_t * pep_status_code_create(const char * value) {
 		size_t size= strlen(value);
 		status_code->value= calloc(size + 1,sizeof(char));
 		if (status_code->value == NULL) {
-			log_error("pep_status_code_create: can't allocate value (%d bytes).",(int)size);
+			log_error("xacml_statuscode_create: can't allocate value (%d bytes).",(int)size);
 			free(status_code);
 			return NULL;
 		}
@@ -143,60 +143,60 @@ pep_status_code_t * pep_status_code_create(const char * value) {
 }
 
 // value NULL not allowed
-int pep_status_code_setvalue(pep_status_code_t * status_code, const char * value) {
+int xacml_statuscode_setvalue(xacml_statuscode_t * status_code, const char * value) {
 	if (status_code == NULL) {
-		log_error("pep_status_code_setcode: NULL status_code object.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_statuscode_setcode: NULL status_code object.");
+		return PEP_XACML_ERROR;
 	}
 	if (value == NULL) {
-		log_error("pep_status_code_setcode: NULL value string.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_statuscode_setcode: NULL value string.");
+		return PEP_XACML_ERROR;
 	}
 	if (status_code->value != NULL) free(status_code->value);
 	size_t size= strlen(value);
 	status_code->value= calloc(size + 1,sizeof(char));
 	if (status_code->value == NULL) {
-		log_error("pep_status_code_setcode: can't allocate value (%d bytes).",(int)size);
-		return PEP_MODEL_ERROR;
+		log_error("xacml_statuscode_setcode: can't allocate value (%d bytes).",(int)size);
+		return PEP_XACML_ERROR;
 	}
 	strncpy(status_code->value,value,size);
-	return PEP_MODEL_OK;
+	return PEP_XACML_OK;
 }
 
-const char * pep_status_code_getvalue(const pep_status_code_t * status_code) {
+const char * xacml_statuscode_getvalue(const xacml_statuscode_t * status_code) {
 	if (status_code == NULL) {
-		log_error("pep_status_code_getcode: NULL status_code object.");
+		log_error("xacml_statuscode_getcode: NULL status_code object.");
 		return NULL;
 	}
 	return status_code->value;
 }
 
-int pep_status_code_setsubcode(pep_status_code_t * status_code, pep_status_code_t * subcode) {
+int xacml_statuscode_setsubcode(xacml_statuscode_t * status_code, xacml_statuscode_t * subcode) {
 	if (status_code == NULL || subcode == NULL) {
-		log_error("pep_status_code_setsubcode: NULL status_code or subcode");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_statuscode_setsubcode: NULL status_code or subcode");
+		return PEP_XACML_ERROR;
 	}
 	if (status_code->subcode != NULL) {
-		pep_status_code_delete(status_code->subcode);
+		xacml_statuscode_delete(status_code->subcode);
 	}
 	status_code->subcode= subcode;
-	return PEP_MODEL_OK;
+	return PEP_XACML_OK;
 }
 
 
-pep_status_code_t * pep_status_code_getsubcode(const pep_status_code_t * status_code) {
+xacml_statuscode_t * xacml_statuscode_getsubcode(const xacml_statuscode_t * status_code) {
 	if (status_code == NULL) {
-		log_error("pep_status_code_getcode: NULL status_code.");
+		log_error("xacml_statuscode_getcode: NULL status_code.");
 		return NULL;
 	}
 	return status_code->subcode;
 }
 
-void pep_status_code_delete(pep_status_code_t * status_code) {
+void xacml_statuscode_delete(xacml_statuscode_t * status_code) {
 	if (status_code == NULL) return;
 	if (status_code->value != NULL) free(status_code->value);
 	if (status_code->subcode != NULL) {
-		pep_status_code_delete(status_code->subcode);
+		xacml_statuscode_delete(status_code->subcode);
 	}
 	free(status_code);
 	status_code= NULL;

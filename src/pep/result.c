@@ -13,80 +13,80 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: result.c,v 1.2 2009/01/29 17:16:36 vtschopp Exp $
+ * $Id: result.c,v 1.3 2009/03/13 12:02:17 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <string.h>
 
 #include "util/linkedlist.h"
 #include "util/log.h"
-#include "pep/model.h"
+#include "pep/xacml.h"
 
-struct pep_result {
+struct xacml_result {
 	char * resourceid;
-	pep_decision_t decision;
-	pep_status_t * status;
+	xacml_decision_t decision;
+	xacml_status_t * status;
 	linkedlist_t * obligations; //
 };
 
-pep_result_t * pep_result_create() {
-	pep_result_t * result= calloc(1,sizeof(pep_result_t));
+xacml_result_t * xacml_result_create() {
+	xacml_result_t * result= calloc(1,sizeof(xacml_result_t));
 	if (result == NULL) {
-		log_error("pep_result_create: can't allocate pep_result_t.");
+		log_error("xacml_result_create: can't allocate xacml_result_t.");
 		return NULL;
 	}
 	result->obligations= llist_create();
 	if (result->obligations == NULL) {
-		log_error("pep_result_create: can't allocate obligations list.");
+		log_error("xacml_result_create: can't allocate obligations list.");
 		free(result);
 		return NULL;
 	}
-	result->decision= PEP_DECISION_DENY;
+	result->decision= XACML_DECISION_DENY;
 	result->resourceid= NULL;
 	result->status= NULL;
 	return result;
 }
 
-pep_decision_t pep_result_getdecision(const pep_result_t * result) {
+xacml_decision_t xacml_result_getdecision(const xacml_result_t * result) {
 	if (result == NULL) {
-		log_error("pep_result_getdecision: NULL result.");
+		log_error("xacml_result_getdecision: NULL result.");
 		return -1; // FIXME: define DECISION_INVALID ??
 	}
 	return result->decision;
 }
 
-int pep_result_setdecision(pep_result_t * result, pep_decision_t decision) {
+int xacml_result_setdecision(xacml_result_t * result, xacml_decision_t decision) {
 	if (result == NULL) {
-		log_error("pep_result_setdecision: NULL result.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_result_setdecision: NULL result.");
+		return PEP_XACML_ERROR;
 	}
 	switch (decision) {
-		case PEP_DECISION_DENY:
-		case PEP_DECISION_PERMIT:
-		case PEP_DECISION_INDETERMINATE:
-		case PEP_DECISION_NOT_APPLICABLE:
+		case XACML_DECISION_DENY:
+		case XACML_DECISION_PERMIT:
+		case XACML_DECISION_INDETERMINATE:
+		case XACML_DECISION_NOT_APPLICABLE:
 			result->decision= decision;
 			break;
 		default:
-			log_error("pep_result_setdecision: invalid decision: %d.", decision);
-			return PEP_MODEL_ERROR;
+			log_error("xacml_result_setdecision: invalid decision: %d.", decision);
+			return PEP_XACML_ERROR;
 			break;
 	}
-	return PEP_MODEL_OK;
+	return PEP_XACML_OK;
 }
 
-const char * pep_result_getresourceid(const pep_result_t * result) {
+const char * xacml_result_getresourceid(const xacml_result_t * result) {
 	if (result == NULL) {
-		log_error("pep_result_getresourceid: NULL result.");
+		log_error("xacml_result_getresourceid: NULL result.");
 		return NULL;
 	}
 	return result->resourceid;
 }
 
-int pep_result_setresourceid(pep_result_t * result, const char * resourceid) {
+int xacml_result_setresourceid(xacml_result_t * result, const char * resourceid) {
 	if (result == NULL) {
-		log_error("pep_result_setresourceid: NULL result object.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_result_setresourceid: NULL result object.");
+		return PEP_XACML_ERROR;
 	}
 	if (result->resourceid != NULL) {
 		free(result->resourceid);
@@ -96,65 +96,65 @@ int pep_result_setresourceid(pep_result_t * result, const char * resourceid) {
 		size_t size= strlen(resourceid);
 		result->resourceid= calloc(size + 1, sizeof(char));
 		if (result->resourceid == NULL) {
-			log_error("pep_result_setresourceid: can't allocate resourceid (%d bytes).",(int)size);
-			return PEP_MODEL_ERROR;
+			log_error("xacml_result_setresourceid: can't allocate resourceid (%d bytes).",(int)size);
+			return PEP_XACML_ERROR;
 		}
 		strncpy(result->resourceid,resourceid,size);
 	}
-	return PEP_MODEL_OK;
+	return PEP_XACML_OK;
 }
 
-pep_status_t * pep_result_getstatus(const pep_result_t * result) {
+xacml_status_t * xacml_result_getstatus(const xacml_result_t * result) {
 	if (result == NULL) {
-		log_error("pep_result_getstatus: NULL result.");
+		log_error("xacml_result_getstatus: NULL result.");
 		return NULL;
 	}
 	return result->status;
 }
 
-int pep_result_setstatus(pep_result_t * result, pep_status_t * status) {
+int xacml_result_setstatus(xacml_result_t * result, xacml_status_t * status) {
 	if (result == NULL || status == NULL) {
-		log_error("pep_result_setstatus: NULL result or status.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_result_setstatus: NULL result or status.");
+		return PEP_XACML_ERROR;
 	}
-	if (result->status != NULL) pep_status_delete(result->status);
+	if (result->status != NULL) xacml_status_delete(result->status);
 	result->status= status;
-	return PEP_MODEL_OK;
+	return PEP_XACML_OK;
 }
 
-int pep_result_addobligation(pep_result_t * result, pep_obligation_t * obligation) {
+int xacml_result_addobligation(xacml_result_t * result, xacml_obligation_t * obligation) {
 	if (result == NULL || obligation == NULL) {
-		log_error("pep_result_addobligation: NULL result or obligation.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_result_addobligation: NULL result or obligation.");
+		return PEP_XACML_ERROR;
 	}
 	if (llist_add(result->obligations,obligation) != LLIST_OK) {
-		log_error("pep_result_addobligation: can't add obligation to list.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_result_addobligation: can't add obligation to list.");
+		return PEP_XACML_ERROR;
 	}
-	return PEP_MODEL_OK;
+	return PEP_XACML_OK;
 }
 
-size_t pep_result_obligations_length(const pep_result_t * result) {
+size_t xacml_result_obligations_length(const xacml_result_t * result) {
 	if (result == NULL) {
-		log_error("pep_result_obligations_length: NULL result.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_result_obligations_length: NULL result.");
+		return PEP_XACML_ERROR;
 	}
 	return llist_length(result->obligations);
 }
 
-pep_obligation_t * pep_result_getobligation(const pep_result_t * result, int i) {
+xacml_obligation_t * xacml_result_getobligation(const xacml_result_t * result, int i) {
 	if (result == NULL) {
-		log_error("pep_result_getobligation: NULL result.");
+		log_error("xacml_result_getobligation: NULL result.");
 		return NULL;
 	}
 	return llist_get(result->obligations,i);
 }
 
-void pep_result_delete(pep_result_t * result) {
+void xacml_result_delete(xacml_result_t * result) {
 	if (result == NULL) return;
 	if (result->resourceid != NULL) free(result->resourceid);
-	if (result->status != NULL) pep_status_delete(result->status);
-	llist_delete_elements(result->obligations,(delete_element_func)pep_obligation_delete);
+	if (result->status != NULL) xacml_status_delete(result->status);
+	llist_delete_elements(result->obligations,(delete_element_func)xacml_obligation_delete);
 	llist_delete(result->obligations);
 	free(result);
 	result= NULL;

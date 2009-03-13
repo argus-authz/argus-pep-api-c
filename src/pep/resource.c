@@ -13,29 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: resource.c,v 1.3 2009/01/29 17:16:36 vtschopp Exp $
+ * $Id: resource.c,v 1.4 2009/03/13 12:02:17 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <string.h>
 
 #include "util/linkedlist.h"
 #include "util/log.h"
-#include "pep/model.h"
+#include "pep/xacml.h"
 
-struct pep_resource {
+struct xacml_resource {
 	char * content;
 	linkedlist_t * attributes;
 };
 
-pep_resource_t * pep_resource_create() {
-	pep_resource_t * resource= calloc(1,sizeof(pep_resource_t));
+xacml_resource_t * xacml_resource_create() {
+	xacml_resource_t * resource= calloc(1,sizeof(xacml_resource_t));
 	if (resource == NULL) {
-		log_error("pep_resource_create: can't allocate pep_resource_t.");
+		log_error("xacml_resource_create: can't allocate xacml_resource_t.");
 		return NULL;
 	}
 	resource->attributes= llist_create();
 	if (resource->attributes == NULL) {
-		log_error("pep_resource_create: can't allocate attributes list.");
+		log_error("xacml_resource_create: can't allocate attributes list.");
 		free(resource);
 		return NULL;
 	}
@@ -43,39 +43,39 @@ pep_resource_t * pep_resource_create() {
 	return resource;
 }
 
-int pep_resource_addattribute(pep_resource_t * resource, pep_attribute_t * attr) {
+int xacml_resource_addattribute(xacml_resource_t * resource, xacml_attribute_t * attr) {
 	if (resource == NULL || attr == NULL) {
-		log_error("pep_resource_addattribute: NULL resource or attribute.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_resource_addattribute: NULL resource or attribute.");
+		return PEP_XACML_ERROR;
 	}
 	if (llist_add(resource->attributes,attr) != LLIST_OK) {
-		log_error("pep_resource_addattribute: can't add attribute to list.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_resource_addattribute: can't add attribute to list.");
+		return PEP_XACML_ERROR;
 	}
-	else return PEP_MODEL_OK;
+	else return PEP_XACML_OK;
 }
 
-size_t pep_resource_attributes_length(const pep_resource_t * resource) {
+size_t xacml_resource_attributes_length(const xacml_resource_t * resource) {
 	if (resource == NULL) {
-		log_error("pep_resource_attributes_length: NULL resource.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_resource_attributes_length: NULL resource.");
+		return PEP_XACML_ERROR;
 	}
 	return llist_length(resource->attributes);
 }
 
-pep_attribute_t * pep_resource_getattribute(const pep_resource_t * resource, int index) {
+xacml_attribute_t * xacml_resource_getattribute(const xacml_resource_t * resource, int index) {
 	if (resource == NULL) {
-		log_error("pep_resource_getattribute: NULL resource.");
+		log_error("xacml_resource_getattribute: NULL resource.");
 		return NULL;
 	}
 	return llist_get(resource->attributes, index);
 }
 
 // if content is NULL, delete existing
-int pep_resource_setcontent(pep_resource_t * resource, const char * content) {
+int xacml_resource_setcontent(xacml_resource_t * resource, const char * content) {
 	if (resource == NULL) {
-		log_error("pep_resource_setcontent: NULL resource pointer.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_resource_setcontent: NULL resource pointer.");
+		return PEP_XACML_ERROR;
 	}
 	if (resource->content != NULL) {
 		free(resource->content);
@@ -84,25 +84,25 @@ int pep_resource_setcontent(pep_resource_t * resource, const char * content) {
 		size_t size= strlen(content);
 		resource->content= calloc(size + 1, sizeof(char));
 		if (resource->content == NULL) {
-			log_error("pep_resource_setcontent: can't allocate content (%d bytes).", (int)size);
-			return PEP_MODEL_ERROR;
+			log_error("xacml_resource_setcontent: can't allocate content (%d bytes).", (int)size);
+			return PEP_XACML_ERROR;
 		}
 		strncpy(resource->content,content,size);
 	}
-	return PEP_MODEL_OK;
+	return PEP_XACML_OK;
 }
 
-const char * pep_resource_getcontent(const pep_resource_t * resource) {
+const char * xacml_resource_getcontent(const xacml_resource_t * resource) {
 	if (resource == NULL) {
-		log_error("pep_resource_getcontent: NULL resource.");
+		log_error("xacml_resource_getcontent: NULL resource.");
 		return NULL;
 	}
 	return resource->content;
 }
 
-void pep_resource_delete(pep_resource_t * resource) {
+void xacml_resource_delete(xacml_resource_t * resource) {
 	if (resource == NULL) return;
-	llist_delete_elements(resource->attributes,(delete_element_func)pep_attribute_delete);
+	llist_delete_elements(resource->attributes,(delete_element_func)xacml_attribute_delete);
 	llist_delete(resource->attributes);
 	if (resource->content != NULL) free(resource->content);
 	free(resource);

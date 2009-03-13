@@ -13,26 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: obligation.c,v 1.2 2009/01/29 17:16:36 vtschopp Exp $
+ * $Id: obligation.c,v 1.3 2009/03/13 12:02:17 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <string.h>
 
 #include "util/linkedlist.h"
 #include "util/log.h"
-#include "pep/model.h"
+#include "pep/xacml.h"
 
-struct pep_obligation {
+struct xacml_obligation {
 	char * id; // mandatory
-	pep_fulfillon_t fulfillon; // optional
+	xacml_fulfillon_t fulfillon; // optional
 	linkedlist_t * assignments; // AttributeAssignments list
 };
 
 // id can be NULL
-pep_obligation_t * pep_obligation_create(const char * id) {
-	pep_obligation_t * obligation= calloc(1,sizeof(pep_obligation_t));
+xacml_obligation_t * xacml_obligation_create(const char * id) {
+	xacml_obligation_t * obligation= calloc(1,sizeof(xacml_obligation_t));
 	if (obligation == NULL) {
-		log_error("pep_obligation_create: can't allocate pep_obligation_t.");
+		log_error("xacml_obligation_create: can't allocate xacml_obligation_t.");
 		return NULL;
 	}
 	obligation->id= NULL;
@@ -40,7 +40,7 @@ pep_obligation_t * pep_obligation_create(const char * id) {
 		size_t size= strlen(id);
 		obligation->id= calloc(size + 1,sizeof(char));
 		if (obligation->id == NULL) {
-			log_error("pep_obligation_create: can't allocate id (%d bytes).",(int)size);
+			log_error("xacml_obligation_create: can't allocate id (%d bytes).",(int)size);
 			free(obligation);
 			return NULL;
 		}
@@ -48,24 +48,24 @@ pep_obligation_t * pep_obligation_create(const char * id) {
 	}
 	obligation->assignments= llist_create();
 	if (obligation->assignments == NULL) {
-		log_error("pep_obligation_create: can't create assignments list.");
+		log_error("xacml_obligation_create: can't create assignments list.");
 		free(obligation->id);
 		free(obligation);
 		return NULL;
 	}
-	obligation->fulfillon= PEP_FULFILLON_DENY;
+	obligation->fulfillon= XACML_FULFILLON_DENY;
 	return obligation;
 }
 
 // id can't be NULL
-int pep_obligation_setid(pep_obligation_t * obligation, const char * id) {
+int xacml_obligation_setid(xacml_obligation_t * obligation, const char * id) {
 	if (obligation == NULL) {
-		log_error("pep_obligation_setid: NULL obligation.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_obligation_setid: NULL obligation.");
+		return PEP_XACML_ERROR;
 	}
 	if (id == NULL) {
-		log_error("pep_obligation_setid: NULL id.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_obligation_setid: NULL id.");
+		return PEP_XACML_ERROR;
 	}
 	if (obligation->id != NULL) {
 		free(obligation->id);
@@ -73,85 +73,85 @@ int pep_obligation_setid(pep_obligation_t * obligation, const char * id) {
 	size_t size= strlen(id);
 	obligation->id= calloc(size + 1,sizeof(char));
 	if (obligation->id == NULL) {
-		log_error("pep_obligation_setid: can't allocate id (%d bytes).", (int)size);
-		return PEP_MODEL_ERROR;
+		log_error("xacml_obligation_setid: can't allocate id (%d bytes).", (int)size);
+		return PEP_XACML_ERROR;
 	}
 	strncpy(obligation->id,id,size);
-	return PEP_MODEL_OK;
+	return PEP_XACML_OK;
 
 }
-const char * pep_obligation_getid(const pep_obligation_t * obligation) {
+const char * xacml_obligation_getid(const xacml_obligation_t * obligation) {
 	if (obligation == NULL) {
-		log_error("pep_obligation_getfulfillon: NULL obligation.");
+		log_error("xacml_obligation_getfulfillon: NULL obligation.");
 		return NULL;
 	}
 	return obligation->id;
 }
 
 
-pep_fulfillon_t pep_obligation_getfulfillon(const pep_obligation_t * obligation) {
+xacml_fulfillon_t xacml_obligation_getfulfillon(const xacml_obligation_t * obligation) {
 	if (obligation == NULL) {
-		log_error("pep_obligation_getfulfillon: NULL obligation.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_obligation_getfulfillon: NULL obligation.");
+		return PEP_XACML_ERROR;
 	}
 	return obligation->fulfillon;
 }
 
-int pep_obligation_setfulfillon(pep_obligation_t * obligation, pep_fulfillon_t fulfillon) {
+int xacml_obligation_setfulfillon(xacml_obligation_t * obligation, xacml_fulfillon_t fulfillon) {
 	if (obligation == NULL) {
-		log_error("pep_obligation_setfulfillon: NULL obligation.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_obligation_setfulfillon: NULL obligation.");
+		return PEP_XACML_ERROR;
 	}
 	switch (fulfillon) {
-		case PEP_FULFILLON_DENY:
-		case PEP_FULFILLON_PERMIT:
+		case XACML_FULFILLON_DENY:
+		case XACML_FULFILLON_PERMIT:
 			obligation->fulfillon= fulfillon;
 			break;
 		default:
-			log_error("pep_obligation_setfulfillon: invalid fulfillon: %d.", fulfillon);
-			return PEP_MODEL_ERROR;
+			log_error("xacml_obligation_setfulfillon: invalid fulfillon: %d.", fulfillon);
+			return PEP_XACML_ERROR;
 			break;
 	}
-	return PEP_MODEL_OK;
+	return PEP_XACML_OK;
 }
 
-int pep_obligation_addattributeassignment(pep_obligation_t * obligation, pep_attribute_assignment_t * attr) {
+int xacml_obligation_addattributeassignment(xacml_obligation_t * obligation, xacml_attributeassignment_t * attr) {
 	if (obligation == NULL) {
-		log_error("pep_obligation_addattributeassignment: NULL obligation.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_obligation_addattributeassignment: NULL obligation.");
+		return PEP_XACML_ERROR;
 	}
 	if (attr == NULL) {
-		log_error("pep_obligation_addattributeassignment: NULL attribute assignment.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_obligation_addattributeassignment: NULL attribute assignment.");
+		return PEP_XACML_ERROR;
 	}
 	if (llist_add(obligation->assignments,attr) != LLIST_OK) {
-		log_error("pep_obligation_addattributeassignment: can't add attribute assignment to list.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_obligation_addattributeassignment: can't add attribute assignment to list.");
+		return PEP_XACML_ERROR;
 
 	}
-	return PEP_MODEL_OK;
+	return PEP_XACML_OK;
 }
 
-size_t pep_obligation_attributeassignments_length(const pep_obligation_t * obligation) {
+size_t xacml_obligation_attributeassignments_length(const xacml_obligation_t * obligation) {
 	if (obligation == NULL) {
-		log_error("pep_obligation_attributeassignments_length: NULL obligation.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_obligation_attributeassignments_length: NULL obligation.");
+		return PEP_XACML_ERROR;
 	}
 	return llist_length(obligation->assignments);
 }
 
-pep_attribute_assignment_t * pep_obligation_getattributeassignment(const pep_obligation_t * obligation,int i) {
+xacml_attributeassignment_t * xacml_obligation_getattributeassignment(const xacml_obligation_t * obligation,int i) {
 	if (obligation == NULL) {
-		log_error("pep_obligation_getattributeassignment: NULL obligation.");
+		log_error("xacml_obligation_getattributeassignment: NULL obligation.");
 		return NULL;
 	}
 	return llist_get(obligation->assignments,i);
 }
 
-void pep_obligation_delete(pep_obligation_t * obligation) {
+void xacml_obligation_delete(xacml_obligation_t * obligation) {
 	if (obligation == NULL) return;
 	if (obligation->id != NULL) free(obligation->id);
-	llist_delete_elements(obligation->assignments,(delete_element_func)pep_attribute_assignment_delete);
+	llist_delete_elements(obligation->assignments,(delete_element_func)xacml_attributeassignment_delete);
 	llist_delete(obligation->assignments);
 	free(obligation);
 	obligation= NULL;

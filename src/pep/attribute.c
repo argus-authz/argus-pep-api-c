@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: attribute.c,v 1.2 2009/01/29 17:16:36 vtschopp Exp $
+ * $Id: attribute.c,v 1.3 2009/03/13 12:02:17 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <string.h>
 
 #include "util/linkedlist.h"
 #include "util/log.h"
-#include "pep/model.h"
+#include "pep/xacml.h"
 
-struct pep_attribute {
+struct xacml_attribute {
 	char * id; // mandatory
 	char * datatype; // optional
 	char * issuer; // optional
@@ -32,10 +32,10 @@ struct pep_attribute {
 /**
  * Creates a PEP attribute with the given id.
  */
-pep_attribute_t * pep_attribute_create(const char * id) {
-	pep_attribute_t * attr= calloc(1,sizeof(pep_attribute_t));
+xacml_attribute_t * xacml_attribute_create(const char * id) {
+	xacml_attribute_t * attr= calloc(1,sizeof(xacml_attribute_t));
 	if (attr == NULL) {
-		log_error("pep_attribute_create: can't allocate pep_attribute_t.");
+		log_error("xacml_attribute_create: can't allocate xacml_attribute_t.");
 		return NULL;
 	}
 	attr->id= NULL;
@@ -43,7 +43,7 @@ pep_attribute_t * pep_attribute_create(const char * id) {
 		size_t size= strlen(id);
 		attr->id= calloc(size + 1,sizeof(char));
 		if (attr->id == NULL) {
-			log_error("pep_attribute_create: can't allocate id (%d bytes).",(int)size);
+			log_error("xacml_attribute_create: can't allocate id (%d bytes).",(int)size);
 			free(attr);
 			return NULL;
 		}
@@ -53,7 +53,7 @@ pep_attribute_t * pep_attribute_create(const char * id) {
 	attr->issuer= NULL;
 	attr->values= llist_create();
 	if (attr->values == NULL) {
-		log_error("pep_attribute_create: can't create values list.");
+		log_error("xacml_attribute_create: can't create values list.");
 		free(attr->id);
 		free(attr);
 		return NULL;
@@ -64,14 +64,14 @@ pep_attribute_t * pep_attribute_create(const char * id) {
 /**
  * Sets the PEP attribute id. id is mandatory and can't be NULL.
  */
-int pep_attribute_setid(pep_attribute_t * attr, const char * id) {
+int xacml_attribute_setid(xacml_attribute_t * attr, const char * id) {
 	if (attr == NULL) {
-		log_error("pep_attribute_setid: NULL attribute.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_attribute_setid: NULL attribute.");
+		return PEP_XACML_ERROR;
 	}
 	if (id == NULL) {
-		log_error("pep_attribute_setid: NULL id.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_attribute_setid: NULL id.");
+		return PEP_XACML_ERROR;
 	}
 	if (attr->id != NULL) {
 		free(attr->id);
@@ -79,16 +79,16 @@ int pep_attribute_setid(pep_attribute_t * attr, const char * id) {
 	size_t size= strlen(id);
 	attr->id= calloc(size + 1,sizeof(char));
 	if (attr->id == NULL) {
-		log_error("pep_attribute_setid: can't allocate id (%d bytes).", (int)size);
-		return PEP_MODEL_ERROR;
+		log_error("xacml_attribute_setid: can't allocate id (%d bytes).", (int)size);
+		return PEP_XACML_ERROR;
 	}
 	strncpy(attr->id,id,size);
-	return PEP_MODEL_OK;
+	return PEP_XACML_OK;
 }
 
-const char * pep_attribute_getid(const pep_attribute_t * attr) {
+const char * xacml_attribute_getid(const xacml_attribute_t * attr) {
 	if (attr == NULL) {
-		log_error("pep_attribute_getid: NULL attribute.");
+		log_error("xacml_attribute_getid: NULL attribute.");
 		return NULL;
 	}
 	return attr->id;
@@ -97,10 +97,10 @@ const char * pep_attribute_getid(const pep_attribute_t * attr) {
 /**
  * Sets the PEP attribute data type. NULL to delete existing datatype.
  */
-int pep_attribute_setdatatype(pep_attribute_t * attr, const char * datatype) {
+int xacml_attribute_setdatatype(xacml_attribute_t * attr, const char * datatype) {
 	if (attr == NULL) {
-		log_error("pep_attribute_setdatatype: NULL attribute.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_attribute_setdatatype: NULL attribute.");
+		return PEP_XACML_ERROR;
 	}
 	if (attr->datatype != NULL) {
 		free(attr->datatype);
@@ -110,17 +110,17 @@ int pep_attribute_setdatatype(pep_attribute_t * attr, const char * datatype) {
 		size_t size= strlen(datatype);
 		attr->datatype= calloc(size + 1,sizeof(char));
 		if (attr->datatype == NULL) {
-			log_error("pep_attribute_setdatatype: can't allocate datatype (%d bytes).", (int)size);
-			return PEP_MODEL_ERROR;
+			log_error("xacml_attribute_setdatatype: can't allocate datatype (%d bytes).", (int)size);
+			return PEP_XACML_ERROR;
 		}
 		strncpy(attr->datatype,datatype,size);
 	}
-	return PEP_MODEL_OK;
+	return PEP_XACML_OK;
 }
 
-const char * pep_attribute_getdatatype(const pep_attribute_t * attr) {
+const char * xacml_attribute_getdatatype(const xacml_attribute_t * attr) {
 	if (attr == NULL) {
-		log_error("pep_attribute_getdatatype: NULL attribute.");
+		log_error("xacml_attribute_getdatatype: NULL attribute.");
 		return NULL;
 	}
 	return attr->datatype;
@@ -130,10 +130,10 @@ const char * pep_attribute_getdatatype(const pep_attribute_t * attr) {
 /**
  * Sets the PEP attribute issuer. NULL to delete existing id.
  */
-int pep_attribute_setissuer(pep_attribute_t * attr, const char * issuer) {
+int xacml_attribute_setissuer(xacml_attribute_t * attr, const char * issuer) {
 	if (attr == NULL) {
-		log_error("pep_attribute_setissuer: NULL attribute.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_attribute_setissuer: NULL attribute.");
+		return PEP_XACML_ERROR;
 	}
 	if (attr->issuer != NULL) {
 		free(attr->issuer);
@@ -143,18 +143,18 @@ int pep_attribute_setissuer(pep_attribute_t * attr, const char * issuer) {
 		size_t size= strlen(issuer);
 		attr->issuer= calloc(size + 1,sizeof(char));
 		if (attr->issuer == NULL) {
-			log_error("pep_attribute_setissuer: can't allocate issuer (%d bytes).", (int)size);
-			return PEP_MODEL_ERROR;
+			log_error("xacml_attribute_setissuer: can't allocate issuer (%d bytes).", (int)size);
+			return PEP_XACML_ERROR;
 		}
 		strncpy(attr->issuer,issuer,size);
 	}
-	return PEP_MODEL_OK;
+	return PEP_XACML_OK;
 
 }
 
-const char * pep_attribute_getissuer(const pep_attribute_t * attr) {
+const char * xacml_attribute_getissuer(const xacml_attribute_t * attr) {
 	if (attr == NULL) {
-		log_error("pep_attribute_getissuer: NULL attribute.");
+		log_error("xacml_attribute_getissuer: NULL attribute.");
 		return NULL;
 	}
 	return attr->issuer;
@@ -163,37 +163,37 @@ const char * pep_attribute_getissuer(const pep_attribute_t * attr) {
 /**
  * Adds a value to the PEP attribute.
  */
-int pep_attribute_addvalue(pep_attribute_t * attr, const char *value) {
+int xacml_attribute_addvalue(xacml_attribute_t * attr, const char *value) {
 	if (attr == NULL || value == NULL) {
-		log_error("pep_attribute_addvalue: NULL attribute or value.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_attribute_addvalue: NULL attribute or value.");
+		return PEP_XACML_ERROR;
 	}
 	// copy the const value
 	size_t size= strlen(value);
 	char * v= calloc(size + 1, sizeof(char));
 	if (v == NULL) {
-		log_error("pep_attribute_addvalue: can't allocate value (%d bytes).", (int)size);
-		return PEP_MODEL_ERROR;
+		log_error("xacml_attribute_addvalue: can't allocate value (%d bytes).", (int)size);
+		return PEP_XACML_ERROR;
 	}
 	strncpy(v,value,size);
 	if (llist_add(attr->values,v) != LLIST_OK) {
-		log_error("pep_attribute_addvalue: can't add value to list.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_attribute_addvalue: can't add value to list.");
+		return PEP_XACML_ERROR;
 	}
-	else return PEP_MODEL_OK;
+	else return PEP_XACML_OK;
 }
 
-size_t pep_attribute_values_length(const pep_attribute_t * attr) {
+size_t xacml_attribute_values_length(const xacml_attribute_t * attr) {
 	if (attr == NULL) {
-		log_error("pep_attribute_values_length: NULL attribute.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_attribute_values_length: NULL attribute.");
+		return PEP_XACML_ERROR;
 	}
 	return llist_length(attr->values);
 }
 
-const char * pep_attribute_getvalue(const pep_attribute_t * attr,int index) {
+const char * xacml_attribute_getvalue(const xacml_attribute_t * attr,int index) {
 	if (attr == NULL) {
-		log_error("pep_attribute_getvalue: NULL attribute.");
+		log_error("xacml_attribute_getvalue: NULL attribute.");
 		return NULL;
 	}
 	return llist_get(attr->values,index);
@@ -202,7 +202,7 @@ const char * pep_attribute_getvalue(const pep_attribute_t * attr,int index) {
 /**
  * Deletes the PEP attribute.
  */
-void pep_attribute_delete(pep_attribute_t * attr) {
+void xacml_attribute_delete(xacml_attribute_t * attr) {
 	if (attr == NULL) return;
 	if (attr->id != NULL) free(attr->id);
 	if (attr->datatype != NULL) free(attr->datatype);

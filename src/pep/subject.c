@@ -13,29 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: subject.c,v 1.3 2009/01/29 17:16:36 vtschopp Exp $
+ * $Id: subject.c,v 1.4 2009/03/13 12:02:17 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <string.h>
 
 #include "util/linkedlist.h"
 #include "util/log.h"
-#include "pep/model.h"
+#include "pep/xacml.h"
 
-struct pep_subject {
+struct xacml_subject {
 	char * category;
 	linkedlist_t * attributes;
 };
 
-pep_subject_t * pep_subject_create() {
-	pep_subject_t * subject= calloc(1,sizeof(pep_subject_t));
+xacml_subject_t * xacml_subject_create() {
+	xacml_subject_t * subject= calloc(1,sizeof(xacml_subject_t));
 	if (subject == NULL) {
-		log_error("pep_subject_create: can't allocate pep_subject_t.");
+		log_error("xacml_subject_create: can't allocate xacml_subject_t.");
 		return NULL;
 	}
 	subject->attributes= llist_create();
 	if (subject->attributes == NULL) {
-		log_error("pep_subject_create: can't allocate attributes list.");
+		log_error("xacml_subject_create: can't allocate attributes list.");
 		free(subject);
 		return NULL;
 	}
@@ -44,10 +44,10 @@ pep_subject_t * pep_subject_create() {
 }
 
 // category == NULL will delete the existing one.
-int pep_subject_setcategory(pep_subject_t * subject, const char * category) {
+int xacml_subject_setcategory(xacml_subject_t * subject, const char * category) {
 	if (subject == NULL) {
-		log_error("pep_subject_setcategory: NULL subject.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_subject_setcategory: NULL subject.");
+		return PEP_XACML_ERROR;
 	}
 	if (subject->category != NULL) {
 		free(subject->category);
@@ -56,53 +56,53 @@ int pep_subject_setcategory(pep_subject_t * subject, const char * category) {
 		size_t size= strlen(category);
 		subject->category= calloc(size + 1, sizeof(char));
 		if (subject->category == NULL) {
-			log_error("pep_subject_setcategory: can't allocate category (%d bytes).", (int)size);
-			return PEP_MODEL_ERROR;
+			log_error("xacml_subject_setcategory: can't allocate category (%d bytes).", (int)size);
+			return PEP_XACML_ERROR;
 		}
 		strncpy(subject->category,category,size);
 	}
-	return PEP_MODEL_OK;
+	return PEP_XACML_OK;
 }
 
-const char * pep_subject_getcategory(const pep_subject_t * subject) {
+const char * xacml_subject_getcategory(const xacml_subject_t * subject) {
 	if (subject == NULL) {
-		log_error("pep_subject_getcategory: NULL subject.");
+		log_error("xacml_subject_getcategory: NULL subject.");
 		return NULL;
 	}
 	return subject->category;
 }
 
-int pep_subject_addattribute(pep_subject_t * subject, pep_attribute_t * attr) {
+int xacml_subject_addattribute(xacml_subject_t * subject, xacml_attribute_t * attr) {
 	if (subject == NULL || attr == NULL) {
-		log_error("pep_subject_addattribute: NULL subject or attribute.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_subject_addattribute: NULL subject or attribute.");
+		return PEP_XACML_ERROR;
 	}
 	if (llist_add(subject->attributes,attr) != LLIST_OK) {
-		log_error("pep_subject_addattribute: can't add attribute to list.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_subject_addattribute: can't add attribute to list.");
+		return PEP_XACML_ERROR;
 	}
-	else return PEP_MODEL_OK;
+	else return PEP_XACML_OK;
 }
 
-size_t pep_subject_attributes_length(const pep_subject_t * subject) {
+size_t xacml_subject_attributes_length(const xacml_subject_t * subject) {
 	if (subject == NULL) {
-		log_error("pep_subject_attributes_length: NULL subject.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_subject_attributes_length: NULL subject.");
+		return PEP_XACML_ERROR;
 	}
 	return llist_length(subject->attributes);
 }
 
-pep_attribute_t * pep_subject_getattribute(const pep_subject_t * subject, int index) {
+xacml_attribute_t * xacml_subject_getattribute(const xacml_subject_t * subject, int index) {
 	if (subject == NULL) {
-		log_error("pep_subject_getattribute: NULL subject.");
+		log_error("xacml_subject_getattribute: NULL subject.");
 		return NULL;
 	}
 	return llist_get(subject->attributes, index);
 }
 
-void pep_subject_delete(pep_subject_t * subject) {
+void xacml_subject_delete(xacml_subject_t * subject) {
 	if (subject == NULL) return;
-	llist_delete_elements(subject->attributes,(delete_element_func)pep_attribute_delete);
+	llist_delete_elements(subject->attributes,(delete_element_func)xacml_attribute_delete);
 	llist_delete(subject->attributes);
 	if (subject->category != NULL) {
 		free(subject->category);

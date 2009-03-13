@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * $Id: pep.h,v 1.11 2009/02/27 12:38:58 vtschopp Exp $
+ * $Id: pep.h,v 1.12 2009/03/13 12:02:17 vtschopp Exp $
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.0
@@ -37,10 +37,10 @@ extern "C" {
 /** @defgroup ObligationHandler Obligation Handler (OH) */
 /** @defgroup Error Error Reporting */
 /** @defgroup Logging Log Level and Output */
-/** @defgroup Model PEP XACML Objects Model */
+/** @defgroup XACML PEP XACML Objects Model */
 
 #include <stdarg.h> // va_list
-#include "pep/model.h"
+#include "pep/xacml.h"
 #include "pep/error.h"
 
 /** @addtogroup Logging
@@ -147,11 +147,11 @@ typedef int pip_init_func(void);
  * The process(request) function is called before the PEP client
  * submit the authorization request to the PEP daemon.
  *
- * @param pep_request_t ** address of the pointer to the PEP request
+ * @param xacml_request_t ** address of the pointer to the PEP request
  * @return 0 on success or an error code.
- * @see pep_authorize(pep_request_t **, pep_response_t **)
+ * @see pep_authorize(xacml_request_t **, xacml_response_t **)
  */
-typedef int pip_process_func(pep_request_t **);
+typedef int pip_process_func(xacml_request_t **);
 
 /**
  * PIP destroy function prototype.
@@ -203,13 +203,13 @@ typedef int oh_init_func(void);
  * The process(request,response) function is called after the PEP client
  * receives the PEP response back from PEP daemon.
  *
- * @param pep_request_t ** address of the pointer to the PEP request
- * @param pep_response_t ** address of the pointer to the PEP response
+ * @param xacml_request_t ** address of the pointer to the PEP request
+ * @param xacml_response_t ** address of the pointer to the PEP response
  *
  * @return 0 on success or an error code.
- * @see pep_authorize(pep_request_t **, pep_response_t **)
+ * @see pep_authorize(xacml_request_t **, xacml_response_t **)
  */
-typedef int oh_process_func(pep_request_t **, pep_response_t **);
+typedef int oh_process_func(xacml_request_t **, xacml_response_t **);
 
 /**
  * Obligation handler destroy function prototype.
@@ -333,12 +333,12 @@ pep_error_t pep_setoption(pep_option_t option, ... );
  * If the ObligationHandlers are enabled, they will be applied to the response after
  * the response is received and returned from the method.
  *
- * @param request address of the pointer to the {@link #pep_request_t} to send.
- * @param response address of pointer to the {@link #pep_response_t} received.
+ * @param request address of the pointer to the {@link #xacml_request_t} to send.
+ * @param response address of pointer to the {@link #xacml_response_t} received.
  *
  * @return {@link #pep_error_t} PEP_OK on success or an error code.
  */
-pep_error_t pep_authorize(pep_request_t ** request, pep_response_t ** response);
+pep_error_t pep_authorize(xacml_request_t ** request, xacml_response_t ** response);
 
 /**
  * Cleanups and destroys the PEP client.

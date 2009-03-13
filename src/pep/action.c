@@ -13,64 +13,64 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: action.c,v 1.2 2009/01/29 17:16:36 vtschopp Exp $
+ * $Id: action.c,v 1.3 2009/03/13 12:02:17 vtschopp Exp $
  */
 #include <stdlib.h>
 
 #include "util/linkedlist.h"
 #include "util/log.h"
-#include "pep/model.h"
+#include "pep/xacml.h"
 
-struct pep_action {
+struct xacml_action {
 	linkedlist_t * attributes;
 };
 
-pep_action_t * pep_action_create() {
-	pep_action_t * action= calloc(1,sizeof(pep_action_t));
+xacml_action_t * xacml_action_create() {
+	xacml_action_t * action= calloc(1,sizeof(xacml_action_t));
 	if (action == NULL) {
-		log_error("pep_action_create: can't allocate pep_action_t.");
+		log_error("xacml_action_create: can't allocate xacml_action_t.");
 		return NULL;
 	}
 	action->attributes= llist_create();
 	if (action->attributes == NULL) {
-		log_error("pep_action_create: can't create attributes list.");
+		log_error("xacml_action_create: can't create attributes list.");
 		free(action);
 		return NULL;
 	}
 	return action;
 }
 
-int pep_action_addattribute(pep_action_t * action, pep_attribute_t * attr) {
+int xacml_action_addattribute(xacml_action_t * action, xacml_attribute_t * attr) {
 	if (action == NULL || attr == NULL) {
-		log_error("pep_action_addattribute: NULL action or attribute.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_action_addattribute: NULL action or attribute.");
+		return PEP_XACML_ERROR;
 	}
 	if (llist_add(action->attributes,attr) != LLIST_OK) {
-		log_error("pep_action_addattribute: can't add attribute to list.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_action_addattribute: can't add attribute to list.");
+		return PEP_XACML_ERROR;
 	}
-	else return PEP_MODEL_OK;
+	else return PEP_XACML_OK;
 }
 
-void pep_action_delete(pep_action_t * action) {
+void xacml_action_delete(xacml_action_t * action) {
 	if (action == NULL) return;
-	llist_delete_elements(action->attributes,(delete_element_func)pep_attribute_delete);
+	llist_delete_elements(action->attributes,(delete_element_func)xacml_attribute_delete);
 	llist_delete(action->attributes);
 	free(action);
 	action= NULL;
 }
 
-size_t pep_action_attributes_length(const pep_action_t * action) {
+size_t xacml_action_attributes_length(const xacml_action_t * action) {
 	if (action == NULL) {
-		log_error("pep_action_attributes_length: NULL action.");
-		return PEP_MODEL_ERROR;
+		log_error("xacml_action_attributes_length: NULL action.");
+		return PEP_XACML_ERROR;
 	}
 	return llist_length(action->attributes);
 }
 
-pep_attribute_t * pep_action_getattribute(const pep_action_t * action, int index) {
+xacml_attribute_t * xacml_action_getattribute(const xacml_action_t * action, int index) {
 	if (action == NULL) {
-		log_error("pep_action_getattribute: NULL action.");
+		log_error("xacml_action_getattribute: NULL action.");
 		return NULL;
 	}
 	return llist_get(action->attributes, index);

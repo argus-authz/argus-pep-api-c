@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: io.h,v 1.2 2009/02/18 16:06:05 vtschopp Exp $
+ * $Id: io.h,v 1.3 2009/03/13 12:02:17 vtschopp Exp $
  */
 #ifndef _PEP_IO_H_
 #define _PEP_IO_H_
@@ -23,34 +23,34 @@ extern "C" {
 #endif
 
 #include "pep/error.h"
-#include "pep/model.h"
+#include "pep/xacml.h"
 #include "util/buffer.h"
 
 /**
- * Marshalls the PEP request object and writes the serialized Hessian bytes
+ * Marshalls the PEP XACML request object and writes the serialized Hessian bytes
  * into the output buffer.
  *
- * @param const pep_request_t * request the PEP request to marshal.
+ * @param const xacml_request_t * request the PEP XACML request to marshal.
  * @param BUFFER * output buffer.
  *
  * @return pep_error_t PEP_OK or an error code.
  */
-pep_error_t pep_request_marshalling(const pep_request_t * request, BUFFER * output);
+pep_error_t xacml_request_marshalling(const xacml_request_t * request, BUFFER * output);
 
 /**
  * Reads the serialized Hessian bytes from the input buffer and unmarshalls the PEP
- * response object.
+ * XACML response object.
  *
  * On error, return code != PEP_OK, the PEP response object state is indeterminate.
  * (should be NULL)
  *
- * @param pep_response_t ** response the unmarshalled PEP response (output).
+ * @param xacml_response_t ** response the unmarshalled PEP XACML response (output).
  * @param BUFFER * input the buffer to read from.
  *
  * @return pep_error_t PEP_OK or an error code.
  *
  * Example:
- *   pep_response_t * response= NULL;
+ *   xacml_response_t * response= NULL;
  *   int rc= pep_response_unmarshalling(&response, input);
  *   if (rc == PEP_OK) {
  *      process response...
@@ -59,7 +59,7 @@ pep_error_t pep_request_marshalling(const pep_request_t * request, BUFFER * outp
  *      error handling...
  *   }
  */
-pep_error_t pep_response_unmarshalling(pep_response_t ** response, BUFFER * input);
+pep_error_t xacml_response_unmarshalling(xacml_response_t ** response, BUFFER * input);
 
 /**
  * The Java class namespaces and variable name constants for the PEP model
@@ -91,9 +91,9 @@ static const char PEP_REQUEST_RESOURCES[]= "resources";
 static const char PEP_REQUEST_ACTION[]= "action";
 static const char PEP_REQUEST_ENVIRONMENT[]= "environment";
 
-static const char PEP_STATUS_CODE_CLASSNAME[]= "org.glite.authz.pep.model.StatusCode";
-static const char PEP_STATUS_CODE_VALUE[]= "code";
-static const char PEP_STATUS_CODE_SUBCODE[]= "subCode";
+static const char PEP_STATUSCODE_CLASSNAME[]= "org.glite.authz.pep.model.StatusCode";
+static const char PEP_STATUSCODE_VALUE[]= "code";
+static const char PEP_STATUSCODE_SUBCODE[]= "subCode";
 
 static const char PEP_STATUS_CLASSNAME[]= "org.glite.authz.pep.model.Status";
 static const char PEP_STATUS_MESSAGE[]= "message";
