@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * $Id: xacml.h,v 1.1 2009/03/13 10:14:06 vtschopp Exp $
+ * $Id: xacml.h,v 1.2 2009/03/13 12:41:33 vtschopp Exp $
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.0
@@ -163,7 +163,9 @@ typedef struct xacml_subject xacml_subject_t;
 /*
  * PEP XACML Subject identifiers (XACML 2.0, Appendix B)
  */
-static const char XACML_SUBJECT_ID[]= "urn:oasis:names:tc:xacml:1.0:subject:subject-id"; /**<  XACML Subject identifier (XACML 2.0, B.4) */
+static const char XACML_SUBJECT_ID[]= "urn:oasis:names:tc:xacml:1.0:subject:subject-id"; /**<  XACML Subject @c subject-id identifier (XACML 2.0, B.4) */
+static const char XACML_SUBJECT_IDQUALIFIER[]= "urn:oasis:names:tc:xacml:1.0:subject:subject-id-qualifier"; /**<  XACML Subject @c subject-id-qualifier identifier (XACML 2.0, B.4) */
+static const char XACML_SUBJECT_KEYINFO[]= "urn:oasis:names:tc:xacml:1.0:subject:key-info"; /**<  XACML Subject @c key-info identifier (XACML 2.0, B.4) */
 static const char XACML_SUBJECT_CATEGORY_ACCESS[]= "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"; /**<  XACML Subject/\@SubjectCategory attribute constants (XACML 2.0, B.2) */
 static const char XACML_SUBJECT_CATEGORY_INTERMEDIARY[]= "urn:oasis:names:tc:xacml:1.0:subject-category:intermediary-subject"; /**<  XACML Subject/\@SubjectCategory attribute constants (XACML 2.0, B.2) */
 static const char XACML_SUBJECT_CATEGORY_RECIPIENT[]= "urn:oasis:names:tc:xacml:1.0:subject-category:recipient-subject"; /**<  XACML Subject/\@SubjectCategory attribute constants (XACML 2.0, B.2) */
