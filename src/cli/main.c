@@ -13,17 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: main.c,v 1.1 2009/03/13 12:36:42 vtschopp Exp $
+ * $Id: main.c,v 1.2 2009/03/13 16:22:27 vtschopp Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <errno.h>
+#include <string.h>
 #include <getopt.h>
 
 #include "pep/pep.h"
 #include "util/buffer.h"
 #include "util/linkedlist.h"
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"  /* PACKAGE_NAME and PACKAGE_VERSION const */
+#else
+#define PACKAGE_VERSION "1.0.0"
+#endif
 
 // logging prototypes: log.c
 void info(const char * format, ...);
@@ -51,6 +58,8 @@ static struct option long_options[] = {
    {"certificate", required_argument, 0, 'c'},
    // Display effective Request context
    {"context",  no_argument,  0, 'x'},
+   // Display help
+   {"help",  no_argument,  0, 'h'},
    {0, 0, 0, 0}
 };
 
@@ -59,16 +68,54 @@ static int verbose= 0;
 static int req_context= 0;
 static linkedlist_t * pepd_urls= NULL;
 static long timeout= -1;
-static char * proxy= NULL;
+static char * cert_filename= NULL;
 static char * resourceid= NULL;
 static char * actionid= NULL;
 
+// buffers
+static char * cert_content= NULL;
 
-static BUFFER * read_px509(const char * filename) {
-	return NULL;
+static int read_cert_content(const char * filename) {
+	FILE * file= fopen(filename,"r");
+	if (file==NULL) {
+		error("failed to open certificate file: %s: ", filename, strerror(errno));
+		return 1;
+	}
+	BUFFER * certb= buffer_create(1024);
+	if (certb==NULL) {
+		error("can not create buffer");
+		return 2;
+	}
+	if (buffer_fread(certb,file) != BUFFER_OK) {
+		error("failed to read certificate file: %s", filename);
+		buffer_delete(certb);
+		return 3;
+	}
+
+	size_t size= buffer_length(certb);
+	if (cert_content!=NULL) {
+		free(cert_content);
+	}
+	cert_content= calloc(size+1,sizeof(char));
+	if (cert_content==NULL) {
+		error("can not allocate buffer %d bytes: %s",size,strerror(errno));
+		buffer_delete(certb);
+		return 4;
+	}
+	// copy
+	if (buffer_read(cert_content,size,sizeof(char),certb)==BUFFER_ERROR) {
+		error("failed to copy certificate content to buffer");
+		buffer_delete(certb);
+		free(cert_content);
+		cert_content= NULL;
+		return 4;
+	}
+
+	buffer_delete(certb);
+	return 0;
 }
 
-static xacml_request_t * create_xacml_request(const char * px509, const char * resourceid, const char * actionid) {
+static xacml_request_t * create_xacml_request(const char * certificate, const char * resourceid, const char * actionid) {
 	xacml_subject_t * subject= xacml_subject_create();
 	if (subject==NULL) {
 		error("can not allocate subject");
@@ -76,7 +123,7 @@ static xacml_request_t * create_xacml_request(const char * px509, const char * r
 	}
 	xacml_attribute_t * subject_attr_id= xacml_attribute_create(XACML_AUTHZINTEROP_SUBJECT_CERTCHAIN);
 	xacml_attribute_setdatatype(subject_attr_id,XACML_DATATYPE_BASE64BINARY);
-	xacml_attribute_addvalue(subject_attr_id,px509);
+	xacml_attribute_addvalue(subject_attr_id,certificate);
 	xacml_subject_addattribute(subject,subject_attr_id);
 
 	xacml_resource_t * resource= xacml_resource_create();
@@ -128,14 +175,30 @@ static xacml_request_t * create_xacml_request(const char * px509, const char * r
 	return request;
 }
 
+void show_help() {
+	fprintf(stdout,"PEP client CLI v." PACKAGE_VERSION "\n");
+	fprintf(stdout,"Usage: pepcli --pepd <URL> [options...]\n");
+	fprintf(stdout,"\nSubmit a XACML Request to the PEPd and show the XACML Response.\n");
+	fprintf(stdout,"\nOptions:\n");
+	fprintf(stdout," -p|--pepd <URL>         PEPd endpoint URL. Add multiple --pepd options for failover\n");
+	fprintf(stdout," -c|--certificate <FILE> XACML Subject proxy or X509 content\n");
+	fprintf(stdout," -r|--resourceid <URI>   XACML Resource identifier\n");
+	fprintf(stdout," -a|--actionid <URI>     XACML Action identifier\n");
+	fprintf(stdout," -t|--timeout <SEC>      Connection timeout in second\n");
+	fprintf(stdout," -c|--context            Show effective XACML Request context\n");
+	fprintf(stdout," -v|--verbose            Verbose\n");
+	fprintf(stdout," -h|--help               This help\n");
+}
+
 int main(int argc, char **argv) {
 	pepd_urls= llist_create();
 	if (pepd_urls==NULL) {
 		error("Can not allocate list.");
 		exit(E_MEMORY);
 	}
+	// parse arguments
 	int c;
-	while ((c= getopt_long(argc, argv, "vp:t:r:a:c:x", long_options, NULL)) != -1) {
+	while ((c= getopt_long(argc, argv, "vp:t:r:a:c:xh", long_options, NULL)) != -1) {
 		switch(c) {
 		case 'v':
 			debug("verbose set.");
@@ -152,7 +215,7 @@ int main(int argc, char **argv) {
 			break;
 		case 'c':
 			debug("certificate: %s",optarg);
-			proxy= optarg;
+			cert_filename= optarg;
 			break;
 		case 'r':
 			debug("Resource id: %s",optarg);
@@ -170,9 +233,13 @@ int main(int argc, char **argv) {
 				error("Timeout %s can not be converted. Using default.",optarg);
 			}
 			break;
+		case 'h':
+			show_help();
+			exit(E_OK);
+			break;
 		case '?':
             // getopt_long already printed an error message.
-			error("invalid option");
+			show_help();
 			exit(E_OPTION);
 			break;
 		default:
@@ -181,15 +248,19 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	printf("all options parsed:\n");
-	printf("verbose: %s\n", verbose ? "true" : "false");
-	printf("context: %s\n", req_context ? "true" : "false");
 	int l= llist_length(pepd_urls);
+	if (l<1) {
+		error("mandatory option --pepd is missing");
+		show_help();
+		exit(E_OPTION);
+	}
 	int i= 0;
 	for(i= 0; i<l; i++) {
 		char * url= (char *)llist_get(pepd_urls,i);
-		printf("PEPd URL: %s\n",url);
+		debug("PEPd URL: %s",url);
 	}
+	debug("verbose: %s", verbose ? "true" : "false");
+	debug("context: %s", req_context ? "true" : "false");
 	llist_delete(pepd_urls);
 	return 0;
 }
