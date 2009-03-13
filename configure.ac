@@ -1,7 +1,7 @@
 #                                              -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 #
-# $Id: configure.ac,v 1.7 2009/02/19 16:53:48 vtschopp Exp $
+# $Id: configure.ac,v 1.8 2009/03/13 12:09:46 vtschopp Exp $
 #
 
 AC_INIT(glite-authz-pep-c, 1.0.0, grid@switch.ch)
@@ -27,7 +27,7 @@ AC_CHECK_LIB(curl,curl_easy_init)
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([string.h stdlib.h stdio.h stdint.h stdarg.h float.h])
+AC_CHECK_HEADERS([string.h stdlib.h stdio.h stdint.h stdarg.h float.h getopt.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -42,12 +42,19 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([strerror strrchr calloc])
 
 # Sets default prefix
-AC_PREFIX_DEFAULT("/opt/glite")
+AC_PREFIX_DEFAULT(/opt/glite)
 
 AC_CONFIG_SRCDIR(src)
 AM_CONFIG_HEADER(src/config.h)
 
-AC_CONFIG_FILES([Makefile src/Makefile src/util/Makefile src/hessian/Makefile src/pep/Makefile])
+AC_CONFIG_FILES([
+Makefile
+src/Makefile
+src/util/Makefile
+src/hessian/Makefile
+src/pep/Makefile
+src/cli/Makefile
+])
 
 AC_OUTPUT
 
