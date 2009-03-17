@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: error.c,v 1.5 2009/02/19 08:38:08 vtschopp Exp $
+ * $Id: error.c,v 1.6 2009/03/17 12:04:24 vtschopp Exp $
  */
 #include <string.h>
 #include <stdio.h>
@@ -85,14 +85,14 @@ void pep_clearerr(void) {
 	err_msg_length= 0;
 }
 
-const char * pep_strerror(pep_error_t errno) {
+const char * pep_strerror(pep_error_t pep_errno) {
 	//return "pep_strerror(...) not yet implemented.";
 	memset(ERR_BUFFER,0,ERR_BUFFER_SIZE);
 	if (err_msg_length > 0) {
-		snprintf(ERR_BUFFER,ERR_BUFFER_SIZE,"[%d]: %s: %s", (int)errno,ERROR_STRINGS[errno],ERR_MSG_BUFFER);
+		snprintf(ERR_BUFFER,ERR_BUFFER_SIZE,"[%d]: %s: %s", (int)pep_errno,ERROR_STRINGS[pep_errno],ERR_MSG_BUFFER);
 	}
 	else {
-		snprintf(ERR_BUFFER,ERR_BUFFER_SIZE,"[%d]: %s", (int)errno,ERROR_STRINGS[errno]);
+		snprintf(ERR_BUFFER,ERR_BUFFER_SIZE,"[%d]: %s", (int)pep_errno,ERROR_STRINGS[pep_errno]);
 	}
 	return ERR_BUFFER;
 }

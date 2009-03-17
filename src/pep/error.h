@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * $Id: error.h,v 1.5 2009/02/11 14:27:00 vtschopp Exp $
+ * $Id: error.h,v 1.6 2009/03/17 12:04:24 vtschopp Exp $
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.0
@@ -76,10 +76,10 @@ typedef enum pep_error {
 /**
  * Gets the string describing the error number errno.
  *
- * @param errno the error code returned by a function.
+ * @param pep_errno the error code returned by a function.
  * @return const char * the error message describing the error.
  */
-const char * pep_strerror(pep_error_t errno);
+const char * pep_strerror(pep_error_t pep_errno);
 
 /** @internal
  * Sets an optional error message.
