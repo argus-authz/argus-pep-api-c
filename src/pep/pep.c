@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: pep.c,v 1.12 2009/03/13 12:02:17 vtschopp Exp $
+ * $Id: pep.c,v 1.13 2009/03/17 11:37:31 vtschopp Exp $
  */
 #include <stdarg.h>  /* va_list, va_arg, ... */
 #include <string.h>
@@ -263,7 +263,7 @@ pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** 
 		pep_errmsg("can't allocate output buffer (512 bytes)");
 		return PEP_ERR_MEMORY;
 	}
-	int marshal_rc= xacml_request_marshalling(request,output);
+	pep_error_t marshal_rc= xacml_request_marshalling(request,output);
 	if ( marshal_rc != PEP_OK ) {
 		log_error("pep_authorize: can't marshal PEP request: %s.", pep_strerror(marshal_rc));
 		buffer_delete(output);
@@ -433,7 +433,7 @@ pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** 
 		base64_decode(b64input,input);
 
 		// unmarshal the PEP response
-		int unmarshal_rc= xacml_response_unmarshalling(&response,input);
+		pep_error_t unmarshal_rc= xacml_response_unmarshalling(&response,input);
 		if ( unmarshal_rc != PEP_OK) {
 			log_warn("pep_authorize: PEPd[%s]: can't unmarshal the PEP response: %s.", url, pep_strerror(unmarshal_rc));
 			buffer_rewind(b64output);
