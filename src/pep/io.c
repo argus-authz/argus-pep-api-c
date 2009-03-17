@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: io.c,v 1.6 2009/03/13 12:02:17 vtschopp Exp $
+ * $Id: io.c,v 1.7 2009/03/17 09:58:18 vtschopp Exp $
  */
 
 #include <string.h>
@@ -65,15 +65,15 @@ static int xacml_action_marshal(const xacml_action_t * action, hessian_object_t 
 		*h_act= h_action;
 		return PEP_IO_OK;
 	}
-	h_action= hessian_create(HESSIAN_MAP,PEP_ACTION_CLASSNAME);
+	h_action= hessian_create(HESSIAN_MAP,XACML_HESSIAN_ACTION_CLASSNAME);
 	if (h_action == NULL) {
-		log_error("xacml_action_marshal: can't create hessian map: %s.", PEP_ACTION_CLASSNAME);
+		log_error("xacml_action_marshal: can't create hessian map: %s.", XACML_HESSIAN_ACTION_CLASSNAME);
 		return PEP_IO_ERROR;
 	}
 	// attributes list
 	hessian_object_t * h_attrs= hessian_create(HESSIAN_LIST);
 	if (h_attrs == NULL) {
-		log_error("xacml_action_marshal: can't create hessian list: %s.", PEP_ACTION_ATTRIBUTES);
+		log_error("xacml_action_marshal: can't create hessian list: %s.", XACML_HESSIAN_ACTION_ATTRIBUTES);
 		hessian_delete(h_action);
 		return PEP_IO_ERROR;
 	}
@@ -96,15 +96,15 @@ static int xacml_action_marshal(const xacml_action_t * action, hessian_object_t 
 			return PEP_IO_ERROR;
 		}
 	}
-	hessian_object_t * h_attrs_key= hessian_create(HESSIAN_STRING,PEP_ACTION_ATTRIBUTES);
+	hessian_object_t * h_attrs_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_ACTION_ATTRIBUTES);
 	if (h_attrs_key == NULL) {
-		log_error("xacml_action_marshal: can't create hessian map<key>: %s.", PEP_ACTION_ATTRIBUTES);
+		log_error("xacml_action_marshal: can't create hessian map<key>: %s.", XACML_HESSIAN_ACTION_ATTRIBUTES);
 		hessian_delete(h_action);
 		hessian_delete(h_attrs);
 		return PEP_IO_ERROR;
 	}
 	if (hessian_map_add(h_action,h_attrs_key,h_attrs) != HESSIAN_OK) {
-		log_error("xacml_action_marshal: can't add %s hessian list to action hessian map.", PEP_ACTION_ATTRIBUTES);
+		log_error("xacml_action_marshal: can't add %s hessian list to action hessian map.", XACML_HESSIAN_ACTION_ATTRIBUTES);
 		hessian_delete(h_action);
 		hessian_delete(h_attrs);
 		hessian_delete(h_attrs_key);
@@ -124,7 +124,7 @@ static int xacml_action_unmarshal(xacml_action_t ** act, const hessian_object_t 
 		log_error("xacml_action_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
-	if (strcmp(PEP_ACTION_CLASSNAME,map_type) != 0) {
+	if (strcmp(XACML_HESSIAN_ACTION_CLASSNAME,map_type) != 0) {
 		log_error("xacml_action_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
@@ -150,7 +150,7 @@ static int xacml_action_unmarshal(xacml_action_t ** act, const hessian_object_t 
 			xacml_action_delete(action);
 			return PEP_IO_ERROR;
 		}
-		if (strcmp(PEP_ACTION_ATTRIBUTES,key) == 0) {
+		if (strcmp(XACML_HESSIAN_ACTION_ATTRIBUTES,key) == 0) {
 			hessian_object_t * h_attributes= hessian_map_getvalue(h_action,i);
 			if (hessian_gettype(h_attributes) != HESSIAN_LIST) {
 				log_error("xacml_action_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.",key, i);
@@ -193,9 +193,9 @@ static int xacml_attribute_marshal(const xacml_attribute_t * attr, hessian_objec
 		log_error("xacml_attribute_marshal: NULL attribute object.");
 		return PEP_IO_ERROR;
 	}
-	hessian_object_t * h_attribute= hessian_create(HESSIAN_MAP,PEP_ATTRIBUTE_CLASSNAME);
+	hessian_object_t * h_attribute= hessian_create(HESSIAN_MAP,XACML_HESSIAN_ATTRIBUTE_CLASSNAME);
 	if (h_attribute == NULL) {
-		log_error("xacml_attribute_marshal: can't create attribute hessian map: %s", PEP_ATTRIBUTE_CLASSNAME);
+		log_error("xacml_attribute_marshal: can't create attribute hessian map: %s", XACML_HESSIAN_ATTRIBUTE_CLASSNAME);
 		return PEP_IO_ERROR;
 	}
 
@@ -207,9 +207,9 @@ static int xacml_attribute_marshal(const xacml_attribute_t * attr, hessian_objec
 		hessian_delete(h_attribute);
 		return PEP_IO_ERROR;
 	}
-	hessian_object_t * h_key= hessian_create(HESSIAN_STRING,PEP_ATTRIBUTE_ID);
+	hessian_object_t * h_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_ATTRIBUTE_ID);
 	if (hessian_map_add(h_attribute,h_key,h_value) != HESSIAN_OK) {
-		log_error("xacml_attribute_marshal: can't add pair<'%s','%s'> to hessian map: %s", PEP_ATTRIBUTE_ID,attr_id,PEP_ATTRIBUTE_CLASSNAME);
+		log_error("xacml_attribute_marshal: can't add pair<'%s','%s'> to hessian map: %s", XACML_HESSIAN_ATTRIBUTE_ID,attr_id,XACML_HESSIAN_ATTRIBUTE_CLASSNAME);
 		hessian_delete(h_attribute);
 		hessian_delete(h_key);
 		hessian_delete(h_value);
@@ -218,10 +218,10 @@ static int xacml_attribute_marshal(const xacml_attribute_t * attr, hessian_objec
 	// optional datatype
 	const char * attr_dt= xacml_attribute_getdatatype(attr);
 	if (attr_dt != NULL) {
-		h_key= hessian_create(HESSIAN_STRING,PEP_ATTRIBUTE_DATATYPE);
+		h_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_ATTRIBUTE_DATATYPE);
 		h_value= hessian_create(HESSIAN_STRING,attr_dt);
 		if (hessian_map_add(h_attribute,h_key,h_value) != HESSIAN_OK) {
-			log_error("xacml_attribute_marshal: can't add pair<'%s','%s'> to hessian map: %s", PEP_ATTRIBUTE_DATATYPE,attr_dt,PEP_ATTRIBUTE_CLASSNAME);
+			log_error("xacml_attribute_marshal: can't add pair<'%s','%s'> to hessian map: %s", XACML_HESSIAN_ATTRIBUTE_DATATYPE,attr_dt,XACML_HESSIAN_ATTRIBUTE_CLASSNAME);
 			hessian_delete(h_attribute);
 			hessian_delete(h_key);
 			hessian_delete(h_value);
@@ -231,10 +231,10 @@ static int xacml_attribute_marshal(const xacml_attribute_t * attr, hessian_objec
 	// optional issuer
 	const char * attr_issuer= xacml_attribute_getissuer(attr);
 	if (attr_issuer != NULL) {
-		h_key= hessian_create(HESSIAN_STRING,PEP_ATTRIBUTE_ISSUER);
+		h_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_ATTRIBUTE_ISSUER);
 		h_value= hessian_create(HESSIAN_STRING,attr_issuer);
 		if (hessian_map_add(h_attribute,h_key,h_value) != HESSIAN_OK) {
-			log_error("xacml_attribute_marshal: can't add pair<'%s','%s'> to hessian map: %s", PEP_ATTRIBUTE_ISSUER,attr_issuer,PEP_ATTRIBUTE_CLASSNAME);
+			log_error("xacml_attribute_marshal: can't add pair<'%s','%s'> to hessian map: %s", XACML_HESSIAN_ATTRIBUTE_ISSUER,attr_issuer,XACML_HESSIAN_ATTRIBUTE_CLASSNAME);
 			hessian_delete(h_attribute);
 			hessian_delete(h_key);
 			hessian_delete(h_value);
@@ -244,7 +244,7 @@ static int xacml_attribute_marshal(const xacml_attribute_t * attr, hessian_objec
 	// values list
 	hessian_object_t * h_values= hessian_create(HESSIAN_LIST);
 	if (h_values == NULL) {
-		log_error("xacml_attribute_marshal: can't create %s hessian list.", PEP_ATTRIBUTE_VALUES);
+		log_error("xacml_attribute_marshal: can't create %s hessian list.", XACML_HESSIAN_ATTRIBUTE_VALUES);
 		hessian_delete(h_attribute);
 		return PEP_IO_ERROR;
 	}
@@ -267,7 +267,7 @@ static int xacml_attribute_marshal(const xacml_attribute_t * attr, hessian_objec
 			return PEP_IO_ERROR;
 		}
 	}
-	hessian_object_t * h_values_key= hessian_create(HESSIAN_STRING,PEP_ATTRIBUTE_VALUES);
+	hessian_object_t * h_values_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_ATTRIBUTE_VALUES);
 	if (hessian_map_add(h_attribute,h_values_key,h_values) != HESSIAN_OK) {
 		log_error("xacml_attribute_marshal: can't add attributes hessian list to attribute hessian map.");
 		hessian_delete(h_attribute);
@@ -289,7 +289,7 @@ static int xacml_attribute_unmarshal(xacml_attribute_t ** attr, const hessian_ob
 		log_error("xacml_attribute_unmarshal: NULL hessian map type.");
 		return PEP_IO_ERROR;
 	}
-	if (strcmp(PEP_ATTRIBUTE_CLASSNAME,map_type) != 0) {
+	if (strcmp(XACML_HESSIAN_ATTRIBUTE_CLASSNAME,map_type) != 0) {
 		log_error("xacml_attribute_unmarshal: wrong hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
@@ -318,7 +318,7 @@ static int xacml_attribute_unmarshal(xacml_attribute_t ** attr, const hessian_ob
 		}
 
 		// id (mandatory)
-		if (strcmp(PEP_ATTRIBUTE_ID,key) == 0) {
+		if (strcmp(XACML_HESSIAN_ATTRIBUTE_ID,key) == 0) {
 			hessian_object_t * h_string= hessian_map_getvalue(h_attribute,i);
 			if (hessian_gettype(h_string) != HESSIAN_STRING) {
 				log_error("xacml_attribute_unmarshal: hessian map<'%s',value> is not a hessian string at: %d.",key,i);
@@ -333,7 +333,7 @@ static int xacml_attribute_unmarshal(xacml_attribute_t ** attr, const hessian_ob
 			}
 		}
 		// datatype (optional)
-		else if (strcmp(PEP_ATTRIBUTE_DATATYPE,key) == 0) {
+		else if (strcmp(XACML_HESSIAN_ATTRIBUTE_DATATYPE,key) == 0) {
 			hessian_object_t * h_string= hessian_map_getvalue(h_attribute,i);
 			hessian_t h_string_type= hessian_gettype(h_string);
 			if ( h_string_type != HESSIAN_STRING && h_string_type != HESSIAN_NULL) {
@@ -352,7 +352,7 @@ static int xacml_attribute_unmarshal(xacml_attribute_t ** attr, const hessian_ob
 
 		}
 		// issuer (optional)
-		else if (strcmp(PEP_ATTRIBUTE_ISSUER,key) == 0) {
+		else if (strcmp(XACML_HESSIAN_ATTRIBUTE_ISSUER,key) == 0) {
 			hessian_object_t * h_string= hessian_map_getvalue(h_attribute,i);
 			hessian_t h_string_type= hessian_gettype(h_string);
 			if ( h_string_type != HESSIAN_STRING && h_string_type != HESSIAN_NULL) {
@@ -371,7 +371,7 @@ static int xacml_attribute_unmarshal(xacml_attribute_t ** attr, const hessian_ob
 
 		}
 		// values list
-		else if (strcmp(PEP_ATTRIBUTE_VALUES,key) == 0) {
+		else if (strcmp(XACML_HESSIAN_ATTRIBUTE_VALUES,key) == 0) {
 			hessian_object_t * h_values= hessian_map_getvalue(h_attribute,i);
 			if (hessian_gettype(h_values) != HESSIAN_LIST) {
 				log_error("xacml_attribute_unmarshal: hessian map<'%s',value> is not a hessian list.",key);
@@ -417,15 +417,15 @@ static int xacml_environment_marshal(const xacml_environment_t * env, hessian_ob
 		*h_env= h_null;
 		return PEP_IO_OK;
 	}
-	hessian_object_t * h_environment= h_environment= hessian_create(HESSIAN_MAP,PEP_ENVIRONMENT_CLASSNAME);
+	hessian_object_t * h_environment= h_environment= hessian_create(HESSIAN_MAP,XACML_HESSIAN_ENVIRONMENT_CLASSNAME);
 	if (h_environment == NULL) {
-		log_error("xacml_environment_marshal: can't create hessian map: %s.", PEP_ENVIRONMENT_CLASSNAME);
+		log_error("xacml_environment_marshal: can't create hessian map: %s.", XACML_HESSIAN_ENVIRONMENT_CLASSNAME);
 		return PEP_IO_ERROR;
 	}
 	// attributes list
 	hessian_object_t * h_attrs= hessian_create(HESSIAN_LIST);
 	if (h_attrs == NULL) {
-		log_error("xacml_environment_marshal: can't create %s hessian list.", PEP_ENVIRONMENT_ATTRIBUTES);
+		log_error("xacml_environment_marshal: can't create %s hessian list.", XACML_HESSIAN_ENVIRONMENT_ATTRIBUTES);
 		hessian_delete(h_environment);
 		return PEP_IO_ERROR;
 	}
@@ -448,7 +448,7 @@ static int xacml_environment_marshal(const xacml_environment_t * env, hessian_ob
 			return PEP_IO_ERROR;
 		}
 	}
-	hessian_object_t * h_attrs_key= hessian_create(HESSIAN_STRING,PEP_ENVIRONMENT_ATTRIBUTES);
+	hessian_object_t * h_attrs_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_ENVIRONMENT_ATTRIBUTES);
 	if (hessian_map_add(h_environment,h_attrs_key,h_attrs) != HESSIAN_OK) {
 		log_error("xacml_environment_marshal: can't add attributes hessian list to environment hessian map.");
 		hessian_delete(h_environment);
@@ -471,7 +471,7 @@ static int xacml_environment_unmarshal(xacml_environment_t ** env, const hessian
 		log_error("xacml_environment_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
-	if (strcmp(PEP_ENVIRONMENT_CLASSNAME,map_type) != 0) {
+	if (strcmp(XACML_HESSIAN_ENVIRONMENT_CLASSNAME,map_type) != 0) {
 		log_error("xacml_environment_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
@@ -497,7 +497,7 @@ static int xacml_environment_unmarshal(xacml_environment_t ** env, const hessian
 			xacml_environment_delete(environment);
 			return PEP_IO_ERROR;
 		}
-		if (strcmp(PEP_ENVIRONMENT_ATTRIBUTES,key) == 0) {
+		if (strcmp(XACML_HESSIAN_ENVIRONMENT_ATTRIBUTES,key) == 0) {
 			hessian_object_t * h_attributes= hessian_map_getvalue(h_environment,i);
 			if (hessian_gettype(h_attributes) != HESSIAN_LIST) {
 				log_error("xacml_environment_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.",key, i);
@@ -540,9 +540,9 @@ static int xacml_request_marshal(const xacml_request_t * request, hessian_object
 		return PEP_IO_ERROR;
 	}
 	// request
-	hessian_object_t * h_request= hessian_create(HESSIAN_MAP,PEP_REQUEST_CLASSNAME);
+	hessian_object_t * h_request= hessian_create(HESSIAN_MAP,XACML_HESSIAN_REQUEST_CLASSNAME);
 	if (h_request == NULL) {
-		log_error("xacml_request_marshal: can't create request hessian map: %s.",PEP_REQUEST_CLASSNAME);
+		log_error("xacml_request_marshal: can't create request hessian map: %s.",XACML_HESSIAN_REQUEST_CLASSNAME);
 		return PEP_IO_ERROR;
 	}
 	// subjects list
@@ -571,7 +571,7 @@ static int xacml_request_marshal(const xacml_request_t * request, hessian_object
 			return PEP_IO_ERROR;
 		}
 	}
-	hessian_object_t * h_subjects_key= hessian_create(HESSIAN_STRING,PEP_REQUEST_SUBJECTS);
+	hessian_object_t * h_subjects_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_REQUEST_SUBJECTS);
 	if (hessian_map_add(h_request,h_subjects_key,h_subjects) != HESSIAN_OK) {
 		log_error("xacml_request_marshal: can't add hessian subjects list in hessian request map.");
 		hessian_delete(h_request);
@@ -604,7 +604,7 @@ static int xacml_request_marshal(const xacml_request_t * request, hessian_object
 			return PEP_IO_ERROR;
 		}
 	}
-	hessian_object_t * h_resources_key= hessian_create(HESSIAN_STRING,PEP_REQUEST_RESOURCES);
+	hessian_object_t * h_resources_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_REQUEST_RESOURCES);
 	if (hessian_map_add(h_request,h_resources_key,h_resources) != HESSIAN_OK) {
 		log_error("xacml_request_marshal: can't add hessian resources list to hessian request map.");
 		hessian_delete(h_request);
@@ -620,7 +620,7 @@ static int xacml_request_marshal(const xacml_request_t * request, hessian_object
 		hessian_delete(h_request);
 		return PEP_IO_ERROR;
 	}
-	hessian_object_t * h_action_key= hessian_create(HESSIAN_STRING,PEP_REQUEST_ACTION);
+	hessian_object_t * h_action_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_REQUEST_ACTION);
 	if (hessian_map_add(h_request,h_action_key,h_action) != HESSIAN_OK) {
 		log_error("xacml_request_marshal: can't add hessian action to hessian request.");
 		hessian_delete(h_request);
@@ -636,7 +636,7 @@ static int xacml_request_marshal(const xacml_request_t * request, hessian_object
 		hessian_delete(h_request);
 		return PEP_IO_ERROR;
 	}
-	hessian_object_t * h_environment_key= hessian_create(HESSIAN_STRING,PEP_REQUEST_ENVIRONMENT);
+	hessian_object_t * h_environment_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_REQUEST_ENVIRONMENT);
 	if (hessian_map_add(h_request,h_environment_key,h_environment) != HESSIAN_OK) {
 		log_error("xacml_request_marshal: can't add hessian environment to hessian request.");
 		hessian_delete(h_request);
@@ -658,7 +658,7 @@ static int xacml_request_unmarshal(xacml_request_t ** req, const hessian_object_
 		log_error("xacml_request_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
-	if (strcmp(PEP_REQUEST_CLASSNAME,map_type) != 0) {
+	if (strcmp(XACML_HESSIAN_REQUEST_CLASSNAME,map_type) != 0) {
 		log_error("xacml_request_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
@@ -686,7 +686,7 @@ static int xacml_request_unmarshal(xacml_request_t ** req, const hessian_object_
 			return PEP_IO_ERROR;
 		}
 		// subjects list
-		if (strcmp(PEP_REQUEST_SUBJECTS,key) == 0) {
+		if (strcmp(XACML_HESSIAN_REQUEST_SUBJECTS,key) == 0) {
 			hessian_object_t * h_subjects= hessian_map_getvalue(h_request,i);
 			if (hessian_gettype(h_subjects) != HESSIAN_LIST) {
 				log_error("xacml_request_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.",key, i);
@@ -712,7 +712,7 @@ static int xacml_request_unmarshal(xacml_request_t ** req, const hessian_object_
 			}
 		}
 		// resources list
-		else if (strcmp(PEP_REQUEST_RESOURCES,key) == 0) {
+		else if (strcmp(XACML_HESSIAN_REQUEST_RESOURCES,key) == 0) {
 			hessian_object_t * h_resources= hessian_map_getvalue(h_request,i);
 			if (hessian_gettype(h_resources) != HESSIAN_LIST) {
 				log_error("xacml_request_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.",key, i);
@@ -738,7 +738,7 @@ static int xacml_request_unmarshal(xacml_request_t ** req, const hessian_object_
 			}
 		}
 		// action (null)
-		else if (strcmp(PEP_REQUEST_ACTION,key) == 0) {
+		else if (strcmp(XACML_HESSIAN_REQUEST_ACTION,key) == 0) {
 			hessian_object_t * h_action= hessian_map_getvalue(h_request,i);
 			if (hessian_gettype(h_action) != HESSIAN_NULL) {
 				xacml_action_t * action= NULL;
@@ -757,7 +757,7 @@ static int xacml_request_unmarshal(xacml_request_t ** req, const hessian_object_
 			}
 		}
 		// environment (null)
-		else if (strcmp(PEP_REQUEST_ENVIRONMENT,key) == 0) {
+		else if (strcmp(XACML_HESSIAN_REQUEST_ENVIRONMENT,key) == 0) {
 			hessian_object_t * h_environment= hessian_map_getvalue(h_request,i);
 			if (hessian_gettype(h_environment) != HESSIAN_NULL) {
 				xacml_environment_t * environment= NULL;
@@ -790,9 +790,9 @@ static int xacml_resource_marshal(const xacml_resource_t * resource, hessian_obj
 		log_error("xacml_resource_marshal: NULL resource object.");
 		return PEP_IO_ERROR;
 	}
-	hessian_object_t * h_resource= hessian_create(HESSIAN_MAP,PEP_RESOURCE_CLASSNAME);
+	hessian_object_t * h_resource= hessian_create(HESSIAN_MAP,XACML_HESSIAN_RESOURCE_CLASSNAME);
 	if (h_resource == NULL) {
-		log_error("xacml_resource_marshal: can't create hessian map: %s.", PEP_RESOURCE_CLASSNAME);
+		log_error("xacml_resource_marshal: can't create hessian map: %s.", XACML_HESSIAN_RESOURCE_CLASSNAME);
 		return PEP_IO_ERROR;
 	}
 	// optional content
@@ -804,7 +804,7 @@ static int xacml_resource_marshal(const xacml_resource_t * resource, hessian_obj
 			hessian_delete(h_resource);
 			return PEP_IO_ERROR;
 		}
-		hessian_object_t * h_content_key= hessian_create(HESSIAN_STRING,PEP_RESOURCE_CONTENT);
+		hessian_object_t * h_content_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_RESOURCE_CONTENT);
 		if (hessian_map_add(h_resource,h_content_key,h_content) != HESSIAN_OK) {
 			log_error("xacml_resource_marshal: can't add content hessian string to resource hessian map.");
 			hessian_delete(h_resource);
@@ -839,7 +839,7 @@ static int xacml_resource_marshal(const xacml_resource_t * resource, hessian_obj
 			return PEP_IO_ERROR;
 		}
 	}
-	hessian_object_t * h_attrs_key= hessian_create(HESSIAN_STRING,PEP_RESOURCE_ATTRIBUTES);
+	hessian_object_t * h_attrs_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_RESOURCE_ATTRIBUTES);
 	if (hessian_map_add(h_resource,h_attrs_key,h_attrs) != HESSIAN_OK) {
 		log_error("xacml_resource_marshal: can't add attributes hessian list to resource hessian map.");
 		hessian_delete(h_resource);
@@ -861,7 +861,7 @@ static int xacml_resource_unmarshal(xacml_resource_t ** res, const hessian_objec
 		log_error("xacml_resource_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
-	if (strcmp(PEP_RESOURCE_CLASSNAME,map_type) != 0) {
+	if (strcmp(XACML_HESSIAN_RESOURCE_CLASSNAME,map_type) != 0) {
 		log_error("xacml_resource_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
@@ -889,7 +889,7 @@ static int xacml_resource_unmarshal(xacml_resource_t ** res, const hessian_objec
 			return PEP_IO_ERROR;
 		}
 		// content (can be null)
-		if (strcmp(PEP_RESOURCE_CONTENT,key) == 0) {
+		if (strcmp(XACML_HESSIAN_RESOURCE_CONTENT,key) == 0) {
 			hessian_object_t * h_string= hessian_map_getvalue(h_resource,i);
 			hessian_t h_string_type= hessian_gettype(h_string);
 			if ( h_string_type != HESSIAN_STRING && h_string_type != HESSIAN_NULL) {
@@ -908,7 +908,7 @@ static int xacml_resource_unmarshal(xacml_resource_t ** res, const hessian_objec
 			}
 		}
 		// attributes list
-		else if (strcmp(PEP_RESOURCE_ATTRIBUTES,key) == 0) {
+		else if (strcmp(XACML_HESSIAN_RESOURCE_ATTRIBUTES,key) == 0) {
 			hessian_object_t * h_attributes= hessian_map_getvalue(h_resource,i);
 			if (hessian_gettype(h_attributes) != HESSIAN_LIST) {
 				log_error("xacml_resource_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.",key, i);
@@ -948,9 +948,9 @@ static int xacml_subject_marshal(const xacml_subject_t * subject, hessian_object
 		log_error("xacml_subject_marshal: NULL subject object.");
 		return PEP_IO_ERROR;
 	}
-	hessian_object_t * h_subject= hessian_create(HESSIAN_MAP,PEP_SUBJECT_CLASSNAME);
+	hessian_object_t * h_subject= hessian_create(HESSIAN_MAP,XACML_HESSIAN_SUBJECT_CLASSNAME);
 	if (h_subject == NULL) {
-		log_error("xacml_subject_marshal: can't create hessian map: %s.", PEP_SUBJECT_CLASSNAME);
+		log_error("xacml_subject_marshal: can't create hessian map: %s.", XACML_HESSIAN_SUBJECT_CLASSNAME);
 		return PEP_IO_ERROR;
 	}
 	const char * category= xacml_subject_getcategory(subject);
@@ -961,7 +961,7 @@ static int xacml_subject_marshal(const xacml_subject_t * subject, hessian_object
 			hessian_delete(h_subject);
 			return PEP_IO_ERROR;
 		}
-		hessian_object_t * h_category_key= hessian_create(HESSIAN_STRING,PEP_SUBJECT_CATEGORY);
+		hessian_object_t * h_category_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_SUBJECT_CATEGORY);
 		if (hessian_map_add(h_subject,h_category_key,h_category) != HESSIAN_OK) {
 			log_error("xacml_subject_marshal: can't add category hessian string to subject hessian map.");
 			hessian_delete(h_subject);
@@ -996,7 +996,7 @@ static int xacml_subject_marshal(const xacml_subject_t * subject, hessian_object
 			return PEP_IO_ERROR;
 		}
 	}
-	hessian_object_t * h_attrs_key= hessian_create(HESSIAN_STRING,PEP_SUBJECT_ATTRIBUTES);
+	hessian_object_t * h_attrs_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_SUBJECT_ATTRIBUTES);
 	if (hessian_map_add(h_subject,h_attrs_key,h_attrs) != HESSIAN_OK) {
 		log_error("xacml_subject_marshal: can't add attributes hessian list to subject hessian map.");
 		hessian_delete(h_subject);
@@ -1018,7 +1018,7 @@ static int xacml_subject_unmarshal(xacml_subject_t ** subj, const hessian_object
 		log_error("xacml_subject_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
-	if (strcmp(PEP_SUBJECT_CLASSNAME,map_type) != 0) {
+	if (strcmp(XACML_HESSIAN_SUBJECT_CLASSNAME,map_type) != 0) {
 		log_error("xacml_subject_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
@@ -1046,7 +1046,7 @@ static int xacml_subject_unmarshal(xacml_subject_t ** subj, const hessian_object
 			return PEP_IO_ERROR;
 		}
 		// category (can be null)
-		if (strcmp(PEP_SUBJECT_CATEGORY,key) == 0) {
+		if (strcmp(XACML_HESSIAN_SUBJECT_CATEGORY,key) == 0) {
 			hessian_object_t * h_string= hessian_map_getvalue(h_subject,i);
 			hessian_t h_string_type= hessian_gettype(h_string);
 			if ( h_string_type != HESSIAN_STRING && h_string_type != HESSIAN_NULL) {
@@ -1065,7 +1065,7 @@ static int xacml_subject_unmarshal(xacml_subject_t ** subj, const hessian_object
 			}
 		}
 		// attributes list
-		else if (strcmp(PEP_SUBJECT_ATTRIBUTES,key) == 0) {
+		else if (strcmp(XACML_HESSIAN_SUBJECT_ATTRIBUTES,key) == 0) {
 			hessian_object_t * h_attributes= hessian_map_getvalue(h_subject,i);
 			if (hessian_gettype(h_attributes) != HESSIAN_LIST) {
 				log_error("xacml_subject_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.",key, i);
@@ -1151,7 +1151,7 @@ static int xacml_response_unmarshal(xacml_response_t ** resp, const hessian_obje
 		log_error("xacml_response_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
-	if (strcmp(PEP_RESPONSE_CLASSNAME,map_type) != 0) {
+	if (strcmp(XACML_HESSIAN_RESPONSE_CLASSNAME,map_type) != 0) {
 		log_error("xacml_response_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
@@ -1179,7 +1179,7 @@ static int xacml_response_unmarshal(xacml_response_t ** resp, const hessian_obje
 			return PEP_IO_ERROR;
 		}
 		// request (can be null???)
-		if (strcmp(PEP_RESPONSE_REQUEST,key) == 0) {
+		if (strcmp(XACML_HESSIAN_RESPONSE_REQUEST,key) == 0) {
 			hessian_object_t * h_request= hessian_map_getvalue(h_response,i);
 			if (hessian_gettype(h_request) != HESSIAN_NULL) {
 				xacml_request_t * request= NULL;
@@ -1201,7 +1201,7 @@ static int xacml_response_unmarshal(xacml_response_t ** resp, const hessian_obje
 
 		}
 		// results list
-		else if (strcmp(PEP_RESPONSE_RESULTS,key) == 0) {
+		else if (strcmp(XACML_HESSIAN_RESPONSE_RESULTS,key) == 0) {
 			hessian_object_t * h_results= hessian_map_getvalue(h_response,i);
 			if (hessian_gettype(h_results) != HESSIAN_LIST) {
 				log_error("xacml_response_unmarshal: hessian map<'%s',value> is not a hessian list at: %d.",key,i);
@@ -1246,7 +1246,7 @@ static int xacml_result_unmarshal(xacml_result_t ** res, const hessian_object_t 
 		log_error("xacml_result_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
-	if (strcmp(PEP_RESULT_CLASSNAME,map_type) != 0) {
+	if (strcmp(XACML_HESSIAN_RESULT_CLASSNAME,map_type) != 0) {
 		log_error("xacml_result_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
@@ -1273,7 +1273,7 @@ static int xacml_result_unmarshal(xacml_result_t ** res, const hessian_object_t 
 			return PEP_IO_ERROR;
 		}
 		// decision (enum, mandatory)
-		if (strcmp(PEP_RESULT_DECISION,key) == 0) {
+		if (strcmp(XACML_HESSIAN_RESULT_DECISION,key) == 0) {
 			hessian_object_t * h_integer= hessian_map_getvalue(h_result,i);
 			if (hessian_gettype(h_integer) != HESSIAN_INTEGER) {
 				log_error("xacml_result_unmarshal: Hessian map<'%s',value> is not a Hessian integer at: %d.",key,i);
@@ -1288,7 +1288,7 @@ static int xacml_result_unmarshal(xacml_result_t ** res, const hessian_object_t 
 			}
 		}
 		// resourceid (optional)
-		else if (strcmp(PEP_RESULT_RESOURCEID,key) == 0) {
+		else if (strcmp(XACML_HESSIAN_RESULT_RESOURCEID,key) == 0) {
 			hessian_object_t * h_string= hessian_map_getvalue(h_result,i);
 			hessian_t h_string_type= hessian_gettype(h_string);
 			if ( h_string_type != HESSIAN_STRING && h_string_type != HESSIAN_NULL) {
@@ -1307,7 +1307,7 @@ static int xacml_result_unmarshal(xacml_result_t ** res, const hessian_object_t 
 			}
 		}
 		// status (null?)
-		else if (strcmp(PEP_RESULT_STATUS,key) == 0) {
+		else if (strcmp(XACML_HESSIAN_RESULT_STATUS,key) == 0) {
 			hessian_object_t * h_status= hessian_map_getvalue(h_result,i);
 			if (hessian_gettype(h_status) != HESSIAN_NULL) {
 				xacml_status_t * status= NULL;
@@ -1329,7 +1329,7 @@ static int xacml_result_unmarshal(xacml_result_t ** res, const hessian_object_t 
 
 		}
 		// obligations list
-		else if (strcmp(PEP_RESULT_OBLIGATIONS,key) == 0) {
+		else if (strcmp(XACML_HESSIAN_RESULT_OBLIGATIONS,key) == 0) {
 			hessian_object_t * h_obligations= hessian_map_getvalue(h_result,i);
 			if (hessian_gettype(h_obligations) != HESSIAN_LIST) {
 				log_error("xacml_result_unmarshal: Hessian map<'%s',value> is not a Hessian list.",key);
@@ -1374,7 +1374,7 @@ static int xacml_status_unmarshal(xacml_status_t ** st, const hessian_object_t *
 		log_error("xacml_status_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
-	if (strcmp(PEP_STATUS_CLASSNAME,map_type) != 0) {
+	if (strcmp(XACML_HESSIAN_STATUS_CLASSNAME,map_type) != 0) {
 		log_error("xacml_status_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
@@ -1400,7 +1400,7 @@ static int xacml_status_unmarshal(xacml_status_t ** st, const hessian_object_t *
 			return PEP_IO_ERROR;
 		}
 		// message (mandatory)
-		if (strcmp(PEP_STATUS_MESSAGE,key) == 0) {
+		if (strcmp(XACML_HESSIAN_STATUS_MESSAGE,key) == 0) {
 			hessian_object_t * h_string= hessian_map_getvalue(h_status,i);
 			if (hessian_gettype(h_string) != HESSIAN_STRING) {
 				log_error("xacml_status_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.",key,i);
@@ -1415,7 +1415,7 @@ static int xacml_status_unmarshal(xacml_status_t ** st, const hessian_object_t *
 			}
 		}
 		// subcode (can be null)
-		else if (strcmp(PEP_STATUS_CODE,key) == 0) {
+		else if (strcmp(XACML_HESSIAN_STATUS_CODE,key) == 0) {
 			hessian_object_t * h_statuscode= hessian_map_getvalue(h_status,i);
 			if (hessian_gettype(h_status) != HESSIAN_NULL) {
 				xacml_statuscode_t * statuscode= NULL;
@@ -1454,7 +1454,7 @@ static int xacml_statuscode_unmarshal(xacml_statuscode_t ** stc, const hessian_o
 		log_error("xacml_statuscode_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
-	if (strcmp(PEP_STATUSCODE_CLASSNAME,map_type) != 0) {
+	if (strcmp(XACML_HESSIAN_STATUSCODE_CLASSNAME,map_type) != 0) {
 		log_error("xacml_statuscode_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
@@ -1482,7 +1482,7 @@ static int xacml_statuscode_unmarshal(xacml_statuscode_t ** stc, const hessian_o
 			return PEP_IO_ERROR;
 		}
 		// code (mandatory)
-		if (strcmp(PEP_STATUSCODE_VALUE,key) == 0) {
+		if (strcmp(XACML_HESSIAN_STATUSCODE_VALUE,key) == 0) {
 			hessian_object_t * h_string= hessian_map_getvalue(h_statuscode,i);
 			if (hessian_gettype(h_string) != HESSIAN_STRING) {
 				log_error("xacml_statuscode_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.",key,i);
@@ -1498,7 +1498,7 @@ static int xacml_statuscode_unmarshal(xacml_statuscode_t ** stc, const hessian_o
 
 		}
 		// subcode (can be null)
-		else if (strcmp(PEP_STATUSCODE_SUBCODE, key) == 0) {
+		else if (strcmp(XACML_HESSIAN_STATUSCODE_SUBCODE, key) == 0) {
 			hessian_object_t * h_subcode= hessian_map_getvalue(h_statuscode,i);
 			if (hessian_gettype(h_subcode) != HESSIAN_NULL) {
 				xacml_statuscode_t * subcode= NULL;
@@ -1536,7 +1536,7 @@ static int xacml_obligation_unmarshal(xacml_obligation_t ** obl, const hessian_o
 		log_error("xacml_obligation_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
-	if (strcmp(PEP_OBLIGATION_CLASSNAME,map_type) != 0) {
+	if (strcmp(XACML_HESSIAN_OBLIGATION_CLASSNAME,map_type) != 0) {
 		log_error("xacml_obligation_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
@@ -1564,7 +1564,7 @@ static int xacml_obligation_unmarshal(xacml_obligation_t ** obl, const hessian_o
 		}
 
 		// id (mandatory)
-		if (strcmp(PEP_OBLIGATION_ID,key) == 0) {
+		if (strcmp(XACML_HESSIAN_OBLIGATION_ID,key) == 0) {
 			hessian_object_t * h_string= hessian_map_getvalue(h_obligation,i);
 			if (hessian_gettype(h_string) != HESSIAN_STRING) {
 				log_error("xacml_obligation_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.",key,i);
@@ -1579,7 +1579,7 @@ static int xacml_obligation_unmarshal(xacml_obligation_t ** obl, const hessian_o
 			}
 		}
 		// fulfillon (enum)
-		else if (strcmp(PEP_OBLIGATION_FULFILLON,key) == 0) {
+		else if (strcmp(XACML_HESSIAN_OBLIGATION_FULFILLON,key) == 0) {
 			hessian_object_t * h_integer= hessian_map_getvalue(h_obligation,i);
 			if (hessian_gettype(h_integer) != HESSIAN_INTEGER) {
 				log_error("xacml_obligation_unmarshal: Hessian map<'%s',value> is not a Hessian integer at: %d.",key,i);
@@ -1594,7 +1594,7 @@ static int xacml_obligation_unmarshal(xacml_obligation_t ** obl, const hessian_o
 			}
 		}
 		// attribute assignments list
-		else if (strcmp(PEP_OBLIGATION_ASSIGNMENTS,key) == 0) {
+		else if (strcmp(XACML_HESSIAN_OBLIGATION_ASSIGNMENTS,key) == 0) {
 			hessian_object_t * h_assignments= hessian_map_getvalue(h_obligation,i);
 			if (hessian_gettype(h_assignments) != HESSIAN_LIST) {
 				log_error("xacml_obligation_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.",key, i);
@@ -1639,7 +1639,7 @@ static int xacml_attributeassignment_unmarshal(xacml_attributeassignment_t ** at
 		log_error("xacml_attributeassignment_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
-	if (strcmp(PEP_ATTRIBUTEASSIGNMENT_CLASSNAME,map_type) != 0) {
+	if (strcmp(XACML_HESSIAN_ATTRIBUTEASSIGNMENT_CLASSNAME,map_type) != 0) {
 		log_error("xacml_attributeassignment_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
@@ -1668,7 +1668,7 @@ static int xacml_attributeassignment_unmarshal(xacml_attributeassignment_t ** at
 		}
 
 		// id (mandatory)
-		if (strcmp(PEP_ATTRIBUTEASSIGNMENT_ID,key) == 0) {
+		if (strcmp(XACML_HESSIAN_ATTRIBUTEASSIGNMENT_ID,key) == 0) {
 			hessian_object_t * h_string= hessian_map_getvalue(h_attribute,i);
 			if (hessian_gettype(h_string) != HESSIAN_STRING) {
 				log_error("xacml_attributeassignment_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.",key,i);
@@ -1683,7 +1683,7 @@ static int xacml_attributeassignment_unmarshal(xacml_attributeassignment_t ** at
 			}
 		}
 		// values list
-		else if (strcmp(PEP_ATTRIBUTEASSIGNMENT_VALUES,key) == 0) {
+		else if (strcmp(XACML_HESSIAN_ATTRIBUTEASSIGNMENT_VALUES,key) == 0) {
 			hessian_object_t * h_values= hessian_map_getvalue(h_attribute,i);
 			if (hessian_gettype(h_values) != HESSIAN_LIST) {
 				log_error("xacml_attributeassignment_unmarshal: Hessian map<'%s',value> is not a Hessian list.",key);

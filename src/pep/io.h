@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: io.h,v 1.3 2009/03/13 12:02:17 vtschopp Exp $
+ * $Id: io.h,v 1.4 2009/03/17 09:58:18 vtschopp Exp $
  */
 #ifndef _PEP_IO_H_
 #define _PEP_IO_H_
@@ -65,58 +65,58 @@ pep_error_t xacml_response_unmarshalling(xacml_response_t ** response, BUFFER * 
  * The Java class namespaces and variable name constants for the PEP model
  * Hessian serialization and deserialization mapping.
  */
-static const char PEP_ATTRIBUTE_CLASSNAME[]= "org.glite.authz.pep.model.Attribute";
-static const char PEP_ATTRIBUTE_ID[]= "id";
-static const char PEP_ATTRIBUTE_DATATYPE[]= "dataType";
-static const char PEP_ATTRIBUTE_ISSUER[]= "issuer";
-static const char PEP_ATTRIBUTE_VALUES[]= "values";
+static const char XACML_HESSIAN_ATTRIBUTE_CLASSNAME[]= "org.glite.authz.pep.model.Attribute";
+static const char XACML_HESSIAN_ATTRIBUTE_ID[]= "id";
+static const char XACML_HESSIAN_ATTRIBUTE_DATATYPE[]= "dataType";
+static const char XACML_HESSIAN_ATTRIBUTE_ISSUER[]= "issuer";
+static const char XACML_HESSIAN_ATTRIBUTE_VALUES[]= "values";
 
-static const char PEP_SUBJECT_CLASSNAME[]= "org.glite.authz.pep.model.Subject";
-static const char PEP_SUBJECT_CATEGORY[]= "category";
-static const char PEP_SUBJECT_ATTRIBUTES[]= "attributes";
+static const char XACML_HESSIAN_SUBJECT_CLASSNAME[]= "org.glite.authz.pep.model.Subject";
+static const char XACML_HESSIAN_SUBJECT_CATEGORY[]= "category";
+static const char XACML_HESSIAN_SUBJECT_ATTRIBUTES[]= "attributes";
 
-static const char PEP_RESOURCE_CLASSNAME[]= "org.glite.authz.pep.model.Resource";
-static const char PEP_RESOURCE_CONTENT[]= "resourceContent";
-static const char PEP_RESOURCE_ATTRIBUTES[]= "attributes";
+static const char XACML_HESSIAN_RESOURCE_CLASSNAME[]= "org.glite.authz.pep.model.Resource";
+static const char XACML_HESSIAN_RESOURCE_CONTENT[]= "resourceContent";
+static const char XACML_HESSIAN_RESOURCE_ATTRIBUTES[]= "attributes";
 
-static const char PEP_ACTION_CLASSNAME[]= "org.glite.authz.pep.model.Action";
-static const char PEP_ACTION_ATTRIBUTES[]= "attributes";
+static const char XACML_HESSIAN_ACTION_CLASSNAME[]= "org.glite.authz.pep.model.Action";
+static const char XACML_HESSIAN_ACTION_ATTRIBUTES[]= "attributes";
 
-static const char PEP_ENVIRONMENT_CLASSNAME[]= "org.glite.authz.pep.model.Environment";
-static const char PEP_ENVIRONMENT_ATTRIBUTES[]= "attributes";
+static const char XACML_HESSIAN_ENVIRONMENT_CLASSNAME[]= "org.glite.authz.pep.model.Environment";
+static const char XACML_HESSIAN_ENVIRONMENT_ATTRIBUTES[]= "attributes";
 
-static const char PEP_REQUEST_CLASSNAME[]= "org.glite.authz.pep.model.Request";
-static const char PEP_REQUEST_SUBJECTS[]= "subjects";
-static const char PEP_REQUEST_RESOURCES[]= "resources";
-static const char PEP_REQUEST_ACTION[]= "action";
-static const char PEP_REQUEST_ENVIRONMENT[]= "environment";
+static const char XACML_HESSIAN_REQUEST_CLASSNAME[]= "org.glite.authz.pep.model.Request";
+static const char XACML_HESSIAN_REQUEST_SUBJECTS[]= "subjects";
+static const char XACML_HESSIAN_REQUEST_RESOURCES[]= "resources";
+static const char XACML_HESSIAN_REQUEST_ACTION[]= "action";
+static const char XACML_HESSIAN_REQUEST_ENVIRONMENT[]= "environment";
 
-static const char PEP_STATUSCODE_CLASSNAME[]= "org.glite.authz.pep.model.StatusCode";
-static const char PEP_STATUSCODE_VALUE[]= "code";
-static const char PEP_STATUSCODE_SUBCODE[]= "subCode";
+static const char XACML_HESSIAN_STATUSCODE_CLASSNAME[]= "org.glite.authz.pep.model.StatusCode";
+static const char XACML_HESSIAN_STATUSCODE_VALUE[]= "code";
+static const char XACML_HESSIAN_STATUSCODE_SUBCODE[]= "subCode";
 
-static const char PEP_STATUS_CLASSNAME[]= "org.glite.authz.pep.model.Status";
-static const char PEP_STATUS_MESSAGE[]= "message";
-static const char PEP_STATUS_CODE[]= "statusCode";
+static const char XACML_HESSIAN_STATUS_CLASSNAME[]= "org.glite.authz.pep.model.Status";
+static const char XACML_HESSIAN_STATUS_MESSAGE[]= "message";
+static const char XACML_HESSIAN_STATUS_CODE[]= "statusCode";
 
-static const char PEP_ATTRIBUTEASSIGNMENT_CLASSNAME[]= "org.glite.authz.pep.model.AttributeAssignment";
-static const char PEP_ATTRIBUTEASSIGNMENT_ID[]= "attributeId";
-static const char PEP_ATTRIBUTEASSIGNMENT_VALUES[]= "values";
+static const char XACML_HESSIAN_ATTRIBUTEASSIGNMENT_CLASSNAME[]= "org.glite.authz.pep.model.AttributeAssignment";
+static const char XACML_HESSIAN_ATTRIBUTEASSIGNMENT_ID[]= "attributeId";
+static const char XACML_HESSIAN_ATTRIBUTEASSIGNMENT_VALUES[]= "values";
 
-static const char PEP_OBLIGATION_CLASSNAME[]= "org.glite.authz.pep.model.Obligation";
-static const char PEP_OBLIGATION_ID[]= "id";
-static const char PEP_OBLIGATION_FULFILLON[]= "fulfillOn";
-static const char PEP_OBLIGATION_ASSIGNMENTS[]= "attributeAssignments";
+static const char XACML_HESSIAN_OBLIGATION_CLASSNAME[]= "org.glite.authz.pep.model.Obligation";
+static const char XACML_HESSIAN_OBLIGATION_ID[]= "id";
+static const char XACML_HESSIAN_OBLIGATION_FULFILLON[]= "fulfillOn";
+static const char XACML_HESSIAN_OBLIGATION_ASSIGNMENTS[]= "attributeAssignments";
 
-static const char PEP_RESULT_CLASSNAME[]=  "org.glite.authz.pep.model.Result";
-static const char PEP_RESULT_DECISION[]=  "decision";
-static const char PEP_RESULT_RESOURCEID[]=  "resourceId";
-static const char PEP_RESULT_STATUS[]=  "status";
-static const char PEP_RESULT_OBLIGATIONS[]=  "obligations";
+static const char XACML_HESSIAN_RESULT_CLASSNAME[]=  "org.glite.authz.pep.model.Result";
+static const char XACML_HESSIAN_RESULT_DECISION[]=  "decision";
+static const char XACML_HESSIAN_RESULT_RESOURCEID[]=  "resourceId";
+static const char XACML_HESSIAN_RESULT_STATUS[]=  "status";
+static const char XACML_HESSIAN_RESULT_OBLIGATIONS[]=  "obligations";
 
-static const char PEP_RESPONSE_CLASSNAME[]= "org.glite.authz.pep.model.Response";
-static const char PEP_RESPONSE_REQUEST[]= "request";
-static const char PEP_RESPONSE_RESULTS[]= "results";
+static const char XACML_HESSIAN_RESPONSE_CLASSNAME[]= "org.glite.authz.pep.model.Response";
+static const char XACML_HESSIAN_RESPONSE_REQUEST[]= "request";
+static const char XACML_HESSIAN_RESPONSE_RESULTS[]= "results";
 
 
 #ifdef  __cplusplus
