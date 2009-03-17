@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * $Id: xacml.h,v 1.2 2009/03/13 12:41:33 vtschopp Exp $
+ * $Id: xacml.h,v 1.3 2009/03/17 10:01:44 vtschopp Exp $
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.0
@@ -664,8 +664,8 @@ void xacml_attributeassignment_delete(xacml_attributeassignment_t * attr);
  * PEP XACML Obligation/\@FulfillOn attribute constants.
  */
 typedef enum xacml_fulfillon {
-	XACML_FULFILLON_DENY = 0, /**< Fulfill the Obligation on Deny decision */
-	XACML_FULFILLON_PERMIT /**< Fulfill the Obligation on Permit decision */
+	XACML_FULFILLON_DENY = 0, /**< Fulfill the Obligation on @b Deny decision */
+	XACML_FULFILLON_PERMIT /**< Fulfill the Obligation on @b Permit decision */
 } xacml_fulfillon_t;
 
 /**
@@ -748,10 +748,10 @@ void xacml_obligation_delete(xacml_obligation_t * obligation);
  * PEP XACML Result/Decision element constants.
  */
 typedef enum xacml_decision {
-	XACML_DECISION_DENY = 0, /**< Decision is Deny */
-	XACML_DECISION_PERMIT, /**< Decision is Permit */
-	XACML_DECISION_INDETERMINATE, /**< Decision is Indeterminate, the PEP was unable to evaluate the request */
-	XACML_DECISION_NOT_APPLICABLE /**< Decision is NotApplicable, the PEP does not have any policy that applies to the request */
+	XACML_DECISION_DENY = 0, /**< Decision is @b Deny */
+	XACML_DECISION_PERMIT, /**< Decision is @b Permit */
+	XACML_DECISION_INDETERMINATE, /**< Decision is @b Indeterminate, the PEP was unable to evaluate the request */
+	XACML_DECISION_NOT_APPLICABLE /**< Decision is @b NotApplicable, the PEP does not have any policy that applies to the request */
 } xacml_decision_t;
 
 /**
