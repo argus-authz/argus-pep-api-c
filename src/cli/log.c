@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: log.c,v 1.1 2009/03/13 12:36:42 vtschopp Exp $
+ * $Id: log.c,v 1.2 2009/03/19 14:19:23 vtschopp Exp $
  */
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+
+extern int debug;
+extern int verbose;
 
 /*
  * local logging handler
@@ -40,36 +43,76 @@ static void _vfprintf(FILE * fd, const char * level, const char * format, va_lis
 /*
  * Logs an INFO message on stdout
  */
-void info(const char * format, ...) {
-	va_list args;
-	va_start(args,format);
-	_vfprintf(stdout,"INFO",format,args);
-	va_end(args);
+void show_info(const char * format, ...) {
+	if (verbose) {
+		va_list args;
+		va_start(args,format);
+		_vfprintf(stdout,"pepcli",format,args);
+		va_end(args);
+	}
 }
 
 /*
  * Logs an ERROR message on stderr
  */
-void error(const char * format, ...) {
+void show_error(const char * format, ...) {
 	va_list args;
 	va_start(args,format);
-	_vfprintf(stderr,"ERROR",format,args);
+	_vfprintf(stderr,"pepcli:ERROR",format,args);
+	va_end(args);
+}
+
+/*
+ * Logs a WARN message on stderr
+ */
+void show_warn(const char * format, ...) {
+	va_list args;
+	va_start(args,format);
+	_vfprintf(stderr,"pepcli:WARN",format,args);
 	va_end(args);
 }
 
 /*
  * Logs an DEBUG message on stdout
  */
-void debug(const char * format, ...) {
-	va_list args;
-	va_start(args,format);
-	_vfprintf(stdout,"DEBUG",format,args);
-	va_end(args);
+void show_debug(const char * format, ...) {
+	if (debug) {
+		va_list args;
+		va_start(args,format);
+		_vfprintf(stdout,"pepcli:DEBUG",format,args);
+		va_end(args);
+	}
 }
 
 /*
  * PEP-C logging callback function
  */
-static void log_handler_pep(int level, const char * format, va_list args) {
-	// TODO if needed
+void log_handler_pep(int level, const char * format, va_list args) {
+	if (verbose || debug) {
+		switch (level) {
+		case 0:
+			fprintf(stderr,"libpep-c:ERROR: ");
+			vfprintf(stderr,format,args);
+			fprintf(stderr,"\n");
+			break;
+		case 1:
+			fprintf(stderr,"libpep-c:WARN: ");
+			vfprintf(stderr,format,args);
+			fprintf(stderr,"\n");
+			break;
+		case 2:
+			fprintf(stderr,"libpep-c:INFO: ");
+			vfprintf(stderr,format,args);
+			fprintf(stderr,"\n");
+			break;
+		default:
+			// all other message are debug!?!
+			if (debug) {
+				fprintf(stderr,"libpep-c:DEBUG: ");
+				vfprintf(stderr,format,args);
+				fprintf(stderr,"\n");
+			}
+			break;
+		}
+	}
 }
