@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: io.c,v 1.7 2009/03/17 09:58:18 vtschopp Exp $
+ * $Id: io.c,v 1.8 2009/03/19 12:52:44 vtschopp Exp $
  */
 
 #include <string.h>
 
 #include "pep/io.h"
-#include "hessian/hessian.h"
+#include "Hessian/Hessian.h"
 #include "util/log.h"
 
 
@@ -59,7 +59,7 @@ static int xacml_action_marshal(const xacml_action_t * action, hessian_object_t 
 	if (action == NULL) {
 		h_action= hessian_create(HESSIAN_NULL);
 		if (h_action == NULL) {
-			log_error("xacml_action_marshal: NULL action, but can't create hessian null.");
+			log_error("xacml_action_marshal: NULL action, but can't create Hessian null.");
 			return PEP_IO_ERROR;
 		}
 		*h_act= h_action;
@@ -67,13 +67,13 @@ static int xacml_action_marshal(const xacml_action_t * action, hessian_object_t 
 	}
 	h_action= hessian_create(HESSIAN_MAP,XACML_HESSIAN_ACTION_CLASSNAME);
 	if (h_action == NULL) {
-		log_error("xacml_action_marshal: can't create hessian map: %s.", XACML_HESSIAN_ACTION_CLASSNAME);
+		log_error("xacml_action_marshal: can't create Hessian map: %s.", XACML_HESSIAN_ACTION_CLASSNAME);
 		return PEP_IO_ERROR;
 	}
 	// attributes list
 	hessian_object_t * h_attrs= hessian_create(HESSIAN_LIST);
 	if (h_attrs == NULL) {
-		log_error("xacml_action_marshal: can't create hessian list: %s.", XACML_HESSIAN_ACTION_ATTRIBUTES);
+		log_error("xacml_action_marshal: can't create Hessian list: %s.", XACML_HESSIAN_ACTION_ATTRIBUTES);
 		hessian_delete(h_action);
 		return PEP_IO_ERROR;
 	}
@@ -89,7 +89,7 @@ static int xacml_action_marshal(const xacml_action_t * action, hessian_object_t 
 			return PEP_IO_ERROR;
 		}
 		if (hessian_list_add(h_attrs,h_attr) != HESSIAN_OK) {
-			log_error("xacml_action_marshal: can't add hessian attribute to hessian list at: %d.",i);
+			log_error("xacml_action_marshal: can't add Hessian attribute to Hessian list at: %d.",i);
 			hessian_delete(h_action);
 			hessian_delete(h_attrs);
 			hessian_delete(h_attr);
@@ -98,13 +98,13 @@ static int xacml_action_marshal(const xacml_action_t * action, hessian_object_t 
 	}
 	hessian_object_t * h_attrs_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_ACTION_ATTRIBUTES);
 	if (h_attrs_key == NULL) {
-		log_error("xacml_action_marshal: can't create hessian map<key>: %s.", XACML_HESSIAN_ACTION_ATTRIBUTES);
+		log_error("xacml_action_marshal: can't create Hessian map<key>: %s.", XACML_HESSIAN_ACTION_ATTRIBUTES);
 		hessian_delete(h_action);
 		hessian_delete(h_attrs);
 		return PEP_IO_ERROR;
 	}
 	if (hessian_map_add(h_action,h_attrs_key,h_attrs) != HESSIAN_OK) {
-		log_error("xacml_action_marshal: can't add %s hessian list to action hessian map.", XACML_HESSIAN_ACTION_ATTRIBUTES);
+		log_error("xacml_action_marshal: can't add %s Hessian list to action Hessian map.", XACML_HESSIAN_ACTION_ATTRIBUTES);
 		hessian_delete(h_action);
 		hessian_delete(h_attrs);
 		hessian_delete(h_attrs_key);
@@ -130,7 +130,7 @@ static int xacml_action_unmarshal(xacml_action_t ** act, const hessian_object_t 
 	}
 	xacml_action_t * action= xacml_action_create();
 	if (action == NULL) {
-		log_error("xacml_action_unmarshal: can't create PEP action.");
+		log_error("xacml_action_unmarshal: can't create XACML action.");
 		return PEP_IO_ERROR;
 	}
 
@@ -140,7 +140,7 @@ static int xacml_action_unmarshal(xacml_action_t ** act, const hessian_object_t 
 	for(i= 0; i<map_l; i++) {
 		hessian_object_t * h_map_key= hessian_map_getkey(h_action,i);
 		if (hessian_gettype(h_map_key) != HESSIAN_STRING) {
-			log_error("xacml_action_unmarshal: Hessian map<key> is not an hessian string at: %d.",i);
+			log_error("xacml_action_unmarshal: Hessian map<key> is not an Hessian string at: %d.",i);
 			xacml_action_delete(action);
 			return PEP_IO_ERROR;
 		}
@@ -163,12 +163,12 @@ static int xacml_action_unmarshal(xacml_action_t ** act, const hessian_object_t 
 				hessian_object_t * h_attr= hessian_list_get(h_attributes,j);
 				xacml_attribute_t * attribute= NULL;
 				if (xacml_attribute_unmarshal(&attribute,h_attr)) {
-					log_error("xacml_action_unmarshal: can't unmarshal PEP attribute at: %d.",j);
+					log_error("xacml_action_unmarshal: can't unmarshal XACML attribute at: %d.",j);
 					xacml_action_delete(action);
 					return PEP_IO_ERROR;
 				}
 				if (xacml_action_addattribute(action,attribute) != PEP_XACML_OK) {
-					log_error("xacml_action_unmarshal: can't add PEP attribute to PEP action at: %d",j);
+					log_error("xacml_action_unmarshal: can't add XACML attribute to XACML action at: %d",j);
 					xacml_action_delete(action);
 					xacml_attribute_delete(attribute);
 					return PEP_IO_ERROR;
@@ -186,7 +186,7 @@ static int xacml_action_unmarshal(xacml_action_t ** act, const hessian_object_t 
 
 
 /**
- * Returns the Hessian object representing the PEP attribute.
+ * Returns the Hessian object representing the XACML attribute.
  */
 static int xacml_attribute_marshal(const xacml_attribute_t * attr, hessian_object_t ** h_attr) {
 	if (attr == NULL) {
@@ -195,7 +195,7 @@ static int xacml_attribute_marshal(const xacml_attribute_t * attr, hessian_objec
 	}
 	hessian_object_t * h_attribute= hessian_create(HESSIAN_MAP,XACML_HESSIAN_ATTRIBUTE_CLASSNAME);
 	if (h_attribute == NULL) {
-		log_error("xacml_attribute_marshal: can't create attribute hessian map: %s", XACML_HESSIAN_ATTRIBUTE_CLASSNAME);
+		log_error("xacml_attribute_marshal: can't create attribute Hessian map: %s", XACML_HESSIAN_ATTRIBUTE_CLASSNAME);
 		return PEP_IO_ERROR;
 	}
 
@@ -203,13 +203,13 @@ static int xacml_attribute_marshal(const xacml_attribute_t * attr, hessian_objec
 	const char * attr_id= xacml_attribute_getid(attr);
 	hessian_object_t * h_value= hessian_create(HESSIAN_STRING,attr_id);
 	if (h_value== NULL) {
-		log_error("xacml_attribute_marshal: can't create hessian string: %s", attr_id);
+		log_error("xacml_attribute_marshal: can't create Hessian string: %s", attr_id);
 		hessian_delete(h_attribute);
 		return PEP_IO_ERROR;
 	}
 	hessian_object_t * h_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_ATTRIBUTE_ID);
 	if (hessian_map_add(h_attribute,h_key,h_value) != HESSIAN_OK) {
-		log_error("xacml_attribute_marshal: can't add pair<'%s','%s'> to hessian map: %s", XACML_HESSIAN_ATTRIBUTE_ID,attr_id,XACML_HESSIAN_ATTRIBUTE_CLASSNAME);
+		log_error("xacml_attribute_marshal: can't add pair<'%s','%s'> to Hessian map: %s", XACML_HESSIAN_ATTRIBUTE_ID,attr_id,XACML_HESSIAN_ATTRIBUTE_CLASSNAME);
 		hessian_delete(h_attribute);
 		hessian_delete(h_key);
 		hessian_delete(h_value);
@@ -221,7 +221,7 @@ static int xacml_attribute_marshal(const xacml_attribute_t * attr, hessian_objec
 		h_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_ATTRIBUTE_DATATYPE);
 		h_value= hessian_create(HESSIAN_STRING,attr_dt);
 		if (hessian_map_add(h_attribute,h_key,h_value) != HESSIAN_OK) {
-			log_error("xacml_attribute_marshal: can't add pair<'%s','%s'> to hessian map: %s", XACML_HESSIAN_ATTRIBUTE_DATATYPE,attr_dt,XACML_HESSIAN_ATTRIBUTE_CLASSNAME);
+			log_error("xacml_attribute_marshal: can't add pair<'%s','%s'> to Hessian map: %s", XACML_HESSIAN_ATTRIBUTE_DATATYPE,attr_dt,XACML_HESSIAN_ATTRIBUTE_CLASSNAME);
 			hessian_delete(h_attribute);
 			hessian_delete(h_key);
 			hessian_delete(h_value);
@@ -234,7 +234,7 @@ static int xacml_attribute_marshal(const xacml_attribute_t * attr, hessian_objec
 		h_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_ATTRIBUTE_ISSUER);
 		h_value= hessian_create(HESSIAN_STRING,attr_issuer);
 		if (hessian_map_add(h_attribute,h_key,h_value) != HESSIAN_OK) {
-			log_error("xacml_attribute_marshal: can't add pair<'%s','%s'> to hessian map: %s", XACML_HESSIAN_ATTRIBUTE_ISSUER,attr_issuer,XACML_HESSIAN_ATTRIBUTE_CLASSNAME);
+			log_error("xacml_attribute_marshal: can't add pair<'%s','%s'> to Hessian map: %s", XACML_HESSIAN_ATTRIBUTE_ISSUER,attr_issuer,XACML_HESSIAN_ATTRIBUTE_CLASSNAME);
 			hessian_delete(h_attribute);
 			hessian_delete(h_key);
 			hessian_delete(h_value);
@@ -244,7 +244,7 @@ static int xacml_attribute_marshal(const xacml_attribute_t * attr, hessian_objec
 	// values list
 	hessian_object_t * h_values= hessian_create(HESSIAN_LIST);
 	if (h_values == NULL) {
-		log_error("xacml_attribute_marshal: can't create %s hessian list.", XACML_HESSIAN_ATTRIBUTE_VALUES);
+		log_error("xacml_attribute_marshal: can't create %s Hessian list.", XACML_HESSIAN_ATTRIBUTE_VALUES);
 		hessian_delete(h_attribute);
 		return PEP_IO_ERROR;
 	}
@@ -254,13 +254,13 @@ static int xacml_attribute_marshal(const xacml_attribute_t * attr, hessian_objec
 		const char * value= xacml_attribute_getvalue(attr,i);
 		h_value= hessian_create(HESSIAN_STRING,value);
 		if (h_value == NULL) {
-			log_error("xacml_attribute_marshal: can't create hessian string: %s at: %d.", value, i);
+			log_error("xacml_attribute_marshal: can't create Hessian string: %s at: %d.", value, i);
 			hessian_delete(h_attribute);
 			hessian_delete(h_values);
 			return PEP_IO_ERROR;
 		}
 		if (hessian_list_add(h_values,h_value) != HESSIAN_OK) {
-			log_error("xacml_attribute_marshal: can't add hessian string: %s to hessian list.", value);
+			log_error("xacml_attribute_marshal: can't add Hessian string: %s to Hessian list.", value);
 			hessian_delete(h_attribute);
 			hessian_delete(h_values);
 			hessian_delete(h_value);
@@ -269,7 +269,7 @@ static int xacml_attribute_marshal(const xacml_attribute_t * attr, hessian_objec
 	}
 	hessian_object_t * h_values_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_ATTRIBUTE_VALUES);
 	if (hessian_map_add(h_attribute,h_values_key,h_values) != HESSIAN_OK) {
-		log_error("xacml_attribute_marshal: can't add attributes hessian list to attribute hessian map.");
+		log_error("xacml_attribute_marshal: can't add attributes Hessian list to attribute Hessian map.");
 		hessian_delete(h_attribute);
 		hessian_delete(h_values_key);
 		hessian_delete(h_values);
@@ -281,22 +281,22 @@ static int xacml_attribute_marshal(const xacml_attribute_t * attr, hessian_objec
 
 static int xacml_attribute_unmarshal(xacml_attribute_t ** attr, const hessian_object_t * h_attribute) {
 	if (hessian_gettype(h_attribute) != HESSIAN_MAP) {
-		log_error("xacml_attribute_unmarshal: wrong hessian type: %d (%s).", hessian_gettype(h_attribute), hessian_getclassname(h_attribute));
+		log_error("xacml_attribute_unmarshal: wrong Hessian type: %d (%s).", hessian_gettype(h_attribute), hessian_getclassname(h_attribute));
 		return PEP_IO_ERROR;
 	}
 	const char * map_type= hessian_map_gettype(h_attribute);
 	if (map_type == NULL) {
-		log_error("xacml_attribute_unmarshal: NULL hessian map type.");
+		log_error("xacml_attribute_unmarshal: NULL Hessian map type.");
 		return PEP_IO_ERROR;
 	}
 	if (strcmp(XACML_HESSIAN_ATTRIBUTE_CLASSNAME,map_type) != 0) {
-		log_error("xacml_attribute_unmarshal: wrong hessian map type: %s.",map_type);
+		log_error("xacml_attribute_unmarshal: wrong Hessian map type: %s.",map_type);
 		return PEP_IO_ERROR;
 	}
 
 	xacml_attribute_t * attribute= xacml_attribute_create(NULL);
 	if (attribute == NULL) {
-		log_error("xacml_attribute_unmarshal: can't create PEP attribute.");
+		log_error("xacml_attribute_unmarshal: can't create XACML attribute.");
 		return PEP_IO_ERROR;
 	}
 
@@ -306,13 +306,13 @@ static int xacml_attribute_unmarshal(xacml_attribute_t ** attr, const hessian_ob
 	for(i= 0; i<map_l; i++) {
 		hessian_object_t * h_map_key= hessian_map_getkey(h_attribute,i);
 		if (hessian_gettype(h_map_key) != HESSIAN_STRING) {
-			log_error("xacml_attribute_unmarshal: hessian map<key> is not an hessian string at: %d.",i);
+			log_error("xacml_attribute_unmarshal: Hessian map<key> is not an Hessian string at: %d.",i);
 			xacml_attribute_delete(attribute);
 			return PEP_IO_ERROR;
 		}
 		const char * key= hessian_string_getstring(h_map_key);
 		if (key == NULL) {
-			log_error("xacml_attribute_unmarshal: hessian map<key>: NULL string at: %d.",i);
+			log_error("xacml_attribute_unmarshal: Hessian map<key>: NULL string at: %d.",i);
 			xacml_attribute_delete(attribute);
 			return PEP_IO_ERROR;
 		}
@@ -321,13 +321,13 @@ static int xacml_attribute_unmarshal(xacml_attribute_t ** attr, const hessian_ob
 		if (strcmp(XACML_HESSIAN_ATTRIBUTE_ID,key) == 0) {
 			hessian_object_t * h_string= hessian_map_getvalue(h_attribute,i);
 			if (hessian_gettype(h_string) != HESSIAN_STRING) {
-				log_error("xacml_attribute_unmarshal: hessian map<'%s',value> is not a hessian string at: %d.",key,i);
+				log_error("xacml_attribute_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.",key,i);
 				xacml_attribute_delete(attribute);
 				return PEP_IO_ERROR;
 			}
 			const char * id = hessian_string_getstring(h_string);
 			if (xacml_attribute_setid(attribute,id) != PEP_XACML_OK) {
-				log_error("xacml_attribute_unmarshal: can't set id: %s to PEP attribute at: %d",id,i);
+				log_error("xacml_attribute_unmarshal: can't set id: %s to XACML attribute at: %d",id,i);
 				xacml_attribute_delete(attribute);
 				return PEP_IO_ERROR;
 			}
@@ -345,7 +345,7 @@ static int xacml_attribute_unmarshal(xacml_attribute_t ** attr, const hessian_ob
 			if (h_string_type == HESSIAN_STRING)
 				datatype= hessian_string_getstring(h_string);
 			if (xacml_attribute_setdatatype(attribute,datatype) != PEP_XACML_OK) {
-				log_error("xacml_attribute_unmarshal: can't set datatype: %s to PEP attribute at: %d",datatype,i);
+				log_error("xacml_attribute_unmarshal: can't set datatype: %s to XACML attribute at: %d",datatype,i);
 				xacml_attribute_delete(attribute);
 				return PEP_IO_ERROR;
 			}
@@ -356,7 +356,7 @@ static int xacml_attribute_unmarshal(xacml_attribute_t ** attr, const hessian_ob
 			hessian_object_t * h_string= hessian_map_getvalue(h_attribute,i);
 			hessian_t h_string_type= hessian_gettype(h_string);
 			if ( h_string_type != HESSIAN_STRING && h_string_type != HESSIAN_NULL) {
-				log_error("xacml_attribute_unmarshal: hessian map<'%s',value> is not a hessian string or null at: %d.",key,i);
+				log_error("xacml_attribute_unmarshal: Hessian map<'%s',value> is not a Hessian string or null at: %d.",key,i);
 				xacml_attribute_delete(attribute);
 				return PEP_IO_ERROR;
 			}
@@ -364,7 +364,7 @@ static int xacml_attribute_unmarshal(xacml_attribute_t ** attr, const hessian_ob
 			if (h_string_type == HESSIAN_STRING)
 				issuer= hessian_string_getstring(h_string);
 			if (xacml_attribute_setissuer(attribute,issuer) != PEP_XACML_OK) {
-				log_error("xacml_attribute_unmarshal: can't set issuer: %s to PEP attribute at: %d",issuer,i);
+				log_error("xacml_attribute_unmarshal: can't set issuer: %s to XACML attribute at: %d",issuer,i);
 				xacml_attribute_delete(attribute);
 				return PEP_IO_ERROR;
 			}
@@ -374,7 +374,7 @@ static int xacml_attribute_unmarshal(xacml_attribute_t ** attr, const hessian_ob
 		else if (strcmp(XACML_HESSIAN_ATTRIBUTE_VALUES,key) == 0) {
 			hessian_object_t * h_values= hessian_map_getvalue(h_attribute,i);
 			if (hessian_gettype(h_values) != HESSIAN_LIST) {
-				log_error("xacml_attribute_unmarshal: hessian map<'%s',value> is not a hessian list.",key);
+				log_error("xacml_attribute_unmarshal: Hessian map<'%s',value> is not a Hessian list.",key);
 				xacml_attribute_delete(attribute);
 				return PEP_IO_ERROR;
 			}
@@ -383,13 +383,13 @@ static int xacml_attribute_unmarshal(xacml_attribute_t ** attr, const hessian_ob
 			for(j= 0; j<h_values_l; j++) {
 				hessian_object_t * h_value= hessian_list_get(h_values,j);
 				if (hessian_gettype(h_value) != HESSIAN_STRING) {
-					log_error("xacml_attribute_unmarshal: hessian map<'%s',value> is not a hessian string at: %d.",key,i);
+					log_error("xacml_attribute_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.",key,i);
 					xacml_attribute_delete(attribute);
 					return PEP_IO_ERROR;
 				}
 				const char * value = hessian_string_getstring(h_value);
 				if (xacml_attribute_addvalue(attribute,value) != PEP_XACML_OK) {
-					log_error("xacml_attribute_unmarshal: can't add value: %s to PEP attribute at: %d",value,j);
+					log_error("xacml_attribute_unmarshal: can't add value: %s to XACML attribute at: %d",value,j);
 					xacml_attribute_delete(attribute);
 					return PEP_IO_ERROR;
 				}
@@ -411,7 +411,7 @@ static int xacml_environment_marshal(const xacml_environment_t * env, hessian_ob
 	if (env == NULL) {
 		hessian_object_t * h_null= hessian_create(HESSIAN_NULL);
 		if (h_null == NULL) {
-			log_error("xacml_environment_marshal: NULL environment, but can't create hessian null.");
+			log_error("xacml_environment_marshal: NULL environment, but can't create Hessian null.");
 			return PEP_IO_ERROR;
 		}
 		*h_env= h_null;
@@ -419,13 +419,13 @@ static int xacml_environment_marshal(const xacml_environment_t * env, hessian_ob
 	}
 	hessian_object_t * h_environment= h_environment= hessian_create(HESSIAN_MAP,XACML_HESSIAN_ENVIRONMENT_CLASSNAME);
 	if (h_environment == NULL) {
-		log_error("xacml_environment_marshal: can't create hessian map: %s.", XACML_HESSIAN_ENVIRONMENT_CLASSNAME);
+		log_error("xacml_environment_marshal: can't create Hessian map: %s.", XACML_HESSIAN_ENVIRONMENT_CLASSNAME);
 		return PEP_IO_ERROR;
 	}
 	// attributes list
 	hessian_object_t * h_attrs= hessian_create(HESSIAN_LIST);
 	if (h_attrs == NULL) {
-		log_error("xacml_environment_marshal: can't create %s hessian list.", XACML_HESSIAN_ENVIRONMENT_ATTRIBUTES);
+		log_error("xacml_environment_marshal: can't create %s Hessian list.", XACML_HESSIAN_ENVIRONMENT_ATTRIBUTES);
 		hessian_delete(h_environment);
 		return PEP_IO_ERROR;
 	}
@@ -435,13 +435,13 @@ static int xacml_environment_marshal(const xacml_environment_t * env, hessian_ob
 		xacml_attribute_t * attr= xacml_environment_getattribute(env,i);
 		hessian_object_t * h_attr= NULL;
 		if (xacml_attribute_marshal(attr,&h_attr) != PEP_XACML_OK) {
-			log_error("xacml_environment_marshal: can't marshall PEP attribute at: %d",i);
+			log_error("xacml_environment_marshal: can't marshall XACML attribute at: %d",i);
 			hessian_delete(h_environment);
 			hessian_delete(h_attrs);
 			return PEP_IO_ERROR;
 		}
 		if (hessian_list_add(h_attrs,h_attr) != HESSIAN_OK) {
-			log_error("xacml_environment_marshal: can't add hessian attribute to hessian list at: %d",i);
+			log_error("xacml_environment_marshal: can't add Hessian attribute to Hessian list at: %d",i);
 			hessian_delete(h_environment);
 			hessian_delete(h_attrs);
 			hessian_delete(h_attr);
@@ -450,7 +450,7 @@ static int xacml_environment_marshal(const xacml_environment_t * env, hessian_ob
 	}
 	hessian_object_t * h_attrs_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_ENVIRONMENT_ATTRIBUTES);
 	if (hessian_map_add(h_environment,h_attrs_key,h_attrs) != HESSIAN_OK) {
-		log_error("xacml_environment_marshal: can't add attributes hessian list to environment hessian map.");
+		log_error("xacml_environment_marshal: can't add attributes Hessian list to environment Hessian map.");
 		hessian_delete(h_environment);
 		hessian_delete(h_attrs);
 		hessian_delete(h_attrs_key);
@@ -477,7 +477,7 @@ static int xacml_environment_unmarshal(xacml_environment_t ** env, const hessian
 	}
 	xacml_environment_t * environment= xacml_environment_create();
 	if (environment == NULL) {
-		log_error("xacml_environment_unmarshal: can't create PEP environment.");
+		log_error("xacml_environment_unmarshal: can't create XACML environment.");
 		return PEP_IO_ERROR;
 	}
 
@@ -487,7 +487,7 @@ static int xacml_environment_unmarshal(xacml_environment_t ** env, const hessian
 	for(i= 0; i<map_l; i++) {
 		hessian_object_t * h_map_key= hessian_map_getkey(h_environment,i);
 		if (hessian_gettype(h_map_key) != HESSIAN_STRING) {
-			log_error("xacml_environment_unmarshal: Hessian map<key> is not an hessian string at: %d.",i);
+			log_error("xacml_environment_unmarshal: Hessian map<key> is not an Hessian string at: %d.",i);
 			xacml_environment_delete(environment);
 			return PEP_IO_ERROR;
 		}
@@ -510,12 +510,12 @@ static int xacml_environment_unmarshal(xacml_environment_t ** env, const hessian
 				hessian_object_t * h_attr= hessian_list_get(h_attributes,j);
 				xacml_attribute_t * attribute= NULL;
 				if (xacml_attribute_unmarshal(&attribute,h_attr)) {
-					log_error("xacml_environment_unmarshal: can't unmarshal PEP attribute at: %d.",j);
+					log_error("xacml_environment_unmarshal: can't unmarshal XACML attribute at: %d.",j);
 					xacml_environment_delete(environment);
 					return PEP_IO_ERROR;
 				}
 				if (xacml_environment_addattribute(environment,attribute) != PEP_XACML_OK) {
-					log_error("xacml_environment_unmarshal: can't add PEP attribute to PEP environment at: %d",j);
+					log_error("xacml_environment_unmarshal: can't add XACML attribute to XACML environment at: %d",j);
 					xacml_environment_delete(environment);
 					xacml_attribute_delete(attribute);
 					return PEP_IO_ERROR;
@@ -542,13 +542,13 @@ static int xacml_request_marshal(const xacml_request_t * request, hessian_object
 	// request
 	hessian_object_t * h_request= hessian_create(HESSIAN_MAP,XACML_HESSIAN_REQUEST_CLASSNAME);
 	if (h_request == NULL) {
-		log_error("xacml_request_marshal: can't create request hessian map: %s.",XACML_HESSIAN_REQUEST_CLASSNAME);
+		log_error("xacml_request_marshal: can't create request Hessian map: %s.",XACML_HESSIAN_REQUEST_CLASSNAME);
 		return PEP_IO_ERROR;
 	}
 	// subjects list
 	hessian_object_t * h_subjects= hessian_create(HESSIAN_LIST);
 	if (h_subjects == NULL) {
-		log_error("xacml_request_marshal: can't create subjects hessian list.");
+		log_error("xacml_request_marshal: can't create subjects Hessian list.");
 		hessian_delete(h_request);
 		return PEP_IO_ERROR;
 	}
@@ -558,13 +558,13 @@ static int xacml_request_marshal(const xacml_request_t * request, hessian_object
 		xacml_subject_t * subject= xacml_request_getsubject(request,i);
 		hessian_object_t * h_subject= NULL;
 		if (xacml_subject_marshal(subject,&h_subject) != PEP_IO_OK) {
-			log_error("xacml_request_marshal: failed to marshal PEP subject at: %d.",i);
+			log_error("xacml_request_marshal: failed to marshal XACML subject at: %d.",i);
 			hessian_delete(h_request);
 			hessian_delete(h_subjects);
 			return PEP_IO_ERROR;
 		}
 		if (hessian_list_add(h_subjects,h_subject) != HESSIAN_OK) {
-			log_error("xacml_request_marshal: can't add hessian subject %d in hessian subjects list.",i);
+			log_error("xacml_request_marshal: can't add Hessian subject %d in Hessian subjects list.",i);
 			hessian_delete(h_request);
 			hessian_delete(h_subjects);
 			hessian_delete(h_subject);
@@ -573,7 +573,7 @@ static int xacml_request_marshal(const xacml_request_t * request, hessian_object
 	}
 	hessian_object_t * h_subjects_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_REQUEST_SUBJECTS);
 	if (hessian_map_add(h_request,h_subjects_key,h_subjects) != HESSIAN_OK) {
-		log_error("xacml_request_marshal: can't add hessian subjects list in hessian request map.");
+		log_error("xacml_request_marshal: can't add Hessian subjects list in Hessian request map.");
 		hessian_delete(h_request);
 		hessian_delete(h_subjects_key);
 		hessian_delete(h_subjects);
@@ -582,7 +582,7 @@ static int xacml_request_marshal(const xacml_request_t * request, hessian_object
 	// resources list
 	hessian_object_t * h_resources= hessian_create(HESSIAN_LIST);
 	if (h_resources == NULL) {
-		log_error("xacml_request_marshal: can't create resources hessian list.");
+		log_error("xacml_request_marshal: can't create resources Hessian list.");
 		hessian_delete(h_request);
 		return PEP_IO_ERROR;
 	}
@@ -591,13 +591,13 @@ static int xacml_request_marshal(const xacml_request_t * request, hessian_object
 		xacml_resource_t * resource= xacml_request_getresource(request,i);
 		hessian_object_t * h_resource= NULL;
 		if (xacml_resource_marshal(resource,&h_resource) != PEP_IO_OK) {
-			log_error("xacml_request_marshal: failed to marshal PEP resource at: %d.",i);
+			log_error("xacml_request_marshal: failed to marshal XACML resource at: %d.",i);
 			hessian_delete(h_request);
 			hessian_delete(h_resources);
 			return PEP_IO_ERROR;
 		}
 		if (hessian_list_add(h_resources,h_resource) != HESSIAN_OK) {
-			log_error("xacml_request_marshal: can't add hessian resource %d to hessian resources list.",i);
+			log_error("xacml_request_marshal: can't add Hessian resource %d to Hessian resources list.",i);
 			hessian_delete(h_request);
 			hessian_delete(h_resources);
 			hessian_delete(h_resource);
@@ -606,7 +606,7 @@ static int xacml_request_marshal(const xacml_request_t * request, hessian_object
 	}
 	hessian_object_t * h_resources_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_REQUEST_RESOURCES);
 	if (hessian_map_add(h_request,h_resources_key,h_resources) != HESSIAN_OK) {
-		log_error("xacml_request_marshal: can't add hessian resources list to hessian request map.");
+		log_error("xacml_request_marshal: can't add Hessian resources list to Hessian request map.");
 		hessian_delete(h_request);
 		hessian_delete(h_resources_key);
 		hessian_delete(h_resources);
@@ -616,13 +616,13 @@ static int xacml_request_marshal(const xacml_request_t * request, hessian_object
 	xacml_action_t * action= xacml_request_getaction(request);
 	hessian_object_t * h_action= NULL;
 	if (xacml_action_marshal(action,&h_action) != PEP_IO_OK) {
-		log_error("xacml_request_marshal: failed to marshal PEP action.");
+		log_error("xacml_request_marshal: failed to marshal XACML action.");
 		hessian_delete(h_request);
 		return PEP_IO_ERROR;
 	}
 	hessian_object_t * h_action_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_REQUEST_ACTION);
 	if (hessian_map_add(h_request,h_action_key,h_action) != HESSIAN_OK) {
-		log_error("xacml_request_marshal: can't add hessian action to hessian request.");
+		log_error("xacml_request_marshal: can't add Hessian action to Hessian request.");
 		hessian_delete(h_request);
 		hessian_delete(h_action_key);
 		hessian_delete(h_action);
@@ -632,13 +632,13 @@ static int xacml_request_marshal(const xacml_request_t * request, hessian_object
 	xacml_environment_t * environment= xacml_request_getenvironment(request);
 	hessian_object_t * h_environment= NULL;
 	if (xacml_environment_marshal(environment,&h_environment) != PEP_IO_OK) {
-		log_error("xacml_request_marshal: failed to marshal PEP environment.");
+		log_error("xacml_request_marshal: failed to marshal XACML environment.");
 		hessian_delete(h_request);
 		return PEP_IO_ERROR;
 	}
 	hessian_object_t * h_environment_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_REQUEST_ENVIRONMENT);
 	if (hessian_map_add(h_request,h_environment_key,h_environment) != HESSIAN_OK) {
-		log_error("xacml_request_marshal: can't add hessian environment to hessian request.");
+		log_error("xacml_request_marshal: can't add Hessian environment to Hessian request.");
 		hessian_delete(h_request);
 		hessian_delete(h_environment_key);
 		hessian_delete(h_environment);
@@ -665,7 +665,7 @@ static int xacml_request_unmarshal(xacml_request_t ** req, const hessian_object_
 
 	xacml_request_t * request= xacml_request_create();
 	if (request == NULL) {
-		log_error("xacml_request_unmarshal: can't create PEP request.");
+		log_error("xacml_request_unmarshal: can't create XACML request.");
 		return PEP_IO_ERROR;
 	}
 
@@ -675,7 +675,7 @@ static int xacml_request_unmarshal(xacml_request_t ** req, const hessian_object_
 	for(i= 0; i<map_l; i++) {
 		hessian_object_t * h_map_key= hessian_map_getkey(h_request,i);
 		if (hessian_gettype(h_map_key) != HESSIAN_STRING) {
-			log_error("xacml_request_unmarshal: Hessian map<key> is not an hessian string at: %d.",i);
+			log_error("xacml_request_unmarshal: Hessian map<key> is not an Hessian string at: %d.",i);
 			xacml_request_delete(request);
 			return PEP_IO_ERROR;
 		}
@@ -699,12 +699,12 @@ static int xacml_request_unmarshal(xacml_request_t ** req, const hessian_object_
 				hessian_object_t * h_subject= hessian_list_get(h_subjects,j);
 				xacml_subject_t * subject= NULL;
 				if (xacml_subject_unmarshal(&subject,h_subject) != PEP_IO_OK) {
-					log_error("xacml_request_unmarshal: can't unmarshal PEP subject at: %d.",j);
+					log_error("xacml_request_unmarshal: can't unmarshal XACML subject at: %d.",j);
 					xacml_request_delete(request);
 					return PEP_IO_ERROR;
 				}
 				if (xacml_request_addsubject(request,subject) != PEP_XACML_OK) {
-					log_error("xacml_request_unmarshal: can't add PEP subject to PEP request at: %d",j);
+					log_error("xacml_request_unmarshal: can't add XACML subject to XACML request at: %d",j);
 					xacml_request_delete(request);
 					xacml_subject_delete(subject);
 					return PEP_IO_ERROR;
@@ -725,12 +725,12 @@ static int xacml_request_unmarshal(xacml_request_t ** req, const hessian_object_
 				hessian_object_t * h_resource= hessian_list_get(h_resources,j);
 				xacml_resource_t * resource= NULL;
 				if (xacml_resource_unmarshal(&resource,h_resource) != PEP_IO_OK) {
-					log_error("xacml_request_unmarshal: can't unmarshal PEP resource at: %d.",j);
+					log_error("xacml_request_unmarshal: can't unmarshal XACML resource at: %d.",j);
 					xacml_request_delete(request);
 					return PEP_IO_ERROR;
 				}
 				if (xacml_request_addresource(request,resource) != PEP_XACML_OK) {
-					log_error("xacml_request_unmarshal: can't add PEP resource to PEP request at: %d",j);
+					log_error("xacml_request_unmarshal: can't add XACML resource to XACML request at: %d",j);
 					xacml_request_delete(request);
 					xacml_resource_delete(resource);
 					return PEP_IO_ERROR;
@@ -743,12 +743,12 @@ static int xacml_request_unmarshal(xacml_request_t ** req, const hessian_object_
 			if (hessian_gettype(h_action) != HESSIAN_NULL) {
 				xacml_action_t * action= NULL;
 				if (xacml_action_unmarshal(&action,h_action) != PEP_IO_OK) {
-					log_error("xacml_request_unmarshal: can't unmarshal PEP action at: %d.",i);
+					log_error("xacml_request_unmarshal: can't unmarshal XACML action at: %d.",i);
 					xacml_request_delete(request);
 					return PEP_IO_ERROR;
 				}
 				if (xacml_request_setaction(request,action) != PEP_XACML_OK) {
-					log_error("xacml_request_unmarshal: can't set PEP action to PEP request at: %d.",i);
+					log_error("xacml_request_unmarshal: can't set XACML action to XACML request at: %d.",i);
 					xacml_action_delete(action);
 					xacml_request_delete(request);
 					return PEP_IO_ERROR;
@@ -762,12 +762,12 @@ static int xacml_request_unmarshal(xacml_request_t ** req, const hessian_object_
 			if (hessian_gettype(h_environment) != HESSIAN_NULL) {
 				xacml_environment_t * environment= NULL;
 				if (xacml_environment_unmarshal(&environment,h_environment) != PEP_IO_OK) {
-					log_error("xacml_request_unmarshal: can't unmarshal PEP environment at: %d.",i);
+					log_error("xacml_request_unmarshal: can't unmarshal XACML environment at: %d.",i);
 					xacml_request_delete(request);
 					return PEP_IO_ERROR;
 				}
 				if (xacml_request_setenvironment(request,environment) != PEP_XACML_OK) {
-					log_error("xacml_request_unmarshal: can't set PEP environment to PEP request at: %d.",i);
+					log_error("xacml_request_unmarshal: can't set XACML environment to XACML request at: %d.",i);
 					xacml_environment_delete(environment);
 					xacml_request_delete(request);
 					return PEP_IO_ERROR;
@@ -792,7 +792,7 @@ static int xacml_resource_marshal(const xacml_resource_t * resource, hessian_obj
 	}
 	hessian_object_t * h_resource= hessian_create(HESSIAN_MAP,XACML_HESSIAN_RESOURCE_CLASSNAME);
 	if (h_resource == NULL) {
-		log_error("xacml_resource_marshal: can't create hessian map: %s.", XACML_HESSIAN_RESOURCE_CLASSNAME);
+		log_error("xacml_resource_marshal: can't create Hessian map: %s.", XACML_HESSIAN_RESOURCE_CLASSNAME);
 		return PEP_IO_ERROR;
 	}
 	// optional content
@@ -800,13 +800,13 @@ static int xacml_resource_marshal(const xacml_resource_t * resource, hessian_obj
 	if (content != NULL) {
 		hessian_object_t * h_content= hessian_create(HESSIAN_STRING,content);
 		if (h_content == NULL) {
-			log_error("xacml_resource_marshal: can't create content hessian string: %s.", content);
+			log_error("xacml_resource_marshal: can't create content Hessian string: %s.", content);
 			hessian_delete(h_resource);
 			return PEP_IO_ERROR;
 		}
 		hessian_object_t * h_content_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_RESOURCE_CONTENT);
 		if (hessian_map_add(h_resource,h_content_key,h_content) != HESSIAN_OK) {
-			log_error("xacml_resource_marshal: can't add content hessian string to resource hessian map.");
+			log_error("xacml_resource_marshal: can't add content Hessian string to resource Hessian map.");
 			hessian_delete(h_resource);
 			hessian_delete(h_content);
 			hessian_delete(h_content_key);
@@ -816,7 +816,7 @@ static int xacml_resource_marshal(const xacml_resource_t * resource, hessian_obj
 	// attributes list
 	hessian_object_t * h_attrs= hessian_create(HESSIAN_LIST);
 	if (h_attrs == NULL) {
-		log_error("xacml_resource_marshal: can't create attributes hessian list.");
+		log_error("xacml_resource_marshal: can't create attributes Hessian list.");
 		hessian_delete(h_resource);
 		return PEP_IO_ERROR;
 	}
@@ -826,13 +826,13 @@ static int xacml_resource_marshal(const xacml_resource_t * resource, hessian_obj
 		xacml_attribute_t * attr= xacml_resource_getattribute(resource,i);
 		hessian_object_t * h_attr= NULL;
 		if (xacml_attribute_marshal(attr,&h_attr) != PEP_XACML_OK) {
-			log_error("xacml_resource_marshal: can't marshal PEP attribute at: %d.", i);
+			log_error("xacml_resource_marshal: can't marshal XACML attribute at: %d.", i);
 			hessian_delete(h_resource);
 			hessian_delete(h_attrs);
 			return PEP_IO_ERROR;
 		}
 		if (hessian_list_add(h_attrs,h_attr) != HESSIAN_OK) {
-			log_error("xacml_resource_marshal: can't add hessian attribute to attributes hessian list at: %d.", i);
+			log_error("xacml_resource_marshal: can't add Hessian attribute to attributes Hessian list at: %d.", i);
 			hessian_delete(h_resource);
 			hessian_delete(h_attrs);
 			hessian_delete(h_attr);
@@ -841,7 +841,7 @@ static int xacml_resource_marshal(const xacml_resource_t * resource, hessian_obj
 	}
 	hessian_object_t * h_attrs_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_RESOURCE_ATTRIBUTES);
 	if (hessian_map_add(h_resource,h_attrs_key,h_attrs) != HESSIAN_OK) {
-		log_error("xacml_resource_marshal: can't add attributes hessian list to resource hessian map.");
+		log_error("xacml_resource_marshal: can't add attributes Hessian list to resource Hessian map.");
 		hessian_delete(h_resource);
 		hessian_delete(h_attrs);
 		hessian_delete(h_attrs_key);
@@ -868,7 +868,7 @@ static int xacml_resource_unmarshal(xacml_resource_t ** res, const hessian_objec
 
 	xacml_resource_t * resource= xacml_resource_create();
 	if (resource == NULL) {
-		log_error("xacml_resource_unmarshal: can't create PEP resource.");
+		log_error("xacml_resource_unmarshal: can't create XACML resource.");
 		return PEP_IO_ERROR;
 	}
 
@@ -878,7 +878,7 @@ static int xacml_resource_unmarshal(xacml_resource_t ** res, const hessian_objec
 	for(i= 0; i<map_l; i++) {
 		hessian_object_t * h_map_key= hessian_map_getkey(h_resource,i);
 		if (hessian_gettype(h_map_key) != HESSIAN_STRING) {
-			log_error("xacml_resource_unmarshal: Hessian map<key> is not an hessian string at: %d.",i);
+			log_error("xacml_resource_unmarshal: Hessian map<key> is not an Hessian string at: %d.",i);
 			xacml_resource_delete(resource);
 			return PEP_IO_ERROR;
 		}
@@ -902,7 +902,7 @@ static int xacml_resource_unmarshal(xacml_resource_t ** res, const hessian_objec
 				content= hessian_string_getstring(h_string);
 			}
 			if (xacml_resource_setcontent(resource,content) != PEP_XACML_OK) {
-				log_error("xacml_resource_unmarshal: can't set content: %s to PEP resource.",content);
+				log_error("xacml_resource_unmarshal: can't set content: %s to XACML resource.",content);
 				xacml_resource_delete(resource);
 				return PEP_IO_ERROR;
 			}
@@ -921,12 +921,12 @@ static int xacml_resource_unmarshal(xacml_resource_t ** res, const hessian_objec
 				hessian_object_t * h_attr= hessian_list_get(h_attributes,j);
 				xacml_attribute_t * attribute= NULL;
 				if (xacml_attribute_unmarshal(&attribute,h_attr) != PEP_IO_OK) {
-					log_error("xacml_resource_unmarshal: can't unmarshal PEP attribute at: %d.",j);
+					log_error("xacml_resource_unmarshal: can't unmarshal XACML attribute at: %d.",j);
 					xacml_resource_delete(resource);
 					return PEP_IO_ERROR;
 				}
 				if (xacml_resource_addattribute(resource,attribute) != PEP_XACML_OK) {
-					log_error("xacml_resource_unmarshal: can't add PEP attribute to PEP resource at: %d",j);
+					log_error("xacml_resource_unmarshal: can't add XACML attribute to XACML resource at: %d",j);
 					xacml_resource_delete(resource);
 					xacml_attribute_delete(attribute);
 					return PEP_IO_ERROR;
@@ -950,20 +950,20 @@ static int xacml_subject_marshal(const xacml_subject_t * subject, hessian_object
 	}
 	hessian_object_t * h_subject= hessian_create(HESSIAN_MAP,XACML_HESSIAN_SUBJECT_CLASSNAME);
 	if (h_subject == NULL) {
-		log_error("xacml_subject_marshal: can't create hessian map: %s.", XACML_HESSIAN_SUBJECT_CLASSNAME);
+		log_error("xacml_subject_marshal: can't create Hessian map: %s.", XACML_HESSIAN_SUBJECT_CLASSNAME);
 		return PEP_IO_ERROR;
 	}
 	const char * category= xacml_subject_getcategory(subject);
 	if (category != NULL) {
 		hessian_object_t * h_category= hessian_create(HESSIAN_STRING,category);
 		if (h_category == NULL) {
-			log_error("xacml_subject_marshal: can't create category hessian string: %s.", category);
+			log_error("xacml_subject_marshal: can't create category Hessian string: %s.", category);
 			hessian_delete(h_subject);
 			return PEP_IO_ERROR;
 		}
 		hessian_object_t * h_category_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_SUBJECT_CATEGORY);
 		if (hessian_map_add(h_subject,h_category_key,h_category) != HESSIAN_OK) {
-			log_error("xacml_subject_marshal: can't add category hessian string to subject hessian map.");
+			log_error("xacml_subject_marshal: can't add category Hessian string to subject Hessian map.");
 			hessian_delete(h_subject);
 			hessian_delete(h_category_key);
 			hessian_delete(h_category);
@@ -973,7 +973,7 @@ static int xacml_subject_marshal(const xacml_subject_t * subject, hessian_object
 	// attributes list
 	hessian_object_t * h_attrs= hessian_create(HESSIAN_LIST);
 	if (h_attrs == NULL) {
-		log_error("xacml_subject_marshal: can't create attributes hessian list.");
+		log_error("xacml_subject_marshal: can't create attributes Hessian list.");
 		hessian_delete(h_subject);
 		return PEP_IO_ERROR;
 	}
@@ -983,13 +983,13 @@ static int xacml_subject_marshal(const xacml_subject_t * subject, hessian_object
 		xacml_attribute_t * attr= xacml_subject_getattribute(subject,i);
 		hessian_object_t * h_attr= NULL;
 		if (xacml_attribute_marshal(attr,&h_attr) != PEP_IO_OK) {
-			log_error("xacml_subject_marshal: can't marshal PEP attribute at: %d.", i);
+			log_error("xacml_subject_marshal: can't marshal XACML attribute at: %d.", i);
 			hessian_delete(h_subject);
 			hessian_delete(h_attrs);
 			return PEP_IO_ERROR;
 		}
 		if (hessian_list_add(h_attrs,h_attr) != HESSIAN_OK) {
-			log_error("xacml_subject_marshal: can't add hessian attribute to attributes hessian list at: %d.", i);
+			log_error("xacml_subject_marshal: can't add Hessian attribute to attributes Hessian list at: %d.", i);
 			hessian_delete(h_subject);
 			hessian_delete(h_attrs);
 			hessian_delete(h_attr);
@@ -998,7 +998,7 @@ static int xacml_subject_marshal(const xacml_subject_t * subject, hessian_object
 	}
 	hessian_object_t * h_attrs_key= hessian_create(HESSIAN_STRING,XACML_HESSIAN_SUBJECT_ATTRIBUTES);
 	if (hessian_map_add(h_subject,h_attrs_key,h_attrs) != HESSIAN_OK) {
-		log_error("xacml_subject_marshal: can't add attributes hessian list to subject hessian map.");
+		log_error("xacml_subject_marshal: can't add attributes Hessian list to subject Hessian map.");
 		hessian_delete(h_subject);
 		hessian_delete(h_attrs);
 		hessian_delete(h_attrs_key);
@@ -1025,7 +1025,7 @@ static int xacml_subject_unmarshal(xacml_subject_t ** subj, const hessian_object
 
 	xacml_subject_t * subject= xacml_subject_create();
 	if (subject == NULL) {
-		log_error("xacml_subject_unmarshal: can't create PEP subject.");
+		log_error("xacml_subject_unmarshal: can't create XACML subject.");
 		return PEP_IO_ERROR;
 	}
 
@@ -1035,7 +1035,7 @@ static int xacml_subject_unmarshal(xacml_subject_t ** subj, const hessian_object
 	for(i= 0; i<map_l; i++) {
 		hessian_object_t * h_map_key= hessian_map_getkey(h_subject,i);
 		if (hessian_gettype(h_map_key) != HESSIAN_STRING) {
-			log_error("xacml_subject_unmarshal: Hessian map<key> is not an hessian string at: %d.",i);
+			log_error("xacml_subject_unmarshal: Hessian map<key> is not an Hessian string at: %d.",i);
 			xacml_subject_delete(subject);
 			return PEP_IO_ERROR;
 		}
@@ -1059,7 +1059,7 @@ static int xacml_subject_unmarshal(xacml_subject_t ** subj, const hessian_object
 				category= hessian_string_getstring(h_string);
 			}
 			if (xacml_subject_setcategory(subject,category) != PEP_XACML_OK) {
-				log_error("xacml_subject_unmarshal: can't set category: %s to PEP subject.",category);
+				log_error("xacml_subject_unmarshal: can't set category: %s to XACML subject.",category);
 				xacml_subject_delete(subject);
 				return PEP_IO_ERROR;
 			}
@@ -1078,12 +1078,12 @@ static int xacml_subject_unmarshal(xacml_subject_t ** subj, const hessian_object
 				hessian_object_t * h_attr= hessian_list_get(h_attributes,j);
 				xacml_attribute_t * attribute= NULL;
 				if (xacml_attribute_unmarshal(&attribute,h_attr) != PEP_IO_OK) {
-					log_error("xacml_subject_unmarshal: can't unmarshal PEP attribute at: %d.",j);
+					log_error("xacml_subject_unmarshal: can't unmarshal XACML attribute at: %d.",j);
 					xacml_subject_delete(subject);
 					return PEP_IO_ERROR;
 				}
 				if (xacml_subject_addattribute(subject,attribute) != PEP_XACML_OK) {
-					log_error("xacml_subject_unmarshal: can't add PEP attribute to PEP subject at: %d",j);
+					log_error("xacml_subject_unmarshal: can't add XACML attribute to XACML subject at: %d",j);
 					xacml_subject_delete(subject);
 					xacml_attribute_delete(attribute);
 					return PEP_IO_ERROR;
@@ -1107,8 +1107,8 @@ static int xacml_subject_unmarshal(xacml_subject_t ** subj, const hessian_object
 pep_error_t xacml_request_marshalling(const xacml_request_t * request, BUFFER * output) {
 	hessian_object_t * h_request= NULL;
 	if (xacml_request_marshal(request,&h_request) != PEP_IO_OK) {
-		log_error("xacml_request_marshalling: can't marshal PEP request into Hessian object.");
-		pep_errmsg("failed to marshal PEP request into Hessian object");
+		log_error("xacml_request_marshalling: can't marshal XACML request into Hessian object.");
+		pep_errmsg("failed to marshal XACML request into Hessian object");
 		return PEP_ERR_MARSHALLING_HESSIAN;
 	}
 	if (hessian_serialize(h_request,output) != HESSIAN_OK) {
@@ -1130,9 +1130,9 @@ pep_error_t xacml_response_unmarshalling(xacml_response_t ** response, BUFFER * 
 		return PEP_ERR_UNMARSHALLING_IO;
 	}
 	if (xacml_response_unmarshal(response, h_response) != PEP_IO_OK) {
-		log_error("xacml_response_unmarshalling: can't unmarshal PEP response from Hessian object.");
+		log_error("xacml_response_unmarshalling: can't unmarshal XACML response from Hessian object.");
 		hessian_delete(h_response);
-		pep_errmsg("failed to unmarshal PEP response from Hessian object");
+		pep_errmsg("failed to unmarshal XACML response from Hessian object");
 		return PEP_ERR_UNMARSHALLING_HESSIAN;
 	}
 	hessian_delete(h_response);
@@ -1158,7 +1158,7 @@ static int xacml_response_unmarshal(xacml_response_t ** resp, const hessian_obje
 
 	xacml_response_t * response= xacml_response_create();
 	if (response == NULL) {
-		log_error("xacml_response_unmarshal: can't create PEP response.");
+		log_error("xacml_response_unmarshal: can't create XACML response.");
 		return PEP_IO_ERROR;
 	}
 
@@ -1168,7 +1168,7 @@ static int xacml_response_unmarshal(xacml_response_t ** resp, const hessian_obje
 	for(i= 0; i<map_l; i++) {
 		hessian_object_t * h_map_key= hessian_map_getkey(h_response,i);
 		if (hessian_gettype(h_map_key) != HESSIAN_STRING) {
-			log_error("xacml_response_unmarshal: Hessian map<key> is not an hessian string at: %d.",i);
+			log_error("xacml_response_unmarshal: Hessian map<key> is not an Hessian string at: %d.",i);
 			xacml_response_delete(response);
 			return PEP_IO_ERROR;
 		}
@@ -1184,19 +1184,19 @@ static int xacml_response_unmarshal(xacml_response_t ** resp, const hessian_obje
 			if (hessian_gettype(h_request) != HESSIAN_NULL) {
 				xacml_request_t * request= NULL;
 				if (xacml_request_unmarshal(&request,h_request) != PEP_IO_OK) {
-					log_error("xacml_response_unmarshal: can't unmarshal PEP request.");
+					log_error("xacml_response_unmarshal: can't unmarshal XACML request.");
 					xacml_response_delete(response);
 					return PEP_IO_ERROR;
 				}
 				if (xacml_response_setrequest(response,request) != PEP_XACML_OK) {
-					log_error("xacml_response_unmarshal: can't set PEP request in PEP response.");
+					log_error("xacml_response_unmarshal: can't set XACML request in XACML response.");
 					xacml_request_delete(request);
 					xacml_response_delete(response);
 					return PEP_IO_ERROR;
 				}
 			}
 			else {
-				log_warn("xacml_response_unmarshal: PEP request is NULL.");
+				log_warn("xacml_response_unmarshal: XACML request is NULL.");
 			}
 
 		}
@@ -1204,7 +1204,7 @@ static int xacml_response_unmarshal(xacml_response_t ** resp, const hessian_obje
 		else if (strcmp(XACML_HESSIAN_RESPONSE_RESULTS,key) == 0) {
 			hessian_object_t * h_results= hessian_map_getvalue(h_response,i);
 			if (hessian_gettype(h_results) != HESSIAN_LIST) {
-				log_error("xacml_response_unmarshal: hessian map<'%s',value> is not a hessian list at: %d.",key,i);
+				log_error("xacml_response_unmarshal: Hessian map<'%s',value> is not a Hessian list at: %d.",key,i);
 				xacml_response_delete(response);
 				return PEP_IO_ERROR;
 			}
@@ -1214,12 +1214,12 @@ static int xacml_response_unmarshal(xacml_response_t ** resp, const hessian_obje
 				hessian_object_t * h_result= hessian_list_get(h_results,j);
 				xacml_result_t * result= NULL;
 				if (xacml_result_unmarshal(&result,h_result) != PEP_IO_OK) {
-					log_error("xacml_response_unmarshal: can't unmarshal PEP result at: %d.",j);
+					log_error("xacml_response_unmarshal: can't unmarshal XACML result at: %d.",j);
 					xacml_response_delete(response);
 					return PEP_IO_ERROR;
 				}
 				if (xacml_response_addresult(response,result) != PEP_XACML_OK) {
-					log_error("xacml_response_unmarshal: can't add PEP result at: %d to PEP response.",j);
+					log_error("xacml_response_unmarshal: can't add XACML result at: %d to XACML response.",j);
 					xacml_result_delete(result);
 					xacml_response_delete(response);
 					return PEP_IO_ERROR;
@@ -1252,7 +1252,7 @@ static int xacml_result_unmarshal(xacml_result_t ** res, const hessian_object_t 
 	}
 	xacml_result_t * result= xacml_result_create();
 	if (result == NULL) {
-		log_error("xacml_result_unmarshal: can't create PEP result.");
+		log_error("xacml_result_unmarshal: can't create XACML result.");
 		return PEP_IO_ERROR;
 	}
 
@@ -1282,7 +1282,7 @@ static int xacml_result_unmarshal(xacml_result_t ** res, const hessian_object_t 
 			}
 			int32_t decision= hessian_integer_getvalue(h_integer);
 			if (xacml_result_setdecision(result,decision) != PEP_XACML_OK) {
-				log_error("xacml_result_unmarshal: can't set decision: %d to PEP result.",(int)decision);
+				log_error("xacml_result_unmarshal: can't set decision: %d to XACML result.",(int)decision);
 				xacml_result_delete(result);
 				return PEP_IO_ERROR;
 			}
@@ -1301,7 +1301,7 @@ static int xacml_result_unmarshal(xacml_result_t ** res, const hessian_object_t 
 				resourceid= hessian_string_getstring(h_string);
 			}
 			if (xacml_result_setresourceid(result, resourceid) != PEP_XACML_OK) {
-				log_error("xacml_result_unmarshal: can't set resourceid: %s to PEP result.",resourceid);
+				log_error("xacml_result_unmarshal: can't set resourceid: %s to XACML result.",resourceid);
 				xacml_result_delete(result);
 				return PEP_IO_ERROR;
 			}
@@ -1312,19 +1312,19 @@ static int xacml_result_unmarshal(xacml_result_t ** res, const hessian_object_t 
 			if (hessian_gettype(h_status) != HESSIAN_NULL) {
 				xacml_status_t * status= NULL;
 				if (xacml_status_unmarshal(&status,h_status) != PEP_IO_OK) {
-					log_error("xacml_result_unmarshal: can't unmarshal PEP status.");
+					log_error("xacml_result_unmarshal: can't unmarshal XACML status.");
 					xacml_result_delete(result);
 					return PEP_IO_ERROR;
 				}
 				if (xacml_result_setstatus(result,status) != PEP_XACML_OK) {
-					log_error("xacml_result_unmarshal: can't set PEP status to PEP result.");
+					log_error("xacml_result_unmarshal: can't set XACML status to XACML result.");
 					xacml_result_delete(result);
 					xacml_status_delete(status);
 					return PEP_IO_ERROR;
 				}
 			}
 			else {
-				log_warn("xacml_result_unmarshal: PEP status is NULL.");
+				log_warn("xacml_result_unmarshal: XACML status is NULL.");
 			}
 
 		}
@@ -1342,12 +1342,12 @@ static int xacml_result_unmarshal(xacml_result_t ** res, const hessian_object_t 
 				hessian_object_t * h_obligation= hessian_list_get(h_obligations,j);
 				xacml_obligation_t * obligation= NULL;
 				if (xacml_obligation_unmarshal(&obligation,h_obligation) != PEP_IO_OK) {
-					log_error("xacml_result_unmarshal: can't unmarshal PEP obligation at: %d.", j);
+					log_error("xacml_result_unmarshal: can't unmarshal XACML obligation at: %d.", j);
 					xacml_result_delete(result);
 					return PEP_IO_ERROR;
 				}
 				if (xacml_result_addobligation(result,obligation) != PEP_XACML_OK) {
-					log_error("xacml_result_unmarshal: can't add PEP obligation at: %d to PEP result.", j);
+					log_error("xacml_result_unmarshal: can't add XACML obligation at: %d to XACML result.", j);
 					xacml_result_delete(result);
 					xacml_obligation_delete(obligation);
 					return PEP_IO_ERROR;
@@ -1380,7 +1380,7 @@ static int xacml_status_unmarshal(xacml_status_t ** st, const hessian_object_t *
 	}
 	xacml_status_t * status= xacml_status_create(NULL);
 	if (status == NULL) {
-		log_error("xacml_status_unmarshal: can't create PEP status.");
+		log_error("xacml_status_unmarshal: can't create XACML status.");
 		return PEP_IO_ERROR;
 	}
 	// parse all map pair<key>s
@@ -1409,7 +1409,7 @@ static int xacml_status_unmarshal(xacml_status_t ** st, const hessian_object_t *
 			}
 			const char * message = hessian_string_getstring(h_string);
 			if (xacml_status_setmessage(status,message) != PEP_XACML_OK) {
-				log_error("xacml_status_unmarshal: can't set message: %s to PEP status at: %d",message,i);
+				log_error("xacml_status_unmarshal: can't set message: %s to XACML status at: %d",message,i);
 				xacml_status_delete(status);
 				return PEP_IO_ERROR;
 			}
@@ -1420,19 +1420,19 @@ static int xacml_status_unmarshal(xacml_status_t ** st, const hessian_object_t *
 			if (hessian_gettype(h_status) != HESSIAN_NULL) {
 				xacml_statuscode_t * statuscode= NULL;
 				if (xacml_statuscode_unmarshal(&statuscode,h_statuscode) != PEP_IO_OK) {
-					log_error("xacml_status_unmarshal: can't unmarshal PEP statuscode at: %d.", i);
+					log_error("xacml_status_unmarshal: can't unmarshal XACML statuscode at: %d.", i);
 					xacml_status_delete(status);
 					return PEP_IO_ERROR;
 				}
 				if (xacml_status_setcode(status,statuscode) != PEP_XACML_OK) {
-					log_error("xacml_status_unmarshal: can't set PEP statuscode to PEP status.");
+					log_error("xacml_status_unmarshal: can't set XACML statuscode to XACML status.");
 					xacml_status_delete(status);
 					xacml_statuscode_delete(statuscode);
 					return PEP_IO_ERROR;
 				}
 			}
 			else {
-				log_warn("xacml_status_unmarshal: subcode PEP statuscode is NULL.");
+				log_warn("xacml_status_unmarshal: subcode XACML statuscode is NULL.");
 			}
 		}
 		else {
@@ -1461,7 +1461,7 @@ static int xacml_statuscode_unmarshal(xacml_statuscode_t ** stc, const hessian_o
 
 	xacml_statuscode_t * statuscode= xacml_statuscode_create(NULL);
 	if (statuscode == NULL) {
-		log_error("xacml_statuscode_unmarshal: cant't create PEP statuscode.");
+		log_error("xacml_statuscode_unmarshal: cant't create XACML statuscode.");
 		return PEP_IO_ERROR;
 	}
 
@@ -1491,7 +1491,7 @@ static int xacml_statuscode_unmarshal(xacml_statuscode_t ** stc, const hessian_o
 			}
 			const char * code = hessian_string_getstring(h_string);
 			if (xacml_statuscode_setvalue(statuscode,code) != PEP_XACML_OK) {
-				log_error("xacml_statuscode_unmarshal: can't set value: %s to PEP statuscode at: %d",code,i);
+				log_error("xacml_statuscode_unmarshal: can't set value: %s to XACML statuscode at: %d",code,i);
 				xacml_statuscode_delete(statuscode);
 				return PEP_IO_ERROR;
 			}
@@ -1503,19 +1503,19 @@ static int xacml_statuscode_unmarshal(xacml_statuscode_t ** stc, const hessian_o
 			if (hessian_gettype(h_subcode) != HESSIAN_NULL) {
 				xacml_statuscode_t * subcode= NULL;
 				if (xacml_statuscode_unmarshal(&subcode,h_subcode) != PEP_IO_OK) {
-					log_error("xacml_statuscode_unmarshal: can't unmarshal subcode PEP statuscode at: %d.",i);
+					log_error("xacml_statuscode_unmarshal: can't unmarshal subcode XACML statuscode at: %d.",i);
 					xacml_statuscode_delete(statuscode);
 					return PEP_IO_ERROR;
 				}
 				if (xacml_statuscode_setsubcode(statuscode,subcode) != PEP_XACML_OK) {
-					log_error("xacml_statuscode_unmarshal: can't set subcode PEP statuscode to PEP statuscode at: %d",i);
+					log_error("xacml_statuscode_unmarshal: can't set subcode XACML statuscode to XACML statuscode at: %d",i);
 					xacml_statuscode_delete(statuscode);
 					xacml_statuscode_delete(subcode);
 					return PEP_IO_ERROR;
 				}
 			}
 			//else {
-			//	log_warn("xacml_statuscode_unmarshal: subcode PEP statuscode is NULL.");
+			//	log_warn("xacml_statuscode_unmarshal: subcode XACML statuscode is NULL.");
 			//}
 		}
 		else {
@@ -1542,7 +1542,7 @@ static int xacml_obligation_unmarshal(xacml_obligation_t ** obl, const hessian_o
 	}
 	xacml_obligation_t * obligation= xacml_obligation_create(NULL);
 	if (obligation == NULL) {
-		log_error("xacml_obligation_unmarshal: can't create PEP obligation.");
+		log_error("xacml_obligation_unmarshal: can't create XACML obligation.");
 		return PEP_IO_ERROR;
 	}
 
@@ -1573,7 +1573,7 @@ static int xacml_obligation_unmarshal(xacml_obligation_t ** obl, const hessian_o
 			}
 			const char * id = hessian_string_getstring(h_string);
 			if (xacml_obligation_setid(obligation,id) != PEP_XACML_OK) {
-				log_error("xacml_obligation_unmarshal: can't set id: %s to PEP obligation at: %d",id,i);
+				log_error("xacml_obligation_unmarshal: can't set id: %s to XACML obligation at: %d",id,i);
 				xacml_obligation_delete(obligation);
 				return PEP_IO_ERROR;
 			}
@@ -1588,7 +1588,7 @@ static int xacml_obligation_unmarshal(xacml_obligation_t ** obl, const hessian_o
 			}
 			int32_t fulfillon= hessian_integer_getvalue(h_integer);
 			if (xacml_obligation_setfulfillon(obligation,fulfillon) != PEP_XACML_OK) {
-				log_error("xacml_obligation_unmarshal: can't set fulfillon: %d to PEP obligation at: %d",(int)fulfillon,i);
+				log_error("xacml_obligation_unmarshal: can't set fulfillon: %d to XACML obligation at: %d",(int)fulfillon,i);
 				xacml_obligation_delete(obligation);
 				return PEP_IO_ERROR;
 			}
@@ -1607,12 +1607,12 @@ static int xacml_obligation_unmarshal(xacml_obligation_t ** obl, const hessian_o
 				hessian_object_t * h_assignment= hessian_list_get(h_assignments,j);
 				xacml_attributeassignment_t * attribute= NULL;
 				if (xacml_attributeassignment_unmarshal(&attribute,h_assignment) != PEP_IO_OK) {
-					log_error("xacml_obligation_unmarshal: can't unmarshal PEP attribute assignment at: %d.",j);
+					log_error("xacml_obligation_unmarshal: can't unmarshal XACML attribute assignment at: %d.",j);
 					xacml_obligation_delete(obligation);
 					return PEP_IO_ERROR;
 				}
 				if (xacml_obligation_addattributeassignment(obligation,attribute) != PEP_XACML_OK) {
-					log_error("xacml_obligation_unmarshal: can't add PEP attribute assignment to PEP obligation at: %d",j);
+					log_error("xacml_obligation_unmarshal: can't add XACML attribute assignment to XACML obligation at: %d",j);
 					xacml_obligation_delete(obligation);
 					xacml_attributeassignment_delete(attribute);
 					return PEP_IO_ERROR;
@@ -1646,7 +1646,7 @@ static int xacml_attributeassignment_unmarshal(xacml_attributeassignment_t ** at
 
 	xacml_attributeassignment_t * attribute= xacml_attributeassignment_create(NULL);
 	if (attribute == NULL) {
-		log_error("xacml_attributeassignment_unmarshal: can't create PEP attribute assignment.");
+		log_error("xacml_attributeassignment_unmarshal: can't create XACML attribute assignment.");
 		return PEP_IO_ERROR;
 	}
 
@@ -1677,7 +1677,7 @@ static int xacml_attributeassignment_unmarshal(xacml_attributeassignment_t ** at
 			}
 			const char * id = hessian_string_getstring(h_string);
 			if (xacml_attributeassignment_setid(attribute,id) != PEP_XACML_OK) {
-				log_error("xacml_attributeassignment_unmarshal: can't set id: %s to PEP attribute assignment at: %d",id,i);
+				log_error("xacml_attributeassignment_unmarshal: can't set id: %s to XACML attribute assignment at: %d",id,i);
 				xacml_attributeassignment_delete(attribute);
 				return PEP_IO_ERROR;
 			}
@@ -1701,7 +1701,7 @@ static int xacml_attributeassignment_unmarshal(xacml_attributeassignment_t ** at
 				}
 				const char * value = hessian_string_getstring(h_value);
 				if (xacml_attributeassignment_addvalue(attribute,value) != PEP_XACML_OK) {
-					log_error("xacml_attributeassignment_unmarshal: can't add value: %s to PEP attribute at: %d",value,j);
+					log_error("xacml_attributeassignment_unmarshal: can't add value: %s to XACML attribute at: %d",value,j);
 					xacml_attributeassignment_delete(attribute);
 					return PEP_IO_ERROR;
 				}
