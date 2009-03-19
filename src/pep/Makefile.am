@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.4 2009/03/13 10:15:58 vtschopp Exp $
+# $Id: Makefile.am,v 1.5 2009/03/19 14:27:44 vtschopp Exp $
 #
 
 include $(top_srcdir)/Makefile.flags.am 
@@ -7,12 +7,10 @@ include $(top_srcdir)/Makefile.flags.am
 #
 # library to build
 #
-lib_LTLIBRARIES = libpep-c.la
-libpep_c_la_LIBADD = ../util/libutil.la ../hessian/libhessian.la 
-libpep_c_la_LDFLAGS = -version-info 0:0:0 -lcurl
+noinst_LTLIBRARIES = libpep.la
 
 # sources not distributed
-libpep_c_la_SOURCES = \
+libpep_la_SOURCES = \
 action.c \
 attribute.c \
 attributeassignment.c \
@@ -31,8 +29,4 @@ result.c \
 status.c \
 subject.c \
 xacml.h
-
-# headers files (public API)
-includedir=$(prefix)/include/pep
-include_HEADERS = pep.h error.h xacml.h
 
