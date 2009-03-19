@@ -92,7 +92,7 @@ static const char * decision_str(int decision) {
 }
 
 /*
- * Dumps a PEP request.
+ * Dumps a XACML request.
  */
 static int dump_request(xacml_request_t ** request) {
 	xacml_request_t * request2= *request;
@@ -178,7 +178,7 @@ static int dump_request(xacml_request_t ** request) {
 }
 
 /*
- * Dumps a PEP response.
+ * Dumps a XACML response.
  */
 static int dump_response(xacml_response_t ** response_ptr) {
 	xacml_response_t * response= *response_ptr;
@@ -365,7 +365,7 @@ int main(int argc, char **argv) {
 		info("%s: using endpoint URL: %s",argv[0], url);
 	}
 	info("initialize PEP...");
-	int pep_rc= pep_initialize();
+	pep_error_t pep_rc= pep_initialize();
 	if (pep_rc != PEP_OK) {
 		error("test_pep: pep_initialize() failed: %s",pep_strerror(pep_rc));
 		pep_destroy();
@@ -405,39 +405,36 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 
-	// create a PEP request
-	info("create PEP request...");
+	// create a XACML request
+	info("create XACML request...");
 	xacml_request_t * request= xacml_request_create();
 	assert(request);
-	info("add PEP subject(proxy)...");
+	info("add XACML subject(cert-chain)...");
 	xacml_subject_t * subject= xacml_subject_create();
 	assert(subject);
-	xacml_attribute_t * proxy= xacml_attribute_create("x-urn:authz:subject:proxy");
+	xacml_attribute_t * proxy= xacml_attribute_create(XACML_AUTHZINTEROP_SUBJECT_CERTCHAIN);
 	assert(proxy);
-	xacml_attribute_addvalue(proxy,"PEM_ENCODE_PROXY_CONTENT");
+	xacml_attribute_addvalue(proxy,"PEM_ENCODE_PROXY_CERTCHAIN...");
+	xacml_attribute_setdatatype(proxy,XACML_DATATYPE_BASE64BINARY);
 	xacml_subject_addattribute(subject,proxy);
 	xacml_request_addsubject(request,subject);
-	info("add PEP resource(jdl,name)...");
+	info("add XACML resource(resource-id)...");
 	xacml_resource_t * resource= xacml_resource_create();
 	assert(resource);
-	xacml_attribute_t * jdl= xacml_attribute_create("x-urn:authz:resource:jdl");
-	assert(jdl);
-	xacml_attribute_addvalue(jdl,"JDL_FILE_CONTENT");
-	xacml_resource_addattribute(resource,jdl);
-	xacml_attribute_t * name= xacml_attribute_create("x-urn:authz:resource:name");
-	assert(name);
-	xacml_attribute_addvalue(name,"Val\xC3\xA9ry");
-	xacml_resource_addattribute(resource,name);
+	xacml_attribute_t * resource_id= xacml_attribute_create(XACML_RESOURCE_ID);
+	assert(resource_id);
+	xacml_attribute_addvalue(resource_id,"http://authz-interop.org/xacml/resource/resource-type/wn");
+	xacml_resource_addattribute(resource,resource_id);
 	xacml_request_addresource(request,resource);
-	info("set PEP action(command)...");
+	info("set XACML action(action-id)...");
 	xacml_action_t * action= xacml_action_create();
 	assert(action);
-	xacml_attribute_t * command= xacml_attribute_create("x-urn:authz:action:command");
-	assert(command);
-	xacml_attribute_addvalue(command,"/usr/bin/echo");
-	xacml_action_addattribute(action,command);
+	xacml_attribute_t * action_id= xacml_attribute_create(XACML_ACTION_ID);
+	assert(action_id);
+	xacml_attribute_addvalue(action_id,"http://authz-interop.org/xacml/action/action-type/execute-now");
+	xacml_action_addattribute(action,action_id);
 	xacml_request_setaction(request,action);
-	info("set PEP environment(path)...");
+	info("set XACML environment(path)...");
 	xacml_environment_t * environment= xacml_environment_create();
 	assert(environment);
 	xacml_attribute_t * path= xacml_attribute_create("x-urn:authz:env:path");
@@ -470,7 +467,7 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 
-	info("send authorization request to PEPd");
+	info("send XACML request to PEPd");
 	xacml_response_t * response= NULL;
 	pep_rc= pep_authorize(&request,&response);
 	if (pep_rc != PEP_OK) {
@@ -483,7 +480,7 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 
-	info("delete PEP request and response...");
+	info("delete XACML request and response...");
 	xacml_request_delete(request);
 	xacml_response_delete(response);
 
