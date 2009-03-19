@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: pep.c,v 1.14 2009/03/18 11:29:08 vtschopp Exp $
+ * $Id: pep.c,v 1.15 2009/03/19 14:20:41 vtschopp Exp $
  */
 #include <stdarg.h>  /* va_list, va_arg, ... */
 #include <string.h>
@@ -345,7 +345,7 @@ pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** 
 	}
 	pep_error_t marshal_rc= xacml_request_marshalling(request,output);
 	if ( marshal_rc != PEP_OK ) {
-		log_error("pep_authorize: can't marshal PEP request: %s.", pep_strerror(marshal_rc));
+		log_error("pep_authorize: can't marshal XACML request: %s.", pep_strerror(marshal_rc));
 		buffer_delete(output);
 		// errmsg already set by pep_request_marshalling(...)
 		return marshal_rc;
@@ -357,7 +357,7 @@ pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** 
 	if (b64output == NULL) {
 		log_error("ERROR:pep_authorize: can't create base64 output buffer.");
 		buffer_delete(output);
-		pep_errmsg("can't allocate base64 output buffer (%d)", (int)output_l);
+		pep_errmsg("can't allocate base64 output buffer (%d bytes)", (int)output_l);
 		return PEP_ERR_MEMORY;
 	}
 	base64_encode_l(output,b64output,BASE64_DEFAULT_LINE_SIZE);
@@ -520,9 +520,10 @@ pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** 
 		log_debug("pep_authorize: trying PEPd: %s",url);
 		curl_rc= curl_easy_setopt(curl, CURLOPT_URL, url);
 		if (curl_rc != CURLE_OK) {
-			log_warn("pep_authorize: PEPd[%s]: curl_easy_setopt(curl,CURLOPT_URL,%s) failed: %s.",url,curl_easy_strerror(curl_rc));
+			log_error("pep_authorize: PEPd[%s]: curl_easy_setopt(curl,CURLOPT_URL,%s) failed: %s.",url,curl_easy_strerror(curl_rc));
+			pep_errmsg("PEPd[%s]: curl_easy_setopt(curl,CURLOPT_URL,%s) failed: %s.",url,curl_easy_strerror(curl_rc));
 			// try next PEPd failover url
-			log_debug("pep_authorize: PEPd[%s] failed: trying next failover URL...",url);
+			log_info("pep_authorize: PEPd[%s] failed: trying next failover URL...",url);
 			continue;
 		}
 
@@ -530,11 +531,12 @@ pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** 
 		log_info("pep_authorize: sending XACML request to PEPd: %s",url);
 		curl_rc= curl_easy_perform(curl);
 		if (curl_rc != CURLE_OK) {
-			log_warn("pep_authorize: PEPd[%s]: sending XACML request failed:[%d] %s.",url,(int)curl_rc,curl_easy_strerror(curl_rc));
+			log_error("pep_authorize: PEPd[%s]: sending XACML request failed: curl[%d] %s.",url,(int)curl_rc,curl_easy_strerror(curl_rc));
+			pep_errmsg("PEPd[%s]: sending XACML request failed: curl[%d]: %s.",url,(int)curl_rc,curl_easy_strerror(curl_rc));
 			buffer_rewind(b64output);
 			buffer_reset(b64input);
 			buffer_reset(input);
-			log_debug("pep_authorize: PEPd[%s] failed: reset buffers, trying next failover URL...",url);
+			log_info("pep_authorize: PEPd[%s] failed: trying next failover URL...",url);
 			continue;
 		}
 
@@ -545,11 +547,12 @@ pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** 
 			log_warn("pep_authorize: PEPd[%s]: curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&http_code) failed: %s.",url,curl_easy_strerror(curl_rc));
 		}
 		if (http_code != 200) {
-			log_warn("pep_authorize: PEPd[%s]: HTTP status code: %d.",url,(int)http_code);
+			log_error("pep_authorize: PEPd[%s]: HTTP status code: %d.",url,(int)http_code);
+			pep_errmsg("PEPd[%s] failed: HTTP response code: %d.",url,(int)http_code);
 			buffer_rewind(b64output);
 			buffer_reset(b64input);
 			buffer_reset(input);
-			log_debug("pep_authorize: PEPd[%s]: reset buffers, trying next failover URL...",url);
+			log_info("pep_authorize: PEPd[%s] failed: trying next failover URL...",url);
 			continue;
 		}
 
@@ -561,16 +564,17 @@ pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** 
 		// unmarshal the PEP response
 		pep_error_t unmarshal_rc= xacml_response_unmarshalling(&response,input);
 		if ( unmarshal_rc != PEP_OK) {
-			log_warn("pep_authorize: PEPd[%s]: can't unmarshal the PEP response: %s.", url, pep_strerror(unmarshal_rc));
+			log_error("pep_authorize: PEPd[%s]: can't unmarshal the XACML response: %s.", url, pep_strerror(unmarshal_rc));
+			pep_errmsg("PEPd[%s] failed: can't unmarshal the XACML response: %s.", url, pep_strerror(unmarshal_rc));
 			buffer_rewind(b64output);
 			buffer_reset(b64input);
 			buffer_reset(input);
-			log_debug("pep_authorize: PEPd[%s]: reset buffers, trying next failover URL...",url);
+			log_info("pep_authorize: PEPd[%s] failed: trying next failover URL...",url);
 			continue;
 		}
 
 		failover_ok= TRUE;
-		log_info("pep_authorize: PEPd[%s]: authorization Request decoded and unmarshalled.",url);
+		log_info("pep_authorize: PEPd[%s]: XACML Response decoded and unmarshalled.",url);
 		break;
 
 	} // failover loop
@@ -580,7 +584,7 @@ pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** 
 		buffer_delete(b64output);
 		buffer_delete(b64input);
 		buffer_delete(input);
-		pep_errmsg("all %d PEPd failover URLs failed",(int)url_l);
+		//pep_errmsg("all %d PEPd failover URLs failed",(int)url_l);
 		return PEP_ERR_AUTHZ_REQUEST;
 	}
 	/*
@@ -589,6 +593,15 @@ pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** 
 
 	// not required anymore
 	buffer_delete(b64output);
+
+	// get effective response
+	xacml_request_t * effective_request= xacml_response_getrequest(response);
+	if (effective_request!=NULL) {
+		log_debug("pep_authorize: effective request");
+		// delete original
+		xacml_request_delete(request);
+		request= effective_request;
+	}
 
 	// apply obligation handlers if enabled and any
 	int oh_rc= 0;
@@ -609,7 +622,8 @@ pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** 
 		}
 	}
 
-	// return response
+	// return effective request and response
+	*inout_request= request;
 	*out_response= response;
 
 	return PEP_OK;

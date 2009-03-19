@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * $Id: pep.h,v 1.13 2009/03/17 16:15:31 vtschopp Exp $
+ * $Id: pep.h,v 1.14 2009/03/19 14:20:41 vtschopp Exp $
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.0
@@ -329,11 +329,14 @@ pep_error_t pep_addobligationhandler(pep_obligationhandler_t * oh);
 pep_error_t pep_setoption(pep_option_t option, ... );
 
 /**
- * Sends the PEP request to the PEP daemon and returns the PEP response.
+ * Sends the XACML request to the PEP daemon and returns the XACML response.
  *
- * If the PIPs are enabled, they will be applied to the request before submitting it.
- * If the ObligationHandlers are enabled, they will be applied to the response after
- * the response is received and returned from the method.
+ * If some PIPs are present, they will be applied to the XACML request before submitting
+ * it to the PEPd.
+ * If some ObligationHandlers are present, they will be applied to the XACML response after
+ * the response is received from the PEPd.
+ *
+ * After the call, the @c request parameter is the @b effective XACML request, as processed by the PEPd.
  *
  * @param request address of the pointer to the {@link #xacml_request_t} to send.
  * @param response address of pointer to the {@link #xacml_response_t} received.
