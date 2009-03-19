@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: io.c,v 1.8 2009/03/19 12:52:44 vtschopp Exp $
+ * $Id: io.c,v 1.9 2009/03/19 17:07:18 vtschopp Exp $
  */
 
 #include <string.h>
 
 #include "pep/io.h"
-#include "Hessian/Hessian.h"
+#include "hessian/hessian.h"
 #include "util/log.h"
 
 
