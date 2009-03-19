@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: error.c,v 1.6 2009/03/17 12:04:24 vtschopp Exp $
+ * $Id: error.c,v 1.7 2009/03/19 14:18:37 vtschopp Exp $
  */
 #include <string.h>
 #include <stdio.h>
@@ -56,7 +56,7 @@ static const char * ERROR_STRINGS[]= {
 		"authorize: PIP process error",
 		"authorize: curl error",
 		"authorize: curl process error",
-		"authorize: request error",
+		"authorize: processing error",
 		"authorize: OH process error",
 		"marshalling: Hessian error",
 		"marshalling: IO error",
