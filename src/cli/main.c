@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: main.c,v 1.3 2009/03/19 14:19:23 vtschopp Exp $
+ * $Id: main.c,v 1.4 2009/03/19 16:47:25 vtschopp Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -373,7 +373,7 @@ static int show_response(xacml_response_t * response) {
  * Shows help
  */
 static void show_help() {
-	fprintf(stdout,"PEP client CLI v." PACKAGE_VERSION "\n");
+	fprintf(stdout,"PEP-C client CLI v." PACKAGE_VERSION "\n");
 	fprintf(stdout,"Usage: pepcli --pepd <URL> --certchain <FILE> --resourceid <URI> --actionid <URI> [options...]\n");
 	fprintf(stdout,"\n");
 	fprintf(stdout,"Submit a XACML Request to the PEPd and show the XACML Response.\n");
