@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * $Id: xacml.h,v 1.3 2009/03/17 10:01:44 vtschopp Exp $
+ * $Id: xacml.h,v 1.4 2009/03/19 15:00:30 vtschopp Exp $
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.0
@@ -143,7 +143,7 @@ size_t xacml_attribute_values_length(const xacml_attribute_t * attr);
  * @return const char * the AttributeValue or @a NULL if index is out of range.
  * @see xacml_attribute_values_length(const xacml_attribute_t * attr) to get the index range.
  */
-const char * xacml_attribute_getvalue(const xacml_attribute_t * attr,int index);
+const char * xacml_attribute_getvalue(const xacml_attribute_t * attr,int value_idx);
 
 /**
  * Deletes the XACML Attribute.
@@ -227,7 +227,7 @@ size_t xacml_subject_attributes_length(const xacml_subject_t * subject);
  * @return xacml_attribute_t * pointer to the XACML Attribute or @a NULL if index is out of range.
  * @see xacml_subject_attributes_length(const xacml_subject_t * subject) to get the index range.
  */
-xacml_attribute_t * xacml_subject_getattribute(const xacml_subject_t * subject, int index);
+xacml_attribute_t * xacml_subject_getattribute(const xacml_subject_t * subject, int attr_idx);
 
 /**
  * Deletes the XACML Subject.
@@ -292,7 +292,7 @@ size_t xacml_resource_attributes_length(const xacml_resource_t * resource);
  * @return xacml_attribute_t * pointer to the XACML Attribute or @a NULL if index is out of range.
  * @see xacml_resource_attributes_length(const xacml_resource_t * resource) to get the index range.
  */
-xacml_attribute_t * xacml_resource_getattribute(const xacml_resource_t * resource, int index);
+xacml_attribute_t * xacml_resource_getattribute(const xacml_resource_t * resource, int attr_idx);
 
 /**
  * Deletes the XACML Resource. The XACML Attributes contained in the Resource will be deleted.
@@ -340,7 +340,7 @@ size_t xacml_action_attributes_length(const xacml_action_t * action);
  * @return xacml_attribute_t * pointer to the XACML Attribute or @a NULL if index is out of range.
  * @see xacml_action_attributes_length(const xacml_action_t * action) to get the index range.
  */
-xacml_attribute_t * xacml_action_getattribute(const xacml_action_t * action, int index);
+xacml_attribute_t * xacml_action_getattribute(const xacml_action_t * action, int attr_idx);
 
 /**
  * Deletes the XACML Action. The XACML Attributes contained in the Action will be deleted.
@@ -383,7 +383,7 @@ size_t xacml_environment_attributes_length(const xacml_environment_t * env);
  * @return xacml_attribute_t * pointer to the XACML Attribute or @a NULL if index is out of range.
  * @see xacml_environment_attributes_length(const xacml_environment_t * env) to get the index range.
  */
-xacml_attribute_t * xacml_environment_getattribute(const xacml_environment_t * env, int index);
+xacml_attribute_t * xacml_environment_getattribute(const xacml_environment_t * env, int attr_idx);
 
 /**
  * Deletes the XACML Environment. The XACML Attributes contained in the Environment will be deleted.
@@ -426,7 +426,7 @@ size_t xacml_request_subjects_length(const xacml_request_t * request);
  * @return xacml_subject_t * pointer the XACML Subject or @a NULL if index is out of range
  * @see xacml_request_subjects_length(const xacml_request_t * request) to get the index range
  */
-xacml_subject_t * xacml_request_getsubject(const xacml_request_t * request, int index);
+xacml_subject_t * xacml_request_getsubject(const xacml_request_t * request, int subject_idx);
 
 /**
  * Adds a XACML Resource to the XACML Request.
@@ -450,7 +450,7 @@ size_t xacml_request_resources_length(const xacml_request_t * request);
  * @return xacml_resource_t * pointer the XACML Resource or @a NULL if index is out of range
  * @see xacml_request_resources_length(const xacml_request_t * request) to get the index range
  */
-xacml_resource_t * xacml_request_getresource(const xacml_request_t * request, int index);
+xacml_resource_t * xacml_request_getresource(const xacml_request_t * request, int resource_idx);
 
 /**
  * Sets a XACML Action for the XACML Request.
@@ -644,7 +644,7 @@ size_t xacml_attributeassignment_values_length(const xacml_attributeassignment_t
  * @param index of the AttributeValue to get in range [0..length-1]
  * @return const char * the AttributeValue or @a NULL if out of range.
  */
-const char * xacml_attributeassignment_getvalue(const xacml_attributeassignment_t * attr,int index);
+const char * xacml_attributeassignment_getvalue(const xacml_attributeassignment_t * attr,int value_idx);
 
 /**
  * Adds an AttributeValue to the XACML AttributeAssignment.
@@ -736,7 +736,7 @@ size_t xacml_obligation_attributeassignments_length(const xacml_obligation_t * o
  * @return xacml_attributeassignment_t * pointer to the XACML AtttibuteAssignment or @a NULL if out of range.
  * @see xacml_obligation_attributeassignments_length(const xacml_obligation_t * obligation) to get the index range.
  */
-xacml_attributeassignment_t * xacml_obligation_getattributeassignment(const xacml_obligation_t * obligation,int index);
+xacml_attributeassignment_t * xacml_obligation_getattributeassignment(const xacml_obligation_t * obligation,int attr_idx);
 
 /**
  * Deletes the XACML Obligation. The contained AttributeAssignments will be recusively deleted.
@@ -837,7 +837,7 @@ size_t xacml_result_obligations_length(const xacml_result_t * result);
  * @param index of the XACML Obligation to get in range [0..length-1]
  * @see xacml_result_obligations_length(const xacml_result_t * result) to get the index range.
  */
-xacml_obligation_t * xacml_result_getobligation(const xacml_result_t * result, int index);
+xacml_obligation_t * xacml_result_getobligation(const xacml_result_t * result, int obligation_idx);
 
 /**
  * Deletes the XACML Result. The contained Obligations will be recursively deleted.
@@ -894,7 +894,7 @@ size_t xacml_response_results_length(const xacml_response_t * response);
  * @param index of the XACML Result to get in range [0..length-1]
  * @see xacml_response_results_length(const xacml_response_t * response) to get the index range.
  */
-xacml_result_t * xacml_response_getresult(const xacml_response_t * response, int index);
+xacml_result_t * xacml_response_getresult(const xacml_response_t * response, int result_idx);
 
 /**
  * Deletes the XACML Response. The elements contained in the Response will be recursively deleted.
