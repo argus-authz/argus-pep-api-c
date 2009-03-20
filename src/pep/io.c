@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: io.c,v 1.9 2009/03/19 17:07:18 vtschopp Exp $
+ * $Id: io.c,v 1.10 2009/03/20 12:46:18 vtschopp Exp $
  */
 
 #include <string.h>
@@ -825,7 +825,7 @@ static int xacml_resource_marshal(const xacml_resource_t * resource, hessian_obj
 	for (i= 0; i < list_l; i++) {
 		xacml_attribute_t * attr= xacml_resource_getattribute(resource,i);
 		hessian_object_t * h_attr= NULL;
-		if (xacml_attribute_marshal(attr,&h_attr) != PEP_XACML_OK) {
+		if (xacml_attribute_marshal(attr,&h_attr) != PEP_IO_OK) {
 			log_error("xacml_resource_marshal: can't marshal XACML attribute at: %d.", i);
 			hessian_delete(h_resource);
 			hessian_delete(h_attrs);
@@ -1399,25 +1399,27 @@ static int xacml_status_unmarshal(xacml_status_t ** st, const hessian_object_t *
 			xacml_status_delete(status);
 			return PEP_IO_ERROR;
 		}
-		// message (mandatory)
+		// message (can be null)
 		if (strcmp(XACML_HESSIAN_STATUS_MESSAGE,key) == 0) {
 			hessian_object_t * h_string= hessian_map_getvalue(h_status,i);
-			if (hessian_gettype(h_string) != HESSIAN_STRING) {
-				log_error("xacml_status_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.",key,i);
-				xacml_status_delete(status);
-				return PEP_IO_ERROR;
-			}
-			const char * message = hessian_string_getstring(h_string);
-			if (xacml_status_setmessage(status,message) != PEP_XACML_OK) {
-				log_error("xacml_status_unmarshal: can't set message: %s to XACML status at: %d",message,i);
-				xacml_status_delete(status);
-				return PEP_IO_ERROR;
+			if (hessian_gettype(h_string) != HESSIAN_NULL) {
+				if (hessian_gettype(h_string) != HESSIAN_STRING) {
+					log_error("xacml_status_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.",key,i);
+					xacml_status_delete(status);
+					return PEP_IO_ERROR;
+				}
+				const char * message = hessian_string_getstring(h_string);
+				if (xacml_status_setmessage(status,message) != PEP_XACML_OK) {
+					log_error("xacml_status_unmarshal: can't set message: %s to XACML status at: %d",message,i);
+					xacml_status_delete(status);
+					return PEP_IO_ERROR;
+				}
 			}
 		}
 		// subcode (can be null)
 		else if (strcmp(XACML_HESSIAN_STATUS_CODE,key) == 0) {
 			hessian_object_t * h_statuscode= hessian_map_getvalue(h_status,i);
-			if (hessian_gettype(h_status) != HESSIAN_NULL) {
+			if (hessian_gettype(h_statuscode) != HESSIAN_NULL) {
 				xacml_statuscode_t * statuscode= NULL;
 				if (xacml_statuscode_unmarshal(&statuscode,h_statuscode) != PEP_IO_OK) {
 					log_error("xacml_status_unmarshal: can't unmarshal XACML statuscode at: %d.", i);
