@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * $Id: xacml.h,v 1.5 2009/03/19 15:04:51 vtschopp Exp $
+ * $Id: xacml.h,v 1.6 2009/03/20 12:29:50 vtschopp Exp $
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.0
@@ -40,8 +40,8 @@ extern "C" {
 /*
  * PEP XACML model functions return codes
  */
-#define PEP_XACML_OK     0 /**< PEP XACML model functions return code OK */
-#define PEP_XACML_ERROR -1 /**< PEP XACML model functions return code ERROR */
+#define PEP_XACML_OK     1 /**< PEP XACML model functions return code OK */
+#define PEP_XACML_ERROR  0 /**< PEP XACML model functions return code ERROR */
 
 
 /*
