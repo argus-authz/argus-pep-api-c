@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 /*
- * $Id: pep.h,v 1.14 2009/03/19 14:20:41 vtschopp Exp $
+ * $Id: pep.h,v 1.15 2009/03/20 10:02:04 vtschopp Exp $
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
- * @version 1.0
+ * @version 1.1
  */
 #ifndef _PEP_H_
 #define _PEP_H_
@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 
-/** @mainpage PEP client C library
+/** @mainpage AuthZ Service PEP client library for C
  *
  * This is the PEP client library for C, used to talk with the PEP daemon.
  *
