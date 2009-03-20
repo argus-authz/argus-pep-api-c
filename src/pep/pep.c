@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: pep.c,v 1.15 2009/03/19 14:20:41 vtschopp Exp $
+ * $Id: pep.c,v 1.16 2009/03/20 09:46:41 vtschopp Exp $
  */
 #include <stdarg.h>  /* va_list, va_arg, ... */
 #include <string.h>
@@ -290,18 +290,16 @@ pep_error_t pep_setoption(pep_option_t option, ... ) {
 			file= va_arg(args,FILE *);
 			option_logout= file;
 			log_setout(file);
-			log_debug("pep_setoption: PEP_OPTION_LOG_STDERR: 0x%04X",(int)option_logout);
+			log_debug("pep_setoption: PEP_OPTION_LOG_STDERR set.");
 			break;
 		case PEP_OPTION_LOG_HANDLER:
 			log_handler= va_arg(args,pep_log_handler_callback *);
 			log_sethandler(log_handler);
-			log_debug("pep_setoption: PEP_OPTION_LOG_HANDLER: 0x%04X",(int)log_handler);
+			log_debug("pep_setoption: PEP_OPTION_LOG_HANDLER set.");
 			break;
 		default:
-			//XXX
-			printf("XXX:pep_setoption: %d option NOT YET IMPLEMENTED\n", option);
 			log_error("pep_setoption: %d invalid option.", option);
-			pep_errmsg("option: %d", option);
+			pep_errmsg("invalid option: %d", option);
 			rc= PEP_ERR_OPTION_INVALID;
 			break;
 	}
