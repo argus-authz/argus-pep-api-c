@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * $Id: xacml.h,v 1.6 2009/03/20 12:29:50 vtschopp Exp $
+ * $Id: xacml.h,v 1.7 2009/03/20 12:44:26 vtschopp Exp $
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.0
@@ -131,7 +131,7 @@ int xacml_attribute_addvalue(xacml_attribute_t * attr, const char *value);
 /**
  * Returns the number of AttributeValue in the XACML Attribute.
  * @param attr pointer to the XACML Attribute
- * @return size_t number of AttributeValue [0..n] or {@link #PEP_XACML_ERROR} on error.
+ * @return size_t number of AttributeValue [1..n] or @c 0.
  * @see xacml_attribute_getvalue(const xacml_attribute_t * attr,int index) to get an AttributeValue at a particular index.
  */
 size_t xacml_attribute_values_length(const xacml_attribute_t * attr);
@@ -215,7 +215,7 @@ int xacml_subject_addattribute(xacml_subject_t * subject, xacml_attribute_t * at
 /**
  * Returns the number of XACML Attribute in the XACML Subject.
  * @param subject pointer to the XACML Subject
- * @return size_t number of XACML Attribute [0..n] contained in the Subject or {@link #PEP_XACML_ERROR} on error.
+ * @return size_t number of XACML Attribute [1..n] contained in the Subject or @c 0.
  * @see xacml_subject_getattribute(const xacml_subject_t * subject, int index) to get a XACML Attribute at a particular index.
  */
 size_t xacml_subject_attributes_length(const xacml_subject_t * subject);
@@ -281,7 +281,7 @@ int xacml_resource_addattribute(xacml_resource_t * resource, xacml_attribute_t *
 /**
  * Returns the number of XACML Attribute contained in the XACML Resource.
  * @param resource pointer to the XACML Resource
- * @return size_t number of XACML Attribute [0..n] contained in the Resource or {@link #PEP_XACML_ERROR} on error.
+ * @return size_t number of XACML Attribute [1..n] contained in the Resource or @c 0.
  */
 size_t xacml_resource_attributes_length(const xacml_resource_t * resource);
 
@@ -329,7 +329,7 @@ int xacml_action_addattribute(xacml_action_t * action, xacml_attribute_t * attr)
 /**
  * Returns the number of XACML Attribute contained in the XACML Action.
  * @param action pointer to the XACML Action
- * @return size_t number of XACML Attribute [0..n] contained in the Action or {@link #PEP_XACML_ERROR} on error.
+ * @return size_t number of XACML Attribute [1..n] contained in the Action or {@link #PEP_XACML_ERROR} on error.
  */
 size_t xacml_action_attributes_length(const xacml_action_t * action);
 
@@ -372,7 +372,7 @@ int xacml_environment_addattribute(xacml_environment_t * env, xacml_attribute_t 
 /**
  * Returns the number of XACML Attribute contained in the XACML Environment.
  * @param env pointer to the XACML Environment
- * @return size_t number of XACML Attribute [0..n] contained in the Environment or {@link #PEP_XACML_ERROR} on error.
+ * @return size_t number of XACML Attribute [1..n] contained in the Environment or {@link #PEP_XACML_ERROR} on error.
  */
 size_t xacml_environment_attributes_length(const xacml_environment_t * env);
 
@@ -415,7 +415,7 @@ int xacml_request_addsubject(xacml_request_t * request, xacml_subject_t * subjec
 /**
  * Returns the number of XACML Subject contained in the XACML Request.
  * @param request pointer to the XACML Request
- * @return size_t number of XACML Subject [0..n] contained in the Request or {@link #PEP_XACML_ERROR} on error.
+ * @return size_t number of XACML Subject [1..n] contained in the Request or @c 0.
  */
 size_t xacml_request_subjects_length(const xacml_request_t * request);
 
@@ -439,7 +439,7 @@ int xacml_request_addresource(xacml_request_t * request, xacml_resource_t * reso
 /**
  * Returns the number of XACML Resource contained in the XACML Request.
  * @param request pointer to the XACML Request
- * @return size_t number of XACML Resource [0..n] contained in the Request or {@link #PEP_XACML_ERROR} on error.
+ * @return size_t number of XACML Resource [1..n] contained in the Request or @c 0.
  */
 size_t xacml_request_resources_length(const xacml_request_t * request);
 
@@ -634,7 +634,7 @@ const char * xacml_attributeassignment_getid(const xacml_attributeassignment_t *
 /**
  * Returns the number of AttributeValue (string) for the XACML AttributeAssignment.
  * @param attr pointer to the XACML AttributeAssignment
- * @return size_t number of AttributeValue [0..n] for the AttributeAssignment or {@link #PEP_XACML_ERROR} on error.
+ * @return size_t number of AttributeValue [1..n] for the AttributeAssignment or @c 0.
  */
 size_t xacml_attributeassignment_values_length(const xacml_attributeassignment_t * attr);
 
@@ -724,7 +724,7 @@ int xacml_obligation_addattributeassignment(xacml_obligation_t * obligation, xac
 /**
  * Returns the number of XACML AttributeAssignment in the XACML Obligation.
  * @param obligation pointer to the XACML Obligation
- * @return size_t number of XACML AttributeAssignment [0..n] contained in the Obligation or {@link #PEP_XACML_ERROR} on error.
+ * @return size_t number of XACML AttributeAssignment [1..n] contained in the Obligation or @c 0.
  * @see xacml_obligation_getattributeassignment(const xacml_obligation_t * obligation,int index) to get a XACML AttributeAssignment at a particular index.
  */
 size_t xacml_obligation_attributeassignments_length(const xacml_obligation_t * obligation);
@@ -826,7 +826,7 @@ int xacml_result_addobligation(xacml_result_t * result, xacml_obligation_t * obl
 /**
  * Returns the number of XACML Obligation in the XACML Result.
  * @param result pointer to the XACML Result
- * @return size_t number of XACML Obligation [0..n] contained in the Result or {@link #PEP_XACML_ERROR} on error.
+ * @return size_t number of XACML Obligation [1..n] contained in the Result or @c 0.
  * @see xacml_result_getobligation(const xacml_result_t * result, int index) to get a XACML Obligation at a particular index.
  */
 size_t xacml_result_obligations_length(const xacml_result_t * result);
@@ -883,7 +883,7 @@ int xacml_response_addresult(xacml_response_t * response, xacml_result_t * resul
 /**
  * Returns the number of XACML Result in the XACML Response.
  * @param response pointer to the XACML Response
- * @return size_t number of XACML Result [0..n] contained in the Response or {@link #PEP_XACML_ERROR} on error.
+ * @return size_t number of XACML Result [1..n] contained in the Response or @c 0.
  * @see xacml_response_getresult(const xacml_response_t * response, int index) to get a XACML Result at a particular index.
  */
 size_t xacml_response_results_length(const xacml_response_t * response);
