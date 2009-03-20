@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: io.h,v 1.4 2009/03/17 09:58:18 vtschopp Exp $
+ * $Id: io.h,v 1.5 2009/03/20 12:45:18 vtschopp Exp $
  */
 #ifndef _PEP_IO_H_
 #define _PEP_IO_H_
@@ -65,56 +65,56 @@ pep_error_t xacml_response_unmarshalling(xacml_response_t ** response, BUFFER * 
  * The Java class namespaces and variable name constants for the PEP model
  * Hessian serialization and deserialization mapping.
  */
-static const char XACML_HESSIAN_ATTRIBUTE_CLASSNAME[]= "org.glite.authz.pep.model.Attribute";
+static const char XACML_HESSIAN_ATTRIBUTE_CLASSNAME[]= "org.glite.authz.common.model.Attribute";
 static const char XACML_HESSIAN_ATTRIBUTE_ID[]= "id";
 static const char XACML_HESSIAN_ATTRIBUTE_DATATYPE[]= "dataType";
 static const char XACML_HESSIAN_ATTRIBUTE_ISSUER[]= "issuer";
 static const char XACML_HESSIAN_ATTRIBUTE_VALUES[]= "values";
 
-static const char XACML_HESSIAN_SUBJECT_CLASSNAME[]= "org.glite.authz.pep.model.Subject";
+static const char XACML_HESSIAN_SUBJECT_CLASSNAME[]= "org.glite.authz.common.model.Subject";
 static const char XACML_HESSIAN_SUBJECT_CATEGORY[]= "category";
 static const char XACML_HESSIAN_SUBJECT_ATTRIBUTES[]= "attributes";
 
-static const char XACML_HESSIAN_RESOURCE_CLASSNAME[]= "org.glite.authz.pep.model.Resource";
+static const char XACML_HESSIAN_RESOURCE_CLASSNAME[]= "org.glite.authz.common.model.Resource";
 static const char XACML_HESSIAN_RESOURCE_CONTENT[]= "resourceContent";
 static const char XACML_HESSIAN_RESOURCE_ATTRIBUTES[]= "attributes";
 
-static const char XACML_HESSIAN_ACTION_CLASSNAME[]= "org.glite.authz.pep.model.Action";
+static const char XACML_HESSIAN_ACTION_CLASSNAME[]= "org.glite.authz.common.model.Action";
 static const char XACML_HESSIAN_ACTION_ATTRIBUTES[]= "attributes";
 
-static const char XACML_HESSIAN_ENVIRONMENT_CLASSNAME[]= "org.glite.authz.pep.model.Environment";
+static const char XACML_HESSIAN_ENVIRONMENT_CLASSNAME[]= "org.glite.authz.common.model.Environment";
 static const char XACML_HESSIAN_ENVIRONMENT_ATTRIBUTES[]= "attributes";
 
-static const char XACML_HESSIAN_REQUEST_CLASSNAME[]= "org.glite.authz.pep.model.Request";
+static const char XACML_HESSIAN_REQUEST_CLASSNAME[]= "org.glite.authz.common.model.Request";
 static const char XACML_HESSIAN_REQUEST_SUBJECTS[]= "subjects";
 static const char XACML_HESSIAN_REQUEST_RESOURCES[]= "resources";
 static const char XACML_HESSIAN_REQUEST_ACTION[]= "action";
 static const char XACML_HESSIAN_REQUEST_ENVIRONMENT[]= "environment";
 
-static const char XACML_HESSIAN_STATUSCODE_CLASSNAME[]= "org.glite.authz.pep.model.StatusCode";
+static const char XACML_HESSIAN_STATUSCODE_CLASSNAME[]= "org.glite.authz.common.model.StatusCode";
 static const char XACML_HESSIAN_STATUSCODE_VALUE[]= "code";
 static const char XACML_HESSIAN_STATUSCODE_SUBCODE[]= "subCode";
 
-static const char XACML_HESSIAN_STATUS_CLASSNAME[]= "org.glite.authz.pep.model.Status";
+static const char XACML_HESSIAN_STATUS_CLASSNAME[]= "org.glite.authz.common.model.Status";
 static const char XACML_HESSIAN_STATUS_MESSAGE[]= "message";
 static const char XACML_HESSIAN_STATUS_CODE[]= "statusCode";
 
-static const char XACML_HESSIAN_ATTRIBUTEASSIGNMENT_CLASSNAME[]= "org.glite.authz.pep.model.AttributeAssignment";
+static const char XACML_HESSIAN_ATTRIBUTEASSIGNMENT_CLASSNAME[]= "org.glite.authz.common.model.AttributeAssignment";
 static const char XACML_HESSIAN_ATTRIBUTEASSIGNMENT_ID[]= "attributeId";
 static const char XACML_HESSIAN_ATTRIBUTEASSIGNMENT_VALUES[]= "values";
 
-static const char XACML_HESSIAN_OBLIGATION_CLASSNAME[]= "org.glite.authz.pep.model.Obligation";
+static const char XACML_HESSIAN_OBLIGATION_CLASSNAME[]= "org.glite.authz.common.model.Obligation";
 static const char XACML_HESSIAN_OBLIGATION_ID[]= "id";
 static const char XACML_HESSIAN_OBLIGATION_FULFILLON[]= "fulfillOn";
 static const char XACML_HESSIAN_OBLIGATION_ASSIGNMENTS[]= "attributeAssignments";
 
-static const char XACML_HESSIAN_RESULT_CLASSNAME[]=  "org.glite.authz.pep.model.Result";
+static const char XACML_HESSIAN_RESULT_CLASSNAME[]=  "org.glite.authz.common.model.Result";
 static const char XACML_HESSIAN_RESULT_DECISION[]=  "decision";
 static const char XACML_HESSIAN_RESULT_RESOURCEID[]=  "resourceId";
 static const char XACML_HESSIAN_RESULT_STATUS[]=  "status";
 static const char XACML_HESSIAN_RESULT_OBLIGATIONS[]=  "obligations";
 
-static const char XACML_HESSIAN_RESPONSE_CLASSNAME[]= "org.glite.authz.pep.model.Response";
+static const char XACML_HESSIAN_RESPONSE_CLASSNAME[]= "org.glite.authz.common.model.Response";
 static const char XACML_HESSIAN_RESPONSE_REQUEST[]= "request";
 static const char XACML_HESSIAN_RESPONSE_RESULTS[]= "results";
 
