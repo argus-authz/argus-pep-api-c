@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: main.c,v 1.4 2009/03/19 16:47:25 vtschopp Exp $
+ * $Id: main.c,v 1.5 2009/03/20 12:46:47 vtschopp Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -288,12 +288,12 @@ static int show_request(xacml_request_t * request) {
 			}
 		}
 	}
-	xacml_action_t * action2= xacml_request_getaction(request);
-	size_t attrs_l= xacml_action_attributes_length(action2);
-	show_info("request.action: %d attributes",(int)attrs_l);
+	xacml_action_t * action= xacml_request_getaction(request);
+	size_t act_attrs_l= xacml_action_attributes_length(action);
+	show_info("request.action: %d attributes",(int)act_attrs_l);
 	int j= 0;
-	for (j= 0; j<attrs_l; j++) {
-		xacml_attribute_t * attr= xacml_action_getattribute(action2,j);
+	for (j= 0; j<act_attrs_l; j++) {
+		xacml_attribute_t * attr= xacml_action_getattribute(action,j);
 		show_info("request.action.attribute[%d].id= %s", j,xacml_attribute_getid(attr));
 		show_info("request.action.attribute[%d].datatype= %s", j,xacml_attribute_getdatatype(attr));
 		show_info("request.action.attribute[%d].issuer= %s", j,xacml_attribute_getissuer(attr));
@@ -304,11 +304,11 @@ static int show_request(xacml_request_t * request) {
 			show_info("request.action.attribute[%d].value[%d]= %s",j,k,xacml_attribute_getvalue(attr,k));
 		}
 	}
-	xacml_environment_t * env2= xacml_request_getenvironment(request);
-	attrs_l= xacml_environment_attributes_length(env2);
-	show_info("request.environment: %d attributes",(int)attrs_l);
-	for (j= 0; j<attrs_l; j++) {
-		xacml_attribute_t * attr= xacml_environment_getattribute(env2,j);
+	xacml_environment_t * env= xacml_request_getenvironment(request);
+	size_t env_attrs_l= xacml_environment_attributes_length(env);
+	show_info("request.environment: %d attributes",(int)env_attrs_l);
+	for (j= 0; j<env_attrs_l; j++) {
+		xacml_attribute_t * attr= xacml_environment_getattribute(env,j);
 		show_info("request.environment.attribute[%d].id= %s", j,xacml_attribute_getid(attr));
 		show_info("request.environment.attribute[%d].datatype= %s", j,xacml_attribute_getdatatype(attr));
 		show_info("request.environment.attribute[%d].issuer= %s", j,xacml_attribute_getissuer(attr));
