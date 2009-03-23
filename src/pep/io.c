@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: io.c,v 1.10 2009/03/20 12:46:18 vtschopp Exp $
+ * $Id: io.c,v 1.11 2009/03/23 09:39:43 vtschopp Exp $
  */
 
 #include <string.h>
@@ -434,7 +434,7 @@ static int xacml_environment_marshal(const xacml_environment_t * env, hessian_ob
 	for (i= 0; i < list_l; i++) {
 		xacml_attribute_t * attr= xacml_environment_getattribute(env,i);
 		hessian_object_t * h_attr= NULL;
-		if (xacml_attribute_marshal(attr,&h_attr) != PEP_XACML_OK) {
+		if (xacml_attribute_marshal(attr,&h_attr) != PEP_IO_OK) {
 			log_error("xacml_environment_marshal: can't marshall XACML attribute at: %d",i);
 			hessian_delete(h_environment);
 			hessian_delete(h_attrs);

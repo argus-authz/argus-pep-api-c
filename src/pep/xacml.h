@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * $Id: xacml.h,v 1.7 2009/03/20 12:44:26 vtschopp Exp $
+ * $Id: xacml.h,v 1.8 2009/03/23 09:39:43 vtschopp Exp $
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.0
@@ -41,6 +41,7 @@ extern "C" {
  * PEP XACML model functions return codes
  */
 #define PEP_XACML_OK     1 /**< PEP XACML model functions return code OK */
+// WARN: PEP_XACML_ERROR should be size_t (unsigned int) compatible!
 #define PEP_XACML_ERROR  0 /**< PEP XACML model functions return code ERROR */
 
 
