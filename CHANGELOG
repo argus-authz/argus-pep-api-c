@@ -1,3 +1,19 @@
+PEP-C 1.1.2
+-----------
+* bug fix: XACML model namespace changed.
+* bug fix: xacml_..._length(...) functions return 0 on error.
+* bug fix: XACML Status/@message attribute can be null.
+* bug fix: some marshalling/unmarshalling bugs fixed.
+* libtool: libpep-c uses -version-info
+
+PEP-C 1.1.0
+-----------
+* xacml.h replace model.h for the XACML operations.
+* all functionalities implemented:
+- failover
+- SSL and clientAuth options
+* pepcli command line interface implemented.
+
 PEP-C 1.0.0
 -----------
-initial release of the PEP-C thin client.
+beta release of the PEP-C thin client.
