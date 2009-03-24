@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.9 2009/03/23 14:03:15 vtschopp Exp $
+# $Id: Makefile.am,v 1.10 2009/03/24 12:58:06 vtschopp Exp $
 #
 
 SUBDIRS = util hessian pep . cli
@@ -9,7 +9,7 @@ SUBDIRS = util hessian pep . cli
 #
 lib_LTLIBRARIES = libpep-c.la
 libpep_c_la_LIBADD = util/libutil.la hessian/libhessian.la pep/libpep.la 
-libpep_c_la_LDFLAGS = -version-info 1:0:0
+libpep_c_la_LDFLAGS = -version-info 1:1:0
 libpep_c_la_SOURCES = libpep-c.c
 
 # headers files in <prefix>/include (public API)
