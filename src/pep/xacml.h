@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * $Id: xacml.h,v 1.9 2009/03/24 11:21:29 vtschopp Exp $
+ * $Id: xacml.h,v 1.10 2009/03/24 15:30:40 vtschopp Exp $
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.0
@@ -330,7 +330,7 @@ int xacml_action_addattribute(xacml_action_t * action, xacml_attribute_t * attr)
 /**
  * Returns the number of XACML Attribute contained in the XACML Action.
  * @param action pointer to the XACML Action
- * @return size_t number of XACML Attribute [1..n] contained in the Action or {@link #PEP_XACML_ERROR} on error.
+ * @return size_t number of XACML Attribute [1..n] contained in the Action or @c 0.
  */
 size_t xacml_action_attributes_length(const xacml_action_t * action);
 
