@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * $Id: xacml.h,v 1.8 2009/03/23 09:39:43 vtschopp Exp $
+ * $Id: xacml.h,v 1.9 2009/03/24 11:21:29 vtschopp Exp $
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.0
@@ -859,7 +859,8 @@ typedef struct xacml_response xacml_response_t;
 xacml_response_t * xacml_response_create(void);
 
 /** @internal
- * Sets the XACML Request associated to the XACML Response.
+ * Sets the effective XACML Request associated to the XACML Response. The effective
+ * XACML Request is normally send back from the PEPd.
  * @param response pointer to the XACML Response
  * @param request pointer to the XACML Request to associate.
  * @return int {@link #PEP_XACML_OK} or {@link #PEP_XACML_ERROR} on error.
@@ -867,11 +868,19 @@ xacml_response_t * xacml_response_create(void);
 int xacml_response_setrequest(xacml_response_t * response, xacml_request_t * request);
 
 /** @internal
- * Gets the XACML Request associated to the XACML Response.
+ * Gets the effective XACML Request associated to the XACML Response.
  * @param response pointer to the XACML Response
  * @return xacml_request_t * pointer to the associated XACML Request or @a NULL if no Request is associated with the Response.
  */
 xacml_request_t * xacml_response_getrequest(const xacml_response_t * response);
+
+/** @internal
+ * Relinquish (surrender, waive) the effective XACML Request associated to the XACML Response.
+ * The caller is then responsible to delete the request returned by the function.
+ * @param response pointer to the XACML Response
+ * @return xacml_request_t * pointer to the effective XACML Request or @a NULL if no Request is associated with the Response.
+ */
+xacml_request_t * xacml_response_relinquishrequest(xacml_response_t * response);
 
 /**
  * Adds a XACML Result associated to the XACML Response.
