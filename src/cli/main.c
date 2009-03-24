@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: main.c,v 1.5 2009/03/20 12:46:47 vtschopp Exp $
+ * $Id: main.c,v 1.6 2009/03/24 12:45:49 vtschopp Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -572,6 +572,8 @@ int main(int argc, char **argv) {
 	// clean up
 	show_info("done.");
 	pep_destroy();
+	xacml_request_delete(request);
+	xacml_response_delete(response);
 	llist_delete(pepds);
 	free(certchain);
 	exit(E_OK);
