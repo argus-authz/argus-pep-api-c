@@ -1,7 +1,7 @@
 #                                              -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 #
-# $Id: configure.ac,v 1.12 2009/03/24 12:46:52 vtschopp Exp $
+# $Id: configure.ac,v 1.13 2009/03/24 17:25:37 vtschopp Exp $
 #
 
 AC_INIT(glite-authz-pep-c, 1.1.3, grid@switch.ch)
@@ -16,9 +16,9 @@ AC_SUBST(DOXYGEN)
 
 
 # <prefix>/lib64 for x86_64 cpu 
-if test "x$host_cpu" = "xx86_64"; then
-    AC_SUBST([libdir], ['${exec_prefix}/lib64'])
-fi
+#if test "x$host_cpu" = "xx86_64"; then
+#    AC_SUBST([libdir], ['${exec_prefix}/lib64'])
+#fi
 
 # Checks for curl headers and library
 # will automatically add -lcurl in LDFLAGS
