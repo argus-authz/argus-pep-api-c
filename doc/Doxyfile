@@ -1,4 +1,4 @@
-# $Id: Doxyfile,v 1.8 2009/03/20 10:07:08 vtschopp Exp $
+# $Id: Doxyfile,v 1.9 2009/03/24 13:29:37 vtschopp Exp $
 
 # Doxyfile 1.5.7
 
@@ -22,7 +22,7 @@
 # iconv built into libc) for the transcoding. See 
 # http://www.gnu.org/software/libiconv for the list of possible encodings.
 
-DOXYFILE_ENCODING      = UTF-8
+#DOXYFILE_ENCODING      = UTF-8
 
 # The PROJECT_NAME tag is a single word (or a sequence of words surrounded 
 # by quotes) that should identify the project.
@@ -149,7 +149,7 @@ JAVADOC_AUTOBRIEF      = YES
 # will behave just like regular Qt-style comments (thus requiring 
 # an explicit \brief command for a brief description.)
 
-QT_AUTOBRIEF           = NO
+#QT_AUTOBRIEF           = NO
 
 # The MULTILINE_CPP_IS_BRIEF tag can be set to YES to make Doxygen 
 # treat a multi-line C++ special comment block (i.e. a block of //! or /// 
@@ -169,7 +169,7 @@ INHERIT_DOCS           = YES
 # a new page for each member. If set to NO, the documentation of a member will 
 # be part of the file/class/namespace that contains it.
 
-SEPARATE_MEMBER_PAGES  = NO
+#SEPARATE_MEMBER_PAGES  = NO
 
 # The TAB_SIZE tag can be used to set the number of spaces in a tab. 
 # Doxygen uses this value to replace tabs by spaces in code fragments.
@@ -203,13 +203,13 @@ OPTIMIZE_OUTPUT_JAVA   = NO
 # sources only. Doxygen will then generate output that is more tailored for 
 # Fortran.
 
-OPTIMIZE_FOR_FORTRAN   = NO
+#OPTIMIZE_FOR_FORTRAN   = NO
 
 # Set the OPTIMIZE_OUTPUT_VHDL tag to YES if your project consists of VHDL 
 # sources. Doxygen will then generate output that is tailored for 
 # VHDL.
 
-OPTIMIZE_OUTPUT_VHDL   = NO
+#OPTIMIZE_OUTPUT_VHDL   = NO
 
 # If you use STL classes (i.e. std::string, std::vector, etc.) but do not want 
 # to include (a tag file for) the STL sources as input, then you should 
@@ -218,18 +218,18 @@ OPTIMIZE_OUTPUT_VHDL   = NO
 # func(std::string) {}). This also make the inheritance and collaboration 
 # diagrams that involve STL classes more complete and accurate.
 
-BUILTIN_STL_SUPPORT    = NO
+#BUILTIN_STL_SUPPORT    = NO
 
 # If you use Microsoft's C++/CLI language, you should set this option to YES to
 # enable parsing support.
 
-CPP_CLI_SUPPORT        = NO
+#CPP_CLI_SUPPORT        = NO
 
 # Set the SIP_SUPPORT tag to YES if your project consists of sip sources only. 
 # Doxygen will parse them like normal C++ but will assume all classes use public 
 # instead of private inheritance when no explicit protection keyword is present.
 
-SIP_SUPPORT            = NO
+#SIP_SUPPORT            = NO
 
 # For Microsoft's IDL there are propget and propput attributes to indicate getter 
 # and setter methods for a property. Setting this option to YES (the default) 
@@ -238,7 +238,7 @@ SIP_SUPPORT            = NO
 # setting a simple type. If this is not the case, or you want to show the 
 # methods anyway, you should set this option to NO.
 
-IDL_PROPERTY_SUPPORT   = NO
+#IDL_PROPERTY_SUPPORT   = NO
 
 # If member grouping is used in the documentation and the DISTRIBUTE_GROUP_DOC 
 # tag is set to YES, then doxygen will reuse the documentation of the first 
@@ -263,8 +263,7 @@ SUBGROUPING            = YES
 # be useful for C code in case the coding convention dictates that all compound 
 # types are typedef'ed and only the typedef is referenced, never the tag name.
 
-TYPEDEF_HIDES_STRUCT   = NO
-#TYPEDEF_HIDES_STRUCT   = YES
+#TYPEDEF_HIDES_STRUCT   = NO
 
 # The SYMBOL_CACHE_SIZE determines the size of the internal cache use to 
 # determine which symbols to keep in memory and which to flush to disk.
@@ -323,7 +322,7 @@ EXTRACT_LOCAL_METHODS  = NO
 # name of the file that contains the anonymous namespace. By default 
 # anonymous namespace are hidden.
 
-EXTRACT_ANON_NSPACES   = NO
+#EXTRACT_ANON_NSPACES   = NO
 
 # If the HIDE_UNDOC_MEMBERS tag is set to YES, Doxygen will hide all 
 # undocumented members of documented classes, files or namespaces. 
@@ -399,13 +398,13 @@ SORT_MEMBER_DOCS       = YES
 # by member name. If set to NO (the default) the members will appear in 
 # declaration order.
 
-SORT_BRIEF_DOCS        = NO
+SORT_BRIEF_DOCS        = YES
 
 # If the SORT_GROUP_NAMES tag is set to YES then doxygen will sort the 
 # hierarchy of group names into alphabetical order. If set to NO (the default) 
 # the group names will appear in their defined order.
 
-SORT_GROUP_NAMES       = NO
+#SORT_GROUP_NAMES       = NO
 
 # If the SORT_BY_SCOPE_NAME tag is set to YES, the class list will be 
 # sorted by fully-qualified names, including namespaces. If set to 
