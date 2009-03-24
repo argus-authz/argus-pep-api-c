@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * $Id: xacml.h,v 1.10 2009/03/24 15:30:40 vtschopp Exp $
+ * $Id: xacml.h,v 1.11 2009/03/24 15:32:52 vtschopp Exp $
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.0
@@ -373,7 +373,7 @@ int xacml_environment_addattribute(xacml_environment_t * env, xacml_attribute_t 
 /**
  * Returns the number of XACML Attribute contained in the XACML Environment.
  * @param env pointer to the XACML Environment
- * @return size_t number of XACML Attribute [1..n] contained in the Environment or {@link #PEP_XACML_ERROR} on error.
+ * @return size_t number of XACML Attribute [1..n] contained in the Environment or @c 0.
  */
 size_t xacml_environment_attributes_length(const xacml_environment_t * env);
 
