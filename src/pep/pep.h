@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * $Id: pep.h,v 1.15 2009/03/20 10:02:04 vtschopp Exp $
+ * $Id: pep.h,v 1.16 2009/03/24 11:39:20 vtschopp Exp $
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.1
@@ -249,6 +249,7 @@ typedef enum pep_option {
 	PEP_OPTION_ENDPOINT_URL, /**< Set the @b mandatory PEP daemon URL. You can set failover URLs by setting this option many times. */
 	PEP_OPTION_ENDPOINT_SSL_VALIDATION, /**< Enable SSL validation: 0 or 1 (default 1) */
 	PEP_OPTION_ENDPOINT_SERVER_CERT, /**< PEP daemon server SSL certificate (PEM format): absolute filename */
+	PEP_OPTION_ENDPOINT_SERVER_CAPATH, /**< Directory holding CA certificates (hashed filenames in PEM format) to verify the PEP daemon: absolute directory name */
 	PEP_OPTION_ENDPOINT_CLIENT_CERT, /**< PEP client SSL certificate (PEM format) for client authN: absolute filename */
 	PEP_OPTION_ENDPOINT_CLIENT_KEY, /**< PEP client SSL private key (PEM format) for client authN: absolute filename */
 	PEP_OPTION_ENDPOINT_CLIENT_KEYPASSWORD, /**< PEP client SSL private key password for client authN: string */
