@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: response.c,v 1.4 2009/03/23 09:39:43 vtschopp Exp $
+ * $Id: response.c,v 1.5 2009/03/24 11:24:42 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <string.h>
@@ -60,6 +60,18 @@ xacml_request_t * xacml_response_getrequest(const xacml_response_t * response) {
 	}
 	return response->request;
 }
+
+xacml_request_t * xacml_response_relinquishrequest(xacml_response_t * response) {
+	if (response == NULL) {
+		log_error("xacml_response_getrequest: NULL response.");
+		return NULL;
+	}
+	// forget about the request, caller is responsible to call xacml_delete_request
+	xacml_request_t * request= response->request;
+	response->request= NULL;
+	return request;
+}
+
 
 int xacml_response_addresult(xacml_response_t * response, xacml_result_t * result) {
 	if (response == NULL || result == NULL) {
