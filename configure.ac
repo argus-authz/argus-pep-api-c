@@ -1,12 +1,22 @@
 #                                              -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 #
-# $Id: configure.ac,v 1.13 2009/03/24 17:25:37 vtschopp Exp $
+# $Id: configure.ac,v 1.14 2009/03/25 12:52:42 vtschopp Exp $
 #
 
 AC_INIT(glite-authz-pep-c, 1.1.3, grid@switch.ch)
 AC_CONFIG_AUX_DIR(project)
-AM_INIT_AUTOMAKE
+
+AC_CANONICAL_HOST
+
+if echo $host_os | grep '^darwin' >/dev/null ; then
+	AC_MSG_NOTICE([OS is $host_os, disabling dependencies tracking (--disable-dependency-tracking)])
+	AM_INIT_AUTOMAKE([no-dependencies])
+	AC_MSG_NOTICE([OS is $host_os, building for i386 and x86_64 architectures])
+	CFLAGS="$CFLAGS -arch i386 -arch x86_64 "
+else
+	AM_INIT_AUTOMAKE
+fi
 
 # Checks for programs.
 AC_PROG_LIBTOOL
@@ -14,11 +24,17 @@ AC_PROG_CC
 AC_CHECK_PROG(DOXYGEN,doxygen,doxygen,$ac_aux_dir/missing --run doxygen)
 AC_SUBST(DOXYGEN)
 
+# GCC flags
+if test "$GCC" = "yes"; then
+    CFLAGS="$CFLAGS -Wall "
+fi
 
 # <prefix>/lib64 for x86_64 cpu 
-#if test "x$host_cpu" = "xx86_64"; then
-#    AC_SUBST([libdir], ['${exec_prefix}/lib64'])
-#fi
+AC_MSG_CHECKING([libdir for host_cpu: $host_cpu])
+if test "x$host_cpu" = "xx86_64"; then
+    AC_SUBST([libdir], ['${exec_prefix}/lib64'])
+fi
+AC_MSG_RESULT([$libdir])
 
 # Checks for curl headers and library
 # will automatically add -lcurl in LDFLAGS
