@@ -1,8 +1,6 @@
 #
-# $Id: Makefile.am,v 1.3 2009/01/29 12:31:10 vtschopp Exp $
+# $Id: Makefile.am,v 1.4 2009/03/25 12:47:43 vtschopp Exp $
 #
-
-include $(top_srcdir)/Makefile.flags.am 
 
 noinst_LTLIBRARIES = libutil.la
 

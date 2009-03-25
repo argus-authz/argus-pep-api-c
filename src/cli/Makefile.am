@@ -1,8 +1,6 @@
 #
-# $Id: Makefile.am,v 1.2 2009/03/19 14:28:53 vtschopp Exp $
+# $Id: Makefile.am,v 1.3 2009/03/25 12:47:43 vtschopp Exp $
 #
-
-include $(top_srcdir)/Makefile.flags.am 
 
 #
 # PEP-C client CLI exec

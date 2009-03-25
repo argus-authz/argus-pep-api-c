@@ -1,8 +1,6 @@
 #
-# $Id: Makefile.am,v 1.5 2009/01/29 16:28:02 vtschopp Exp $
+# $Id: Makefile.am,v 1.6 2009/03/25 12:47:43 vtschopp Exp $
 #
-
-include $(top_srcdir)/Makefile.flags.am 
 
 noinst_LTLIBRARIES = libhessian.la
 
