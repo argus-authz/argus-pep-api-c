@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: main.c,v 1.6 2009/03/24 12:45:49 vtschopp Exp $
+ * $Id: main.c,v 1.7 2009/03/30 12:14:47 vtschopp Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -77,6 +77,8 @@ int debug= 0;
 static int req_context= 0;
 static long timeout= -1;
 static char * certchain_filename= NULL;
+static char * certchain= NULL;
+static char * subjectid= NULL;
 static char * resourceid= NULL;
 static char * actionid= NULL;
 
@@ -146,9 +148,37 @@ static char * read_certchain(const char * filename) {
 }
 
 /**
- * Creates a XACML Request with a Subject(cert-chain), Resource(resource-id) and Action(action-id).
+ * Creates a XACML Subject subject-id.
+ * @param x509dn The user DN (RFC2253 format)
+ * @return pointer to the XACML Subject created or @c NULL on error.
  */
-static xacml_request_t * create_xacml_request(const char * certchain, const char * resourceid, const char * actionid) {
+static xacml_subject_t * create_xacml_subject_id(const char * x500dn) {
+	if (x500dn==NULL) return NULL;
+	// Subject id
+	xacml_subject_t * subject= xacml_subject_create();
+	if (subject==NULL) {
+		show_error("can not allocate XACML Subject");
+		return NULL;
+	}
+	xacml_attribute_t * subject_attr_id= xacml_attribute_create(XACML_SUBJECT_ID);
+	if (subject_attr_id==NULL) {
+		show_error("can not allocate XACML Subject/Attribute: %s",XACML_SUBJECT_ID);
+		xacml_subject_delete(subject);
+		return NULL;
+	}
+	xacml_attribute_setdatatype(subject_attr_id,XACML_DATATYPE_X500NAME);
+	xacml_attribute_addvalue(subject_attr_id,x500dn);
+	xacml_subject_addattribute(subject,subject_attr_id);
+	return subject;
+}
+
+/**
+ * Creates a XACML Subject cert-chain
+ * @param certchain the PEM blocks of the certificate chain
+ * @return pointer to the XACML Subject created or @c NULL on error.
+ */
+static xacml_subject_t * create_xacml_subject_certchain(const char * certchain) {
+	if (certchain==NULL) return NULL;
 	// Subject cert-chain
 	xacml_subject_t * subject= xacml_subject_create();
 	if (subject==NULL) {
@@ -164,40 +194,59 @@ static xacml_request_t * create_xacml_request(const char * certchain, const char
 	xacml_attribute_setdatatype(subject_attr_id,XACML_DATATYPE_BASE64BINARY);
 	xacml_attribute_addvalue(subject_attr_id,certchain);
 	xacml_subject_addattribute(subject,subject_attr_id);
-	// Resource resource-id
+	return subject;
+}
+
+/**
+ * Create a XACML Resource resource-id.
+ * @param resourceid The Resource identifier
+ * @return pointer to the XACML Resource created or @c NULL on error.
+ */
+static xacml_resource_t * create_xacml_resource_id(const char * resourceid) {
+	if (resourceid==NULL) return NULL;
 	xacml_resource_t * resource= xacml_resource_create();
 	if (resource==NULL) {
 		show_error("can not allocate XACML Resource");
-		xacml_subject_delete(subject);
 		return NULL;
 	}
 	xacml_attribute_t * resource_attr_id= xacml_attribute_create(XACML_RESOURCE_ID);
 	if (resource_attr_id==NULL) {
 		show_error("can not allocate XAMCL Resource/Attribute: %s",XACML_RESOURCE_ID);
-		xacml_subject_delete(subject);
 		xacml_resource_delete(resource);
 		return NULL;
 	}
 	xacml_attribute_addvalue(resource_attr_id,resourceid);
 	xacml_resource_addattribute(resource,resource_attr_id);
-	// Action action-id
+	return resource;
+}
+
+/**
+ * Create a XACML Action action-id.
+ * @param actionid The Action identifier
+ * @return pointer to the XACML Action created or @c NULL on error.
+ */
+static xacml_action_t * create_xacml_action_id(const char * actionid) {
+	if (actionid==NULL) return NULL;
 	xacml_action_t * action= xacml_action_create();
 	if (action==NULL) {
 		show_error("can not allocate XACML Action");
-		xacml_subject_delete(subject);
-		xacml_resource_delete(resource);
 		return NULL;
 	}
 	xacml_attribute_t * action_attr_id= xacml_attribute_create(XACML_ACTION_ID);
 	if (action_attr_id==NULL) {
 		show_error("can not allocate XACML Action/Attribute: %s",XACML_ACTION_ID);
-		xacml_subject_delete(subject);
-		xacml_resource_delete(resource);
 		xacml_action_delete(action);
 		return NULL;
 	}
 	xacml_attribute_addvalue(action_attr_id,actionid);
 	xacml_action_addattribute(action,action_attr_id);
+	return action;
+}
+
+/**
+ * Creates a XACML Request with a Subject, a Resource and a Action.
+ */
+static xacml_request_t * create_xacml_request(xacml_subject_t * subject, xacml_resource_t * resource, xacml_action_t * action) {
 	// Request (Subject, Resource, Action)
 	xacml_request_t * request= xacml_request_create();
 	if (request==NULL) {
@@ -207,14 +256,19 @@ static xacml_request_t * create_xacml_request(const char * certchain, const char
 		xacml_action_delete(action);
 		return NULL;
 	}
-	xacml_request_addsubject(request,subject);
-	xacml_request_addresource(request,resource);
-	xacml_request_setaction(request,action);
-
+	if (subject!=NULL) {
+		xacml_request_addsubject(request,subject);
+	}
+	if (resource!=NULL) {
+		xacml_request_addresource(request,resource);
+	}
+	if (action!=NULL) {
+		xacml_request_setaction(request,action);
+	}
 	return request;
 }
 
-/*
+/**
  * Returns the string representation of the decision.
  */
 static const char * decision_str(int decision) {
@@ -237,12 +291,12 @@ static const char * decision_str(int decision) {
     }
 }
 
-/*
- * Dumps a XACML request.
+/**
+ * Shows a XACML request. NULL values are not displayed.
  */
 static int show_request(xacml_request_t * request) {
 	if (request == NULL) {
-		show_error("dump_request: request is NULL");
+		show_error("show_request: request is NULL");
 		return 1;
 	}
 	size_t subjects_l= xacml_request_subjects_length(request);
@@ -250,20 +304,29 @@ static int show_request(xacml_request_t * request) {
 	int i= 0;
 	for (i= 0; i<subjects_l; i++) {
 		xacml_subject_t * subject= xacml_request_getsubject(request,i);
-		show_info("request.subject[%d].category= %s", i, xacml_subject_getcategory(subject));
+		const char * category= xacml_subject_getcategory(subject);
+		if (category)
+			show_info("request.subject[%d].category= %s", i, category);
 		size_t attrs_l= xacml_subject_attributes_length(subject);
 		show_info("request.subject[%d]: %d attributes", i, (int)attrs_l);
 		int j= 0;
 		for(j= 0; j<attrs_l; j++) {
 			xacml_attribute_t * attr= xacml_subject_getattribute(subject,j);
-			show_info("request.subject[%d].attribute[%d].id= %s", i,j,xacml_attribute_getid(attr));
-			show_info("request.subject[%d].attribute[%d].datatype= %s", i,j,xacml_attribute_getdatatype(attr));
-			show_info("request.subject[%d].attribute[%d].issuer= %s", i,j,xacml_attribute_getissuer(attr));
+			const char * attr_id= xacml_attribute_getid(attr);
+			if (attr_id)
+				show_info("request.subject[%d].attribute[%d].id= %s", i,j,attr_id);
+			const char * attr_datatype= xacml_attribute_getdatatype(attr);
+			if (attr_datatype)
+				show_info("request.subject[%d].attribute[%d].datatype= %s", i,j,attr_datatype);
+			const char * attr_issuer= xacml_attribute_getissuer(attr);
+			if (attr_issuer)
+				show_info("request.subject[%d].attribute[%d].issuer= %s", i,j,attr_issuer);
 			size_t values_l= xacml_attribute_values_length(attr);
-			show_info("request.subject[%d].attribute[%d]: %d values", i,j,(int)values_l);
+			//show_info("request.subject[%d].attribute[%d]: %d values", i,j,(int)values_l);
 			int k= 0;
 			for (k= 0; k<values_l; k++) {
-				show_info("request.subject[%d].attribute[%d].value[%d]= %s", i,j,k,xacml_attribute_getvalue(attr,k));
+				const char * attr_value= xacml_attribute_getvalue(attr,k);
+				show_info("request.subject[%d].attribute[%d].value[%d]= %s", i,j,k,attr_value);
 			}
 		}
 	}
@@ -271,20 +334,30 @@ static int show_request(xacml_request_t * request) {
 	show_info("request: %d resources", (int)resources_l);
 	for (i= 0; i<resources_l; i++) {
 		xacml_resource_t * resource= xacml_request_getresource(request,i);
-		show_info("request.resource[%d].content= %s", i, xacml_resource_getcontent(resource));
+		const char * res_content= xacml_resource_getcontent(resource);
+		if (res_content)
+			show_info("request.resource[%d].content= %s", i, res_content);
 		size_t attrs_l= xacml_resource_attributes_length(resource);
 		show_info("request.resource[%d]: %d attributes", i, (int)attrs_l);
 		int j= 0;
 		for(j= 0; j<attrs_l; j++) {
 			xacml_attribute_t * attr= xacml_resource_getattribute(resource,j);
-			show_info("request.resource[%d].attribute[%d].id= %s", i,j,xacml_attribute_getid(attr));
-			show_info("request.resource[%d].attribute[%d].datatype= %s", i,j,xacml_attribute_getdatatype(attr));
-			show_info("request.resource[%d].attribute[%d].issuer= %s", i,j,xacml_attribute_getissuer(attr));
+			const char * attr_id= xacml_attribute_getid(attr);
+			if (attr_id)
+				show_info("request.resource[%d].attribute[%d].id= %s", i,j,attr_id);
+			const char * attr_datatype= xacml_attribute_getdatatype(attr);
+			if (attr_datatype)
+				show_info("request.resource[%d].attribute[%d].datatype= %s", i,j,attr_datatype);
+			const char * attr_issuer= xacml_attribute_getissuer(attr);
+			if (attr_issuer)
+				show_info("request.resource[%d].attribute[%d].issuer= %s", i,j,attr_issuer);
 			size_t values_l= xacml_attribute_values_length(attr);
-			show_info("request.resource[%d].attribute[%d]: %d values", i,j,(int)values_l);
+			//show_info("request.resource[%d].attribute[%d]: %d values", i,j,(int)values_l);
 			int k= 0;
 			for (k= 0; k<values_l; k++) {
-				show_info("request.resource[%d].attribute[%d].value[%d]= %s", i,j,k,xacml_attribute_getvalue(attr,k));
+				const char * attr_value= xacml_attribute_getvalue(attr,k);
+				if (attr_value)
+					show_info("request.resource[%d].attribute[%d].value[%d]= %s", i,j,k,attr_value);
 			}
 		}
 	}
@@ -294,14 +367,22 @@ static int show_request(xacml_request_t * request) {
 	int j= 0;
 	for (j= 0; j<act_attrs_l; j++) {
 		xacml_attribute_t * attr= xacml_action_getattribute(action,j);
-		show_info("request.action.attribute[%d].id= %s", j,xacml_attribute_getid(attr));
-		show_info("request.action.attribute[%d].datatype= %s", j,xacml_attribute_getdatatype(attr));
-		show_info("request.action.attribute[%d].issuer= %s", j,xacml_attribute_getissuer(attr));
+		const char * attr_id= xacml_attribute_getid(attr);
+		if (attr_id)
+			show_info("request.action.attribute[%d].id= %s", j,attr_id);
+		const char * attr_datatype= xacml_attribute_getdatatype(attr);
+		if (attr_datatype)
+			show_info("request.action.attribute[%d].datatype= %s", j,attr_datatype);
+		const char * attr_issuer= xacml_attribute_getissuer(attr);
+		if (attr_issuer)
+			show_info("request.action.attribute[%d].issuer= %s", j,attr_issuer);
 		size_t values_l= xacml_attribute_values_length(attr);
-		show_info("request.action.attribute[%d]: %d values", j,(int)values_l);
+		//show_info("request.action.attribute[%d]: %d values", j,(int)values_l);
 		int k= 0;
 		for (k= 0; k<values_l; k++) {
-			show_info("request.action.attribute[%d].value[%d]= %s",j,k,xacml_attribute_getvalue(attr,k));
+			const char * attr_value= xacml_attribute_getvalue(attr,k);
+			if (attr_value)
+				show_info("request.action.attribute[%d].value[%d]= %s",j,k,attr_value);
 		}
 	}
 	xacml_environment_t * env= xacml_request_getenvironment(request);
@@ -309,25 +390,33 @@ static int show_request(xacml_request_t * request) {
 	show_info("request.environment: %d attributes",(int)env_attrs_l);
 	for (j= 0; j<env_attrs_l; j++) {
 		xacml_attribute_t * attr= xacml_environment_getattribute(env,j);
-		show_info("request.environment.attribute[%d].id= %s", j,xacml_attribute_getid(attr));
-		show_info("request.environment.attribute[%d].datatype= %s", j,xacml_attribute_getdatatype(attr));
-		show_info("request.environment.attribute[%d].issuer= %s", j,xacml_attribute_getissuer(attr));
+		const char * attr_id= xacml_attribute_getid(attr);
+		if (attr_id)
+			show_info("request.environment.attribute[%d].id= %s", j,attr_id);
+		const char * attr_datatype= xacml_attribute_getdatatype(attr);
+		if (attr_datatype)
+			show_info("request.environment.attribute[%d].datatype= %s", j,attr_datatype);
+		const char * attr_issuer= xacml_attribute_getissuer(attr);
+		if (attr_issuer)
+			show_info("request.environment.attribute[%d].issuer= %s", j,attr_issuer);
 		size_t values_l= xacml_attribute_values_length(attr);
-		show_info("request.environment.attribute[%d]: %d values", j,(int)values_l);
+		//show_info("request.environment.attribute[%d]: %d values", j,(int)values_l);
 		int k= 0;
 		for (k= 0; k<values_l; k++) {
-			show_info("request.environment.attribute[%d].value[%d]= %s",j,k,xacml_attribute_getvalue(attr,k));
+			const char * attr_value= xacml_attribute_getvalue(attr,k);
+			if (attr_value)
+				show_info("request.environment.attribute[%d].value[%d]= %s",j,k,attr_value);
 		}
 	}
 	return 0;
 }
 
-/*
- * Dumps a XACML response.
+/**
+ * Shows a XACML response.
  */
 static int show_response(xacml_response_t * response) {
 	if (response == NULL) {
-		show_error("dump_response: response is NULL");
+		show_error("show_response: response is NULL");
 		return 1;
 	}
 	size_t results_l= xacml_response_results_length(response);
@@ -336,6 +425,7 @@ static int show_response(xacml_response_t * response) {
 	for(i= 0; i<results_l; i++) {
 		xacml_result_t * result= xacml_response_getresult(response,i);
 		show_info("response.result[%d].decision= %s", i, decision_str(xacml_result_getdecision(result)));
+
 		show_info("response.result[%d].resourceid= %s", i, xacml_result_getresourceid(result));
 		xacml_status_t * status= xacml_result_getstatus(result);
 		show_info("response.result[%d].status.message= %s", i, xacml_status_getmessage(status));
@@ -374,13 +464,14 @@ static int show_response(xacml_response_t * response) {
  */
 static void show_help() {
 	fprintf(stdout,"PEP-C client CLI v." PACKAGE_VERSION "\n");
-	fprintf(stdout,"Usage: pepcli --pepd <URL> --certchain <FILE> --resourceid <URI> --actionid <URI> [options...]\n");
+	fprintf(stdout,"Usage: pepcli --pepd <URL> [options...]\n");
 	fprintf(stdout,"\n");
 	fprintf(stdout,"Submit a XACML Request to the PEPd and show the XACML Response.\n");
 	fprintf(stdout,"\n");
 	fprintf(stdout,"Options:\n");
 	fprintf(stdout," -p|--pepd <URL>         PEPd endpoint URL. Add multiple --pepd options for failover\n");
 	fprintf(stdout," -c|--certchain <FILE>   XACML Subject cert-chain: proxy or X509 file\n");
+	fprintf(stdout," -s|--subjectid <DN>     XACML Subject identifier: user DN (format RFC2253)\n");
 	fprintf(stdout," -r|--resourceid <URI>   XACML Resource identifier\n");
 	fprintf(stdout," -a|--actionid <URI>     XACML Action identifier\n");
 	fprintf(stdout," -t|--timeout <SEC>      Connection timeout in second\n");
@@ -401,7 +492,7 @@ int main(int argc, char **argv) {
 	}
 	// parse arguments
 	int c;
-	while ((c= getopt_long(argc, argv, "dvp:t:r:a:c:xh", long_options, NULL)) != -1) {
+	while ((c= getopt_long(argc, argv, "dvp:s:t:r:a:c:xh", long_options, NULL)) != -1) {
 		switch(c) {
 		case 'd':
 			debug= 1;
@@ -420,6 +511,12 @@ int main(int argc, char **argv) {
 			// add url to list
 			if (strlen(optarg) > 0) {
 				llist_add(pepds,optarg);
+			}
+			break;
+		case 's':
+			show_debug("subjectid: %s",optarg);
+			if (strlen(optarg) > 0) {
+				subjectid= optarg;
 			}
 			break;
 		case 'c':
@@ -469,40 +566,36 @@ int main(int argc, char **argv) {
 		show_help();
 		exit(E_OPTION);
 	}
+
+	// show parameters
 	int i= 0;
 	for(i= 0; i<pepds_l; i++) {
-		show_info("PEPd: %s",(char *)llist_get(pepds,i));
+		show_info("pepd: %s",(char *)llist_get(pepds,i));
+	}
+	if (subjectid!=NULL) {
+		show_info("subjectid: %s", subjectid);
+	}
+	if (certchain_filename!=NULL) {
+		show_info("certchain: %s", certchain_filename);
+	}
+	if (resourceid!=NULL) {
+		show_info("resourceid: %s", resourceid);
 	}
 
-	if (certchain_filename==NULL) {
-		show_error("mandatory option --certchain <FILE> is missing");
-		show_help();
-		exit(E_OPTION);
+	if (actionid!=NULL) {
+		show_info("actionid: %s",actionid);
 	}
-	show_info("certchain: %s", certchain_filename);
-
-	if (resourceid==NULL) {
-		show_error("mandatory option --resourceid <URI> is missing");
-		show_help();
-		exit(E_OPTION);
-	}
-	show_info("resourceid: %s", resourceid);
-
-	if (actionid==NULL) {
-		show_error("mandatory option --actionid <URI> is missing");
-		show_help();
-		exit(E_OPTION);
-	}
-	show_info("actionid: %s",actionid);
 
 	// read certchain file
-	show_info("read certchain from: %s",certchain_filename);
-	char * certchain= read_certchain(certchain_filename);
-	if (certchain==NULL) {
-		show_error("certchain is empty");
-		exit(E_CERTCHAIN);
+	if (certchain_filename!=NULL) {
+		show_info("read certchain from: %s",certchain_filename);
+		certchain= read_certchain(certchain_filename);
+		if (certchain==NULL) {
+			show_error("certchain is empty");
+			exit(E_CERTCHAIN);
+		}
+		show_debug("certchain:[\n%s]", certchain);
 	}
-	show_debug("certchain:[\n%s]", certchain);
 
 	// PEP client
 	show_debug("create PEP client...");
@@ -532,6 +625,7 @@ int main(int argc, char **argv) {
 			exit(E_PEPC);
 		}
 	}
+	// connection timeout
 	if (timeout>0) {
 		show_debug("set PEP-C client timeout: %d",timeout);
 		pep_rc= pep_setoption(PEP_OPTION_ENDPOINT_TIMEOUT, timeout);
@@ -547,10 +641,17 @@ int main(int argc, char **argv) {
 	}
 
 	show_debug("create XACML request");
-	xacml_request_t * request= create_xacml_request(certchain,resourceid,actionid);
+	xacml_subject_t * subject= create_xacml_subject_id(subjectid);
+	xacml_resource_t * resource= create_xacml_resource_id(resourceid);
+	xacml_action_t * action= create_xacml_action_id(actionid);
+	xacml_request_t * request= create_xacml_request(subject,resource,action);
 	if (request==NULL) {
 		show_error("failed to create XACML request");
 		exit(E_XACMLREQ);
+	}
+	if (certchain!=NULL) {
+		xacml_subject_t * subject_certchain= create_xacml_subject_certchain(certchain);
+		xacml_request_addsubject(request,subject_certchain);
 	}
 
 	// submit request
@@ -575,6 +676,6 @@ int main(int argc, char **argv) {
 	xacml_request_delete(request);
 	xacml_response_delete(response);
 	llist_delete(pepds);
-	free(certchain);
+	if (certchain!=NULL) free(certchain);
 	exit(E_OK);
 }
