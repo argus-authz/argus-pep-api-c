@@ -1,7 +1,7 @@
 #                                              -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 #
-# $Id: configure.ac,v 1.15 2009/03/27 16:43:20 vtschopp Exp $
+# $Id: configure.ac,v 1.16 2009/03/30 12:23:17 vtschopp Exp $
 #
 
 AC_INIT(glite-authz-pep-c, 1.1.4, grid@switch.ch)
@@ -9,6 +9,7 @@ AC_CONFIG_AUX_DIR(project)
 
 AC_CANONICAL_HOST
 
+# OSX specific options
 if echo $host_os | grep '^darwin' >/dev/null ; then
 	AC_MSG_NOTICE([OS is $host_os, disabling dependencies tracking (--disable-dependency-tracking)])
 	AM_INIT_AUTOMAKE([no-dependencies])
@@ -17,6 +18,8 @@ if echo $host_os | grep '^darwin' >/dev/null ; then
 else
 	AM_INIT_AUTOMAKE
 fi
+
+AM_DISABLE_STATIC
 
 # Checks for programs.
 AC_PROG_LIBTOOL
