@@ -1,7 +1,7 @@
 #                                              -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 #
-# $Id: configure.ac,v 1.18 2009/03/30 14:19:48 vtschopp Exp $
+# $Id: configure.ac,v 1.19 2009/03/30 14:35:48 vtschopp Exp $
 #
 
 AC_INIT(glite-authz-pep-c, 1.1.4, grid@switch.ch)
@@ -19,7 +19,7 @@ else
 	AM_INIT_AUTOMAKE
 fi
 
-AM_DISABLE_STATIC
+#AM_DISABLE_STATIC
 
 # Checks for programs.
 AC_PROG_LIBTOOL
