@@ -1,7 +1,7 @@
 #                                              -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 #
-# $Id: configure.ac,v 1.23 2009/03/31 09:55:06 vtschopp Exp $
+# $Id: configure.ac,v 1.24 2009/03/31 10:07:58 vtschopp Exp $
 #
 
 AC_INIT(glite-authz-pep-c, 1.1.4, grid@switch.ch)
@@ -10,14 +10,14 @@ AC_CONFIG_AUX_DIR(project)
 AC_CANONICAL_HOST
 
 # OSX specific options
-if echo $host_os | grep '^darwin' >/dev/null ; then
-	AC_MSG_NOTICE([Mac OSX ($host_os): disabling dependencies tracking (--disable-dependency-tracking)])
-	AM_INIT_AUTOMAKE([no-dependencies])
-	AC_MSG_NOTICE([Mac OSX ($host_os): building for i386 and x86_64 architectures])
-	CFLAGS="$CFLAGS -arch i386 -arch x86_64 "
-else
+#if echo $host_os | grep '^darwin' >/dev/null ; then
+#	AC_MSG_NOTICE([Mac OSX ($host_os): disabling dependencies tracking (--disable-dependency-tracking)])
+#	AM_INIT_AUTOMAKE([no-dependencies])
+#	AC_MSG_NOTICE([Mac OSX ($host_os): building for i386 and x86_64 architectures])
+#	CFLAGS="$CFLAGS -arch i386 -arch x86_64 "
+#else
 	AM_INIT_AUTOMAKE
-fi
+#fi
 
 # disable static library
 AM_DISABLE_STATIC
