@@ -1,18 +1,14 @@
 #                                              -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 #
-# $Id: configure.ac,v 1.25 2009/03/31 10:41:22 vtschopp Exp $
+# $Id: configure.ac,v 1.26 2009/03/31 10:50:58 vtschopp Exp $
 #
 
 AC_INIT(glite-authz-pep-c, 1.1.4, grid@switch.ch)
 AC_CONFIG_AUX_DIR(project)
 
-#AM_INIT_AUTOMAKE
-#	AC_MSG_NOTICE([Mac OSX ($host_os): disabling dependencies tracking (--disable-dependency-tracking)])
+# OSX requires ./configure --disable-dependency-tracking to compile, others don't care
 AM_INIT_AUTOMAKE([no-dependencies])
-
-AC_CANONICAL_HOST
-
 # disable static library
 AM_DISABLE_STATIC
 
@@ -39,13 +35,13 @@ case $host in
     ;;
 esac
 
-
+AC_MSG_NOTICE([libdir for $host: $libdir])
 # <prefix>/lib64 for x86_64 cpu 
-AC_MSG_CHECKING([libdir for $host])
+#AC_MSG_CHECKING([libdir for $host])
 #if test "x$host_cpu" = "xx86_64"; then
 #    AC_SUBST([libdir], ['${exec_prefix}/lib64'])
 #fi
-AC_MSG_RESULT([$libdir])
+#AC_MSG_RESULT([$libdir])
 
 # Checks for curl headers and library
 # will automatically add -lcurl in LDFLAGS
