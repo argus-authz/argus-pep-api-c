@@ -1,7 +1,7 @@
 #                                              -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 #
-# $Id: configure.ac,v 1.20 2009/03/30 14:54:46 vtschopp Exp $
+# $Id: configure.ac,v 1.21 2009/03/31 07:54:50 vtschopp Exp $
 #
 
 AC_INIT(glite-authz-pep-c, 1.1.4, grid@switch.ch)
@@ -19,12 +19,13 @@ else
 	AM_INIT_AUTOMAKE
 fi
 
-#AM_DISABLE_STATIC
+# disable static library
+AM_DISABLE_STATIC
 
 # Checks for programs.
 AC_PROG_LIBTOOL
 AC_PROG_CC
-#AC_PROG_MKDIR_P # not defined on SL4 !!!
+AC_PROG_MKDIR_P # not defined on SL4 !!!
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_CHECK_PROG(DOXYGEN,doxygen,doxygen,$ac_aux_dir/missing --run doxygen)
