@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: main.c,v 1.7 2009/03/30 12:14:47 vtschopp Exp $
+ * $Id: main.c,v 1.8 2009/04/03 15:23:47 vtschopp Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -602,6 +602,7 @@ int main(int argc, char **argv) {
 	pep_error_t pep_rc= pep_initialize();
 	if (pep_rc!=PEP_OK) {
 		show_error("failed to init PEP client: %s", pep_strerror(pep_rc));
+	    pep_destroy();
 		exit(E_PEPC);
 	}
 	//
@@ -622,6 +623,7 @@ int main(int argc, char **argv) {
 		pep_rc= pep_setoption(PEP_OPTION_ENDPOINT_URL,url);
 		if (pep_rc!=PEP_OK) {
 			show_error("failed to set PEPd url: %s: %s",url,pep_strerror(pep_rc));
+	        pep_destroy();
 			exit(E_PEPC);
 		}
 	}
@@ -660,6 +662,7 @@ int main(int argc, char **argv) {
 	pep_rc= pep_authorize(&request,&response);
 	if (pep_rc!=PEP_OK) {
 		show_error("failed to authorize XACML request: %s",pep_strerror(pep_rc));
+	    pep_destroy();
 		exit(E_PEPC);
 	}
 	int old_verbose= verbose;
