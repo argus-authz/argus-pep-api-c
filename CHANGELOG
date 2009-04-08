@@ -2,6 +2,7 @@ PEP-C 1.1.4
 -----------
 * pepcli: --subjectid parameter added.
 * pepcli: --requestcontext doesn't show (null) string anymore.
+* pepcli: --quiet option added.
 
 PEP-C 1.1.3
 -----------
@@ -33,5 +34,5 @@ PEP-C 1.0.0
 beta release of the PEP-C thin client.
 
 --
-$Id: CHANGELOG,v 1.6 2009/03/30 14:35:48 vtschopp Exp $
+$Id: CHANGELOG,v 1.7 2009/04/08 14:10:13 vtschopp Exp $
 
