@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: main.c,v 1.8 2009/04/03 15:23:47 vtschopp Exp $
+ * $Id: main.c,v 1.9 2009/04/08 14:09:28 vtschopp Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -67,12 +67,17 @@ static struct option long_options[] = {
    {"context",  no_argument,  0, 'x'},
    // Display help
    {"help",  no_argument,  0, 'h'},
+   // be quiet
+   {"quiet",  no_argument,  0, 'q'},
+   {"debug",  no_argument,  0, 'd'},
    {0, 0, 0, 0}
 };
 
 // option flags (global, used by log.c)
 int verbose= 0;
 int debug= 0;
+int quiet= 0;
+
 // option intern
 static int req_context= 0;
 static long timeout= -1;
@@ -477,6 +482,7 @@ static void show_help() {
 	fprintf(stdout," -t|--timeout <SEC>      Connection timeout in second\n");
 	fprintf(stdout," -x|--requestcontext     Show effective XACML Request context\n");
 	fprintf(stdout," -v|--verbose            Verbose\n");
+	fprintf(stdout," -q|--quiet              Turn off output\n");
 	fprintf(stdout," -d|--debug              Show debug information\n");
 	fprintf(stdout," -h|--help               This help\n");
 }
@@ -492,11 +498,15 @@ int main(int argc, char **argv) {
 	}
 	// parse arguments
 	int c;
-	while ((c= getopt_long(argc, argv, "dvp:s:t:r:a:c:xh", long_options, NULL)) != -1) {
+	while ((c= getopt_long(argc, argv, "dqvp:s:t:r:a:c:xh", long_options, NULL)) != -1) {
 		switch(c) {
 		case 'd':
 			debug= 1;
 			show_debug("debug set.");
+			break;
+		case 'q':
+			quiet= 1;
+			show_debug("quiet set.");
 			break;
 		case 'v':
 			show_debug("verbose set.");
@@ -551,7 +561,6 @@ int main(int argc, char **argv) {
 			break;
 		case '?':
             // getopt_long already printed an error message.
-			//show_help();
 			exit(E_OPTION);
 			break;
 		default:
@@ -591,7 +600,7 @@ int main(int argc, char **argv) {
 		show_info("read certchain from: %s",certchain_filename);
 		certchain= read_certchain(certchain_filename);
 		if (certchain==NULL) {
-			show_error("certchain is empty");
+			show_error("certchain %s not found or doesn't contain certificate",certchain_filename);
 			exit(E_CERTCHAIN);
 		}
 		show_debug("certchain:[\n%s]", certchain);
@@ -613,7 +622,7 @@ int main(int argc, char **argv) {
 	if (debug) {
 		pep_setoption(PEP_OPTION_LOG_LEVEL,PEP_LOGLEVEL_DEBUG);
 	}
-	if (verbose) {
+	else if (verbose && !quiet) {
 		pep_setoption(PEP_OPTION_LOG_LEVEL,PEP_LOGLEVEL_INFO);
 	}
 	// endpoint urls
@@ -665,13 +674,15 @@ int main(int argc, char **argv) {
 	    pep_destroy();
 		exit(E_PEPC);
 	}
-	int old_verbose= verbose;
-	verbose= 1;
-	if (req_context) {
-		show_request(request);
-	}
-	show_response(response);
-	verbose= old_verbose;
+    if (!quiet) {
+        int old_verbose= verbose;
+        verbose= 1;
+        if (req_context) {
+            show_request(request);
+        }
+        show_response(response);
+        verbose= old_verbose;
+    }
 
 	// clean up
 	show_info("done.");

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: log.c,v 1.2 2009/03/19 14:19:23 vtschopp Exp $
+ * $Id: log.c,v 1.3 2009/04/08 14:09:28 vtschopp Exp $
  */
 #include <stdio.h>
 #include <stdarg.h>
@@ -21,6 +21,7 @@
 
 extern int debug;
 extern int verbose;
+extern int quiet;
 
 /*
  * local logging handler
@@ -44,7 +45,7 @@ static void _vfprintf(FILE * fd, const char * level, const char * format, va_lis
  * Logs an INFO message on stdout
  */
 void show_info(const char * format, ...) {
-	if (verbose) {
+	if (verbose && !quiet) {
 		va_list args;
 		va_start(args,format);
 		_vfprintf(stdout,"pepcli",format,args);
@@ -101,7 +102,7 @@ void log_handler_pep(int level, const char * format, va_list args) {
 			fprintf(stderr,"\n");
 			break;
 		case 2:
-			fprintf(stderr,"libpep-c:INFO: ");
+			fprintf(stderr,"libpep-c: ");
 			vfprintf(stderr,format,args);
 			fprintf(stderr,"\n");
 			break;
