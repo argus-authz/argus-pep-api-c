@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * $Id: xacml.h,v 1.11 2009/03/24 15:32:52 vtschopp Exp $
+ * $Id: xacml.h,v 1.12 2009/04/14 15:53:32 vtschopp Exp $
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.0
@@ -62,6 +62,8 @@ static const char XACML_DATATYPE_DATETIME[]= "http://www.w3.org/2001/XMLSchema#d
 static const char XACML_DATATYPE_ANYURI[]= "http://www.w3.org/2001/XMLSchema#anyURI"; /**<  XACML data-type @c anyURI identifier (XACML 2.0, B.3) */
 static const char XACML_DATATYPE_HEXBINARY[]= "http://www.w3.org/2001/XMLSchema#hexBinary"; /**<  XACML data-type @c hexBinary identifier (XACML 2.0, B.3) */
 static const char XACML_DATATYPE_BASE64BINARY[]= "http://www.w3.org/2001/XMLSchema#base64Binary"; /**<  XACML data-type @c base64Binary identifier (XACML 2.0, B.3) */
+static const char XACML_DATATYPE_DAY_TIME_DURATION[]= "http://www.w3.org/TR/2002/WD-xquery-operators-20020816#dayTimeDuration"; /**<  XACML data-type @c dayTimeDuration identifier (XACML 2.0, B.3) */
+static const char XACML_DATATYPE_YEAR_MONTH_DURATION[]= "http://www.w3.org/TR/2002/WD-xquery-operators-20020816#yearMonthDuration"; /**<  XACML data-type @c yearMonthDuration identifier (XACML 2.0, B.3) */
 
 /**
  * @anchor Attribute
@@ -162,21 +164,26 @@ void xacml_attribute_delete(xacml_attribute_t * attr);
 typedef struct xacml_subject xacml_subject_t;
 
 /*
- * PEP XACML Subject identifiers (XACML 2.0, Appendix B)
+ * PEP XACML Subject/\@Attribute identifiers and values (XACML 2.0, Appendix B)
  */
-static const char XACML_SUBJECT_ID[]= "urn:oasis:names:tc:xacml:1.0:subject:subject-id"; /**<  XACML Subject @c subject-id identifier (XACML 2.0, B.4) */
-static const char XACML_SUBJECT_IDQUALIFIER[]= "urn:oasis:names:tc:xacml:1.0:subject:subject-id-qualifier"; /**<  XACML Subject @c subject-id-qualifier identifier (XACML 2.0, B.4) */
-static const char XACML_SUBJECT_KEYINFO[]= "urn:oasis:names:tc:xacml:1.0:subject:key-info"; /**<  XACML Subject @c key-info identifier (XACML 2.0, B.4) */
-static const char XACML_SUBJECT_CATEGORY_ACCESS[]= "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"; /**<  XACML Subject/\@SubjectCategory attribute constants (XACML 2.0, B.2) */
-static const char XACML_SUBJECT_CATEGORY_INTERMEDIARY[]= "urn:oasis:names:tc:xacml:1.0:subject-category:intermediary-subject"; /**<  XACML Subject/\@SubjectCategory attribute constants (XACML 2.0, B.2) */
-static const char XACML_SUBJECT_CATEGORY_RECIPIENT[]= "urn:oasis:names:tc:xacml:1.0:subject-category:recipient-subject"; /**<  XACML Subject/\@SubjectCategory attribute constants (XACML 2.0, B.2) */
-static const char XACML_SUBJECT_CATEGORY_CODEBASE[]= "urn:oasis:names:tc:xacml:1.0:subject-category:codebase"; /**<  XACML Subject/\@SubjectCategory attribute constants (XACML 2.0, B.2) */
-static const char XACML_SUBJECT_CATEGORY_REQUESTINGMACHINE[]= "urn:oasis:names:tc:xacml:1.0:subject-category:requesting-machine"; /**<  XACML Subject/\@SubjectCategory attribute constants (XACML 2.0, B.2) */
+static const char XACML_SUBJECT_ID[]= "urn:oasis:names:tc:xacml:1.0:subject:subject-id"; /**<  XACML Subject/\@Attribute @c subject-id identifier (XACML 2.0, B.4) */
+static const char XACML_SUBJECT_ID_QUALIFIER[]= "urn:oasis:names:tc:xacml:1.0:subject:subject-id-qualifier"; /**<  XACML Subject/\@Attribute @c subject-id-qualifier identifier (XACML 2.0, B.4) */
+static const char XACML_SUBJECT_KEYINFO[]= "urn:oasis:names:tc:xacml:1.0:subject:key-info"; /**<  XACML Subject/\@Attribute @c key-info identifier (XACML 2.0, B.4) */
+static const char XACML_SUBJECT_CATEGORY_ACCESS[]= "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"; /**<  XACML Subject/\@SubjectCategory attribute @b access-subject value (XACML 2.0, B.2) */
+static const char XACML_SUBJECT_CATEGORY_INTERMEDIARY[]= "urn:oasis:names:tc:xacml:1.0:subject-category:intermediary-subject"; /**<  XACML Subject/\@SubjectCategory  attribute @b intermediary-subject value  (XACML 2.0, B.2) */
+static const char XACML_SUBJECT_CATEGORY_RECIPIENT[]= "urn:oasis:names:tc:xacml:1.0:subject-category:recipient-subject"; /**<  XACML Subject/\@SubjectCategory  attribute @b recipient-subject value (XACML 2.0, B.2) */
+static const char XACML_SUBJECT_CATEGORY_CODEBASE[]= "urn:oasis:names:tc:xacml:1.0:subject-category:codebase"; /**<  XACML Subject/\@SubjectCategory  attribute @b codebase value (XACML 2.0, B.2) */
+static const char XACML_SUBJECT_CATEGORY_REQUESTINGMACHINE[]= "urn:oasis:names:tc:xacml:1.0:subject-category:requesting-machine"; /**<  XACML Subject/\@SubjectCategory  attribute @b requesting-machine value (XACML 2.0, B.2) */
 
 /*
- * PEP XACML Authz Interop Subject identifiers (XACML Authz Interop)
+ * PEP XACML Authz Interop Subject/\@Attribute identifiers (XACML Authz Interop)
  */
-static const char XACML_AUTHZINTEROP_SUBJECT_CERTCHAIN[]= "http://authz-interop.org/xacml/subject/cert-chain"; /**<  XACML AuthZ Interop Subject cert-chain identifier (XACML AuthZ Interop) */
+static const char XACML_AUTHZINTEROP_SUBJECT_X509_ID[]= "http://authz-interop.org/xacml/subject/subject-x509-id"; /**<  XACML AuthZ Interop Subject/\@Attribute @b subject-x509-id identifier (Datatype: ...#string, OpenSSL format) */
+static const char XACML_AUTHZINTEROP_SUBJECT_X509_ISSUER[]= "http://authz-interop.org/xacml/subject/subject-x509-issuer"; /**<  XACML AuthZ Interop Subject/\@Attribute @b subject-x509-issuer identifier (Datatype: ...#string, OpenSSL format) */
+static const char XACML_AUTHZINTEROP_SUBJECT_VO[]= "http://authz-interop.org/xacml/subject/vo"; /**<  XACML AuthZ Interop Subject/\@Attribute @b vo identifier (Datatype: ...#string) */
+static const char XACML_AUTHZINTEROP_SUBJECT_CERTCHAIN[]= "http://authz-interop.org/xacml/subject/cert-chain"; /**<  XACML AuthZ Interop Subject/\@Attribute @b cert-chain identifier (Datatype: ...#base64Binary) */
+static const char XACML_AUTHZINTEROP_SUBJECT_VOMS_FQAN[]= "http://authz-interop.org/xacml/subject/voms-fqan"; /**<  XACML AuthZ Interop Subject/\@Attribute @b voms-fqan identifier (Datatype: ...#string) */
+static const char XACML_AUTHZINTEROP_SUBJECT_VOMS_PRIMARY_FQAN[]= "http://authz-interop.org/xacml/subject/voms-primary-fqan"; /**<  XACML AuthZ Interop Subject/\@Attribute @b voms-primary-fqan identifier (Datatype: ...#string) */
 
 /**
  * Creates a XACML Subject.
@@ -246,9 +253,9 @@ void xacml_subject_delete(xacml_subject_t * subject);
 typedef struct xacml_resource xacml_resource_t;
 
 /*
- * XACML Identifiers (XACML 2.0, Appendix B)
+ * XACML Resource/\@Attribute Identifiers (XACML 2.0, Appendix B)
  */
-static const char XACML_RESOURCE_ID[]= "urn:oasis:names:tc:xacml:1.0:resource:resource-id"; /**<  XACML Resource identifier (XACML 2.0, B.6) */
+static const char XACML_RESOURCE_ID[]= "urn:oasis:names:tc:xacml:1.0:resource:resource-id"; /**<  XACML Resource/\@Attribute @b resource-id identifier (XACML 2.0, B.6) */
 
 /**
  * Creates a XACML Resource.
@@ -309,9 +316,9 @@ void xacml_resource_delete(xacml_resource_t * resource);
 typedef struct xacml_action xacml_action_t;
 
 /*
- * XACML Identifiers (XACML 2.0, Appendix B)
+ * XACML Action/\@Attribute Identifiers (XACML 2.0, Appendix B)
  */
-static const char XACML_ACTION_ID[]= "urn:oasis:names:tc:xacml:1.0:action:action-id"; /**<  XACML Action identifier (XACML 2.0, B.7) */
+static const char XACML_ACTION_ID[]= "urn:oasis:names:tc:xacml:1.0:action:action-id"; /**<  XACML Action/\@Attribute @b action-id identifier (XACML 2.0, B.7) */
 
 /**
  * Creates a XACML Action.
@@ -355,6 +362,13 @@ void xacml_action_delete(xacml_action_t * action);
  * @anchor Environment
  */
 typedef struct xacml_environment xacml_environment_t;
+
+/*
+ * PEP XACML Environment/\@Attribute identifiers (XACML 2.0, Appendix B)
+ */
+static const char XACML_ENVIRONMENT_CURRENT_TIME[]= "urn:oasis:names:tc:xacml:1.0:environment:current-time"; /**<  XACML Environment/\@Attribute @c current-time identifier (XACML 2.0, B.8) */
+static const char XACML_ENVIRONMENT_CURRENT_DATE[]= "urn:oasis:names:tc:xacml:1.0:environment:current-date"; /**<  XACML Environment/\@Attribute @c current-date identifier (XACML 2.0, B.8) */
+static const char XACML_ENVIRONMENT_CURRENT_DATETIME[]= "urn:oasis:names:tc:xacml:1.0:environment:current-dateTime"; /**<  XACML Environment/\@Attribute @c current-dateTime identifier (XACML 2.0, B.8) */
 
 /**
  * Creates a XACML Environment.
@@ -497,12 +511,12 @@ void xacml_request_delete(xacml_request_t * request);
 typedef struct xacml_statuscode xacml_statuscode_t;
 
 /*
- * PEP XACML StatusCode identifiers (XACML 2.0, B.9)
+ * PEP XACML StatusCode/\@Value values (XACML 2.0, B.9)
  */
-static const char XACML_STATUSCODE_OK[]= "urn:oasis:names:tc:xacml:1.0:status:ok"; /**< XACML StatusCode/\@Value @c ok identifier (XACML 2.0, B.9) */
-static const char XACML_STATUSCODE_MISSINGATTRIBUTE[]= "urn:oasis:names:tc:xacml:1.0:status:missing-attribute"; /**< XACML StatusCode/\@Value @c missing-attribute identifier (XACML 2.0, B.9) */
-static const char XACML_STATUSCODE_SYNTAXERROR[]= "urn:oasis:names:tc:xacml:1.0:status:syntax-error"; /**< XACML StatusCode/\@Value @c syntax-error identifier (XACML 2.0, B.9) */
-static const char XACML_STATUSCODE_PROCESSINGERROR[]= "urn:oasis:names:tc:xacml:1.0:status:processing-error"; /**< XACML StatusCode/\@Value @c processing-error identifier (XACML 2.0, B.9) */
+static const char XACML_STATUSCODE_OK[]= "urn:oasis:names:tc:xacml:1.0:status:ok"; /**< XACML StatusCode/\@Value attribute @c ok value (XACML 2.0, B.9) */
+static const char XACML_STATUSCODE_MISSINGATTRIBUTE[]= "urn:oasis:names:tc:xacml:1.0:status:missing-attribute"; /**< XACML StatusCode/\@Value attribute @c missing-attribute value (XACML 2.0, B.9) */
+static const char XACML_STATUSCODE_SYNTAXERROR[]= "urn:oasis:names:tc:xacml:1.0:status:syntax-error"; /**< XACML StatusCode/\@Value attribute @c syntax-error value (XACML 2.0, B.9) */
+static const char XACML_STATUSCODE_PROCESSINGERROR[]= "urn:oasis:names:tc:xacml:1.0:status:processing-error"; /**< XACML StatusCode/\@Value attribute @c processing-error value (XACML 2.0, B.9) */
 
 /**
  * Creates a XACML StatusCode.
@@ -674,6 +688,20 @@ typedef enum xacml_fulfillon {
  * @anchor Obligation
  */
 typedef struct xacml_obligation xacml_obligation_t;
+
+
+/*
+ * PEP XACML Authz Interop Obligation and Obligation/\@AttributeAssignment identifiers (XACML Authz Interop)
+ */
+static const char XACML_AUTHZINTEROP_OBLIGATION_UIDGID[]= "http://authz-interop.org/xacml/obligation/uidgid"; /**<  XACML AuthZ Interop Obligation @b uidgid identifier (XACML Authz Interop: UID GID) */
+static const char XACML_AUTHZINTEROP_OBLIGATION_SECONDARY_GIDS[]= "http://authz-interop.org/xacml/obligation/secondary-gids"; /**<  XACML AuthZ Interop Obligation @b secondary-gids identifier (XACML Authz Interop: Multiple Secondary GIDs) */
+static const char XACML_AUTHZINTEROP_OBLIGATION_USERNAME[]= "http://authz-interop.org/xacml/obligation/username"; /**<  XACML AuthZ Interop Obligation @b username identifier (XACML Authz Interop: Username) */
+static const char XACML_AUTHZINTEROP_OBLIGATION_AFS_TOKEN[]= "http://authz-interop.org/xacml/obligation/afs-token"; /**<  XACML AuthZ Interop Obligation @b afs-token identifier (XACML Authz Interop: AFS Token) */
+static const char XACML_AUTHZINTEROP_OBLIGATION_ATTR_POSIX_UID[]= "http://authz-interop.org/xacml/attribute/posix-uid"; /**<  XACML AuthZ Interop Obligation/\@AttributeAssignment @b posix-uid identifier (C Datatype: ...#string, must be converted to integer) */
+static const char XACML_AUTHZINTEROP_OBLIGATION_ATTR_POSIX_GID[]= "http://authz-interop.org/xacml/attribute/posix-gid"; /**<  XACML AuthZ Interop Obligation/\@AttributeAssignment @b posix-gid identifier (C Datatype: ...#string, must be converted to integer) */
+static const char XACML_AUTHZINTEROP_OBLIGATION_ATTR_USERNAME[]= "http://authz-interop.org/xacml/attribute/username"; /**<  XACML AuthZ Interop Obligation/\@AttributeAssignment @b username identifier (Datatype: ...#string) */
+static const char XACML_AUTHZINTEROP_OBLIGATION_ATTR_AFS_TOKEN[]= "http://authz-interop.org/xacml/attribute/afs-token"; /**<  XACML AuthZ Interop Obligation/\@AttributeAssignment @b afs-token identifier (Datatype: ...#base64Binary) */
+
 
 /**
  * Creates a XACML Obligation.
