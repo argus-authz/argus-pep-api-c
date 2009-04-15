@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: map.c,v 1.3 2009/01/29 15:31:24 vtschopp Exp $
+ * $Id: map.c,v 1.4 2009/04/15 14:33:04 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -409,21 +409,21 @@ const char * hessian_map_gettype(const hessian_object_t * object) {
 
 }
 
-// returns HESSIAN_ERROR (-1) on error.
+// returns 0 on error.
 size_t hessian_map_length(const hessian_object_t * object) {
     const hessian_map_t * self= object;
     if (self == NULL) {
 		log_error("hessian_map_length: NULL object pointer.");
-    	return HESSIAN_ERROR;
+    	return 0;
     }
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
 		log_error("hessian_map_length: NULL class descriptor.");
-    	return HESSIAN_ERROR;
+    	return 0;
     }
     if (class->type != HESSIAN_MAP) {
 		log_error("hessian_map_length: wrong class type: %d.",class->type);
-    	return HESSIAN_ERROR;
+    	return 0;
     }
     return llist_length(self->map);
 }

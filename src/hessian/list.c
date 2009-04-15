@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: list.c,v 1.3 2009/01/29 15:23:14 vtschopp Exp $
+ * $Id: list.c,v 1.4 2009/04/15 14:33:04 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -365,22 +365,22 @@ const char * hessian_list_gettype(const hessian_object_t * list) {
 }
 
 /**
- * Returns the length of the Hessian list. returns HESSIAN_ERROR (-1) on error.
+ * Returns the length of the Hessian list. returns 0 if empty or on error.
  */
 size_t hessian_list_length(const hessian_object_t * list) {
     const hessian_list_t * self= list;
     if (self == NULL) {
 		log_error("hessian_list_settype: NULL object pointer.");
-    	return HESSIAN_ERROR;
+    	return 0;
     }
     const hessian_class_t * class= hessian_getclass(list);
     if (class == NULL) {
 		log_error("hessian_list_settype: NULL class descriptor.");
-    	return HESSIAN_ERROR;
+    	return 0;
     }
     if (class->type != HESSIAN_LIST) {
 		log_error("hessian_list_settype: wrong class type: %d.",class->type);
-    	return HESSIAN_ERROR;
+    	return 0;
     }
     return llist_length(self->list);
 }
