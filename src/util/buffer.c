@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: buffer.c,v 1.2 2009/01/29 14:55:37 vtschopp Exp $
+ * $Id: buffer.c,v 1.3 2009/04/15 14:34:18 vtschopp Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -264,7 +264,7 @@ int buffer_reset(BUFFER * buffer) {
 size_t buffer_length(BUFFER * buffer) {
 	if (buffer == NULL) {
     	log_error("buffer_length: buffer is a NULL pointer.");
-		return BUFFER_ERROR;
+		return 0;
 	}
 	return buffer->wpos - buffer->rpos;
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: linkedlist.c,v 1.3 2009/01/30 12:07:13 vtschopp Exp $
+ * $Id: linkedlist.c,v 1.4 2009/04/15 14:34:18 vtschopp Exp $
  */
 
 #include <stdlib.h>
@@ -54,7 +54,7 @@ linkedlist_t * llist_create( void ) {
 size_t llist_length(const linkedlist_t * list) {
 	if (list == NULL) {
 		log_error("llist_length: NULL pointer list.");
-		return LLIST_ERROR;
+		return 0;
 	}
 	return list->length;
 }

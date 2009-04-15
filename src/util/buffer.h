@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: buffer.h,v 1.1 2008/12/12 11:32:49 vtschopp Exp $
+ * $Id: buffer.h,v 1.2 2009/04/15 14:34:18 vtschopp Exp $
  */
 #ifndef _BUFFER_H_
 #define _BUFFER_H_
@@ -173,7 +173,7 @@ int buffer_reset(BUFFER * buffer);
  *
  * @param BUFFER * buffer pointer to the buffer.
  *
- * @return size_t number of bytes in buffer or BUFFER_ERROR if an error occurs.
+ * @return size_t number of bytes in buffer or 0 if an error occurs.
  */
 size_t buffer_length(BUFFER * buffer);
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: linkedlist.h,v 1.1 2008/12/12 11:32:49 vtschopp Exp $
+ * $Id: linkedlist.h,v 1.2 2009/04/15 14:34:18 vtschopp Exp $
  */
 #ifndef _LINKEDLIST_H_
 #define _LINKEDLIST_H_
@@ -46,7 +46,7 @@ linkedlist_t * llist_create( void );
  *
  * @param linkedlist_t * list pointer to the linked list.
  *
- * @return size_t number of element in the list or LLIST_ERROR if an error occurs.
+ * @return size_t number of element in the list, @c 0 if empty or an error occurs.
  */
 size_t llist_length(const linkedlist_t * list);
 
