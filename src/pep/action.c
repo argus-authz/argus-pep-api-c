@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: action.c,v 1.3 2009/03/13 12:02:17 vtschopp Exp $
+ * $Id: action.c,v 1.4 2009/04/15 14:44:11 vtschopp Exp $
  */
 #include <stdlib.h>
 
@@ -63,7 +63,7 @@ void xacml_action_delete(xacml_action_t * action) {
 size_t xacml_action_attributes_length(const xacml_action_t * action) {
 	if (action == NULL) {
 		log_error("xacml_action_attributes_length: NULL action.");
-		return PEP_XACML_ERROR;
+		return 0;
 	}
 	return llist_length(action->attributes);
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: subject.c,v 1.5 2009/03/23 09:39:43 vtschopp Exp $
+ * $Id: subject.c,v 1.6 2009/04/15 14:44:11 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <string.h>
@@ -87,7 +87,7 @@ int xacml_subject_addattribute(xacml_subject_t * subject, xacml_attribute_t * at
 size_t xacml_subject_attributes_length(const xacml_subject_t * subject) {
 	if (subject == NULL) {
 		log_error("xacml_subject_attributes_length: NULL subject.");
-		return PEP_XACML_ERROR; // 0
+		return 0;
 	}
 	return llist_length(subject->attributes);
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: environment.c,v 1.4 2009/03/23 09:39:43 vtschopp Exp $
+ * $Id: environment.c,v 1.5 2009/04/15 14:44:11 vtschopp Exp $
  */
 #include <stdlib.h>
 
@@ -55,7 +55,7 @@ int xacml_environment_addattribute(xacml_environment_t * env, xacml_attribute_t 
 size_t xacml_environment_attributes_length(const xacml_environment_t * env) {
 	if (env == NULL) {
 		log_error("xacml_environment_attributes_length: NULL environment.");
-		return PEP_XACML_ERROR; // 0
+		return 0;
 	}
 	return llist_length(env->attributes);
 

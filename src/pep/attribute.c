@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: attribute.c,v 1.4 2009/03/23 09:39:43 vtschopp Exp $
+ * $Id: attribute.c,v 1.5 2009/04/15 14:44:11 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <string.h>
@@ -186,7 +186,7 @@ int xacml_attribute_addvalue(xacml_attribute_t * attr, const char *value) {
 size_t xacml_attribute_values_length(const xacml_attribute_t * attr) {
 	if (attr == NULL) {
 		log_error("xacml_attribute_values_length: NULL attribute.");
-		return PEP_XACML_ERROR; // 0
+		return 0;
 	}
 	return llist_length(attr->values);
 }
