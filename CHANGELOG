@@ -1,3 +1,10 @@
+PEP-C 1.1.5
+-----------
+* xacml.h: XACML and AuthZ Interop XACML identifier constants added.
+* pepcli: --fqan option added.
+* pepcli: simple human readable output by default, use --verbose for old style output.
+* bug fix: all size_t ..._length(...) functions return 0 on error.
+
 PEP-C 1.1.4
 -----------
 * pepcli: --subjectid parameter added.
@@ -34,5 +41,5 @@ PEP-C 1.0.0
 beta release of the PEP-C thin client.
 
 --
-$Id: CHANGELOG,v 1.7 2009/04/08 14:10:13 vtschopp Exp $
+$Id: CHANGELOG,v 1.8 2009/04/16 13:59:25 vtschopp Exp $
 
