@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: main.c,v 1.11 2009/04/16 14:29:47 vtschopp Exp $
+ * $Id: main.c,v 1.12 2009/04/16 14:40:45 vtschopp Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -419,50 +419,54 @@ static int show_xacml_request(xacml_request_t * request) {
 		}
 	}
 	xacml_action_t * action= xacml_request_getaction(request);
-	size_t act_attrs_l= xacml_action_attributes_length(action);
-	show_info("request.action: %d attributes",(int)act_attrs_l);
-	int j= 0;
-	for (j= 0; j<act_attrs_l; j++) {
-		xacml_attribute_t * attr= xacml_action_getattribute(action,j);
-		const char * attr_id= xacml_attribute_getid(attr);
-		if (attr_id)
-			show_info("request.action.attribute[%d].id= %s", j,attr_id);
-		const char * attr_datatype= xacml_attribute_getdatatype(attr);
-		if (attr_datatype)
-			show_info("request.action.attribute[%d].datatype= %s", j,attr_datatype);
-		const char * attr_issuer= xacml_attribute_getissuer(attr);
-		if (attr_issuer)
-			show_info("request.action.attribute[%d].issuer= %s", j,attr_issuer);
-		size_t values_l= xacml_attribute_values_length(attr);
-		//show_info("request.action.attribute[%d]: %d values", j,(int)values_l);
-		int k= 0;
-		for (k= 0; k<values_l; k++) {
-			const char * attr_value= xacml_attribute_getvalue(attr,k);
-			if (attr_value)
-				show_info("request.action.attribute[%d].value[%d]= %s",j,k,attr_value);
+	if (action) {
+		size_t act_attrs_l= xacml_action_attributes_length(action);
+		show_info("request.action: %d attributes",(int)act_attrs_l);
+		int j= 0;
+		for (j= 0; j<act_attrs_l; j++) {
+			xacml_attribute_t * attr= xacml_action_getattribute(action,j);
+			const char * attr_id= xacml_attribute_getid(attr);
+			if (attr_id)
+				show_info("request.action.attribute[%d].id= %s", j,attr_id);
+			const char * attr_datatype= xacml_attribute_getdatatype(attr);
+			if (attr_datatype)
+				show_info("request.action.attribute[%d].datatype= %s", j,attr_datatype);
+			const char * attr_issuer= xacml_attribute_getissuer(attr);
+			if (attr_issuer)
+				show_info("request.action.attribute[%d].issuer= %s", j,attr_issuer);
+			size_t values_l= xacml_attribute_values_length(attr);
+			//show_info("request.action.attribute[%d]: %d values", j,(int)values_l);
+			int k= 0;
+			for (k= 0; k<values_l; k++) {
+				const char * attr_value= xacml_attribute_getvalue(attr,k);
+				if (attr_value)
+					show_info("request.action.attribute[%d].value[%d]= %s",j,k,attr_value);
+			}
 		}
 	}
 	xacml_environment_t * env= xacml_request_getenvironment(request);
-	size_t env_attrs_l= xacml_environment_attributes_length(env);
-	show_info("request.environment: %d attributes",(int)env_attrs_l);
-	for (j= 0; j<env_attrs_l; j++) {
-		xacml_attribute_t * attr= xacml_environment_getattribute(env,j);
-		const char * attr_id= xacml_attribute_getid(attr);
-		if (attr_id)
-			show_info("request.environment.attribute[%d].id= %s", j,attr_id);
-		const char * attr_datatype= xacml_attribute_getdatatype(attr);
-		if (attr_datatype)
-			show_info("request.environment.attribute[%d].datatype= %s", j,attr_datatype);
-		const char * attr_issuer= xacml_attribute_getissuer(attr);
-		if (attr_issuer)
-			show_info("request.environment.attribute[%d].issuer= %s", j,attr_issuer);
-		size_t values_l= xacml_attribute_values_length(attr);
-		//show_info("request.environment.attribute[%d]: %d values", j,(int)values_l);
-		int k= 0;
-		for (k= 0; k<values_l; k++) {
-			const char * attr_value= xacml_attribute_getvalue(attr,k);
-			if (attr_value)
-				show_info("request.environment.attribute[%d].value[%d]= %s",j,k,attr_value);
+	if (env) {
+		size_t env_attrs_l= xacml_environment_attributes_length(env);
+		show_info("request.environment: %d attributes",(int)env_attrs_l);
+		for (j= 0; j<env_attrs_l; j++) {
+			xacml_attribute_t * attr= xacml_environment_getattribute(env,j);
+			const char * attr_id= xacml_attribute_getid(attr);
+			if (attr_id)
+				show_info("request.environment.attribute[%d].id= %s", j,attr_id);
+			const char * attr_datatype= xacml_attribute_getdatatype(attr);
+			if (attr_datatype)
+				show_info("request.environment.attribute[%d].datatype= %s", j,attr_datatype);
+			const char * attr_issuer= xacml_attribute_getissuer(attr);
+			if (attr_issuer)
+				show_info("request.environment.attribute[%d].issuer= %s", j,attr_issuer);
+			size_t values_l= xacml_attribute_values_length(attr);
+			//show_info("request.environment.attribute[%d]: %d values", j,(int)values_l);
+			int k= 0;
+			for (k= 0; k<values_l; k++) {
+				const char * attr_value= xacml_attribute_getvalue(attr,k);
+				if (attr_value)
+					show_info("request.environment.attribute[%d].value[%d]= %s",j,k,attr_value);
+			}
 		}
 	}
 	return 0;
