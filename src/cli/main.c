@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: main.c,v 1.9 2009/04/08 14:09:28 vtschopp Exp $
+ * $Id: main.c,v 1.10 2009/04/16 14:04:21 vtschopp Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,6 +65,8 @@ static struct option long_options[] = {
    {"certchain", required_argument, 0, 'c'},
    // Display effective Request context
    {"context",  no_argument,  0, 'x'},
+   // VOMS FQAN(s). the first one is the primary FQAN
+   {"fqan",  no_argument,  0, 'f'},
    // Display help
    {"help",  no_argument,  0, 'h'},
    // be quiet
@@ -203,7 +205,57 @@ static xacml_subject_t * create_xacml_subject_certchain(const char * certchain) 
 }
 
 /**
- * Create a XACML Resource resource-id.
+ * Creates a XACML Subject with AuthZ Interop @b voms-primary-fqan and @b voms-fqan Attributes
+ * @param fqans_list the list of FQANs, the first one in the list is the voms-primary-fqan.
+ * @return pointer to the XACML Subject created or @c NULL on empty FQANs list or on error.
+ */
+static xacml_subject_t * create_xacml_subject_voms_fqans(linkedlist_t * fqans_list) {
+	if (fqans_list==NULL) return NULL;
+	// empty list
+	size_t fqans_l= llist_length(fqans_list);
+	if (fqans_l<1) return NULL;
+
+	xacml_subject_t * subject= xacml_subject_create();
+	if (subject==NULL) {
+		show_error("can not allocate XACML Subject");
+		return NULL;
+	}
+	int i= 0;
+	for (i= 0; i<fqans_l; i++) {
+		char * fqan= (char *)llist_get(fqans_list,i);
+		if (fqan==NULL) {
+			show_error("NULL pointer in FQANs list at: %d",i);
+			xacml_subject_delete(subject);
+			return NULL;
+		}
+		if (i==0) {
+			// fist FQAN is the voms-primary-fqan Attribute
+			xacml_attribute_t * voms_primary_fqan= xacml_attribute_create(XACML_AUTHZINTEROP_SUBJECT_VOMS_PRIMARY_FQAN);
+			if (voms_primary_fqan==NULL) {
+				show_error("can not allocate XACML Subject/Attribute: %s",XACML_AUTHZINTEROP_SUBJECT_VOMS_PRIMARY_FQAN);
+				xacml_subject_delete(subject);
+				return NULL;
+			}
+			xacml_attribute_setdatatype(voms_primary_fqan,XACML_DATATYPE_STRING);
+			xacml_attribute_addvalue(voms_primary_fqan,fqan);
+			xacml_subject_addattribute(subject,voms_primary_fqan);
+		}
+		// all FQANs are voms-fqan Attributes
+		xacml_attribute_t * voms_fqan= xacml_attribute_create(XACML_AUTHZINTEROP_SUBJECT_VOMS_FQAN);
+		if (voms_fqan==NULL) {
+			show_error("can not allocate XACML Subject/Attribute: %s",XACML_AUTHZINTEROP_SUBJECT_VOMS_FQAN);
+			xacml_subject_delete(subject);
+			return NULL;
+		}
+		xacml_attribute_setdatatype(voms_fqan,XACML_DATATYPE_STRING);
+		xacml_attribute_addvalue(voms_fqan,fqan);
+		xacml_subject_addattribute(subject,voms_fqan);
+	}
+	return subject;
+}
+
+/**
+ * Create a XACML Resource with an resource-id Attribute.
  * @param resourceid The Resource identifier
  * @return pointer to the XACML Resource created or @c NULL on error.
  */
@@ -226,7 +278,7 @@ static xacml_resource_t * create_xacml_resource_id(const char * resourceid) {
 }
 
 /**
- * Create a XACML Action action-id.
+ * Create a XACML Action with action-id Attribute.
  * @param actionid The Action identifier
  * @return pointer to the XACML Action created or @c NULL on error.
  */
@@ -299,7 +351,7 @@ static const char * decision_str(int decision) {
 /**
  * Shows a XACML request. NULL values are not displayed.
  */
-static int show_request(xacml_request_t * request) {
+static int show_xacml_request(xacml_request_t * request) {
 	if (request == NULL) {
 		show_error("show_request: request is NULL");
 		return 1;
@@ -419,7 +471,7 @@ static int show_request(xacml_request_t * request) {
 /**
  * Shows a XACML response.
  */
-static int show_response(xacml_response_t * response) {
+static int show_xacml_response(xacml_response_t * response) {
 	if (response == NULL) {
 		show_error("show_response: response is NULL");
 		return 1;
@@ -465,6 +517,88 @@ static int show_response(xacml_response_t * response) {
 }
 
 /**
+ * Shows a human readable response.
+ */
+static int show_human_response(xacml_response_t * response) {
+	if (response == NULL) {
+		show_error("show_response: response is NULL");
+		return 1;
+	}
+	size_t results_l= xacml_response_results_length(response);
+	int i= 0;
+	for (i= 0; i<results_l; i++) {
+		xacml_result_t * result= xacml_response_getresult(response,i);
+		const char * resource_id= xacml_result_getresourceid(result);
+		if (resource_id!=NULL) {
+			fprintf(stdout,"Resource: %s\n",resource_id);
+		}
+		xacml_decision_t decision= xacml_result_getdecision(result);
+		fprintf(stdout,"Decision: %s\n", decision_str(decision));
+		xacml_status_t * status= xacml_result_getstatus(result);
+		xacml_statuscode_t * statuscode= xacml_status_getcode(status);
+		const char * status_value= xacml_statuscode_getvalue(statuscode);
+		// show status value and message only on not OK
+		if (strcmp(XACML_STATUSCODE_OK,status_value)!=0) {
+			fprintf(stdout,"Status: %s\n", status_value);
+			const char * status_message= xacml_status_getmessage(status);
+			if (status_message) {
+				fprintf(stdout,"Status message: %s\n",status_message);
+			}
+		}
+		size_t obligations_l= xacml_result_obligations_length(result);
+		if (obligations_l==0) {
+			fprintf(stdout,"No Obligation received\n");
+		}
+		int j, k, l;
+		for (j= 0; j<obligations_l; j++) {
+			xacml_obligation_t * obligation= xacml_result_getobligation(result,j);
+			xacml_fulfillon_t fulfillon= xacml_obligation_getfulfillon(obligation);
+			if (fulfillon == decision) {
+				const char * obligation_id= xacml_obligation_getid(obligation);
+				size_t attrs_l= xacml_obligation_attributeassignments_length(obligation);
+				if (strcmp(XACML_AUTHZINTEROP_OBLIGATION_SECONDARY_GIDS,obligation_id)==0) {
+					fprintf(stdout,"Secondary GIDs=");
+				}
+				for (k= 0; k<attrs_l; k++) {
+					xacml_attributeassignment_t * attr= xacml_obligation_getattributeassignment(obligation,k);
+					const char * attr_id= xacml_attributeassignment_getid(attr);
+					size_t values_l= xacml_attributeassignment_values_length(attr);
+					for (l= 0; l<values_l; l++) {
+						const char * value= xacml_attributeassignment_getvalue(attr,l);
+						if (strcmp(XACML_AUTHZINTEROP_OBLIGATION_UIDGID,obligation_id)==0) {
+							if (strcmp(XACML_AUTHZINTEROP_OBLIGATION_ATTR_POSIX_UID,attr_id)==0) {
+								fprintf(stdout,"UID=%s\n",value);
+							}
+							else if (strcmp(XACML_AUTHZINTEROP_OBLIGATION_ATTR_POSIX_GID,attr_id)==0) {
+								fprintf(stdout,"GID=%s\n",value);
+							}
+						}
+						else if (strcmp(XACML_AUTHZINTEROP_OBLIGATION_SECONDARY_GIDS,obligation_id)==0) {
+							if (strcmp(XACML_AUTHZINTEROP_OBLIGATION_ATTR_POSIX_GID,attr_id)==0) {
+								fprintf(stdout,"%s ",value);
+								if (k==(attrs_l - 1))
+									fprintf(stdout,"\n");
+							}
+						}
+						else if (strcmp(XACML_AUTHZINTEROP_OBLIGATION_USERNAME,obligation_id)==0) {
+							if (strcmp(XACML_AUTHZINTEROP_OBLIGATION_ATTR_USERNAME,attr_id)==0) {
+								fprintf(stdout,"Username=%s\n",value);
+							}
+						}
+						else {
+							fprintf(stdout,"Obligation(%s): %s=%s\n",obligation_id,attr_id,value);
+						}
+					}
+				}
+			}
+		}
+
+
+	}
+	return 0;
+}
+
+/**
  * Shows help
  */
 static void show_help() {
@@ -479,6 +613,7 @@ static void show_help() {
 	fprintf(stdout," -s|--subjectid <DN>     XACML Subject identifier: user DN (format RFC2253)\n");
 	fprintf(stdout," -r|--resourceid <URI>   XACML Resource identifier\n");
 	fprintf(stdout," -a|--actionid <URI>     XACML Action identifier\n");
+	fprintf(stdout," -f|--fqan <FQAN>        VOMS FQAN. Add multiple --fqan options for secondary FQANs\n");
 	fprintf(stdout," -t|--timeout <SEC>      Connection timeout in second\n");
 	fprintf(stdout," -x|--requestcontext     Show effective XACML Request context\n");
 	fprintf(stdout," -v|--verbose            Verbose\n");
@@ -496,9 +631,15 @@ int main(int argc, char **argv) {
 		show_error("Can not allocate PEPd url list.");
 		exit(E_MEMORY);
 	}
+	linkedlist_t * fqans= llist_create();
+	if (fqans==NULL) {
+		show_error("Can not allocate FQAN list.");
+		llist_delete(pepds);
+		exit(E_MEMORY);
+	}
 	// parse arguments
 	int c;
-	while ((c= getopt_long(argc, argv, "dqvp:s:t:r:a:c:xh", long_options, NULL)) != -1) {
+	while ((c= getopt_long(argc, argv, "dqvp:s:t:r:a:c:f:xh", long_options, NULL)) != -1) {
 		switch(c) {
 		case 'd':
 			debug= 1;
@@ -521,6 +662,13 @@ int main(int argc, char **argv) {
 			// add url to list
 			if (strlen(optarg) > 0) {
 				llist_add(pepds,optarg);
+			}
+			break;
+		case 'f':
+			show_debug("fqan: %s",optarg);
+			// add fqan to list
+			if (strlen(optarg) > 0) {
+				llist_add(fqans,optarg);
 			}
 			break;
 		case 's':
@@ -569,7 +717,7 @@ int main(int argc, char **argv) {
 	}
 
 	// check mandatory options
-	int pepds_l= llist_length(pepds);
+	size_t pepds_l= llist_length(pepds);
 	if (pepds_l<1) {
 		show_error("mandatory option --pepd <URL> is missing");
 		show_help();
@@ -590,14 +738,22 @@ int main(int argc, char **argv) {
 	if (resourceid!=NULL) {
 		show_info("resourceid: %s", resourceid);
 	}
-
 	if (actionid!=NULL) {
 		show_info("actionid: %s",actionid);
+	}
+	size_t fqans_l= llist_length(fqans);
+	for (i= 0; i<fqans_l; i++) {
+		char * fqan= (char *)llist_get(fqans,i);
+		if (i==0)
+			show_info("fqan: %s (primary)",fqan);
+		else
+			show_info("fqan: %s",fqan);
+
 	}
 
 	// read certchain file
 	if (certchain_filename!=NULL) {
-		show_info("read certchain from: %s",certchain_filename);
+		show_debug("read certchain from: %s",certchain_filename);
 		certchain= read_certchain(certchain_filename);
 		if (certchain==NULL) {
 			show_error("certchain %s not found or doesn't contain certificate",certchain_filename);
@@ -664,6 +820,10 @@ int main(int argc, char **argv) {
 		xacml_subject_t * subject_certchain= create_xacml_subject_certchain(certchain);
 		xacml_request_addsubject(request,subject_certchain);
 	}
+	if (fqans_l>0) {
+		xacml_subject_t * subject_voms_fqan= create_xacml_subject_voms_fqans(fqans);
+		xacml_request_addsubject(request,subject_voms_fqan);
+	}
 
 	// submit request
 	show_info("authorize XACML request");
@@ -675,21 +835,22 @@ int main(int argc, char **argv) {
 		exit(E_PEPC);
 	}
     if (!quiet) {
-        int old_verbose= verbose;
-        verbose= 1;
         if (req_context) {
-            show_request(request);
+            show_xacml_request(request);
         }
-        show_response(response);
-        verbose= old_verbose;
+        show_xacml_response(response);
+        show_human_response(response);
     }
 
 	// clean up
-	show_info("done.");
 	pep_destroy();
 	xacml_request_delete(request);
 	xacml_response_delete(response);
 	llist_delete(pepds);
+	llist_delete(fqans);
 	if (certchain!=NULL) free(certchain);
+
+	//show_info("done.");
+
 	exit(E_OK);
 }
