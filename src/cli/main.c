@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: main.c,v 1.10 2009/04/16 14:04:21 vtschopp Exp $
+ * $Id: main.c,v 1.11 2009/04/16 14:29:47 vtschopp Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,7 +66,7 @@ static struct option long_options[] = {
    // Display effective Request context
    {"context",  no_argument,  0, 'x'},
    // VOMS FQAN(s). the first one is the primary FQAN
-   {"fqan",  no_argument,  0, 'f'},
+   {"fqan",  required_argument,  0, 'f'},
    // Display help
    {"help",  no_argument,  0, 'h'},
    // be quiet
