@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: main.c,v 1.12 2009/04/16 14:40:45 vtschopp Exp $
+ * $Id: main.c,v 1.13 2009/04/16 15:01:27 vtschopp Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -418,11 +418,11 @@ static int show_xacml_request(xacml_request_t * request) {
 			}
 		}
 	}
+	int j= 0;
 	xacml_action_t * action= xacml_request_getaction(request);
 	if (action) {
 		size_t act_attrs_l= xacml_action_attributes_length(action);
 		show_info("request.action: %d attributes",(int)act_attrs_l);
-		int j= 0;
 		for (j= 0; j<act_attrs_l; j++) {
 			xacml_attribute_t * attr= xacml_action_getattribute(action,j);
 			const char * attr_id= xacml_attribute_getid(attr);
