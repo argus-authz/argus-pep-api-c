@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: obligation.c,v 1.5 2009/04/15 14:44:11 vtschopp Exp $
+ * $Id: obligation.c,v 1.6 2009/04/16 14:38:30 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <string.h>
@@ -134,7 +134,7 @@ int xacml_obligation_addattributeassignment(xacml_obligation_t * obligation, xac
 
 size_t xacml_obligation_attributeassignments_length(const xacml_obligation_t * obligation) {
 	if (obligation == NULL) {
-		log_error("xacml_obligation_attributeassignments_length: NULL obligation.");
+		log_warn("xacml_obligation_attributeassignments_length: NULL obligation.");
 		return 0;
 	}
 	return llist_length(obligation->assignments);

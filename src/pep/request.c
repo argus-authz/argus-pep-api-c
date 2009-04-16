@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: request.c,v 1.6 2009/04/15 14:44:11 vtschopp Exp $
+ * $Id: request.c,v 1.7 2009/04/16 14:38:30 vtschopp Exp $
  */
 #include <stdlib.h>
 
@@ -69,7 +69,7 @@ int xacml_request_addsubject(xacml_request_t * request, xacml_subject_t * subjec
 
 size_t xacml_request_subjects_length(const xacml_request_t * request) {
 	if (request == NULL) {
-		log_error("xacml_request_subjects_length: NULL request.");
+		log_warn("xacml_request_subjects_length: NULL request.");
 		return 0;
 	}
 	return llist_length(request->subjects);
@@ -97,7 +97,7 @@ int xacml_request_addresource(xacml_request_t * request, xacml_resource_t * reso
 
 size_t xacml_request_resources_length(const xacml_request_t * request) {
 	if (request == NULL) {
-		log_error("xacml_request_resources_length: NULL request.");
+		log_warn("xacml_request_resources_length: NULL request.");
 		return 0;
 	}
 	return llist_length(request->resources);

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: attributeassignment.c,v 1.5 2009/04/15 14:44:11 vtschopp Exp $
+ * $Id: attributeassignment.c,v 1.6 2009/04/16 14:38:30 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <string.h>
@@ -117,7 +117,7 @@ int xacml_attributeassignment_addvalue(xacml_attributeassignment_t * attr, const
  */
 size_t xacml_attributeassignment_values_length(const xacml_attributeassignment_t * attr) {
 	if (attr == NULL) {
-		log_error("xacml_attributeassignment_values_length: NULL attribute.");
+		log_warn("xacml_attributeassignment_values_length: NULL attribute.");
 		return 0;
 	}
 	return llist_length(attr->values);

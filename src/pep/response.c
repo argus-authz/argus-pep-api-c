@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: response.c,v 1.6 2009/04/15 14:44:11 vtschopp Exp $
+ * $Id: response.c,v 1.7 2009/04/16 14:38:30 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <string.h>
@@ -87,7 +87,7 @@ int xacml_response_addresult(xacml_response_t * response, xacml_result_t * resul
 
 size_t xacml_response_results_length(const xacml_response_t * response) {
 	if (response == NULL) {
-		log_error("xacml_response_results_length: NULL response.");
+		log_warn("xacml_response_results_length: NULL response.");
 		return 0;
 	}
 	return llist_length(response->results);

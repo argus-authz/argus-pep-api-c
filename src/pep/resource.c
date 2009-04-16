@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: resource.c,v 1.6 2009/04/15 14:44:11 vtschopp Exp $
+ * $Id: resource.c,v 1.7 2009/04/16 14:38:30 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <string.h>
@@ -57,7 +57,7 @@ int xacml_resource_addattribute(xacml_resource_t * resource, xacml_attribute_t *
 
 size_t xacml_resource_attributes_length(const xacml_resource_t * resource) {
 	if (resource == NULL) {
-		log_error("xacml_resource_attributes_length: NULL resource.");
+		log_warn("xacml_resource_attributes_length: NULL resource.");
 		return 0;
 	}
 	return llist_length(resource->attributes);

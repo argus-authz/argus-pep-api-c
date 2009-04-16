@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: result.c,v 1.5 2009/04/15 14:44:11 vtschopp Exp $
+ * $Id: result.c,v 1.6 2009/04/16 14:38:30 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <string.h>
@@ -136,7 +136,7 @@ int xacml_result_addobligation(xacml_result_t * result, xacml_obligation_t * obl
 
 size_t xacml_result_obligations_length(const xacml_result_t * result) {
 	if (result == NULL) {
-		log_error("xacml_result_obligations_length: NULL result.");
+		log_warn("xacml_result_obligations_length: NULL result.");
 		return 0;
 	}
 	return llist_length(result->obligations);
