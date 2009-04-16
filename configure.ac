@@ -1,10 +1,10 @@
 #                                              -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 #
-# $Id: configure.ac,v 1.30 2009/04/16 14:44:35 vtschopp Exp $
+# $Id: configure.ac,v 1.31 2009/04/16 15:10:03 vtschopp Exp $
 #
 
-AC_INIT(glite-authz-pep-c, 1.1.5-1, grid@switch.ch)
+AC_INIT(glite-authz-pep-c, 1.1.5-2, grid@switch.ch)
 AC_CONFIG_AUX_DIR(project)
 
 # OSX requires ./configure --disable-dependency-tracking to compile, others don't care
