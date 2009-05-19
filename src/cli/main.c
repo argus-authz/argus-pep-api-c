@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: main.c,v 1.14 2009/05/19 12:49:27 vtschopp Exp $
+ * $Id: main.c,v 1.15 2009/05/19 12:53:14 vtschopp Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -647,11 +647,12 @@ static void show_help() {
 	fprintf(stdout,"\n");
 	fprintf(stdout,"Options:\n");
 	fprintf(stdout," -p|--pepd <URL>         PEPd endpoint URL. Add multiple --pepd options for failover\n");
-	fprintf(stdout," -c|--certchain <FILE>   XACML Subject cert-chain: proxy or X509 file\n");
 	fprintf(stdout," -s|--subjectid <DN>     XACML Subject identifier: user DN (format RFC2253)\n");
+	fprintf(stdout," -c|--certchain <FILE>   XACML Subject cert-chain: proxy or X509 file\n");
+	fprintf(stdout," -f|--fqan <FQAN>        XACML Subject voms-primary-fqan and voms-fqan.\n");
+	fprintf(stdout,"                         Add multiple --fqan options for secondary FQANs\n");
 	fprintf(stdout," -r|--resourceid <URI>   XACML Resource identifier\n");
 	fprintf(stdout," -a|--actionid <URI>     XACML Action identifier\n");
-	fprintf(stdout," -f|--fqan <FQAN>        VOMS FQAN. Add multiple --fqan options for secondary FQANs\n");
 	fprintf(stdout," -t|--timeout <SEC>      Connection timeout in second\n");
 	fprintf(stdout," -x|--requestcontext     Show effective XACML Request context\n");
 	fprintf(stdout," -v|--verbose            Verbose\n");
