@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: main.c,v 1.13 2009/04/16 15:01:27 vtschopp Exp $
+ * $Id: main.c,v 1.14 2009/05/19 12:49:27 vtschopp Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -92,6 +92,9 @@ static char * actionid= NULL;
 // PEM cert delimiters for certchain
 static const char CERT_BEGIN[]= "-----BEGIN CERTIFICATE-----";
 static const char CERT_END[]= "-----END CERTIFICATE-----";
+
+// special ObligationId: x-posix-account-map
+static const char X_POSIX_ACCOUNT_MAP[]= "x-posix-account-map";
 
 /**
  * Reads the certificate file and returns the content as a buffer.
@@ -221,6 +224,14 @@ static xacml_subject_t * create_xacml_subject_voms_fqans(linkedlist_t * fqans_li
 		return NULL;
 	}
 	int i= 0;
+	// all FQANs are voms-fqan Attributes
+	xacml_attribute_t * voms_fqan= xacml_attribute_create(XACML_AUTHZINTEROP_SUBJECT_VOMS_FQAN);
+	if (voms_fqan==NULL) {
+		show_error("can not allocate XACML Subject/Attribute: %s",XACML_AUTHZINTEROP_SUBJECT_VOMS_FQAN);
+		xacml_subject_delete(subject);
+		return NULL;
+	}
+	xacml_attribute_setdatatype(voms_fqan,XACML_DATATYPE_STRING);
 	for (i= 0; i<fqans_l; i++) {
 		char * fqan= (char *)llist_get(fqans_list,i);
 		if (fqan==NULL) {
@@ -228,6 +239,7 @@ static xacml_subject_t * create_xacml_subject_voms_fqans(linkedlist_t * fqans_li
 			xacml_subject_delete(subject);
 			return NULL;
 		}
+		xacml_attribute_addvalue(voms_fqan,fqan);
 		if (i==0) {
 			// fist FQAN is the voms-primary-fqan Attribute
 			xacml_attribute_t * voms_primary_fqan= xacml_attribute_create(XACML_AUTHZINTEROP_SUBJECT_VOMS_PRIMARY_FQAN);
@@ -240,18 +252,37 @@ static xacml_subject_t * create_xacml_subject_voms_fqans(linkedlist_t * fqans_li
 			xacml_attribute_addvalue(voms_primary_fqan,fqan);
 			xacml_subject_addattribute(subject,voms_primary_fqan);
 		}
-		// all FQANs are voms-fqan Attributes
-		xacml_attribute_t * voms_fqan= xacml_attribute_create(XACML_AUTHZINTEROP_SUBJECT_VOMS_FQAN);
-		if (voms_fqan==NULL) {
-			show_error("can not allocate XACML Subject/Attribute: %s",XACML_AUTHZINTEROP_SUBJECT_VOMS_FQAN);
-			xacml_subject_delete(subject);
-			return NULL;
-		}
-		xacml_attribute_setdatatype(voms_fqan,XACML_DATATYPE_STRING);
-		xacml_attribute_addvalue(voms_fqan,fqan);
-		xacml_subject_addattribute(subject,voms_fqan);
 	}
+	xacml_subject_addattribute(subject,voms_fqan);
 	return subject;
+}
+
+/**
+ * Merges the attributes of the first XACML Subject into the second Subject.
+ * WARNING: the attributes values are not copied, only the attributes pointers.
+ *
+ * @param from_subject The XACML Subject to copy from, can be NULL.
+ * @param to_subject The XACML Subject to copy attributes into, can NOT be NULL.
+ * @return 0 or a negative int on error.
+ */
+static int merge_xacml_subject_attrs_into(xacml_subject_t * from_subject, xacml_subject_t * to_subject) {
+	if (to_subject==NULL) {
+		show_error("destination XACML Subject is NULL");
+		return -1;
+	}
+	if (from_subject==NULL) {
+		return 0;
+	}
+	size_t l= xacml_subject_attributes_length(from_subject);
+	int i= 0;
+	for(i= 0; i<l; i++) {
+		xacml_attribute_t * attr= xacml_subject_getattribute(from_subject,i);
+		if (xacml_subject_addattribute(to_subject,attr)!=PEP_XACML_OK) {
+			show_error("failed to merge attribute %d into Subject",i);
+			return -2;
+		}
+	}
+	return 0;
 }
 
 /**
@@ -563,6 +594,9 @@ static int show_human_response(xacml_response_t * response) {
 				if (strcmp(XACML_AUTHZINTEROP_OBLIGATION_SECONDARY_GIDS,obligation_id)==0) {
 					fprintf(stdout,"Secondary GIDs=");
 				}
+				else if (strcmp(X_POSIX_ACCOUNT_MAP,obligation_id)==0) {
+					fprintf(stdout,"Obligation(%s): Application should do the POSIX account mapping",X_POSIX_ACCOUNT_MAP);
+				}
 				for (k= 0; k<attrs_l; k++) {
 					xacml_attributeassignment_t * attr= xacml_obligation_getattributeassignment(obligation,k);
 					const char * attr_id= xacml_attributeassignment_getid(attr);
@@ -811,22 +845,23 @@ int main(int argc, char **argv) {
 		show_warn("failed to disable PEPd SSL validation: %s",pep_strerror(pep_rc));
 	}
 
-	show_debug("create XACML request");
-	xacml_subject_t * subject= create_xacml_subject_id(subjectid);
+	show_debug("create XACML subject");
+	xacml_subject_t * subject= xacml_subject_create();
+	// subject-id, cert-chain and VOMS FQANs are all one Subject!!!
+	xacml_subject_t * subject_id= create_xacml_subject_id(subjectid);
+	merge_xacml_subject_attrs_into(subject_id,subject);
+	xacml_subject_t * subject_certchain= create_xacml_subject_certchain(certchain);
+	merge_xacml_subject_attrs_into(subject_certchain,subject);
+	xacml_subject_t * subject_voms_fqan= create_xacml_subject_voms_fqans(fqans);
+	merge_xacml_subject_attrs_into(subject_voms_fqan,subject);
+	// resource-id and action-id
 	xacml_resource_t * resource= create_xacml_resource_id(resourceid);
 	xacml_action_t * action= create_xacml_action_id(actionid);
+	show_debug("create XACML request");
 	xacml_request_t * request= create_xacml_request(subject,resource,action);
 	if (request==NULL) {
 		show_error("failed to create XACML request");
 		exit(E_XACMLREQ);
-	}
-	if (certchain!=NULL) {
-		xacml_subject_t * subject_certchain= create_xacml_subject_certchain(certchain);
-		xacml_request_addsubject(request,subject_certchain);
-	}
-	if (fqans_l>0) {
-		xacml_subject_t * subject_voms_fqan= create_xacml_subject_voms_fqans(fqans);
-		xacml_request_addsubject(request,subject_voms_fqan);
 	}
 
 	// submit request
