@@ -5,6 +5,7 @@ PEP-C 1.1.5
 * pepcli: simple human readable output by default, use --verbose for old style output.
 * bug fix: all size_t ..._length(...) functions return 0 on error.
 * bug fix: pepcli check for NULL action or environment in request.
+* bug fix: pepcli --subjectid, --certchain and --fqan options generate only one XACML Subject.
 
 PEP-C 1.1.4
 -----------
@@ -42,5 +43,5 @@ PEP-C 1.0.0
 beta release of the PEP-C thin client.
 
 --
-$Id: CHANGELOG,v 1.9 2009/04/16 14:42:29 vtschopp Exp $
+$Id: CHANGELOG,v 1.10 2009/05/19 12:45:44 vtschopp Exp $
 
