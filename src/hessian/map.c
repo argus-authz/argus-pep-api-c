@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: map.c,v 1.4 2009/04/15 14:33:04 vtschopp Exp $
+ * $Id: map.c,v 1.5 2009/05/19 12:43:44 vtschopp Exp $
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -312,7 +312,7 @@ static int hessian_map_deserialize (hessian_object_t * object, int tag, BUFFER *
     	}
     	if (llist_add(self->map,pair) != LLIST_OK) {
 			log_error("hessian_map_deserialize: can't add map pair<key,value> to pairs list.");
-			// FIXME: delete list content! see dtor...
+			// delete list content! see dtor...
 			llist_delete(refs);
     		llist_delete(self->map);
     		return HESSIAN_ERROR;
