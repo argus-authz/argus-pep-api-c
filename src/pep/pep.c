@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: pep.c,v 1.17 2009/03/24 12:45:07 vtschopp Exp $
+ * $Id: pep.c,v 1.18 2009/05/19 12:36:09 vtschopp Exp $
  */
 #include <stdarg.h>  /* va_list, va_arg, ... */
 #include <string.h>
@@ -146,7 +146,7 @@ pep_error_t pep_addobligationhandler(pep_obligationhandler_t * oh) {
 	return PEP_OK;
 }
 
-// FIXME: implement all options
+// TODO: implement all options
 pep_error_t pep_setoption(pep_option_t option, ... ) {
 	pep_error_t rc= PEP_OK;
 	va_list args;

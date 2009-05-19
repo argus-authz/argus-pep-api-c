@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: error.c,v 1.7 2009/03/19 14:18:37 vtschopp Exp $
+ * $Id: error.c,v 1.8 2009/05/19 12:37:07 vtschopp Exp $
  */
 #include <string.h>
 #include <stdio.h>
@@ -43,7 +43,7 @@ typedef enum pep_error {
 } pep_error_t;
  */
 
-// FIXME: find meaningful error messages, that admin (human) can understand
+// TODO: find meaningful error messages, that admin (human) can understand
 static const char * ERROR_STRINGS[]= {
 		"OK",
 		"Memory allocation error",
