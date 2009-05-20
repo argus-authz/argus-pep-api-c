@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: main.c,v 1.15 2009/05/19 12:53:14 vtschopp Exp $
+ * $Id: main.c,v 1.16 2009/05/20 09:15:24 vtschopp Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,7 +26,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"  /* PACKAGE_NAME and PACKAGE_VERSION const */
 #else
-#define PACKAGE_VERSION "1.0.0"
+#define PACKAGE_VERSION "0.0.0"
 #endif
 
 #include "util/buffer.h"
@@ -595,7 +595,7 @@ static int show_human_response(xacml_response_t * response) {
 					fprintf(stdout,"Secondary GIDs=");
 				}
 				else if (strcmp(X_POSIX_ACCOUNT_MAP,obligation_id)==0) {
-					fprintf(stdout,"Obligation(%s): Application should do the POSIX account mapping",X_POSIX_ACCOUNT_MAP);
+					fprintf(stdout,"Obligation(%s): Application should do the POSIX account mapping\n",X_POSIX_ACCOUNT_MAP);
 				}
 				for (k= 0; k<attrs_l; k++) {
 					xacml_attributeassignment_t * attr= xacml_obligation_getattributeassignment(obligation,k);
