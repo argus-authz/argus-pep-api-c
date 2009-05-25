@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: main.c,v 1.16 2009/05/20 09:15:24 vtschopp Exp $
+ * $Id: main.c,v 1.17 2009/05/25 14:19:52 vtschopp Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -581,7 +581,7 @@ static int show_human_response(xacml_response_t * response) {
 			}
 		}
 		size_t obligations_l= xacml_result_obligations_length(result);
-		if (obligations_l==0) {
+		if (obligations_l==0i && decision==XACML_DECISION_PERMIT) {
 			fprintf(stdout,"No Obligation received\n");
 		}
 		int j, k, l;
@@ -641,14 +641,14 @@ static int show_human_response(xacml_response_t * response) {
  */
 static void show_help() {
 	fprintf(stdout,"PEP-C client CLI v." PACKAGE_VERSION "\n");
-	fprintf(stdout,"Usage: pepcli --pepd <URL> [options...]\n");
+	fprintf(stdout,"Usage: pepcli --pepd <URL> (--certchain <FILE> | --subjectid <DN>) [options...]\n");
 	fprintf(stdout,"\n");
 	fprintf(stdout,"Submit a XACML Request to the PEPd and show the XACML Response.\n");
 	fprintf(stdout,"\n");
 	fprintf(stdout,"Options:\n");
 	fprintf(stdout," -p|--pepd <URL>         PEPd endpoint URL. Add multiple --pepd options for failover\n");
-	fprintf(stdout," -s|--subjectid <DN>     XACML Subject identifier: user DN (format RFC2253)\n");
 	fprintf(stdout," -c|--certchain <FILE>   XACML Subject cert-chain: proxy or X509 file\n");
+	fprintf(stdout," -s|--subjectid <DN>     XACML Subject identifier: user DN (format RFC2253)\n");
 	fprintf(stdout," -f|--fqan <FQAN>        XACML Subject voms-primary-fqan and voms-fqan.\n");
 	fprintf(stdout,"                         Add multiple --fqan options for secondary FQANs\n");
 	fprintf(stdout," -r|--resourceid <URI>   XACML Resource identifier\n");
@@ -693,7 +693,7 @@ int main(int argc, char **argv) {
 			verbose= 1;
 			break;
 		case 'x':
-			show_debug("effective Request context.");
+			show_debug("show effective Request context.");
 			req_context= 1;
 			break;
 		case 'p':
@@ -755,13 +755,24 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	// check mandatory options
+	// check mandatory options: --pepd URL (--certchain FILE|--subjectid ID)
 	size_t pepds_l= llist_length(pepds);
 	if (pepds_l<1) {
-		show_error("mandatory option --pepd <URL> is missing");
-		show_help();
+		show_error("the mandatory option --pepd <URL> is missing");
+		//show_help();
 		exit(E_OPTION);
 	}
+    if (certchain_filename==NULL && subjectid==NULL) {
+		show_error("one of the mandatory option --certchain <FILE> or --subjectid <DN> is missing");
+		//show_help();
+		exit(E_OPTION);        
+    }
+    // mutually exclusive
+    if (certchain_filename!=NULL && subjectid!=NULL) {
+		show_error("the mandatory options --certchain <FILE> or --subjectid <DN> are mutually exclusive");
+		//show_help();
+		exit(E_OPTION);        
+    }
 
 	// show parameters
 	int i= 0;
