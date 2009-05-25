@@ -1,10 +1,10 @@
 .\" Copyright (c) 2009, Members of the EGEE Collaboration.
 .\" PEP-C client CLI: pepcli
 .\" Valery Tschopp - SWITCH
-.\" $Id: pepcli.1,v 1.1 2009/05/25 13:27:07 vtschopp Exp $
-.TH pepcli 1 "May 2009" "pepcli 1.1.5" "gLite Authorization Framework"
+.\" $Id: pepcli.1,v 1.2 2009/05/25 13:56:42 vtschopp Exp $
+.TH pepcli 1 "May 2009" "pepcli 1.1.5" "EGEE Authorization Framework"
 .SH NAME
-pepcli \- command line interface to the gLite Authorization PEP-C client library
+pepcli \- command line interface to the EGEE Authorization PEP-C client library
 .SH SYNOPSIS
 .B pepcli
 \-\-pepd
@@ -15,7 +15,10 @@ pepcli \- command line interface to the gLite Authorization PEP-C client library
 .I ID
 ) [options...]
 .SH DESCRIPTION
-blablabla
+The 
+.B pepcli
+command is the command line interface to the EGEE Authorization PEP-C client library. 
+This command allow user to submit a XACML Request to a PEP daemon (PEPd) and to receive the XACML Response back.
 .SH OPTIONS
 .TP
 \fB\-p\fR \fIURL\fR, \fB\-\-pepd\fR \fIURL\fR
@@ -96,8 +99,9 @@ Display a short help text.
 .SH EXIT STATUS
 The
 .B pepcli
-command returns a \fB0\fR exit status if it succeeds to send the XACML Request to the PEP daemon and receives a valid
-XACML Response. Non zero is returned in case of failure.
+command returns a \fB0\fR exit status if it succeeds to submit the XACML Request to a PEP daemon (PEPd) and receives a valid
+XACML Response. The XACML Response decision (Permit, Deny, Not Applicable, Indeterminate) does not influence the exit status.
+Non zero is returned in case of failure.
 .TP
 .BR 0
 Success.
@@ -123,3 +127,10 @@ The PEP-C client library and the
 command are written by Valery Tschopp - SWITCH
 .SH COPYRIGHT
 Copyright \(co 2009, EGEE
+.SH SEE ALSO
+.TP 
+.I The EGEE Authorization Framework
+https://twiki.cern.ch/twiki/bin/view/EGEE/AuthorizationFramework
+.TP
+.I Authorization Service: Policy Enforcement Point (PEP)
+https://twiki.cern.ch/twiki/bin/view/EGEE/AuthZPEP
