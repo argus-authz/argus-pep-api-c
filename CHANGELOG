@@ -1,10 +1,12 @@
 PEP-C 1.1.5
 -----------
 * xacml.h: XACML and AuthZ Interop XACML identifier constants added.
-* pepcli: --fqan option added.
+* pepcli: man page pepcli(1) added.
+* pepcli: options --certchain or --subjectid are mutually exclusive and mandatory.
+* pepcli: option --fqan option added. multiple --fqan options generate secondary FQAN, first is primary.
 * pepcli: simple human readable output by default, use --verbose for old style output.
-* pepcli: --subjectid, --certchain and --fqan options generate only one XACML Subject.
-* pepcli: multiple --fqan options generate only one multivalued XACML Attribute voms-fqan.
+* pepcli: options --subjectid, --certchain and --fqan generate only one XACML Subject.
+* pepcli: multiple --fqan options generate only one multivalued XACML Attribute voms-fqan in XACML Subject.
 * bug fix: all size_t ..._length(...) functions return 0 on error.
 * bug fix: pepcli check for NULL action or environment in request.
 
@@ -44,5 +46,5 @@ PEP-C 1.0.0
 beta release of the PEP-C thin client.
 
 --
-$Id: CHANGELOG,v 1.11 2009/05/19 12:47:58 vtschopp Exp $
+$Id: CHANGELOG,v 1.12 2009/05/25 13:28:12 vtschopp Exp $
 
