@@ -1,0 +1,125 @@
+.\" Copyright (c) 2009, Members of the EGEE Collaboration.
+.\" PEP-C client CLI: pepcli
+.\" Valery Tschopp - SWITCH
+.\" $Id: pepcli.1,v 1.1 2009/05/25 13:27:07 vtschopp Exp $
+.TH pepcli 1 "May 2009" "pepcli 1.1.5" "gLite Authorization Framework"
+.SH NAME
+pepcli \- command line interface to the gLite Authorization PEP-C client library
+.SH SYNOPSIS
+.B pepcli
+\-\-pepd
+.I URL 
+(\-\-certchain 
+.I FILE
+| \-\-subjectid 
+.I ID
+) [options...]
+.SH DESCRIPTION
+blablabla
+.SH OPTIONS
+.TP
+\fB\-p\fR \fIURL\fR, \fB\-\-pepd\fR \fIURL\fR
+Specify the 
+.B mandatory
+PEP daemon (PEPd) endpoint
+.I URL.
+Add multiple \fB\-\-pepd\fR \fIURL\fR options for failover.
+.TP
+\fB\-c\fR \fIFILE\fR, \fB\-\-certchain\fR \fIFILE\fR
+Set the
+.B mandatory, and mutually exclusive with the \-\-subjectid option, 
+XACML Subject attribute identifier
+.B cert\-chain
+with the value read from
+.IR FILE .
+The 
+.I FILE
+contains a PEM encoded user certificate (X509) or proxy certificate. 
+.TP
+\fB\-s\fR \fIID\fR, \fB\-\-subjectid\fR \fIID\fR
+Set the
+.B mandatory, and mutually exclusive with the \-\-certchain option, 
+XACML Subject attribute identifier
+.B subject\-id
+with the value set as the
+.IR ID
+argument. The
+.I ID
+is typically a user certificate subject DN in RFC2253 format.
+.TP
+\fB\-f\fR \fIFQAN\fR, \fB\-\-fqan\fR \fIFQAN\fR
+Set the XACML Subject attribute identifiers
+.B voms\-primary\-fqan
+and
+.B voms\-fqan
+with the value(s) set as the
+.IR FQAN 
+argument.
+Add multiple \fB\-\-fqan\fR \fIFQAN\fR options for secondary FQANs. The first \fB\-\-fqan\fR \fIFQAN\fR 
+option will always be the \fBvoms-primary-fqan\fR attribute value. All specified \fB\-\-fqan\fR \fIFQAN\fR 
+option arguments will be set as the \fBvoms-fqan\fR multi-valued attribute values.
+.TP
+\fB\-r\fR \fIURI\fR, \fB\-\-resourceid\fR \fIURI\fR
+Set the XACML Resource attribute identifier
+.B resource\-id
+with the value set as the
+.IR URI
+argument.
+.TP
+\fB\-a\fR \fIURI\fR, \fB\-\-actionid\fR \fIURI\fR
+Set the XACML Action attribute identifier
+.B action\-id
+with the value set as the
+.IR URI
+argument.
+.TP
+\fB\-t\fR \fISEC\fR, \fB\-\-timeout\fR \fISEC\fR
+Set the PEPd connection timeout to 
+.I SEC
+second. The default timeout is 10 seconds.
+.TP
+.BR \-v , " \-\-verbose"
+Display verbose information.
+.TP
+.BR \-x , " \-\-requestcontext"
+Display the effective XACML Request context, as processed by the PEP daemon.
+Use in conjonction with the \fB\-\-verbose\fR option.
+.TP
+.BR \-q , " \-\-quiet"
+Turn off command output, only the exit status is returned.
+.TP
+.BR \-d , " \-\-debug"
+Display debug information.
+.TP
+.BR \-h , " \-\-help"
+Display a short help text.
+.SH EXIT STATUS
+The
+.B pepcli
+command returns a \fB0\fR exit status if it succeeds to send the XACML Request to the PEP daemon and receives a valid
+XACML Response. Non zero is returned in case of failure.
+.TP
+.BR 0
+Success.
+.TP
+.BR 1
+Memory allocation error.
+.TP
+.BR 2
+Invalid command option.
+.TP
+.BR 3
+The \fB\-\-certchain\fR argument \fIFILE\fR file does not exist or does not contain a PEM encoded certificate (missing certificate block).
+.TP
+.BR 4
+XACML object creation error.
+.TP
+.BR 5
+Other PEP-C client library error, see output for more information.
+
+.SH AUTHORS
+The PEP-C client library and the 
+.B pepcli
+command are written by Valery Tschopp - SWITCH
+.SH COPYRIGHT
+Copyright \(co 2009, EGEE
