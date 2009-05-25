@@ -2,7 +2,7 @@ PEP-C 1.1.5
 -----------
 * xacml.h: XACML and AuthZ Interop XACML identifier constants added.
 * pepcli: man page pepcli(1) added.
-* pepcli: options --certchain or --subjectid are mutually exclusive and mandatory.
+* pepcli: options --certchain or --subjectid are mandatory but mutually exclusive.
 * pepcli: option --fqan option added. multiple --fqan options generate secondary FQAN, first is primary.
 * pepcli: simple human readable output by default, use --verbose for old style output.
 * pepcli: options --subjectid, --certchain and --fqan generate only one XACML Subject.
@@ -46,5 +46,5 @@ PEP-C 1.0.0
 beta release of the PEP-C thin client.
 
 --
-$Id: CHANGELOG,v 1.12 2009/05/25 13:28:12 vtschopp Exp $
+$Id: CHANGELOG,v 1.13 2009/05/25 14:19:19 vtschopp Exp $
 
