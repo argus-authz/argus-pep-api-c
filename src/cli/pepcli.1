@@ -1,31 +1,24 @@
 .\" Copyright (c) 2009, Members of the EGEE Collaboration.
 .\" PEP-C client CLI: pepcli(1) man page
 .\" Valery Tschopp - SWITCH
-.\" $Id: pepcli.1,v 1.3 2009/05/26 12:07:37 vtschopp Exp $
+.\" $Id: pepcli.1,v 1.4 2009/05/26 12:21:32 vtschopp Exp $
 .TH pepcli 1 "May 2009" "pepcli 1.1.5" "EGEE Authorization Framework"
 .SH NAME
 pepcli \- command line interface to the EGEE Authorization PEP-C client library
 .SH SYNOPSIS
-.B pepcli
-\-\-pepd
-.I URL 
-(\-\-certchain 
-.I FILE
-| \-\-subjectid 
-.I ID
-) [options...]
+\fBpepcli\fR \-\-pepd \fIURL\fR (\-\-certchain \fIFILE\fR | \-\-subjectid \fIID\fR) [options...]
 .SH DESCRIPTION
 The 
 .B pepcli
 command is the command line interface to the EGEE Authorization PEP-C client library. 
 This command allow user to submit a XACML Request to a PEP daemon (PEPd) and to receive the XACML Response back.
+The XACML Response decision and any received Obligations are displayed as result.
 .SH OPTIONS
 .TP
 \fB\-p\fR \fIURL\fR, \fB\-\-pepd\fR \fIURL\fR
 Specify the 
 .B mandatory
-PEP daemon (PEPd) endpoint
-.I URL.
+PEP daemon (PEPd) endpoint \fIURL\fR.
 Add multiple \fB\-\-pepd\fR \fIURL\fR options for failover.
 .TP
 \fB\-c\fR \fIFILE\fR, \fB\-\-certchain\fR \fIFILE\fR
@@ -60,7 +53,7 @@ with the value(s) set as the
 argument.
 Add multiple \fB\-\-fqan\fR \fIFQAN\fR options for secondary FQANs. The first \fB\-\-fqan\fR \fIFQAN\fR 
 option will always be the \fBvoms-primary-fqan\fR attribute value. All specified \fB\-\-fqan\fR \fIFQAN\fR 
-option arguments will be set as the \fBvoms-fqan\fR multi-valued attribute values.
+option arguments will be add into the \fBvoms-fqan\fR multi-valued attribute values.
 .TP
 \fB\-r\fR \fIURI\fR, \fB\-\-resourceid\fR \fIURI\fR
 Set the XACML Resource attribute identifier
@@ -86,7 +79,7 @@ Display verbose information.
 .TP
 .BR \-x , " \-\-requestcontext"
 Display the effective XACML Request context, as processed by the PEP daemon.
-Use in conjonction with the \fB\-\-verbose\fR option.
+Use this option with the \fB\-\-verbose\fR option.
 .TP
 .BR \-q , " \-\-quiet"
 Turn off command output, only the exit status is returned.
