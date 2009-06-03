@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: main.c,v 1.17 2009/05/25 14:19:52 vtschopp Exp $
+ * $Id: main.c,v 1.18 2009/06/03 14:03:41 vtschopp Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -591,7 +591,7 @@ static int show_human_response(xacml_response_t * response) {
 			if (fulfillon == decision) {
 				const char * obligation_id= xacml_obligation_getid(obligation);
 				size_t attrs_l= xacml_obligation_attributeassignments_length(obligation);
-				if (strcmp(XACML_AUTHZINTEROP_OBLIGATION_SECONDARY_GIDS,obligation_id)==0) {
+				if (strcmp(XACML_AUTHZINTEROP_OBLIGATION_SECONDARY_GIDS,obligation_id)==0 && attrs_l>0) {
 					fprintf(stdout,"Secondary GIDs=");
 				}
 				else if (strcmp(X_POSIX_ACCOUNT_MAP,obligation_id)==0) {
@@ -641,7 +641,9 @@ static int show_human_response(xacml_response_t * response) {
  */
 static void show_help() {
 	fprintf(stdout,"PEP-C client CLI v." PACKAGE_VERSION "\n");
-	fprintf(stdout,"Usage: pepcli --pepd <URL> (--certchain <FILE> | --subjectid <DN>) [options...]\n");
+	fprintf(stdout,"Usage:\n");
+    fprintf(stdout,"    pepcli --pepd <URL> --certchain <FILE> [options...]\n");
+	fprintf(stdout,"    pepcli --pepd <URL> --subjectid <DN> [options...]\n");
 	fprintf(stdout,"\n");
 	fprintf(stdout,"Submit a XACML Request to the PEPd and show the XACML Response.\n");
 	fprintf(stdout,"\n");
