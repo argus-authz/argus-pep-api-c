@@ -1,10 +1,10 @@
 .\" Copyright (c) 2009, Members of the EGEE Collaboration.
 .\" PEP-C client CLI: pepcli(1) man page
 .\" Valery Tschopp - SWITCH
-.\" $Id: pepcli.1,v 1.5 2009/05/26 15:07:48 vtschopp Exp $
-.TH pepcli 1 "May 2009" "pepcli 1.1.5" "EGEE Authorization Framework"
+.\" $Id: pepcli.1,v 1.6 2009/06/03 14:02:18 vtschopp Exp $
+.TH pepcli 1 "May 2009" "pepcli 1.1.5" "gLite Authorization Service"
 .SH NAME
-pepcli \- command line interface to the EGEE Authorization PEP-C client library
+pepcli \- command line interface to the gLite Authorization PEP-C client library
 .SH SYNOPSIS
 \fBpepcli\fR \-\-pepd \fIURL\fR \-\-certchain \fIFILE\fR [options...]
 .PP
@@ -12,9 +12,9 @@ pepcli \- command line interface to the EGEE Authorization PEP-C client library
 .SH DESCRIPTION
 The 
 .B pepcli
-command is the command line interface to the EGEE Authorization PEP-C client library. 
+command is the command line interface to the gLite Authorization PEP-C client library. 
 This command allow user to submit a XACML Request to a PEP daemon (PEPd) and to receive the XACML Response back.
-The XACML Response decision and any received Obligations are displayed as result.
+The XACML Response decision and the received Obligations are displayed as result.
 .SH OPTIONS
 .TP
 \fB\-p\fR \fIURL\fR, \fB\-\-pepd\fR \fIURL\fR
@@ -126,7 +126,7 @@ command are written by Valery Tschopp - SWITCH
 Copyright \(co 2009, EGEE
 .SH SEE ALSO
 .TP 
-.I The EGEE Authorization Framework
+.I The gLite Authorization Service
 https://twiki.cern.ch/twiki/bin/view/EGEE/AuthorizationFramework
 .TP
 .I Authorization Service: Policy Enforcement Point (PEP)
