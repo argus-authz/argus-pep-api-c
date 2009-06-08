@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: main.c,v 1.18 2009/06/03 14:03:41 vtschopp Exp $
+ * $Id: main.c,v 1.19 2009/06/08 11:36:17 vtschopp Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,27 +51,19 @@ void log_handler_pep(int level, const char * format, va_list args);
 
 // program options
 static struct option long_options[] = {
-   // verbose
-   {"verbose", no_argument, 0, 'v'},
    // PEPd endpoint URL(s)
    {"pepd", required_argument, 0, 'p'},
-   // connection timeout (sec)
-   {"timeout", required_argument, 0, 't'},
-   // ResourceId URN
-   {"resourceid", required_argument, 0, 'r'},
-   // ActionId URN
-   {"actionid", required_argument, 0, 'a'},
-   // Proxy X509 certificate filename
    {"certchain", required_argument, 0, 'c'},
-   // Display effective Request context
-   {"context",  no_argument,  0, 'x'},
-   // VOMS FQAN(s). the first one is the primary FQAN
+   {"subjectid", required_argument, 0, 's'},
    {"fqan",  required_argument,  0, 'f'},
-   // Display help
-   {"help",  no_argument,  0, 'h'},
-   // be quiet
+   {"resourceid", required_argument, 0, 'r'},
+   {"actionid", required_argument, 0, 'a'},
+   {"timeout", required_argument, 0, 't'},
+   {"requestcontext",  no_argument,  0, 'x'},
+   {"verbose", no_argument, 0, 'v'},
    {"quiet",  no_argument,  0, 'q'},
    {"debug",  no_argument,  0, 'd'},
+   {"help",  no_argument,  0, 'h'},
    {0, 0, 0, 0}
 };
 
