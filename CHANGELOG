@@ -9,6 +9,7 @@ PEP-C 1.1.5
 * pepcli: multiple --fqan options generate only one multivalued XACML Attribute voms-fqan in XACML Subject.
 * bug fix: all size_t ..._length(...) functions return 0 on error.
 * bug fix: pepcli check for NULL action or environment in request.
+* bug fix: long option --subjectid checked.
 
 PEP-C 1.1.4
 -----------
@@ -46,5 +47,5 @@ PEP-C 1.0.0
 beta release of the PEP-C thin client.
 
 --
-$Id: CHANGELOG,v 1.13 2009/05/25 14:19:19 vtschopp Exp $
+$Id: CHANGELOG,v 1.14 2009/06/08 12:06:20 vtschopp Exp $
 
