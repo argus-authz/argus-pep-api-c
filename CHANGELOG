@@ -1,3 +1,8 @@
+PEP-C 1.1.6
+-----------
+* source code moved to subversion.
+* bug fix: long option --subjectid added.
+
 PEP-C 1.1.5
 -----------
 * xacml.h: XACML and AuthZ Interop XACML identifier constants added.
@@ -9,7 +14,6 @@ PEP-C 1.1.5
 * pepcli: multiple --fqan options generate only one multivalued XACML Attribute voms-fqan in XACML Subject.
 * bug fix: all size_t ..._length(...) functions return 0 on error.
 * bug fix: pepcli check for NULL action or environment in request.
-* bug fix: long option --subjectid checked.
 
 PEP-C 1.1.4
 -----------
