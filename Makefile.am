@@ -3,7 +3,7 @@
 #
 
 SUBDIRS = src 
-EXTRA_DIST = LICENSE CHANGELOG autotools.sh project/version.properties test/test_pep.c test/Makefile doc/html
+EXTRA_DIST = LICENSE CHANGELOG autotools.sh test/test_pep.c test/Makefile doc/html
 
 docdir = $(datadir)/doc/$(PACKAGE)
 doc_DATA = AUTHORS CHANGELOG LICENSE
