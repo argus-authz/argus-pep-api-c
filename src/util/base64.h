@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: base64.h,v 1.1 2008/12/12 11:32:49 vtschopp Exp $
+ * $Id$
  */
 #ifndef _BASE64_H_
 #define _BASE64_H_

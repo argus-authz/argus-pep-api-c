@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.6 2009/03/25 12:47:43 vtschopp Exp $
+# $Id$
 #
 
 noinst_LTLIBRARIES = libhessian.la

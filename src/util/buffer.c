@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: buffer.c,v 1.3 2009/04/15 14:34:18 vtschopp Exp $
+ * $Id$
  */
 #include <stdio.h>
 #include <stdlib.h>

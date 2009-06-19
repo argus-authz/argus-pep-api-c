@@ -1,7 +1,7 @@
 #                                              -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 #
-# $Id: configure.ac,v 1.35 2009/06/08 12:07:03 vtschopp Exp $
+# $Id$
 #
 
 AC_INIT(glite-authz-pep-c, 1.1.6-1, grid@switch.ch)

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * $Id: xacml.h,v 1.13 2009/04/15 12:34:32 vtschopp Exp $
+ * $Id$
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.1

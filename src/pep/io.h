@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: io.h,v 1.5 2009/03/20 12:45:18 vtschopp Exp $
+ * $Id$
  */
 #ifndef _PEP_IO_H_
 #define _PEP_IO_H_

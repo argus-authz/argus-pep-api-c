@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: map.c,v 1.5 2009/05/19 12:43:44 vtschopp Exp $
+ * $Id$
  */
 #include <stdlib.h>
 #include <stdio.h>

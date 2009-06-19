@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: main.c,v 1.19 2009/06/08 11:36:17 vtschopp Exp $
+ * $Id$
  */
 #include <stdio.h>
 #include <stdlib.h>

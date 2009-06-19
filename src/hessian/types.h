@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: types.h,v 1.1 2008/12/12 11:33:43 vtschopp Exp $
+ * $Id$
  */
 
 /******************************************/

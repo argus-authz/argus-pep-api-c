@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: log.h,v 1.5 2009/02/20 12:00:18 vtschopp Exp $
+ * $Id$
  */
 #ifndef _LOG_H_
 #define _LOG_H_

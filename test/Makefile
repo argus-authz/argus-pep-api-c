@@ -1,5 +1,5 @@
 #
-# $Id: Makefile,v 1.4 2009/03/20 09:32:12 vtschopp Exp $
+# $Id$
 #
 GLITE_LOCATION ?= /opt/glite
 

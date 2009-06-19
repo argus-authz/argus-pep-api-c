@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.4 2009/05/25 13:27:07 vtschopp Exp $
+# $Id$
 #
 
 #

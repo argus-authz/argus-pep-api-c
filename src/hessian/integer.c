@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: integer.c,v 1.3 2009/01/29 16:11:07 vtschopp Exp $
+ * $Id$
  */
 #include <stdlib.h>
 #include <stdio.h>

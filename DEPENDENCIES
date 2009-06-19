@@ -2,4 +2,4 @@ PEP-C client library dependencies
 ---------------------------------
 * libcurl
 --
-$Id: DEPENDENCIES,v 1.4 2009/03/24 13:29:16 vtschopp Exp $
+$Id$

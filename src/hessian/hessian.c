@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: hessian.c,v 1.3 2009/01/29 15:17:53 vtschopp Exp $
+ * $Id$
  */
 #include <stdlib.h>
 #include <string.h>

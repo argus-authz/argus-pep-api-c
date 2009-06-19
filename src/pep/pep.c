@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: pep.c,v 1.18 2009/05/19 12:36:09 vtschopp Exp $
+ * $Id$
  */
 #include <stdarg.h>  /* va_list, va_arg, ... */
 #include <string.h>

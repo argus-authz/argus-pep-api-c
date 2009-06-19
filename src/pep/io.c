@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: io.c,v 1.11 2009/03/23 09:39:43 vtschopp Exp $
+ * $Id$
  */
 
 #include <string.h>

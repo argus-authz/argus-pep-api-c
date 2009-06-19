@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * $Id: error.h,v 1.6 2009/03/17 12:04:24 vtschopp Exp $
+ * $Id$
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.0

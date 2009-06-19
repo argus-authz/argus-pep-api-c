@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: status.c,v 1.4 2009/03/13 12:02:17 vtschopp Exp $
+ * $Id$
  */
 #include <stdlib.h>
 #include <string.h>

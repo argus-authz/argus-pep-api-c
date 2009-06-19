@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.11 2009/02/27 12:39:27 vtschopp Exp $
+# $Id$
 #
 
 SUBDIRS = src 

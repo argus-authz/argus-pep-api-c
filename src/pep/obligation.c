@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: obligation.c,v 1.6 2009/04/16 14:38:30 vtschopp Exp $
+ * $Id$
  */
 #include <stdlib.h>
 #include <string.h>

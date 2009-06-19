@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: libpep-c.c,v 1.3 2009/03/19 14:17:08 vtschopp Exp $
+ * $Id$
  */
 
 //

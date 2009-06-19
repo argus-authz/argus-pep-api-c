@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: log.c,v 1.7 2009/02/20 12:01:06 vtschopp Exp $
+ * $Id$
  */
 
 #include <stdio.h>

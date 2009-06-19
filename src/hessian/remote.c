@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: remote.c,v 1.2 2009/01/29 16:01:56 vtschopp Exp $
+ * $Id$
  */
 #include <stdlib.h>
 #include <stdio.h>

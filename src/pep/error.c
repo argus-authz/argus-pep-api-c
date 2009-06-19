@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: error.c,v 1.8 2009/05/19 12:37:07 vtschopp Exp $
+ * $Id$
  */
 #include <string.h>
 #include <stdio.h>
