@@ -4,7 +4,7 @@
 # $Id$
 #
 
-AC_INIT(glite-authz-pep-c, 1.1.6-1, grid@switch.ch)
+AC_INIT(glite-authz-pep-c, 1.1.6-2, grid@switch.ch)
 AC_CONFIG_AUX_DIR(project)
 
 # OSX requires ./configure --disable-dependency-tracking to compile, others don't care
