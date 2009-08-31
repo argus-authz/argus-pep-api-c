@@ -78,6 +78,7 @@ pep_error_t pep_initialize(void) {
 		return PEP_ERR_INIT_LISTS;
 	}
 	// init curl and create curl handler
+/* NOT THREAD SAFE: breaks globus GT4 GSI callout plugin
 	CURLcode curl_rc= curl_global_init(CURL_GLOBAL_ALL);
 	if (curl_rc != CURLE_OK) {
 		log_error("pep_initialize: CURL global initialization failed: %s", curl_easy_strerror(curl_rc));
@@ -86,6 +87,7 @@ pep_error_t pep_initialize(void) {
 		pep_errmsg("curl_global_init(CURL_GLOBAL_ALL) failed: %s",curl_easy_strerror(curl_rc));
 		return PEP_ERR_INIT_CURL;
 	}
+*/
 	curl= curl_easy_init();
 	if (curl == NULL) {
 		log_error("pep_initialize: can't create CURL session handler.");
@@ -704,7 +706,9 @@ pep_error_t pep_destroy(void) {
 		curl_easy_cleanup(curl);
 		curl= NULL;
 	}
+/* NOT THREAD SAFE: breaks globus GT4 GSI callout plugin
 	curl_global_cleanup();
+*/
 
 
 	// destroy all pips if any
