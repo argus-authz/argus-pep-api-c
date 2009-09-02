@@ -1,3 +1,9 @@
+PEP-C 1.1.7
+-----------
+* bug fix: non thread safe curl_global_init() and curl_global_cleanup() calls removed.
+* pepcli: default PEP timeout set to 30 second.
+* pepcli: error messages and help (-h|--help) message updated.
+
 PEP-C 1.1.6
 -----------
 * source code moved to subversion.
