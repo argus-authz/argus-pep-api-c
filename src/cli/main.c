@@ -647,7 +647,7 @@ static void show_help() {
 	fprintf(stdout,"                         Add multiple --fqan options for secondary FQANs\n");
 	fprintf(stdout," -r|--resourceid <URI>   XACML Resource identifier\n");
 	fprintf(stdout," -a|--actionid <URI>     XACML Action identifier\n");
-	fprintf(stdout," -t|--timeout <SEC>      Connection timeout in second\n");
+	fprintf(stdout," -t|--timeout <SEC>      Connection timeout in second (default 30s)\n");
 	fprintf(stdout," -x|--requestcontext     Show effective XACML Request context\n");
 	fprintf(stdout," -v|--verbose            Verbose\n");
 	fprintf(stdout," -q|--quiet              Turn off output\n");
@@ -752,18 +752,18 @@ int main(int argc, char **argv) {
 	// check mandatory options: --pepd URL (--certchain FILE|--subjectid ID)
 	size_t pepds_l= llist_length(pepds);
 	if (pepds_l<1) {
-		show_error("the mandatory option --pepd <URL> is missing");
+		show_error("the mandatory option -p|--pepd <URL> is missing");
 		//show_help();
 		exit(E_OPTION);
 	}
     if (certchain_filename==NULL && subjectid==NULL) {
-		show_error("one of the mandatory option --certchain <FILE> or --subjectid <DN> is missing");
+		show_error("one of the mandatory option -c|--certchain <FILE> or -s|--subjectid <DN> is missing");
 		//show_help();
 		exit(E_OPTION);        
     }
     // mutually exclusive
     if (certchain_filename!=NULL && subjectid!=NULL) {
-		show_error("the mandatory options --certchain <FILE> or --subjectid <DN> are mutually exclusive");
+		show_error("the mandatory options -c|--certchain <FILE> or -s|--subjectid <DN> are mutually exclusive");
 		//show_help();
 		exit(E_OPTION);        
     }
