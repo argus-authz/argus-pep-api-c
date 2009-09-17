@@ -1,8 +1,10 @@
 //
-// PEP-C client example
+// Simple PEP-C client example
 //
 // gcc -I/opt/glite/include -L/opt/glite/lib -lpep-c pep_client_example.c -o pep_client_example
 //
+// Author: Valery Tschopp <valery.tschopp@switch.ch>
+// $Id$
 #include <stdio.h>
 #include <stdlib.h>
 
