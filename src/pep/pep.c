@@ -348,13 +348,12 @@ pep_error_t pep_setoption(pep_option_t option, ... ) {
 	return rc;
 }
 
-pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** out_response) {
-	if (*inout_request == NULL) {
+pep_error_t pep_authorize(xacml_request_t ** request, xacml_response_t ** response) {
+	if (*request == NULL) {
 		log_error("pep_authorize: NULL request pointer");
 		pep_errmsg("NULL xacml_request_t pointer");
 		return PEP_ERR_NULL_POINTER;
 	}
-	xacml_request_t * request= *inout_request;
 	int i= 0;
 	// apply pips if enabled and any
 	int pip_rc= -1;
@@ -365,7 +364,7 @@ pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** 
 			pep_pip_t * pip= llist_get(pips,i);
 			if (pip != NULL) {
 				log_debug("pep_authorize: calling pip[%s]->process(request)...",pip->id);
-				pip_rc= pip->process(&request);
+				pip_rc= pip->process(request);
 				if (pip_rc != 0) {
 					log_error("pep_authorize: PIP[%s] process(request) failed: %d", pip->id, pip_rc);
 					pep_errmsg("PIP[%s] process(request) failed: %d", pip->id, pip_rc);
@@ -382,7 +381,7 @@ pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** 
 		pep_errmsg("can't allocate output buffer (512 bytes)");
 		return PEP_ERR_MEMORY;
 	}
-	pep_error_t marshal_rc= xacml_request_marshalling(request,output);
+	pep_error_t marshal_rc= xacml_request_marshalling(*request,output);
 	if ( marshal_rc != PEP_OK ) {
 		log_error("pep_authorize: can't marshal XACML request: %s.", pep_strerror(marshal_rc));
 		buffer_delete(output);
@@ -561,7 +560,6 @@ pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** 
 	/*
 	 * FAILOVER BEGIN
 	 */
-	xacml_response_t * response= NULL;
 	int failover_ok= FALSE;
 	// set the PEPd endpoint url
 	const char * url= NULL;
@@ -570,7 +568,7 @@ pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** 
 
 	for (i= 0; i<url_l; i++) {
 
-		response= NULL;
+		*response= NULL;
 
 		url= (const char *)llist_get(option_urls,i);
 		log_debug("pep_authorize: trying PEPd: %s",url);
@@ -618,7 +616,7 @@ pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** 
 		base64_decode(b64input,input);
 
 		// unmarshal the PEP response
-		pep_error_t unmarshal_rc= xacml_response_unmarshalling(&response,input);
+		pep_error_t unmarshal_rc= xacml_response_unmarshalling(response,input);
 		if ( unmarshal_rc != PEP_OK) {
 			log_error("pep_authorize: PEPd[%s]: can't unmarshal the XACML response: %s.", url, pep_strerror(unmarshal_rc));
 			pep_errmsg("PEPd[%s] failed: can't unmarshal the XACML response: %s.", url, pep_strerror(unmarshal_rc));
@@ -651,13 +649,13 @@ pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** 
 	buffer_delete(b64output);
 
 	// get effective response
-	xacml_request_t * effective_request= xacml_response_getrequest(response);
+	xacml_request_t * effective_request= xacml_response_getrequest(*response);
 	if (effective_request!=NULL) {
 		log_debug("pep_authorize: effective request");
 		// delete original
-		xacml_request_delete(request);
+		xacml_request_delete(*request);
 		// take care of effective one
-		request= xacml_response_relinquishrequest(response);
+		*request= xacml_response_relinquishrequest(*response);
 	}
 
 	// apply obligation handlers if enabled and any
@@ -669,7 +667,7 @@ pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** 
 			pep_obligationhandler_t * oh= llist_get(ohs,i);
 			if (oh != NULL) {
 				log_debug("pep_authorize: calling OH[%s]->process(request,response)...", oh->id);
-				oh_rc = oh->process(&request,&response);
+				oh_rc = oh->process(request,response);
 				if (oh_rc != 0) {
 					log_error("pep_authorize: OH[%s] process(request,response) failed: %d.", oh->id,oh_rc);
 					pep_errmsg("OH[%s] process(request,response) failed: %d.", oh->id,oh_rc);
@@ -678,10 +676,6 @@ pep_error_t pep_authorize(xacml_request_t ** inout_request, xacml_response_t ** 
 			}
 		}
 	}
-
-	// return effective request and response
-	*inout_request= request;
-	*out_response= response;
 
 	return PEP_OK;
 }
