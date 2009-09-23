@@ -4,7 +4,7 @@
 # $Id$
 #
 
-AC_INIT(glite-authz-pep-c, 1.1.7-1, grid@switch.ch)
+AC_INIT(glite-authz-pep-c, 1.1.8-0, grid@switch.ch)
 AC_CONFIG_AUX_DIR(project)
 
 # OSX requires ./configure --disable-dependency-tracking to compile, others don't care
@@ -30,8 +30,8 @@ fi
 # OSX CFLAGS
 case $host in
 *-*-darwin*)
-    AC_MSG_NOTICE([Mac OSX ($host_os): building for i386 and x86_64 architectures])
-    CFLAGS="$CFLAGS -arch i386 -arch x86_64 "
+    CFLAGS="$CFLAGS -arch i386 -arch x86_64 -mmacosx-version-min=10.5"
+    AC_MSG_NOTICE([Mac OSX ($host_os) CFLAGS: $CFLAGS])
     ;;
 esac
 
