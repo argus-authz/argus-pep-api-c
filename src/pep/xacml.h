@@ -1,5 +1,6 @@
 /*
- * Copyright 2008-2009 Members of the EGEE Collaboration.
+ * Copyright 2008 Members of the EGEE Collaboration.
+ * See http://www.eu-egee.org/partners for details on the copyright holders.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
- * $Id$
+
+/* * $Id$
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.1
