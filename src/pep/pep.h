@@ -261,6 +261,11 @@ typedef enum pep_option {
 } pep_option_t;
 
 /**
+ * Returns the PEP client library version.
+ */
+const char * pep_version(void);
+
+/**
  * Initializes the PEP client.
  *
  * @return {@link #pep_error_t} PEP_OK on success or an error code.

@@ -1,3 +1,8 @@
+PEP-C 1.2.0
+-----------
+* refactoring: pepcli command moved to separated package org.glite.authz.pep-c-cli.
+* refactoring: utility headers buffer.h and linkedlist.h are now exported in include/pep.
+
 PEP-C 1.1.8
 -----------
 * bug fix: solved segfault problem when a obligation handler failed and the response is deleted.

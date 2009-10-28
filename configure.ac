@@ -18,7 +18,7 @@
 # $Id$
 #
 
-AC_INIT(glite-authz-pep-c, 1.1.8-1, grid@switch.ch)
+AC_INIT(glite-authz-pep-c, 1.2.0, grid@switch.ch)
 AC_CONFIG_AUX_DIR(project)
 
 # OSX requires ./configure --disable-dependency-tracking to compile, others don't care
@@ -64,7 +64,7 @@ AC_CHECK_LIB(curl,curl_easy_init)
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([string.h stdlib.h stdio.h stdint.h stdarg.h float.h getopt.h])
+AC_CHECK_HEADERS([string.h stdlib.h stdio.h stdint.h stdarg.h float.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -90,7 +90,6 @@ src/Makefile
 src/util/Makefile
 src/hessian/Makefile
 src/pep/Makefile
-src/cli/Makefile
 ])
 
 AC_OUTPUT

@@ -17,15 +17,16 @@
 # $Id$
 #
 
-SUBDIRS = util hessian pep . cli
+SUBDIRS = util hessian pep 
 
 #
 # libpep-c = util + hessian + pep
 #
 lib_LTLIBRARIES = libpep-c.la
 libpep_c_la_LIBADD = util/libutil.la hessian/libhessian.la pep/libpep.la 
-libpep_c_la_LDFLAGS = -version-info 1:2:0
+libpep_c_la_LDFLAGS = -version-info 1:3:0
 libpep_c_la_SOURCES = libpep-c.c
 
 # headers files in <prefix>/include (public API)
-nobase_include_HEADERS = pep/pep.h pep/error.h pep/xacml.h
+pepincludedir = $(includedir)/pep
+pepinclude_HEADERS = pep/pep.h pep/error.h pep/xacml.h util/buffer.h util/linkedlist.h

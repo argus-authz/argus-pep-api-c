@@ -33,7 +33,7 @@
 #include "config.h"  /* PACKAGE_NAME and PACKAGE_VERSION const */
 #else
 #define PACKAGE_NAME "PEP-C"
-#define PACKAGE_VERSION "1.0.0"
+#define PACKAGE_VERSION "0.0.0"
 #endif
 
 /** List of PIPs */
@@ -59,6 +59,11 @@ static int option_ssl_validation= TRUE;
 
 static int option_pips_enabled= TRUE;
 static int option_ohs_enabled= TRUE;
+
+const char * pep_version(void) {
+    return PACKAGE_VERSION;
+}
+
 
 pep_error_t pep_initialize(void) {
 	// clear all err message

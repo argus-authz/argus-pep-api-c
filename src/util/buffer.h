@@ -16,8 +16,8 @@
  *
  * $Id$
  */
-#ifndef _BUFFER_H_
-#define _BUFFER_H_
+#ifndef _PEP_BUFFER_H_
+#define _PEP_BUFFER_H_
 
 #ifdef  __cplusplus
 extern "C" {

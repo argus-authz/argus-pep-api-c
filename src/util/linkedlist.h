@@ -16,8 +16,8 @@
  *
  * $Id$
  */
-#ifndef _LINKEDLIST_H_
-#define _LINKEDLIST_H_
+#ifndef _PEP_LINKEDLIST_H_
+#define _PEP_LINKEDLIST_H_
 
 #ifdef  __cplusplus
 extern "C" {
