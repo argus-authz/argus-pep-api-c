@@ -40,6 +40,10 @@ int main(void) {
     // XACML request and response
     xacml_request_t * request;
     xacml_response_t * response;
+
+    // dump library version
+    fprintf(stdout,"using libpep-c v.%s\n",pep_version());
+
     
     // initialize the PEP client library
     pep_rc= pep_initialize();
