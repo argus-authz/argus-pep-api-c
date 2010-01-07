@@ -28,6 +28,7 @@
 
 #include "pep/pep.h"
 #include "pep/io.h"
+#include "pep/i_error.h"
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"  /* PACKAGE_NAME and PACKAGE_VERSION const */
