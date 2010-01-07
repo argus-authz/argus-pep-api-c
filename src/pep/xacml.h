@@ -176,16 +176,6 @@ static const char XACML_SUBJECT_CATEGORY_RECIPIENT[]= "urn:oasis:names:tc:xacml:
 static const char XACML_SUBJECT_CATEGORY_CODEBASE[]= "urn:oasis:names:tc:xacml:1.0:subject-category:codebase"; /**<  XACML Subject/\@SubjectCategory  attribute @b codebase value (XACML 2.0, B.2) */
 static const char XACML_SUBJECT_CATEGORY_REQUESTINGMACHINE[]= "urn:oasis:names:tc:xacml:1.0:subject-category:requesting-machine"; /**<  XACML Subject/\@SubjectCategory  attribute @b requesting-machine value (XACML 2.0, B.2) */
 
-/*
- * PEP XACML Authz Interop Subject/Attribute identifiers (XACML Authz Interop)
- */
-static const char XACML_AUTHZINTEROP_SUBJECT_X509_ID[]= "http://authz-interop.org/xacml/subject/subject-x509-id"; /**<  XACML AuthZ Interop Subject/Attribute @b subject-x509-id identifier (Datatype: string, OpenSSL format) */
-static const char XACML_AUTHZINTEROP_SUBJECT_X509_ISSUER[]= "http://authz-interop.org/xacml/subject/subject-x509-issuer"; /**<  XACML AuthZ Interop Subject/Attribute @b subject-x509-issuer identifier (Datatype: string, OpenSSL format) */
-static const char XACML_AUTHZINTEROP_SUBJECT_VO[]= "http://authz-interop.org/xacml/subject/vo"; /**<  XACML AuthZ Interop Subject/Attribute @b vo identifier (Datatype: string) */
-static const char XACML_AUTHZINTEROP_SUBJECT_CERTCHAIN[]= "http://authz-interop.org/xacml/subject/cert-chain"; /**<  XACML AuthZ Interop Subject/Attribute @b cert-chain identifier (Datatype: base64Binary) */
-static const char XACML_AUTHZINTEROP_SUBJECT_VOMS_FQAN[]= "http://authz-interop.org/xacml/subject/voms-fqan"; /**<  XACML AuthZ Interop Subject/Attribute @b voms-fqan identifier (Datatype: string) */
-static const char XACML_AUTHZINTEROP_SUBJECT_VOMS_PRIMARY_FQAN[]= "http://authz-interop.org/xacml/subject/voms-primary-fqan"; /**<  XACML AuthZ Interop Subject/Attribute @b voms-primary-fqan identifier (Datatype: string) */
-
 /**
  * Creates a XACML Subject.
  * @return xacml_subject_t * pointer to the new XACML Subject or @a NULL on error.
@@ -689,19 +679,6 @@ typedef enum xacml_fulfillon {
  * @anchor Obligation
  */
 typedef struct xacml_obligation xacml_obligation_t;
-
-
-/*
- * PEP XACML Authz Interop Obligation and Obligation/AttributeAssignment identifiers (XACML Authz Interop)
- */
-static const char XACML_AUTHZINTEROP_OBLIGATION_UIDGID[]= "http://authz-interop.org/xacml/obligation/uidgid"; /**<  XACML AuthZ Interop Obligation @b uidgid identifier (XACML Authz Interop: UID GID) */
-static const char XACML_AUTHZINTEROP_OBLIGATION_SECONDARY_GIDS[]= "http://authz-interop.org/xacml/obligation/secondary-gids"; /**<  XACML AuthZ Interop Obligation @b secondary-gids identifier (XACML Authz Interop: Multiple Secondary GIDs) */
-static const char XACML_AUTHZINTEROP_OBLIGATION_USERNAME[]= "http://authz-interop.org/xacml/obligation/username"; /**<  XACML AuthZ Interop Obligation @b username identifier (XACML Authz Interop: Username) */
-static const char XACML_AUTHZINTEROP_OBLIGATION_AFS_TOKEN[]= "http://authz-interop.org/xacml/obligation/afs-token"; /**<  XACML AuthZ Interop Obligation @b afs-token identifier (XACML Authz Interop: AFS Token) */
-static const char XACML_AUTHZINTEROP_OBLIGATION_ATTR_POSIX_UID[]= "http://authz-interop.org/xacml/attribute/posix-uid"; /**<  XACML AuthZ Interop Obligation/AttributeAssignment @b posix-uid identifier (C Datatype: string, must be converted to integer) */
-static const char XACML_AUTHZINTEROP_OBLIGATION_ATTR_POSIX_GID[]= "http://authz-interop.org/xacml/attribute/posix-gid"; /**<  XACML AuthZ Interop Obligation/AttributeAssignment @b posix-gid identifier (C Datatype: string, must be converted to integer) */
-static const char XACML_AUTHZINTEROP_OBLIGATION_ATTR_USERNAME[]= "http://authz-interop.org/xacml/attribute/username"; /**<  XACML AuthZ Interop Obligation/AttributeAssignment @b username identifier (Datatype: string) */
-static const char XACML_AUTHZINTEROP_OBLIGATION_ATTR_AFS_TOKEN[]= "http://authz-interop.org/xacml/attribute/afs-token"; /**<  XACML AuthZ Interop Obligation/AttributeAssignment @b afs-token identifier (Datatype: base64Binary) */
 
 
 /**
