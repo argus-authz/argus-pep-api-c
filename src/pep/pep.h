@@ -28,9 +28,9 @@
 extern "C" {
 #endif
 
-/** @mainpage AuthZ Service PEP client library for C
+/** @mainpage Argus Authorization Service PEP client library for C
  *
- * This is the PEP client library for C, used to talk with the PEP daemon.
+ * This is the PEP client library for C, used to talk with the Argus PEP daemon.
  *
  */
 
@@ -40,9 +40,13 @@ extern "C" {
 /** @defgroup Error Error Reporting */
 /** @defgroup Logging Log Level and Output */
 /** @defgroup XACML PEP XACML Objects Model */
+/** @defgroup Profiles XACML Profiles Constants */
 
 #include <stdarg.h> // va_list
 #include "pep/xacml.h"
+#include "pep/profiles.h"
+#include "pep/pip.h"
+#include "pep/oh.h"
 #include "pep/error.h"
 
 /** @addtogroup Logging
@@ -121,118 +125,6 @@ typedef int pep_log_handler_callback(int level, const char * format, va_list arg
 
 /** @} */
 
-/** @addtogroup PIP
- * PEP client PIP function prototypes and type.
- *
- * These function prototypes allow to implement a PIP. The PIP
- * pre-processes the PEP request, before the PEP client sends it to the
- * PEP daemon.
- *
- * The PIP functions must return 0 on success or an error code.
- *
- * PIP must be added to the PEP client before sending the request.
- * @{
- */
-/**
- * PIP init function prototype.
- *
- * The init() function is called when the PIP is added to the PEP client.
- *
- * @return 0 on success or an error code.
- * @see pep_addpip(pep_pip_t * pip)
- */
-typedef int pip_init_func(void);
-
-/**
- * PIP process function prototype.
- *
- * The process(request) function is called before the PEP client
- * submit the authorization request to the PEP daemon.
- *
- * @param xacml_request_t ** address of the pointer to the PEP request
- * @return 0 on success or an error code.
- * @see pep_authorize(xacml_request_t **, xacml_response_t **)
- */
-typedef int pip_process_func(xacml_request_t **);
-
-/**
- * PIP destroy function prototype.
- *
- * The destroy() function is called when the PEP client is destroyed.
- *
- * @return 0 on success or an error code.
- * @see pep_destroy()
- */
-typedef int pip_destroy_func(void);
-
-/**
- * PIP type.
- */
-typedef struct pep_pip {
-	char * id; /**< unique identifier for the PIP */
-	pip_init_func * init; /**< pointer to the PIP init function */
-	pip_process_func * process; /**< pointer to PIP process function */
-	pip_destroy_func * destroy; /**< pointer to the PIP destroy function */
-} pep_pip_t;
-
-/** @} */
-
-/** @addtogroup ObligationHandler
- * PEP client Obligation handler function prototypes and type.
- *
- * The OH function prototypes allow to implement a Obligation Handler (OH).
- * The Obligation Handler does the post-processing of the PEP request and response, after
- * the PEP client have send the request and receive the response.
- *
- * The OH functions must return 0 on success or an error code.
- *
- * OH must be added to the PEP client before sending the request.
- * @{
- */
-/**
- * Obligation handler init function prototype.
- *
- * The init() function is called when the OH is added to the PEP client.
- *
- * @return 0 on success or an error code.
- * @see pep_addobligationhandler(pep_obligationhandler_t * oh)
- */
-typedef int oh_init_func(void);
-
-/**
- * Obligation handler process function prototype.
- *
- * The process(request,response) function is called after the PEP client
- * receives the PEP response back from PEP daemon.
- *
- * @param xacml_request_t ** address of the pointer to the PEP request
- * @param xacml_response_t ** address of the pointer to the PEP response
- *
- * @return 0 on success or an error code.
- * @see pep_authorize(xacml_request_t **, xacml_response_t **)
- */
-typedef int oh_process_func(xacml_request_t **, xacml_response_t **);
-
-/**
- * Obligation handler destroy function prototype.
- *
- * The destroy() function is called when the PEP client is destroyed.
- *
- * @return 0 on success or an error code.
- * @see pep_destroy()
- */
-typedef int oh_destroy_func(void);
-
-/**
- * ObligationHandler type.
- */
-typedef struct pep_obligationhandler {
-	char * id; /**< unique identifier for the OH */
-	oh_init_func * init; /**< pointer to the OH init function */
-	oh_process_func * process; /**< pointer to the OH process function */
-	oh_destroy_func * destroy; /**< pointer to the OH destroy function */
-} pep_obligationhandler_t;
-/** @} */
 
 /** @addtogroup PEPClient
  * PEP client used to send PEP request to the PEP daemon and receive PEP response back.
@@ -303,9 +195,9 @@ pep_error_t pep_addobligationhandler(pep_obligationhandler_t * oh);
  * Option {@link #PEP_OPTION_ENDPOINT_URL} @c const @c char @c * argument:
  * @code
  *   // set the PEP daemon endpoint URL (with failover URLs)
- *   pep_setoption(PEP_OPTION_ENDPOINT_URL, (const char *)"https://pepd.switch.ch:8080/authz");
- *   pep_setoption(PEP_OPTION_ENDPOINT_URL, (const char *)"https://pepd-backup.switch.ch:8080/authz");
- *   pep_setoption(PEP_OPTION_ENDPOINT_URL, (const char *)"https://pepd.example.ch/authz");
+ *   pep_setoption(PEP_OPTION_ENDPOINT_URL, (const char *)"https://pepd.switch.ch:8154/authz");
+ *   pep_setoption(PEP_OPTION_ENDPOINT_URL, (const char *)"https://pepd-backup.switch.ch:8154/authz");
+ *   pep_setoption(PEP_OPTION_ENDPOINT_URL, (const char *)"https://pepd.example.ch:8154/authz");
  * @endcode
  * Option {@link #PEP_OPTION_LOG_LEVEL} @c int argument:
  * @code
@@ -360,7 +252,7 @@ pep_error_t pep_authorize(xacml_request_t ** request, xacml_response_t ** respon
  */
 pep_error_t pep_destroy(void);
 
-/** @example test_pep.c
+/** @example pep_client_example.c
  * This is an example how to use the PEP client.
  */
 
