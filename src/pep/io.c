@@ -20,9 +20,9 @@
 #include <string.h>
 
 #include "pep/io.h"
+#include "pep/i_error.h"
 #include "hessian/hessian.h"
 #include "util/log.h"
-
 
 /** functions return codes  */
 #define PEP_IO_OK     0
