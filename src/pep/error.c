@@ -21,6 +21,7 @@
 #include <stdarg.h>  /* va_list, va_arg, ... */
 
 #include "pep/error.h"
+#include "pep/i_error.h"
 
 /*
 typedef enum pep_error {

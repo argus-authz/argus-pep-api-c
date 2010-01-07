@@ -83,16 +83,6 @@ typedef enum pep_error {
  */
 const char * pep_strerror(pep_error_t pep_errno);
 
-/** @internal
- * Sets an optional error message.
- */
-void pep_errmsg(const char * format, ...);
-
-/** @internal
- * Reset all the error messages previously set.
- */
-void pep_clearerr(void);
-
 /** @} */
 
 #ifdef  __cplusplus
