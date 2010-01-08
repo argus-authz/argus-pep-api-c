@@ -30,11 +30,16 @@ attributeassignment.c \
 environment.c \
 error.c \
 error.h \
+i_error.h \
 io.c \
 io.h \
 obligation.c \
+oh.h \
 pep.c \
 pep.h \
+pip.h \
+profiles.c \
+profiles.h \
 request.c \
 resource.c \
 response.c \
