@@ -63,6 +63,46 @@ xacml_attribute_t * xacml_attribute_create(const char * id) {
 }
 
 /**
+ * Clone the attribute and return a copy
+ */
+xacml_attribute_t * xacml_attribute_clone(const xacml_attribute_t * attr) {
+	if (attr == NULL) {
+		log_warn("xacml_attribute_clone: attr is NULL.");
+		return NULL;
+	}
+	xacml_attribute_t * clone= xacml_attribute_create(attr->id);
+	if (clone == NULL) {
+		log_error("xacml_attribute_clone: can't create clone with id: %s", attr->id);
+		return NULL;
+	}
+	// datatype
+	if (xacml_attribute_setdatatype(clone,attr->datatype) != PEP_XACML_OK) {
+		log_error("xacml_attribute_clone: can't set datatype: %s",attr->datatype);
+		xacml_attribute_delete(clone);
+		return NULL;
+	}
+	// issuer
+	if (xacml_attribute_setissuer(clone,attr->issuer) != PEP_XACML_OK) {
+		log_error("xacml_attribute_clone: can't set issuer: %s",attr->issuer);
+		xacml_attribute_delete(clone);
+		return NULL;
+	}
+	// values
+	size_t nvalues= xacml_attribute_values_length(attr);
+	int i= 0;
+	for(i= 0; i<nvalues; i++) {
+		const char * value= xacml_attribute_getvalue(attr,i);
+		if (xacml_attribute_addvalue(clone,value) != PEP_XACML_OK) {
+			log_error("xacml_attribute_clone: can't clone value[%d]: %s",i,value);
+			xacml_attribute_delete(clone);
+			return NULL;
+		}
+	}
+	return clone;
+}
+
+
+/**
  * Sets the PEP attribute id. id is mandatory and can't be NULL.
  */
 int xacml_attribute_setid(xacml_attribute_t * attr, const char * id) {
