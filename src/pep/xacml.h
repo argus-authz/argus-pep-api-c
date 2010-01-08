@@ -169,12 +169,12 @@ typedef struct xacml_subject xacml_subject_t;
  */
 static const char XACML_SUBJECT_ID[]= "urn:oasis:names:tc:xacml:1.0:subject:subject-id"; /**<  XACML Subject/Attribute @c subject-id identifier (XACML 2.0, B.4) */
 static const char XACML_SUBJECT_ID_QUALIFIER[]= "urn:oasis:names:tc:xacml:1.0:subject:subject-id-qualifier"; /**<  XACML Subject/Attribute @c subject-id-qualifier identifier (XACML 2.0, B.4) */
-static const char XACML_SUBJECT_KEYINFO[]= "urn:oasis:names:tc:xacml:1.0:subject:key-info"; /**<  XACML Subject/Attribute @c key-info identifier (XACML 2.0, B.4) */
+static const char XACML_SUBJECT_KEY_INFO[]= "urn:oasis:names:tc:xacml:1.0:subject:key-info"; /**<  XACML Subject/Attribute @c key-info identifier (XACML 2.0, B.4) */
 static const char XACML_SUBJECT_CATEGORY_ACCESS[]= "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"; /**<  XACML Subject/\@SubjectCategory attribute @b access-subject value (XACML 2.0, B.2) */
 static const char XACML_SUBJECT_CATEGORY_INTERMEDIARY[]= "urn:oasis:names:tc:xacml:1.0:subject-category:intermediary-subject"; /**<  XACML Subject/\@SubjectCategory  attribute @b intermediary-subject value  (XACML 2.0, B.2) */
 static const char XACML_SUBJECT_CATEGORY_RECIPIENT[]= "urn:oasis:names:tc:xacml:1.0:subject-category:recipient-subject"; /**<  XACML Subject/\@SubjectCategory  attribute @b recipient-subject value (XACML 2.0, B.2) */
 static const char XACML_SUBJECT_CATEGORY_CODEBASE[]= "urn:oasis:names:tc:xacml:1.0:subject-category:codebase"; /**<  XACML Subject/\@SubjectCategory  attribute @b codebase value (XACML 2.0, B.2) */
-static const char XACML_SUBJECT_CATEGORY_REQUESTINGMACHINE[]= "urn:oasis:names:tc:xacml:1.0:subject-category:requesting-machine"; /**<  XACML Subject/\@SubjectCategory  attribute @b requesting-machine value (XACML 2.0, B.2) */
+static const char XACML_SUBJECT_CATEGORY_REQUESTING_MACHINE[]= "urn:oasis:names:tc:xacml:1.0:subject-category:requesting-machine"; /**<  XACML Subject/\@SubjectCategory  attribute @b requesting-machine value (XACML 2.0, B.2) */
 
 /**
  * Creates a XACML Subject.
@@ -191,7 +191,7 @@ xacml_subject_t * xacml_subject_create(void);
  * @see #XACML_SUBJECT_CATEGORY_INTERMEDIARY constant
  * @see #XACML_SUBJECT_CATEGORY_RECIPIENT constant
  * @see #XACML_SUBJECT_CATEGORY_CODEBASE constant
- * @see #XACML_SUBJECT_CATEGORY_REQUESTINGMACHINE constant
+ * @see #XACML_SUBJECT_CATEGORY_REQUESTING_MACHINE constant
  */
 int xacml_subject_setcategory(xacml_subject_t * subject, const char * category);
 
