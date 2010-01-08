@@ -7,7 +7,7 @@ PEP-C thin client library
 
 2. Then use configure (default prefix: /opt/glite):
 
-./configure --disable-static
+./configure
 
 or if you want to install the lib and include in a different directory:
 
@@ -23,9 +23,10 @@ make install
 
 4. you are all done :)
 
-The library libpep-c and the header files are now installed.
+The library libpep-c and the header files are now installed. 
+To use it, simply include the library header in your code:
 
-Dependencies - see DEPENDENCIES file.
+#include <pep/pep.h>
 
 
 --
