@@ -24,9 +24,9 @@ SUBDIRS = util hessian pep
 #
 lib_LTLIBRARIES = libpep-c.la
 libpep_c_la_LIBADD = util/libutil.la hessian/libhessian.la pep/libpep.la 
-libpep_c_la_LDFLAGS = -version-info 1:3:0
+libpep_c_la_LDFLAGS = -version-info 1:4:0
 libpep_c_la_SOURCES = libpep-c.c
 
 # headers files in <prefix>/include (public API)
 pepincludedir = $(includedir)/pep
-pepinclude_HEADERS = pep/pep.h pep/error.h pep/xacml.h util/buffer.h util/linkedlist.h
+pepinclude_HEADERS = pep/pep.h pep/pip.h pep/oh.h pep/error.h pep/xacml.h pep/profiles.h util/buffer.h util/linkedlist.h
