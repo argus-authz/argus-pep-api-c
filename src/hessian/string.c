@@ -21,6 +21,7 @@
 #include <string.h>
 
 #include "hessian/hessian.h"
+#include "hessian/i_hessian.h"
 #include "util/log.h"
 
 /**********************************

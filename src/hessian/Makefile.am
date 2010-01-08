@@ -25,6 +25,7 @@ boolean.c \
 double.c \
 hessian.c \
 hessian.h \
+i_hessian.h \
 integer.c \
 list.c \
 long.c \

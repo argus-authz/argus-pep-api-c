@@ -34,18 +34,6 @@ extern "C" {
 #define HESSIAN_ERROR -1
 
 /**
- * Object methods prototype macro
- */
-#define OBJECT_CTOR(objname) \
-    hessian_object_t * objname ## _ctor (hessian_object_t * self, va_list * app)
-#define OBJECT_DTOR(objname) \
-    int objname ## _dtor (hessian_object_t * self)
-#define OBJECT_SERIALIZE(objname) \
-    int objname ## _serialize (const hessian_object_t * self, BUFFER * output)
-#define OBJECT_DESERIALIZE(objname) \
-    int objname ## _deserialize (hessian_object_t * self, int tag, BUFFER * input)
-
-/**
  * Creates a Hessian object.
  *
  * @param hessian_t type The type of Hessian object to create.
@@ -252,14 +240,6 @@ const char * hessian_map_gettype(const hessian_object_t * map);
 size_t hessian_map_length(const hessian_object_t * map);
 hessian_object_t * hessian_map_getkey(const hessian_object_t * map, int index);
 hessian_object_t * hessian_map_getvalue(const hessian_object_t * map, int index);
-
-/*
- * Hessian serialization chunk size
- */
-#ifndef HESSIAN_CHUNK_SIZE
-#include <stdint.h>
-#define HESSIAN_CHUNK_SIZE INT16_MAX
-#endif
 
 /**
  * Stupid boolean constants
