@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Members of the EGEE Collaboration.
+ * Copyright (c) 2008-2010 Members of the EGEE Collaboration.
  * See http://www.eu-egee.org/partners for details on the copyright holders.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -115,7 +115,7 @@ pep_error_t pep_initialize(void) {
 	return PEP_OK;
 }
 
-pep_error_t pep_addpip(pep_pip_t * pip) {
+pep_error_t pep_addpip(const pep_pip_t * pip) {
 	if (pip == NULL) {
 		log_error("pep_addpip: NULL pip pointer");
 		pep_errmsg("NULL pep_pip_t pointer");
@@ -127,7 +127,7 @@ pep_error_t pep_addpip(pep_pip_t * pip) {
 		pep_errmsg("PIP[%s] init() failed with code: %d",pip->id, pip_rc);
 		return PEP_ERR_INIT_PIP;
 	}
-	if (llist_add(pips,pip) != LLIST_OK) {
+	if (llist_add(pips,(pep_pip_t *)pip) != LLIST_OK) {
 		log_error("pep_addpip: failed to add initialized PIP[%s] in list.",pip->id);
 		pep_errmsg("can't add PIP[%s] into list",pip->id);
 		return PEP_ERR_INIT_LISTS;
@@ -135,7 +135,7 @@ pep_error_t pep_addpip(pep_pip_t * pip) {
 	return PEP_OK;
 }
 
-pep_error_t pep_addobligationhandler(pep_obligationhandler_t * oh) {
+pep_error_t pep_addobligationhandler(const pep_obligationhandler_t * oh) {
 	if (oh == NULL) {
 		log_error("pep_addobligationhandler: NULL oh pointer");
 		pep_errmsg("NULL pep_obligationhandler_t pointer");
@@ -147,7 +147,7 @@ pep_error_t pep_addobligationhandler(pep_obligationhandler_t * oh) {
 		pep_errmsg("OH[%s] init() failed with code: %d",oh->id, oh_rc);
 		return PEP_ERR_INIT_OH;
 	}
-	if (llist_add(ohs,oh) != LLIST_OK) {
+	if (llist_add(ohs,(pep_obligationhandler_t *)oh) != LLIST_OK) {
 		log_error("pep_addobligationhandler: failed to add initialized OH[%s] in list.", oh->id);
 		pep_errmsg("can't add OH[%s] into list",oh->id);
 		return PEP_ERR_INIT_LISTS;
@@ -155,7 +155,6 @@ pep_error_t pep_addobligationhandler(pep_obligationhandler_t * oh) {
 	return PEP_OK;
 }
 
-// TODO: implement all options
 pep_error_t pep_setoption(pep_option_t option, ... ) {
 	pep_error_t rc= PEP_OK;
 	va_list args;
