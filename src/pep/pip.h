@@ -30,7 +30,7 @@ extern "C" {
 
 #include "pep/xacml.h"
 
-/** @addtogroup PIP
+/** @defgroup PIP Policy Information Point (PIP)
  * PEP client PIP function prototypes and type.
  *
  * These function prototypes allow to implement a PIP. The PIP
