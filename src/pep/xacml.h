@@ -29,7 +29,7 @@ extern "C" {
 
 #include <stddef.h> // size_t
 
-/** @addtogroup XACML
+/** @defgroup XACML XACML Objects Model
  *
  * The XACML object model (Request, Response, ...) used by the PEP client.
  *
@@ -157,6 +157,12 @@ const char * xacml_attribute_getvalue(const xacml_attribute_t * attr,int value_i
  */
 void xacml_attribute_delete(xacml_attribute_t * attr);
 
+/**
+ * Clone the XACML Attribute.
+ * @param attr pointer to the XACML Attribute to clone
+ * @return xacml_attribute_t * pointer to the new cloned Attribute or @a NULL on error.
+ */
+xacml_attribute_t * xacml_attribute_clone(const xacml_attribute_t * attr);
 
 /**
  * @anchor Subject
@@ -638,27 +644,40 @@ int xacml_attributeassignment_setid(xacml_attributeassignment_t * attr, const ch
 const char * xacml_attributeassignment_getid(const xacml_attributeassignment_t * attr);
 
 /**
- * Returns the number of AttributeValue (string) for the XACML AttributeAssignment.
+ * @deprecated AttributeAssignment can only have one value, use xacml_attributeassignment_getvalue(const xacml_attributeassignment_t * attr) instead.
+ *
+ * Returns the number of values (string) for the XACML AttributeAssignment.
  * @param attr pointer to the XACML AttributeAssignment
- * @return size_t number of AttributeValue [1..n] for the AttributeAssignment or @c 0.
+ * @return size_t number of values (always @c 1) for the AttributeAssignment or @c 0 on error.
  */
 size_t xacml_attributeassignment_values_length(const xacml_attributeassignment_t * attr);
 
 /**
- * Gets the AttributeValue from the XACML AttributeAssignment at the given index.
+ * Gets the value from the XACML AttributeAssignment.
  * @param attr pointer to the XACML AttributeAssignment
- * @param value_idx index of the AttributeValue to get in range [0..length-1]
- * @return const char * the AttributeValue or @a NULL if out of range.
+ * @param ... optional index of the value (ignored, back compatibility)
+ * @return const char * the value or @a NULL if no value is set or if an error occurs.
  */
-const char * xacml_attributeassignment_getvalue(const xacml_attributeassignment_t * attr,int value_idx);
+const char * xacml_attributeassignment_getvalue(const xacml_attributeassignment_t * attr, ...);
+
 
 /**
- * Adds an AttributeValue to the XACML AttributeAssignment.
+ * @deprecated AttributeAssignment can only have one value, use xacml_attributeassignment_setvalue(xacml_attributeassignment_t * attr, const char *value) instead.
+ *
+ * Adds a value to the XACML AttributeAssignment.
  * @param attr pointer to the XACML AttributeAssignment
  * @param value the AttributeValue to add.
  * @return int {@link #PEP_XACML_OK} or {@link #PEP_XACML_ERROR} on error.
  */
 int xacml_attributeassignment_addvalue(xacml_attributeassignment_t * attr, const char *value);
+
+/**
+ * Sets the value to the XACML AttributeAssignment.
+ * @param attr pointer to the XACML AttributeAssignment
+ * @param value the value to set.
+ * @return int {@link #PEP_XACML_OK} or {@link #PEP_XACML_ERROR} on error.
+ */
+int xacml_attributeassignment_setvalue(xacml_attributeassignment_t * attr, const char *value);
 
 /**
  * Deletes the XACML AttributeAssignment. The AttributeValues contained in the AttributeAssignment are also deleted.
