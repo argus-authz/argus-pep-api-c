@@ -16,15 +16,17 @@
 #
 # $Id$
 #
-GLITE_LOCATION ?= /opt/glite
+ifndef GLITE_LOCATION
+GLITE_LOCATION=/opt/glite
+endif
 
-CC = gcc 
-CFLAGS = -Wall -I$(GLITE_LOCATION)/include
-LDFLAGS = -L$(GLITE_LOCATION)/lib -L$(GLITE_LOCATION)/lib64 -lpep-c
+CC=gcc 
+CFLAGS=-Wall -I$(GLITE_LOCATION)/include
+LDFLAGS=-L$(GLITE_LOCATION)/lib -L$(GLITE_LOCATION)/lib64 -lpep-c
 
-SOURCES = test_pep.c
-OBJECTS = $(SOURCES:.c=.o)
-EXEC = test-pep
+SOURCES=test_pep.c
+OBJECTS=$(SOURCES:.c=.o)
+EXEC=test-pep
 
 all: $(EXEC)
 
