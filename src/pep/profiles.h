@@ -27,16 +27,29 @@
 extern "C" {
 #endif
 
+/** @defgroup Profiles XACML Profiles
+ *
+ * XACML constants, PIPs and Obligation Handlers for the implemented XACML Profiles.
+ */
+
+#include "pep/xacml.h"
+#include "pep/pip.h"
+#include "pep/oh.h"
+
 /** @defgroup AuthzInterop Authorization Interoperability Profile
  *  @ingroup Profiles
  *
- * The XACML Attribute and Obligation Profile for Authorization Interoperability in Grids (version 1.1)
+ * XACML Attribute and Obligation Profile for Authorization Interoperability in Grids (Version 1.1)
  *
+ * TODO: add link to document
+ *
+ * XACML Subject's Attribute identifiers, XACML Obligation and Obligation's AttributeAssignment
+ * identifiers for the AuthZ Interop Profile
  * @{
  */
 
 /*
- * XACML Authz Interop Subject/Attribute identifiers (XACML Authz Interop Profile 1.0)
+ * XACML Authz Interop Subject/Attribute identifiers (XACML Authz Interop Profile 1.1)
  */
 static const char XACML_AUTHZINTEROP_SUBJECT_X509_ID[]= "http://authz-interop.org/xacml/subject/subject-x509-id"; /**<  XACML AuthZ Interop Subject/Attribute @b subject-x509-id identifier (Datatype: string, OpenSSL format) */
 static const char XACML_AUTHZINTEROP_SUBJECT_X509_ISSUER[]= "http://authz-interop.org/xacml/subject/subject-x509-issuer"; /**<  XACML AuthZ Interop Subject/Attribute @b subject-x509-issuer identifier (Datatype: string, OpenSSL format) */
@@ -46,7 +59,7 @@ static const char XACML_AUTHZINTEROP_SUBJECT_VOMS_FQAN[]= "http://authz-interop.
 static const char XACML_AUTHZINTEROP_SUBJECT_VOMS_PRIMARY_FQAN[]= "http://authz-interop.org/xacml/subject/voms-primary-fqan"; /**<  XACML AuthZ Interop Subject/Attribute @b voms-primary-fqan identifier (Datatype: string) */
 
 /*
- * XACML Authz Interop Obligation and Obligation/AttributeAssignment identifiers (XACML Authz Interop Profile 1.0)
+ * XACML Authz Interop Obligation and Obligation/AttributeAssignment identifiers (XACML Authz Interop Profile 1.1)
  */
 static const char XACML_AUTHZINTEROP_OBLIGATION_UIDGID[]= "http://authz-interop.org/xacml/obligation/uidgid"; /**<  XACML AuthZ Interop Obligation @b uidgid identifier (XACML Authz Interop: UID GID) */
 static const char XACML_AUTHZINTEROP_OBLIGATION_SECONDARY_GIDS[]= "http://authz-interop.org/xacml/obligation/secondary-gids"; /**<  XACML AuthZ Interop Obligation @b secondary-gids identifier (XACML Authz Interop: Multiple Secondary GIDs) */
@@ -58,6 +71,96 @@ static const char XACML_AUTHZINTEROP_OBLIGATION_ATTR_USERNAME[]= "http://authz-i
 static const char XACML_AUTHZINTEROP_OBLIGATION_ATTR_AFS_TOKEN[]= "http://authz-interop.org/xacml/attribute/afs-token"; /**<  XACML AuthZ Interop Obligation/AttributeAssignment @b afs-token identifier (Datatype: base64Binary) */
 
 /** @} */
+
+/** @defgroup GridWNAuthZ Grid Worker Node Authorization Profile
+ *  @ingroup Profiles
+ *
+ * XACML Grid Worker Node Authorization Profile (Version 1.0)
+ *
+ * TODO: link to document http://edms.cern.ch/file/NUMBER/FILENAME.pdf
+ *
+ * Profile version, XACML Attribute identifiers, XACML Obligation identifiers, and datatypes for the Grid WN AuthZ Profile.
+ * @{
+ */
+/*
+ * XACML Grid WN AuthZ Profile version
+ */
+static const char XACML_GRIDWN_PROFILE_VERSION[]= "http://glite.org/xacml/profile/grid-wn/1.0"; /**< XACML Grid WN AuthZ Profile version value [XACML Grid WN AuthZ 1.0, 3.1.1] */
+
+/*
+ * XACML Grid WN AuthZ Attribute identifiers
+ */
+static const char XACML_GRIDWN_ATTRIBUTE_PROFILE_ID[]= "http://glite.org/xacml/attribute/profile-id"; /**< XACML Grid WN AuthZ Environment/Attribute @b profile-id identifier. Datatype: string, see #XACML_DATATYPE_ANYURI [XACML Grid WN AuthZ 1.0, 3.1.1] */
+static const char XACML_GRIDWN_ATTRIBUTE_SUBJECT_ISSUER[]= "http://glite.org/xacml/attribute/subject-issuer"; /**< XACML Grid WN AuthZ Subject/Attribute @b subject-issuer identifier. Datatype: string, see #XACML_DATATYPE_X500NAME [XACML Grid WN AuthZ 1.0, 3.2.2 and 4.2] */
+static const char XACML_GRIDWN_ATTRIBUTE_VIRTUAL_ORGANIZATION[]= "http://glite.org/xacml/attribute/virtual-organization"; /**< XACML Grid WN AuthZ Subject/Attribute @b virutal-organization identifier. Datatype: string, see #XACML_DATATYPE_STRING [XACML Grid WN AuthZ 1.0, 3.2.3 and 4.3] */
+static const char XACML_GRIDWN_ATTRIBUTE_FQAN[]= "http://glite.org/xacml/attribute/fqan"; /**< XACML Grid WN AuthZ Subject/Attribute @b fqan identifier. Datatype: string, see #XACML_GRIDWN_DATATYPE_FQAN [XACML Grid WN AuthZ 1.0, 3.2.4 and 4.4] */
+static const char XACML_GRIDWN_ATTRIBUTE_FQAN_PRIMARY[]= "http://glite.org/xacml/attribute/fqan/primary"; /**< XACML Grid WN AuthZ Subject/Attribute @b fqan/primary identifier. Datatype: string, see #XACML_GRIDWN_DATATYPE_FQAN [XACML Grid WN AuthZ 1.0, 3.2.5] */
+static const char XACML_GRIDWN_ATTRIBUTE_PILOT_JOB_CLASSIFIER[]= "http://glite.org/xacml/attribute/pilot-job-classifer"; /**< XACML Grid WN AuthZ Action/Attribute @b pilot-job-classifer identifier. Datatype: string, see #XACML_DATATYPE_STRING [XACML Grid WN AuthZ 1.0, 3.4.2] */
+static const char XACML_GRIDWN_ATTRIBUTE_VOMS_ISSUER[]= "http://glite.org/xacml/attribute/voms-issuer"; /**< XACML Grid WN AuthZ Subject/Attribute @b voms-issuer identifier [XACML Grid WN AuthZ 1.0, 4.6.2] */
+static const char XACML_GRIDWN_ATTRIBUTE_USER_ID[]= "http://glite.org/xacml/attribute/user-id"; /**< XACML Grid WN AuthZ Obligation/AttributeAssignment @b user-id identifier [XACML Grid WN AuthZ 1.0, 3.6.1] */
+static const char XACML_GRIDWN_ATTRIBUTE_GROUP_ID[]= "http://glite.org/xacml/attribute/group-id"; /**< XACML Grid WN AuthZ Obligation/AttributeAssignment @b group-id identifier [XACML Grid WN AuthZ 1.0, 3.6.2] */
+static const char XACML_GRIDWN_ATTRIBUTE_GROUP_ID_PRIMARY[]= "http://glite.org/xacml/attribute/group-id/primary"; /**< XACML Grid WN AuthZ Obligation/AttributeAssignment @b group-id/primary identifier [XACML Grid WN AuthZ 1.0, 3.6.3] */
+
+/*
+ * XACML Grid WN AuthZ Obligation identifiers
+ */
+static const char XACML_GRIDWN_OBLIGATION_LOCAL_ENVIRONMENT_MAP[]= "http://glite.org/xacml/obligation/local-environment-map"; /**< XACML Grid WN AuthZ Obligation @b local-environment-map identifier [XACML Grid WN AuthZ 1.0, 3.5.1] */
+static const char XACML_GRIDWN_OBLIGATION_LOCAL_ENVIRONMENT_MAP_POSIX[]= "http://glite.org/xacml/obligation/local-environment-map/posix"; /**< XACML Grid WN AuthZ Obligation @b local-environment-map/posix identifier [XACML Grid WN AuthZ 1.0, 3.5.2] */
+
+
+
+/*
+ * XACML Grid WN AuthZ datatypes
+ */
+static const char XACML_GRIDWN_DATATYPE_FQAN[]= "http://glite.org/xacml/datatype/fqan"; /**< XACML Grid WN AuthZ @b fqan datatype [XACML Grid WN AuthZ 1.0, 3.7.1] */
+
+/** @} */
+
+/** @defgroup ProfilePIPandOH PIP and Obligation Handler Profile Adapters
+ *  @ingroup Profiles
+ *
+ *  PIPs and Obligation Handlers to adapt a XACML profile to another XACML profile.
+ *
+ *  See @ref PIP, @ref ObligationHandler and @ref Profiles
+ *
+ * @{
+ */
+
+/** AuthZ Interop Profile to Grid WN AuthZ Profile PIP adapter
+ *
+ * This PIP transforms the outgoing XACML request as follow:
+ * -# The AuthZ Interop XACML Attribute @b "http://authz-interop.org/xacml/subject/cert-chain"
+ *    is copied into a Grid WN AuthZ XACML Subject/Attribute @b "urn:oasis:names:tc:xacml:1.0:subject:key-info".
+ * -# The AuthZ Interop XACML Attributes @b "http://authz-interop.org/xacml/subject/voms-fqan"
+ *    and @b "http://authz-interop.org/xacml/subject/voms-primary-fqan" are copied into the Grid WN AuthZ XACML
+ *    Subject/Attributes @b fqan/primary and @b fqan (see @ref XACML_GRIDWN_ATTRIBUTE_FQAN_PRIMARY and
+ *    @ref XACML_GRIDWN_ATTRIBUTE_FQAN_PRIMARY).
+ * -# The Grid WN AuthZ XACML Attribute @b profile-id is add to the XACML Environment
+ *    (see @ref XACML_GRIDWN_ATTRIBUTE_PROFILE_ID) with the value of @ref XACML_GRIDWN_PROFILE_VERSION.
+ *
+ * You must register this PIP as the @b last PIP for the PEP-C client.
+ * Example:
+ * @code
+ * // add your own PIPs to the PEP-C client
+ * pep_addpip(your_pip_1);
+ * ...
+ * pep_addpip(your_pip_n);
+ * // add the AuthZ Interop to Grid WN AuthZ PIP adapter as last PIP
+ * pep_addpip(authzinterop2gridwn_adapter_pip);
+ * @endcode
+ *
+ * See @ref PIP and @ref Profiles for more information
+ */
+extern const pep_pip_t * authzinterop2gridwn_adapter_pip;
+
+/** Grid WN Profile to AuthZ Interop Profile ObligationHandler adapter
+ *
+ * See @ref ObligationHandler and @ref Profiles for more information
+ */
+extern const pep_obligationhandler_t * gridwn2authzinterop_adapter_oh;
+
+/** @} */
+
 
 #ifdef  __cplusplus
 }
