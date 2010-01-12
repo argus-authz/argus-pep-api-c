@@ -30,7 +30,7 @@ extern "C" {
 
 #include "pep/xacml.h"
 
-/** @addtogroup ObligationHandler
+/** @defgroup ObligationHandler Obligation Handler (OH)
  * PEP client Obligation handler function prototypes and type.
  *
  * The OH function prototypes allow to implement a Obligation Handler (OH).

@@ -35,12 +35,7 @@ extern "C" {
  */
 
 /** @defgroup PEPClient PEP-C Client */
-/** @defgroup PIP Policy Information Point (PIP) */
-/** @defgroup ObligationHandler Obligation Handler (OH) */
-/** @defgroup Error Error Reporting */
 /** @defgroup Logging Log Level and Output */
-/** @defgroup XACML PEP XACML Objects Model */
-/** @defgroup Profiles XACML Profiles Constants */
 
 #include <stdarg.h> // va_list
 #include "pep/xacml.h"
@@ -165,23 +160,28 @@ const char * pep_version(void);
 pep_error_t pep_initialize(void);
 
 /**
- * Adds a PIP request pre-processor to the PEP client.
+ * Adds a PIP request pre-processor to the PEP client. The PIP init() function
+ * is called in this method.
  *
- * @param pip pointer to the {@link #pep_pip_t} to add. See @ref PIP for more info.
+ * See @ref PIP for more info.
+ *
+ * @param pip pointer to the {@link #pep_pip_t} to add.
  *
  * @return {@link #pep_error_t} PEP_OK on success or an error code.
  */
-pep_error_t pep_addpip(pep_pip_t * pip);
+pep_error_t pep_addpip(const pep_pip_t * pip);
 
 /**
  * Adds an Obligation Handler post-processor to the
- * PEP client. See @ref ObligationHandler for more info.
+ * PEP client. The OH init() function is be called in this method.
+ *
+ * See @ref ObligationHandler for more info.
  *
  * @param oh pointer to the {@link #pep_obligationhandler_t} to add.
  *
  * @return {@link #pep_error_t} PEP_OK on success or an error code.
  */
-pep_error_t pep_addobligationhandler(pep_obligationhandler_t * oh);
+pep_error_t pep_addobligationhandler(const pep_obligationhandler_t * oh);
 
 /**
  * Sets a PEP client configuration option.
