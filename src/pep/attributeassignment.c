@@ -94,6 +94,9 @@ const char * xacml_attributeassignment_getid(const xacml_attributeassignment_t *
 	return attr->id;
 }
 
+/*
+ * Set value at index 0
+ */
 int xacml_attributeassignment_addvalue(xacml_attributeassignment_t * attr, const char *value) {
 	if (attr == NULL || value == NULL) {
 		log_error("xacml_attributeassignment_addvalue: NULL attribute or value.");
@@ -107,6 +110,10 @@ int xacml_attributeassignment_addvalue(xacml_attributeassignment_t * attr, const
 		return PEP_XACML_ERROR;
 	}
 	strncpy(v,value,size);
+	// remove and delete existing content
+	if (llist_length(attr->values)!=0) {
+		llist_delete_elements(attr->values,(delete_element_func)free);
+	}
 	if (llist_add(attr->values,v) != LLIST_OK) {
 		log_error("xacml_attributeassignment_addvalue: can't add value to list.");
 		return PEP_XACML_ERROR;
@@ -127,12 +134,12 @@ size_t xacml_attributeassignment_values_length(const xacml_attributeassignment_t
 /**
  * Returns the PEP attribute assignment value at index i
  */
-const char * xacml_attributeassignment_getvalue(const xacml_attributeassignment_t * attr,int i) {
+const char * xacml_attributeassignment_getvalue(const xacml_attributeassignment_t * attr,...) {
 	if (attr == NULL) {
 		log_error("xacml_attributeassignment_getvalue: NULL attribute.");
 		return NULL;
 	}
-	return llist_get(attr->values,i);
+	return llist_get(attr->values,0);
 }
 
 
