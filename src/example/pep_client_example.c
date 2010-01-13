@@ -223,6 +223,7 @@ static int process_xacml_response(const xacml_response_t * response) {
             for (k= 0; k<attrs_l; k++) {
                 xacml_attributeassignment_t * attr= xacml_obligation_getattributeassignment(obligation,k);
                 fprintf(stdout,"response.result[%d].obligation[%d].attributeassignment[%d].id= %s\n",i,j,k,xacml_attributeassignment_getid(attr));
+                fprintf(stdout,"response.result[%d].obligation[%d].attributeassignment[%d].datatype= %s\n",i,j,k,xacml_attributeassignment_getdatatype(attr));
                 fprintf(stdout,"response.result[%d].obligation[%d].attributeassignment[%d].value= %s\n",i,j,k,xacml_attributeassignment_getvalue(attr));
             }
         }
