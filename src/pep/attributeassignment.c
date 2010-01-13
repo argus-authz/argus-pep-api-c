@@ -153,12 +153,19 @@ int xacml_attributeassignment_addvalue(xacml_attributeassignment_t * attr, const
 	if (llist_length(attr->values)!=0) {
 		llist_delete_elements(attr->values,(delete_element_func)free);
 	}
+	// list is empty, always add at index 0
 	if (llist_add(attr->values,v) != LLIST_OK) {
 		log_error("xacml_attributeassignment_addvalue: can't add value to list.");
 		return PEP_XACML_ERROR;
 	}
 	else return PEP_XACML_OK;
 }
+
+int xacml_attributeassignment_setvalue(xacml_attributeassignment_t * attr, const char *value) {
+	return xacml_attributeassignment_addvalue(attr,value);
+}
+
+
 /**
  * Returns the count of PEP attribute assignemnt values.
  */
