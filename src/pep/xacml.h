@@ -97,7 +97,7 @@ const char * xacml_attribute_getid(const xacml_attribute_t * attr);
 /**
  * Sets the datatype attribute of the XACML Attribute.
  * @param attr pointer to the XACML Attribute
- * @param datatype the datatype attribute
+ * @param datatype the datatype attribute (can be NULL)
  * @return int {@link #PEP_XACML_OK} or {@link #PEP_XACML_ERROR} on error.
  */
 int xacml_attribute_setdatatype(xacml_attribute_t * attr, const char * datatype);
@@ -642,6 +642,21 @@ int xacml_attributeassignment_setid(xacml_attributeassignment_t * attr, const ch
  * @return const char * the AttributeAssignment/\@AttributeId attribute or @a NULL if not set
  */
 const char * xacml_attributeassignment_getid(const xacml_attributeassignment_t * attr);
+
+/**
+ * Sets the XACML AttributeAssignment/\@DataType attribute.
+ * @param attr pointer to the XACML AttributeAssignment
+ * @param datatype the AttributeAssignment/\@DataType attribute to set (can be NULL).
+ * @return int {@link #PEP_XACML_OK} or {@link #PEP_XACML_ERROR} on error.
+ */
+int xacml_attributeassignment_setdatatype(xacml_attributeassignment_t * attr, const char * datatype);
+
+/**
+ * Gets the XACML AttributeAssignment/\@DataType attribute.
+ * @param attr pointer to the XACML AttributeAssignment
+ * @return const char * the AttributeAssignment/\@DataType attribute or @a NULL if not set
+ */
+const char * xacml_attributeassignment_getdatatype(const xacml_attributeassignment_t * attr);
 
 /**
  * @deprecated AttributeAssignment can only have one value, use xacml_attributeassignment_getvalue(const xacml_attributeassignment_t * attr) instead.
