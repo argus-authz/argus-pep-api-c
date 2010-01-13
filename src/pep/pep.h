@@ -163,7 +163,7 @@ pep_error_t pep_initialize(void);
  * Adds a PIP request pre-processor to the PEP client. The PIP init() function
  * is called in this method.
  *
- * See @ref PIP for more info.
+ * See @ref PIP and @ref ProfilesAdapters for more info.
  *
  * @param pip pointer to the {@link #pep_pip_t} to add.
  *
@@ -175,7 +175,7 @@ pep_error_t pep_addpip(const pep_pip_t * pip);
  * Adds an Obligation Handler post-processor to the
  * PEP client. The OH init() function is be called in this method.
  *
- * See @ref ObligationHandler for more info.
+ * See @ref ObligationHandler and @ref ProfilesAdapters for more info.
  *
  * @param oh pointer to the {@link #pep_obligationhandler_t} to add.
  *
