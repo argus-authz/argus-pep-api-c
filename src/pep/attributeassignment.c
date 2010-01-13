@@ -25,6 +25,7 @@
 
 struct xacml_attributeassignment {
 	char * id; // mandatory
+	char * datatype;
 	linkedlist_t * values; // string list
 };
 
@@ -94,6 +95,44 @@ const char * xacml_attributeassignment_getid(const xacml_attributeassignment_t *
 	return attr->id;
 }
 
+/**
+ * Sets the AttributeAssignment Datatype, can be NULL
+ */
+int xacml_attributeassignment_setdatatype(xacml_attributeassignment_t * attr, const char * datatype) {
+	if (attr == NULL) {
+		log_error("xacml_attributeassignment_setdatatype: NULL attribute.");
+		return PEP_XACML_ERROR;
+	}
+
+	if (attr->datatype != NULL) {
+		free(attr->datatype);
+	}
+
+	attr->datatype= NULL;
+	if (datatype!=NULL) {
+		size_t size= strlen(datatype);
+		attr->datatype= calloc(size + 1,sizeof(char));
+		if (attr->datatype == NULL) {
+			log_error("xacml_attributeassignment_setdatatype: can't allocate datatype (%d bytes).", (int)size);
+			return PEP_XACML_ERROR;
+		}
+		strncpy(attr->datatype,datatype,size);
+	}
+	return PEP_XACML_OK;
+}
+
+/**
+ * Returns the attribute assignment attribute datatype.
+ */
+const char * xacml_attributeassignment_getdatatype(const xacml_attributeassignment_t * attr) {
+	if (attr == NULL) {
+		log_error("xacml_attributeassignment_getdatatype: NULL attribute.");
+		return NULL;
+	}
+	return attr->datatype;
+}
+
+
 /*
  * Set value at index 0
  */
@@ -132,7 +171,7 @@ size_t xacml_attributeassignment_values_length(const xacml_attributeassignment_t
 }
 
 /**
- * Returns the PEP attribute assignment value at index i
+ * Always return value at index 0
  */
 const char * xacml_attributeassignment_getvalue(const xacml_attributeassignment_t * attr,...) {
 	if (attr == NULL) {
@@ -149,7 +188,8 @@ const char * xacml_attributeassignment_getvalue(const xacml_attributeassignment_
  */
 void xacml_attributeassignment_delete(xacml_attributeassignment_t * attr) {
 	if (attr == NULL) return;
-	free(attr->id);
+	if (attr->id != NULL) free(attr->id);
+	if (attr->datatype != NULL) free(attr->datatype);
 	llist_delete_elements(attr->values,(delete_element_func)free);
 	llist_delete(attr->values);
 	free(attr);
