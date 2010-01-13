@@ -30,8 +30,12 @@
 // prototypes
 static int create_xacml_request(xacml_request_t ** request,const char * subjectid, const char * resourceid, const char * actionid);
 static int process_xacml_response(const xacml_response_t * response);
-static const char * decision_str(int decision);
+static const char * decision_tostring(xacml_decision_t decision);
+static const char * fulfillon_tostring(xacml_fulfillon_t fulfillon);
 
+/*
+ * main
+ */
 int main(void) {
     // functions return code
     pep_error_t pep_rc; // PEP-C function
@@ -100,7 +104,7 @@ int main(void) {
     return 0;
 }
 
-/**
+/*
  * Creates a XACML Request containing a XACML Subject with the given subjectid, a XACML Resource
  * with the given resourceid and a XACML Action with the given actionid.
  * 
@@ -179,7 +183,7 @@ static int create_xacml_request(xacml_request_t ** request,const char * subjecti
     return 0;
 }
 
-/**
+/*
  * Simply dump the XACML response.
  *
  * @param [in] response the XAXML response
@@ -195,7 +199,7 @@ static int process_xacml_response(const xacml_response_t * response) {
     int i= 0;
     for(i= 0; i<results_l; i++) {
         xacml_result_t * result= xacml_response_getresult(response,i);
-        fprintf(stdout,"response.result[%d].decision= %s\n", i, decision_str(xacml_result_getdecision(result)));
+        fprintf(stdout,"response.result[%d].decision= %s\n", i, decision_tostring(xacml_result_getdecision(result)));
 
         fprintf(stdout,"response.result[%d].resourceid= %s\n", i, xacml_result_getresourceid(result));
         xacml_status_t * status= xacml_result_getstatus(result);
@@ -212,44 +216,56 @@ static int process_xacml_response(const xacml_response_t * response) {
         for(j= 0; j<obligations_l; j++) {
             xacml_obligation_t * obligation= xacml_result_getobligation(result,j);
             fprintf(stdout,"response.result[%d].obligation[%d].id= %s\n",i,j, xacml_obligation_getid(obligation));
-            fprintf(stdout,"response.result[%d].obligation[%d].fulfillOn= %s\n",i,j, decision_str(xacml_obligation_getfulfillon(obligation)));
+            fprintf(stdout,"response.result[%d].obligation[%d].fulfillOn= %s\n",i,j, fulfillon_tostring(xacml_obligation_getfulfillon(obligation)));
             size_t attrs_l= xacml_obligation_attributeassignments_length(obligation);
             fprintf(stdout,"response.result[%d].obligation[%d]: %d attribute assignments\n",i,j,(int)attrs_l);
             int k= 0;
             for (k= 0; k<attrs_l; k++) {
                 xacml_attributeassignment_t * attr= xacml_obligation_getattributeassignment(obligation,k);
                 fprintf(stdout,"response.result[%d].obligation[%d].attributeassignment[%d].id= %s\n",i,j,k,xacml_attributeassignment_getid(attr));
-                size_t values_l= xacml_attributeassignment_values_length(attr);
-                int l= 0;
-                for (l= 0; l<values_l; l++) {
-                    fprintf(stdout,"response.result[%d].obligation[%d].attributeassignment[%d].value[%d]= %s\n",i,j,k,l,xacml_attributeassignment_getvalue(attr,l));
-                }
+                fprintf(stdout,"response.result[%d].obligation[%d].attributeassignment[%d].value= %s\n",i,j,k,xacml_attributeassignment_getvalue(attr));
             }
         }
     }
     return 0;
 }
 
-/**
+/*
  * Returns the string representation of the decision.
  */
-static const char * decision_str(int decision) {
+static const char * decision_tostring(xacml_decision_t decision) {
     switch(decision) {
-    case 0:
+    case XACML_DECISION_DENY:
         return "Deny";
         break;
-    case 1:
+    case XACML_DECISION_PERMIT:
         return "Permit";
         break;
-    case 2:
+    case XACML_DECISION_INDETERMINATE:
         return "Indeterminate";
         break;
-    case 3:
+    case XACML_DECISION_NOT_APPLICABLE:
         return "Not Applicable";
         break;
     default:
-        return "Deny (Unknown!?!)";
+        return "ERROR (Unknown Decision)";
         break;
     }
 }
 
+/*
+ * Returns the string representation of the fulfillOn.
+ */
+static const char * fulfillon_tostring(xacml_fulfillon_t fulfillon) {
+    switch(fulfillon) {
+    case XACML_FULFILLON_DENY:
+        return "Deny";
+        break;
+    case XACML_FULFILLON_PERMIT:
+        return "Permit";
+        break;
+    default:
+        return "ERROR (Unknown FulfillOn)";
+        break;
+    }
+}
