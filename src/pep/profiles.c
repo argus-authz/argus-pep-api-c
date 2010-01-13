@@ -274,7 +274,7 @@ static int gridwn2authzinterop_oh_process(xacml_request_t ** request,xacml_respo
 						gid_t * gids= calloc(n_groupnames,sizeof(gid_t));
 						int resolve_error= 0;
 						for (m= 0; m<n_groupnames; m++) {
-							if (resolve_gid(groupnames[m],&gid[m])!=0) {
+							if (resolve_gid(groupnames[m],&gids[m])!=0) {
 								resolve_error= 1;
 								break;
 							}
@@ -304,7 +304,7 @@ static xacml_obligation_t * create_username_obligation(xacml_fulfillon_t fulfill
 		log_error("failed to create Obligation{%s}",XACML_AUTHZINTEROP_OBLIGATION_USERNAME);
 		return NULL;
 	}
-	xacml_obligation_setfulfillon(username_obligation,obligation_fulfillon);
+	xacml_obligation_setfulfillon(username_obligation,fulfillon);
 
 	xacml_attributeassignment_t * username_attr= xacml_attributeassignment_create(XACML_AUTHZINTEROP_OBLIGATION_ATTR_USERNAME);
 	if (username_attr==NULL) {
@@ -325,7 +325,7 @@ static xacml_obligation_t * create_uidgid_obligation(xacml_fulfillon_t fulfillon
 		log_error("failed to create Obligation{%s}",XACML_AUTHZINTEROP_OBLIGATION_UIDGID);
 		return NULL;
 	}
-	xacml_obligation_setfulfillon(uidgid_obligation,obligation_fulfillon);
+	xacml_obligation_setfulfillon(uidgid_obligation,fulfillon);
 
 	xacml_attributeassignment_t * uid_attr= xacml_attributeassignment_create(XACML_AUTHZINTEROP_OBLIGATION_ATTR_POSIX_UID);
 	if (uid_attr==NULL) {
@@ -356,7 +356,7 @@ static xacml_obligation_t * create_secondarygids_obligation(xacml_fulfillon_t fu
 		log_error("failed to create Obligation{%s}",XACML_AUTHZINTEROP_OBLIGATION_SECONDARY_GIDS);
 		return NULL;
 	}
-	xacml_obligation_setfulfillon(gids_obligation,obligation_fulfillon);
+	xacml_obligation_setfulfillon(gids_obligation,fulfillon);
 
 	char value[1024];
 	for (i= 0; i<gids_length; i++) {
