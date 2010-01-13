@@ -418,7 +418,7 @@ static int xacml_environment_marshal(const xacml_environment_t * env, hessian_ob
 		*h_env= h_null;
 		return PEP_IO_OK;
 	}
-	hessian_object_t * h_environment= h_environment= hessian_create(HESSIAN_MAP,XACML_HESSIAN_ENVIRONMENT_CLASSNAME);
+	hessian_object_t * h_environment= hessian_create(HESSIAN_MAP,XACML_HESSIAN_ENVIRONMENT_CLASSNAME);
 	if (h_environment == NULL) {
 		log_error("xacml_environment_marshal: can't create Hessian map: %s.", XACML_HESSIAN_ENVIRONMENT_CLASSNAME);
 		return PEP_IO_ERROR;
@@ -1681,6 +1681,24 @@ static int xacml_attributeassignment_unmarshal(xacml_attributeassignment_t ** at
 			const char * id = hessian_string_getstring(h_string);
 			if (xacml_attributeassignment_setid(attribute,id) != PEP_XACML_OK) {
 				log_error("xacml_attributeassignment_unmarshal: can't set id: %s to XACML attribute assignment at: %d",id,i);
+				xacml_attributeassignment_delete(attribute);
+				return PEP_IO_ERROR;
+			}
+		}
+		// datatype (optional)
+		else if (strcmp(XACML_HESSIAN_ATTRIBUTEASSIGNMENT_DATATYPE,key) == 0) {
+			hessian_object_t * h_string= hessian_map_getvalue(h_attribute,i);
+			hessian_t h_string_type= hessian_gettype(h_string);
+			if ( h_string_type != HESSIAN_STRING && h_string_type != HESSIAN_NULL) {
+				log_error("xacml_attributeassignment_unmarshal: Hessian map<'%s',value> is not a Hessian string or null at: %d.",key,i);
+				xacml_attributeassignment_delete(attribute);
+				return PEP_IO_ERROR;
+			}
+			const char * datatype= NULL;
+			if (h_string_type == HESSIAN_STRING)
+				datatype= hessian_string_getstring(h_string);
+			if (xacml_attributeassignment_setdatatype(attribute,datatype) != PEP_XACML_OK) {
+				log_error("xacml_attributeassignment_unmarshal: can't set datatype: %s to XACML attribute at: %d",datatype,i);
 				xacml_attributeassignment_delete(attribute);
 				return PEP_IO_ERROR;
 			}

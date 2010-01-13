@@ -102,6 +102,7 @@ static const char XACML_HESSIAN_STATUS_CODE[]= "statusCode";
 
 static const char XACML_HESSIAN_ATTRIBUTEASSIGNMENT_CLASSNAME[]= "org.glite.authz.common.model.AttributeAssignment";
 static const char XACML_HESSIAN_ATTRIBUTEASSIGNMENT_ID[]= "attributeId";
+static const char XACML_HESSIAN_ATTRIBUTEASSIGNMENT_DATATYPE[]= "dataType";
 static const char XACML_HESSIAN_ATTRIBUTEASSIGNMENT_VALUES[]= "values";
 
 static const char XACML_HESSIAN_OBLIGATION_CLASSNAME[]= "org.glite.authz.common.model.Obligation";
