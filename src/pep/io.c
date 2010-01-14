@@ -1698,36 +1698,28 @@ static int xacml_attributeassignment_unmarshal(xacml_attributeassignment_t ** at
 			if (h_string_type == HESSIAN_STRING)
 				datatype= hessian_string_getstring(h_string);
 			if (xacml_attributeassignment_setdatatype(attribute,datatype) != PEP_XACML_OK) {
-				log_error("xacml_attributeassignment_unmarshal: can't set datatype: %s to XACML attribute at: %d",datatype,i);
+				log_error("xacml_attributeassignment_unmarshal: can't set datatype: %s to XACML attribute assignment at: %d",datatype,i);
 				xacml_attributeassignment_delete(attribute);
 				return PEP_IO_ERROR;
 			}
 		}
-		// values list
-		else if (strcmp(XACML_HESSIAN_ATTRIBUTEASSIGNMENT_VALUES,key) == 0) {
-			hessian_object_t * h_values= hessian_map_getvalue(h_attribute,i);
-			if (hessian_gettype(h_values) != HESSIAN_LIST) {
-				log_error("xacml_attributeassignment_unmarshal: Hessian map<'%s',value> is not a Hessian list.",key);
+		// value (optional)
+		else if (strcmp(XACML_HESSIAN_ATTRIBUTEASSIGNMENT_VALUE,key) == 0) {
+			hessian_object_t * h_string= hessian_map_getvalue(h_attribute,i);
+			hessian_t h_string_type= hessian_gettype(h_string);
+			if ( h_string_type != HESSIAN_STRING && h_string_type != HESSIAN_NULL) {
+				log_error("xacml_attributeassignment_unmarshal: Hessian map<'%s',value> is not a Hessian string or null at: %d.",key,i);
 				xacml_attributeassignment_delete(attribute);
 				return PEP_IO_ERROR;
 			}
-			size_t h_values_l= hessian_list_length(h_values);
-			int j= 0;
-			for(j= 0; j<h_values_l; j++) {
-				hessian_object_t * h_value= hessian_list_get(h_values,j);
-				if (hessian_gettype(h_value) != HESSIAN_STRING) {
-					log_error("xacml_attributeassignment_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.",key,i);
-					xacml_attributeassignment_delete(attribute);
-					return PEP_IO_ERROR;
-				}
-				const char * value = hessian_string_getstring(h_value);
-				if (xacml_attributeassignment_addvalue(attribute,value) != PEP_XACML_OK) {
-					log_error("xacml_attributeassignment_unmarshal: can't add value: %s to XACML attribute at: %d",value,j);
-					xacml_attributeassignment_delete(attribute);
-					return PEP_IO_ERROR;
-				}
+			const char * value= NULL;
+			if (h_string_type == HESSIAN_STRING)
+				value= hessian_string_getstring(h_string);
+			if (xacml_attributeassignment_setvalue(attribute,value) != PEP_XACML_OK) {
+				log_error("xacml_attributeassignment_unmarshal: can't set value: %s to XACML attribute assignment at: %d",value,i);
+				xacml_attributeassignment_delete(attribute);
+				return PEP_IO_ERROR;
 			}
-
 		}
 		else {
 			log_warn("xacml_attributeassignment_unmarshal: unknown Hessian map<key>: %s at: %d.",key,i);

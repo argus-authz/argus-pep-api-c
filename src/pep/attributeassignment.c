@@ -19,14 +19,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "util/linkedlist.h"
 #include "util/log.h"
 #include "pep/xacml.h"
 
 struct xacml_attributeassignment {
 	char * id; // mandatory
 	char * datatype;
-	linkedlist_t * values; // string list
+	char * value;
 };
 
 /**
@@ -48,13 +47,6 @@ xacml_attributeassignment_t * xacml_attributeassignment_create(const char * id) 
 			return NULL;
 		}
 		strncpy(attr->id,id,size);
-	}
-	attr->values= llist_create();
-	if (attr->values == NULL) {
-		log_error("xacml_attributeassignment_create: can't create values list.");
-		free(attr->id);
-		free(attr);
-		return NULL;
 	}
 	return attr;
 }
@@ -138,31 +130,33 @@ const char * xacml_attributeassignment_getdatatype(const xacml_attributeassignme
  */
 int xacml_attributeassignment_addvalue(xacml_attributeassignment_t * attr, const char *value) {
 	if (attr == NULL || value == NULL) {
-		log_error("xacml_attributeassignment_addvalue: NULL attribute or value.");
+		log_error("xacml_attributeassignment_addvalue: NULL attribute.");
 		return PEP_XACML_ERROR;
 	}
-	// copy the const value
-	size_t size= strlen(value);
-	char * v= calloc(size + 1, sizeof(char));
-	if (v == NULL) {
-		log_error("xacml_attributeassignment_addvalue: can't allocate value (%d bytes).", (int)size);
-		return PEP_XACML_ERROR;
-	}
-	strncpy(v,value,size);
-	// remove and delete existing content
-	if (llist_length(attr->values)!=0) {
-		llist_delete_elements(attr->values,(delete_element_func)free);
-	}
-	// list is empty, always add at index 0
-	if (llist_add(attr->values,v) != LLIST_OK) {
-		log_error("xacml_attributeassignment_addvalue: can't add value to list.");
-		return PEP_XACML_ERROR;
-	}
-	else return PEP_XACML_OK;
+	return xacml_attributeassignment_setvalue(attr,value);
 }
 
 int xacml_attributeassignment_setvalue(xacml_attributeassignment_t * attr, const char *value) {
-	return xacml_attributeassignment_addvalue(attr,value);
+	if (attr == NULL) {
+		log_error("xacml_attributeassignment_setvalue: NULL attribute.");
+		return PEP_XACML_ERROR;
+	}
+
+	if (attr->value != NULL) {
+		free(attr->value);
+	}
+
+	attr->value= NULL;
+	if (value!=NULL) {
+		size_t size= strlen(value);
+		attr->value= calloc(size + 1,sizeof(char));
+		if (attr->value == NULL) {
+			log_error("xacml_attributeassignment_setvalue: can't allocate value (%d bytes).", (int)size);
+			return PEP_XACML_ERROR;
+		}
+		strncpy(attr->value,value,size);
+	}
+	return PEP_XACML_OK;
 }
 
 
@@ -174,18 +168,21 @@ size_t xacml_attributeassignment_values_length(const xacml_attributeassignment_t
 		log_warn("xacml_attributeassignment_values_length: NULL attribute.");
 		return 0;
 	}
-	return llist_length(attr->values);
+	if (attr->value==NULL)
+		return 0;
+	else
+		return 1;
 }
 
 /**
- * Always return value at index 0
+ * Always return value
  */
 const char * xacml_attributeassignment_getvalue(const xacml_attributeassignment_t * attr,...) {
 	if (attr == NULL) {
 		log_error("xacml_attributeassignment_getvalue: NULL attribute.");
 		return NULL;
 	}
-	return llist_get(attr->values,0);
+	return attr->value;
 }
 
 
@@ -197,8 +194,7 @@ void xacml_attributeassignment_delete(xacml_attributeassignment_t * attr) {
 	if (attr == NULL) return;
 	if (attr->id != NULL) free(attr->id);
 	if (attr->datatype != NULL) free(attr->datatype);
-	llist_delete_elements(attr->values,(delete_element_func)free);
-	llist_delete(attr->values);
+	if (attr->value != NULL) free(attr->value);
 	free(attr);
 	attr= NULL;
 }
