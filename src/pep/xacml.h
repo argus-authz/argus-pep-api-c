@@ -18,7 +18,6 @@
 /* * $Id$
  * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
- * @version 1.1
  */
 #ifndef _PEP_XACML_H_
 #define _PEP_XACML_H_
