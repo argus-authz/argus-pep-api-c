@@ -312,6 +312,8 @@ static xacml_obligation_t * create_username_obligation(xacml_fulfillon_t fulfill
 		xacml_obligation_delete(username_obligation);
 		return NULL;
 	}
+	xacml_attributeassignment_setvalue(username_attr,username);
+	xacml_attributeassignment_setdatatype(username_attr,XACML_DATATYPE_STRING);
 	xacml_obligation_addattributeassignment(username_obligation,username_attr);
 	return username_obligation;
 }
@@ -327,12 +329,16 @@ static xacml_obligation_t * create_uidgid_obligation(xacml_fulfillon_t fulfillon
 	}
 	xacml_obligation_setfulfillon(uidgid_obligation,fulfillon);
 
+	char value[1024];
 	xacml_attributeassignment_t * uid_attr= xacml_attributeassignment_create(XACML_AUTHZINTEROP_OBLIGATION_ATTR_POSIX_UID);
 	if (uid_attr==NULL) {
 		log_error("failed to create Obligation/AttributeAssignment{%s}",XACML_AUTHZINTEROP_OBLIGATION_ATTR_POSIX_UID);
 		xacml_obligation_delete(uidgid_obligation);
 		return NULL;
 	}
+	snprintf(value,1024,"%u",uid);
+	xacml_attributeassignment_setvalue(uid_attr,value);
+	xacml_attributeassignment_setdatatype(uid_attr,XACML_DATATYPE_INTEGER);
 	xacml_obligation_addattributeassignment(uidgid_obligation,uid_attr);
 
 	xacml_attributeassignment_t * gid_attr= xacml_attributeassignment_create(XACML_AUTHZINTEROP_OBLIGATION_ATTR_POSIX_GID);
@@ -341,6 +347,9 @@ static xacml_obligation_t * create_uidgid_obligation(xacml_fulfillon_t fulfillon
 		xacml_obligation_delete(uidgid_obligation);
 		return NULL;
 	}
+	snprintf(value,1024,"%u",gid);
+	xacml_attributeassignment_setvalue(gid_attr,value);
+	xacml_attributeassignment_setdatatype(gid_attr,XACML_DATATYPE_INTEGER);
 	xacml_obligation_addattributeassignment(uidgid_obligation,gid_attr);
 
 	return uidgid_obligation;
@@ -366,10 +375,10 @@ static xacml_obligation_t * create_secondarygids_obligation(xacml_fulfillon_t fu
 			xacml_obligation_delete(gids_obligation);
 			return NULL;
 		}
-		xacml_obligation_addattributeassignment(gids_obligation,gid_attr);
-
 		snprintf(value,1024,"%u",gids[i]);
 		xacml_attributeassignment_setvalue(gid_attr,value);
+		xacml_attributeassignment_setdatatype(gid_attr,XACML_DATATYPE_INTEGER);
+		xacml_obligation_addattributeassignment(gids_obligation,gid_attr);
 	}
 
 	return gids_obligation;
