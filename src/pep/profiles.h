@@ -135,6 +135,8 @@ static const char XACML_GRIDWN_DATATYPE_FQAN[]= "http://glite.org/xacml/datatype
  * -# The Grid WN AuthZ XACML Attribute @b profile-id is add to the XACML Environment
  *    (see @ref XACML_GRIDWN_ATTRIBUTE_PROFILE_ID and @ref XACML_GRIDWN_PROFILE_VERSION).
  *
+ * The @c authzinterop2gridwn_adapter_pip->process function never failed and always return @c 0.
+ *
  * You must register this PIP as the @b last PIP for the PEP-C client.
  * Example:
  * @code
@@ -166,6 +168,8 @@ extern const pep_pip_t * authzinterop2gridwn_adapter_pip;
  *       and @b "http://authz-interop.org/xacml/attribute/posix-gid" (Dataype: integer).
  *    -# Creates the AuthZ Interop XACML Obligation @b "http://authz-interop.org/xacml/obligation/secondary-gids"
  *       with the AttributeAssignments @b "http://authz-interop.org/xacml/attribute/posix-gid" (datatype: integer)
+ *
+ * The @c gridwn2authzinterop_adapter_oh->process function never failed and always return @c 0.
  *
  * You must register this OH as the @b first OH for the PEP-C client.
  * Example:
