@@ -209,8 +209,8 @@ static int authzinterop2gridwn_pip_process(xacml_request_t ** request) {
 static xacml_obligation_t * create_username_obligation(xacml_fulfillon_t fulfillon, const char * username);
 static xacml_obligation_t * create_uidgid_obligation(xacml_fulfillon_t fulfillon, uid_t uid, gid_t gid);
 static xacml_obligation_t * create_secondarygids_obligation(xacml_fulfillon_t fulfillon, gid_t gids[], size_t gids_length);
-static int resolve_gid(const char * groupname, gid_t * gid);
-static int resolve_uid(const char * username, uid_t * uid);
+static int resolve_group_gid(const char * groupname, gid_t * gr_gid);
+static int resolve_user_uidgid(const char * username, uid_t * pw_uid, gid_t * pw_gid);
 
 
 /*
@@ -252,29 +252,38 @@ static int gridwn2authzinterop_oh_process(xacml_request_t ** request,xacml_respo
 						}
 					}
 
+					// username obligation
 					if (username) {
 						xacml_obligation_t * username_obligation= create_username_obligation(obligation_fulfillon,username);
 						if (username_obligation) {
 							xacml_result_addobligation(result,username_obligation);
 						}
 					}
-					if (username && groupname) {
+					// uidgid obligation
+					if (username) {
 						// resolve POSIX username and groupname id (uid and gid)
-						uid_t uid;
-						gid_t gid;
-						if (resolve_uid(username,&uid)==0 && resolve_gid(groupname, &gid)==0) {
-							xacml_obligation_t * uidgid_obligation= create_uidgid_obligation(obligation_fulfillon,uid,gid);
+						// if only the username (without groupname), use the user default group
+						uid_t user_uid;
+						gid_t user_gid, group_gid;
+						if (resolve_user_uidgid(username,&user_uid,&user_gid)==0) {
+							uid_t obligation_uid= user_uid;
+							gid_t obligation_gid= user_gid;
+							if (groupname && resolve_group_gid(groupname, &group_gid)==0) {
+								obligation_gid= group_gid;
+							}
+							xacml_obligation_t * uidgid_obligation= create_uidgid_obligation(obligation_fulfillon,obligation_uid,obligation_gid);
 							if (uidgid_obligation) {
 								xacml_result_addobligation(result,uidgid_obligation);
 							}
 						}
 					}
+					// secondary gids obligation
 					if (n_groupnames>0) {
 						// resolve POSIX secondary groupnames gids
 						gid_t * gids= calloc(n_groupnames,sizeof(gid_t));
 						int resolve_error= 0;
 						for (m= 0; m<n_groupnames; m++) {
-							if (resolve_gid(groupnames[m],&gids[m])!=0) {
+							if (resolve_group_gid(groupnames[m],&gids[m])!=0) {
 								resolve_error= 1;
 								break;
 							}
@@ -388,37 +397,52 @@ static xacml_obligation_t * create_secondarygids_obligation(xacml_fulfillon_t fu
  * resolve the POSIX gid for the groupname
  * return 0 on success
  */
-static int resolve_gid(const char * groupname, gid_t * gid) {
+static int resolve_group_gid(const char * groupname, gid_t * gid) {
+	if (groupname==NULL) {
+		log_warn("resolve_group_gid: groupname is NULL");
+		return -1;
+	}
 	struct group gr;
 	struct group *result;
 	char buf[GETGR_R_SIZE_MAX];
 	size_t bufsize= GETGR_R_SIZE_MAX;
-	if (getgrnam_r(groupname,&gr,buf,bufsize,&result)==0) {
+	log_debug("resolve_group_gid for %s",groupname);
+	int rc= getgrnam_r(groupname,&gr,buf,bufsize,&result);
+	if (rc==0 && result!=NULL) {
 		*gid= gr.gr_gid;
+		log_debug("resolve_group_gid: gid=%d",gr.gr_gid);
 		return 0;
 	}
 	else {
-		log_error("failed to resolve POSIX gid for %s: %s",groupname,strerror(errno));
-		return -1;
+		log_error("resolve_group_gid: failed to resolve POSIX gid for %s: %s",groupname,strerror(errno));
+		return -2;
 	}
 }
 
 /*
- * resolve the POSIX uid for the username
+ * resolve the POSIX uid and gid for the username
  * return 0 on success
  */
-static int resolve_uid(const char * username, uid_t * uid) {
+static int resolve_user_uidgid(const char * username, uid_t * uid, gid_t * gid) {
+	if (username==NULL) {
+		log_warn("resolve_user_uidgid: username is NULL");
+		return -1;
+	}
 	struct passwd pw;
 	struct passwd *result;
 	char buf[GETPW_R_SIZE_MAX];
 	size_t bufsize= GETPW_R_SIZE_MAX;
-	if (getpwnam_r(username,&pw,buf,bufsize,&result)==0) {
+	log_debug("resolve_user_uidgid for %s",username);
+	int rc= getpwnam_r(username,&pw,buf,bufsize,&result);
+	if (rc==0 && result!=NULL) {
 		*uid= pw.pw_uid;
+		*gid= pw.pw_gid;
+		log_debug("resolve_user_uidgid: uid=%d, gid=%d",pw.pw_uid,pw.pw_gid);
 		return 0;
 	}
 	else {
-		log_error("failed to resolve POSIX uid for %s: %s", username, strerror(errno));
-		return -1;
+		log_error("failed to resolve POSIX uid/gid for %s: %s", username, strerror(errno));
+		return -2;
 	}
 }
 

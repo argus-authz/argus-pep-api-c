@@ -40,7 +40,7 @@ extern "C" {
  *
  * XACML Attribute and Obligation Profile for Authorization Interoperability in Grids (Version 1.1)
  *
- * TODO: add link to profile document
+ * Document: https://edms.cern.ch/document/929867/2
  *
  * XACML Subject's Attribute identifiers, XACML Obligation and Obligation's AttributeAssignment
  * identifiers for the AuthZ Interop Profile
