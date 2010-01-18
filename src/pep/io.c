@@ -1721,6 +1721,32 @@ static int xacml_attributeassignment_unmarshal(xacml_attributeassignment_t ** at
 				return PEP_IO_ERROR;
 			}
 		}
+		// values (back compatibility with PEPd <= 1.0)
+		else if (strcmp(XACML_HESSIAN_ATTRIBUTEASSIGNMENT_VALUES,key) == 0) {
+			hessian_object_t * h_values= hessian_map_getvalue(h_attribute,i);
+			if (hessian_gettype(h_values) != HESSIAN_LIST) {
+				log_error("xacml_attributeassignment_unmarshal: Hessian map<'%s',...> is not a Hessian list.",key);
+				xacml_attributeassignment_delete(attribute);
+				return PEP_IO_ERROR;
+			}
+			log_warn("xacml_attributeassignment_unmarshal: DEPRECATED Hessian map<'%s',...> received at: %d",key,i);
+			size_t h_values_l= hessian_list_length(h_values);
+			int j= 0;
+			for(j= 0; j<h_values_l; j++) {
+				hessian_object_t * h_value= hessian_list_get(h_values,j);
+				if (hessian_gettype(h_value) != HESSIAN_STRING) {
+					log_error("xacml_attributeassignment_unmarshal: Hessian map<'%s',value> is not a Hessian string at: %d.",key,j);
+					xacml_attributeassignment_delete(attribute);
+					return PEP_IO_ERROR;
+				}
+				const char * value = hessian_string_getstring(h_value);
+				if (xacml_attributeassignment_setvalue(attribute,value) != PEP_XACML_OK) {
+					log_error("xacml_attributeassignment_unmarshal: can't set value: %s to XACML attribute assignment at: %d",value,j);
+					xacml_attributeassignment_delete(attribute);
+					return PEP_IO_ERROR;
+				}
+			}
+		}
 		else {
 			log_warn("xacml_attributeassignment_unmarshal: unknown Hessian map<key>: %s at: %d.",key,i);
 		}
