@@ -159,7 +159,7 @@ extern const pep_pip_t * authzinterop2gridwn_adapter_pip;
  *    resolved (see @ref XACML_GRIDWN_OBLIGATION_LOCAL_ENVIRONMENT_MAP_POSIX).
  *    The user POSIX uid, gid and secondary gids are locally resolved, based on the Grid WN AuthZ
  *    AttributeAssignments @b user-id (@ref XACML_GRIDWN_ATTRIBUTE_USER_ID) and @b group-id/primary
- *    (@ref XACML_GRIDWN_ATTRIBUTE_GROUP_ID_PRIMARY) and @b group-id (@ref XACML_GRIDWN_ATTRIBUTE_GROUP_ID_PRIMARY) of
+ *    (@ref XACML_GRIDWN_ATTRIBUTE_GROUP_ID_PRIMARY) and @b group-id (@ref XACML_GRIDWN_ATTRIBUTE_GROUP_ID) of
  *    the Obligation.
  *    -# Creates the AuthZ Interop XACML Obligation @b "http://authz-interop.org/xacml/obligation/username"
  *       with the AttributeAssignment @b "http://authz-interop.org/xacml/attribute/username" (Datatype: string).
