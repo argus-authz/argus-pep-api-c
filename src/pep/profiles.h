@@ -76,7 +76,7 @@ static const char XACML_AUTHZINTEROP_OBLIGATION_ATTR_AFS_TOKEN[]= "http://authz-
  *
  * XACML Grid Worker Node Authorization Profile (Version 1.0)
  *
- * TODO: link to profile document http://edms.cern.ch/file/NUMBER/FILENAME.pdf
+ * Document: https://edms.cern.ch/document/1058175/1.0
  *
  * Profile version, XACML Attribute identifiers, XACML Obligation identifiers, and datatypes for the Grid WN AuthZ Profile.
  * @{
