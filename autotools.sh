@@ -1,6 +1,6 @@
 #!/bin/sh
 ##
-# Copyright (c) Members of the EGEE Collaboration. 2004
+# Copyright (c) Members of the EGEE Collaboration. 2004-2010.
 # See http://www.eu-egee.org/partners for details on the copyright holders. 
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
