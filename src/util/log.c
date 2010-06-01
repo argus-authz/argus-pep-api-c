@@ -23,28 +23,28 @@
 
 #include "util/log.h"
 
-// tmp buffer for logging
+/* tmp buffer for logging */
 #define LOG_BUFFER_SIZE 1024
 static char LOG_BUFFER[LOG_BUFFER_SIZE];
 
-// output file handler
+/* output file handler */
 static FILE * log_out= NULL;
-// log level
+/* log level */
 static log_level_t log_level= LOG_LEVEL_NONE;
 
-// internal prototypes:
+/* internal prototypes: */
 static int _log_vfprintf(FILE * out, time_t * epoch, const char * level, const char * fmt, va_list args);
 
-// level prio strings
+/* level prio strings */
 static const char * LEVEL_EVENTS[]= {"ERROR","WARN","INFO","DEBUG","TRACE"};
-// internal log handler function
+/* internal log handler function */
 static int log_handler_default(log_level_t level,const char *fmt, va_list args) {
 	time_t epoch;
 	time(&epoch);
 	return _log_vfprintf(log_out, &epoch, LEVEL_EVENTS[level], fmt, args);
 }
 
-// log handler function pointer
+/* log handler function pointer */
 static log_handler_func * log_handler= (log_handler_func*)log_handler_default;
 
 
@@ -75,8 +75,8 @@ FILE * log_getout(void) {
 
 int log_info(const char *fmt, ...) {
 	int rc= LOG_OK;
+    va_list args;
 	if (log_level >= LOG_LEVEL_INFO) {
-		va_list args;
 		va_start(args,fmt);
 		if (log_handler != NULL) {
 			rc= log_handler(LOG_LEVEL_INFO,fmt,args);
@@ -88,8 +88,8 @@ int log_info(const char *fmt, ...) {
 
 int log_warn(const char *fmt, ...) {
 	int rc= LOG_OK;
+    va_list args;
 	if (log_level >= LOG_LEVEL_WARN) {
-		va_list args;
 		va_start(args,fmt);
 		if (log_handler != NULL) {
 			rc= log_handler(LOG_LEVEL_WARN,fmt,args);
@@ -101,8 +101,8 @@ int log_warn(const char *fmt, ...) {
 
 int log_error(const char *fmt, ...) {
 	int rc= LOG_OK;
+    va_list args;
 	if (log_level >= LOG_LEVEL_ERROR) {
-		va_list args;
 		va_start(args,fmt);
 		if (log_handler != NULL) {
 			rc= log_handler(LOG_LEVEL_ERROR,fmt,args);
@@ -114,8 +114,8 @@ int log_error(const char *fmt, ...) {
 
 int log_debug(const char *fmt, ...) {
 	int rc= LOG_OK;
+    va_list args;
 	if (log_level >= LOG_LEVEL_DEBUG) {
-		va_list args;
 		va_start(args,fmt);
 		if (log_handler != NULL) {
 			rc= log_handler(LOG_LEVEL_DEBUG,fmt,args);
@@ -127,8 +127,8 @@ int log_debug(const char *fmt, ...) {
 
 int log_trace(const char *fmt, ...) {
 	int rc= LOG_OK;
+    va_list args;
 	if (log_level >= LOG_LEVEL_TRACE) {
-		va_list args;
 		va_start(args,fmt);
 		if (log_handler != NULL) {
 			rc= log_handler(LOG_LEVEL_TRACE,fmt,args);
@@ -139,15 +139,19 @@ int log_trace(const char *fmt, ...) {
 }
 
 
-// logs in file
-// format "YYYY-MM-DD HH:MM:SS <level>: <formated_message>\n"
-// uses the LOG_BUFFER to create the complete format string
+/* 
+logs in file
+format "YYYY-MM-DD HH:MM:SS <level>: <formated_message>\n"
+uses the LOG_BUFFER to create the complete format string
+*/
 static int _log_vfprintf(FILE * out, time_t * epoch, const char * level, const char * fmt, va_list args) {
+    struct tm * time;
+    size_t size;
 	memset(LOG_BUFFER,0,LOG_BUFFER_SIZE);
 	if (out != NULL) {
-		struct tm * time= localtime(epoch);
-		strftime(LOG_BUFFER,LOG_BUFFER_SIZE,"%F %T ",time);
-		size_t size= LOG_BUFFER_SIZE - strlen(LOG_BUFFER);
+		time= localtime(epoch);
+		strftime(LOG_BUFFER,LOG_BUFFER_SIZE,"%Y-%m-%d %H:%M:%S ",time);
+		size= LOG_BUFFER_SIZE - strlen(LOG_BUFFER);
 		if (level != NULL) {
 			strncat(LOG_BUFFER,level,size);
 			size= size - strlen(LOG_BUFFER);
