@@ -198,6 +198,21 @@ pep_error_t pep_addobligationhandler(const pep_obligationhandler_t * oh);
  *   pep_setoption(PEP_OPTION_ENDPOINT_URL, (const char *)"https://pepd-backup.switch.ch:8154/authz");
  *   pep_setoption(PEP_OPTION_ENDPOINT_URL, (const char *)"https://pepd.example.ch:8154/authz");
  * @endcode
+ * Option {@link #PEP_OPTION_ENDPOINT_SERVER_CAPATH} @c const @c char * argument:
+ * @code
+ *   // set the PEP daemon server CA directory for SSL/TLS validation
+ *   pep_setoption(PEP_OPTION_ENDPOINT_SERVER_CAPATH, (const char *)"/etc/grid-security/certificates");
+ * @endcode 
+ * Option {@link #PEP_OPTION_ENDPOINT_CLIENT_CERT} @c const @c char * argument:
+ * @code
+ *   // set the PEP client certificate for SSL/TLS client authentication
+ *   pep_setoption(PEP_OPTION_ENDPOINT_CLIENT_CERT, (const char *)"/tmp/x509up_u5000");
+ * @endcode 
+ * Option {@link #PEP_OPTION_ENDPOINT_CLIENT_KEY} @c const @c char * argument:
+ * @code
+ *   // set the PEP client private key for SSL/TLS client authentication
+ *   pep_setoption(PEP_OPTION_ENDPOINT_CLIENT_KEY, (const char *)"/tmp/x509up_u5000");
+ * @endcode 
  * Option {@link #PEP_OPTION_LOG_LEVEL} @c int argument:
  * @code
  *   // set logging level to WARN (only ERROR + WARN messages shown)
