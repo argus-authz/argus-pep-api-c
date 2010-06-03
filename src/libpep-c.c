@@ -18,4 +18,3 @@
 /*
  * dummy empty file to generate the libpep-c shared library
  */
-/* static void libpep_dummy_empty(void) {} */
