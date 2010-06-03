@@ -51,10 +51,10 @@ struct buffer {
 /* constructor */
 BUFFER * buffer_create(size_t size) {
     BUFFER * buffer= calloc(1,sizeof(BUFFER));
-	if (buffer == NULL) {
-    	log_error("buffer_create: calloc BUFFER failed.");
-		return NULL;
-	}
+    if (buffer == NULL) {
+        log_error("buffer_create: calloc BUFFER failed.");
+        return NULL;
+    }
     buffer->size= size;
     if (size < 2) {
         /* default initial size */
@@ -63,18 +63,18 @@ BUFFER * buffer_create(size_t size) {
     buffer->wpos= 0;
     buffer->rpos= 0;
     buffer->data= calloc(buffer->size,sizeof(unsigned char));
-	if (buffer->data == NULL) {
-    	log_error("buffer_create: calloc of %d bytes failed.", (int)buffer->size);
-		free(buffer);
-		return NULL;
-	}
+    if (buffer->data == NULL) {
+        log_error("buffer_create: calloc of %d bytes failed.", (int)buffer->size);
+        free(buffer);
+        return NULL;
+    }
     return buffer;
 }
 
 /* destroy */
 void buffer_delete(BUFFER * buffer) {
-	if (buffer == NULL) return;
-	if (buffer->data != NULL) free(buffer->data);
+    if (buffer == NULL) return;
+    if (buffer->data != NULL) free(buffer->data);
     free(buffer);
     buffer= NULL;
 }
@@ -86,12 +86,13 @@ void buffer_delete(BUFFER * buffer) {
  */
 static int buffer_ensure_capacity(BUFFER * buffer, size_t size) {
     size_t available, new_size0, new_size1, new_size;
-	if (buffer == NULL) {
-    	log_error("buffer_ensure_capacity: buffer is a NULL pointer.");
-		return BUFFER_ERROR;
-	}
+    if (buffer == NULL) {
+        log_error("buffer_ensure_capacity: buffer is a NULL pointer.");
+        return BUFFER_ERROR;
+    }
     available= buffer->size - buffer->wpos;
     if (size > available) {
+        unsigned char * tmp_data;
         /* realloc */
         new_size0= buffer->size + (size - available); /* minimum capacity */
 #if BUFFER_INCREASE_POLICY == 0
@@ -103,21 +104,24 @@ static int buffer_ensure_capacity(BUFFER * buffer, size_t size) {
 #endif
         /* the larger of both is the new size */
         new_size= (new_size1 > new_size0) ? new_size1 : new_size0;
-        buffer->data= realloc(buffer->data, new_size);
-        if (buffer->data == NULL) {
-        	log_error("buffer_ensure_capacity: realloc (%d bytes) failed.", (int)new_size);
-        	return BUFFER_ERROR;
+        tmp_data= realloc(buffer->data, new_size);
+        if (tmp_data == NULL) {
+            log_error("buffer_ensure_capacity: realloc (%d bytes) failed.", (int)new_size);
+            free(buffer->data);
+            buffer->data= NULL;
+            return BUFFER_ERROR;
         }
+        buffer->data= tmp_data;
         buffer->size= new_size;
     }
     return BUFFER_OK;
 }
 
 size_t buffer_fwrite(BUFFER * buffer, FILE * ostream) {
-	if (buffer == NULL || ostream == NULL) {
-    	log_error("buffer_fwrite: buffer or ostream is a NULL pointer.");
-		return BUFFER_ERROR;
-	}
+    if (buffer == NULL || ostream == NULL) {
+        log_error("buffer_fwrite: buffer or ostream is a NULL pointer.");
+        return BUFFER_ERROR;
+    }
     /* TODO: only write unread data [rpos..wpos] or all? */
     return fwrite(buffer->data,sizeof(char),buffer->wpos,ostream);
 }
@@ -126,15 +130,15 @@ size_t buffer_fwrite(BUFFER * buffer, FILE * ostream) {
 size_t buffer_write(const void * src, size_t size, size_t count, void * _buffer) {
     BUFFER * buffer;
     size_t nbytes;
-	if (_buffer == NULL || src == NULL) {
-    	log_error("buffer_write: src or buffer is a NULL pointer.");
-		return BUFFER_ERROR;
-	}
+    if (_buffer == NULL || src == NULL) {
+        log_error("buffer_write: src or buffer is a NULL pointer.");
+        return BUFFER_ERROR;
+    }
     buffer = (BUFFER *)_buffer;
     nbytes = size * count;
     if (buffer_ensure_capacity(buffer, nbytes) != BUFFER_OK) {
-    	log_error("buffer_write: can't increase buffer capacity by %d bytes.", (int)nbytes);
-    	return BUFFER_ERROR;
+        log_error("buffer_write: can't increase buffer capacity by %d bytes.", (int)nbytes);
+        return BUFFER_ERROR;
     }
     memcpy(&(buffer->data[buffer->wpos]), src, nbytes);
     buffer->wpos += nbytes;
@@ -142,28 +146,28 @@ size_t buffer_write(const void * src, size_t size, size_t count, void * _buffer)
 }
 
 size_t buffer_fread(BUFFER * buffer, FILE * istream) {
-	size_t nbytes= 0;
-	int c;
-	if (buffer == NULL || istream == NULL) {
-    	log_error("buffer_fread: buffer or istream is a NULL pointer.");
-		return BUFFER_ERROR;
-	}
-	while((c=fgetc(istream)) != EOF) {
-		buffer_putc(c,buffer);
-		nbytes++;
-	}
-	return nbytes;
+    size_t nbytes= 0;
+    int c;
+    if (buffer == NULL || istream == NULL) {
+        log_error("buffer_fread: buffer or istream is a NULL pointer.");
+        return BUFFER_ERROR;
+    }
+    while((c=fgetc(istream)) != EOF) {
+        buffer_putc(c,buffer);
+        nbytes++;
+    }
+    return nbytes;
 }
 
 
 size_t buffer_read(void * dst, size_t size, size_t count, void * _buffer) {
     BUFFER * buffer;
     size_t nbytes, available;
-	if (dst == NULL || _buffer == NULL) {
-    	log_error("buffer_fread: dst or buffer is a NULL pointer.");
-		return BUFFER_ERROR;
-	}
-	buffer = (BUFFER *)_buffer;
+    if (dst == NULL || _buffer == NULL) {
+        log_error("buffer_fread: dst or buffer is a NULL pointer.");
+        return BUFFER_ERROR;
+    }
+    buffer = (BUFFER *)_buffer;
     nbytes = size * count;
     available = buffer->wpos - buffer->rpos;
     if (nbytes > available) {
@@ -176,44 +180,44 @@ size_t buffer_read(void * dst, size_t size, size_t count, void * _buffer) {
 }
 
 int buffer_eof(BUFFER * buffer) {
-	if (buffer == NULL) {
-    	log_error("buffer_eof: buffer is a NULL pointer.");
-		return TRUE;
-	}
+    if (buffer == NULL) {
+        log_error("buffer_eof: buffer is a NULL pointer.");
+        return TRUE;
+    }
     return (buffer->wpos <= buffer->rpos) ? TRUE : FALSE;
 }
 
 int buffer_getc(BUFFER * buffer) {
     unsigned char c;
-	if (buffer == NULL) {
-    	log_error("buffer_getc: buffer is a NULL pointer.");
-		return BUFFER_EOF;
-	}
+    if (buffer == NULL) {
+        log_error("buffer_getc: buffer is a NULL pointer.");
+        return BUFFER_EOF;
+    }
     if (buffer_eof(buffer))
-    	return BUFFER_EOF;
+        return BUFFER_EOF;
     else {
-    	c= buffer->data[buffer->rpos];
-    	buffer->rpos++;
-    	return c;
+        c= buffer->data[buffer->rpos];
+        buffer->rpos++;
+        return c;
     }
 }
 
 int buffer_ungetc(int c, BUFFER * buffer) {
     unsigned char uc;
-	if (buffer == NULL) {
-    	log_error("buffer_ungetc: buffer is a NULL pointer.");
-		return BUFFER_ERROR;
-	}
+    if (buffer == NULL) {
+        log_error("buffer_ungetc: buffer is a NULL pointer.");
+        return BUFFER_ERROR;
+    }
     uc= (unsigned char)c;
     if (buffer->rpos == 0) {
-    	/* shift the whole data buffer by 1 */
+        /* shift the whole data buffer by 1 */
         if (buffer_ensure_capacity(buffer, 1) != BUFFER_OK) {
-        	log_error("buffer_ungetc: can't increase buffer capacity by 1 byte.");
-        	return BUFFER_ERROR;
+            log_error("buffer_ungetc: can't increase buffer capacity by 1 byte.");
+            return BUFFER_ERROR;
         }
-    	memmove(&(buffer->data[1]),&(buffer->data[0]), buffer->wpos);
-    	buffer->wpos++;
-    	buffer->rpos++;
+        memmove(&(buffer->data[1]),&(buffer->data[0]), buffer->wpos);
+        buffer->wpos++;
+        buffer->rpos++;
     }
     buffer->rpos--;
     buffer->data[buffer->rpos]= uc;
@@ -223,14 +227,14 @@ int buffer_ungetc(int c, BUFFER * buffer) {
 
 int buffer_putc(int c, BUFFER * buffer) {
     unsigned char uc;
-	if (buffer == NULL) {
-    	log_error("buffer_putc: buffer is a NULL pointer.");
-		return BUFFER_ERROR;
-	}
+    if (buffer == NULL) {
+        log_error("buffer_putc: buffer is a NULL pointer.");
+        return BUFFER_ERROR;
+    }
     uc= (unsigned char)c;
     if (buffer_ensure_capacity(buffer, 1) != BUFFER_OK) {
-    	log_error("buffer_putc: can't increase buffer capacity by 1 byte.");
-    	return BUFFER_ERROR;
+        log_error("buffer_putc: can't increase buffer capacity by 1 byte.");
+        return BUFFER_ERROR;
     }
     buffer->data[buffer->wpos++]= uc;
     return c;
@@ -240,31 +244,31 @@ int buffer_putc(int c, BUFFER * buffer) {
  * Rewind the buffer read position.
  */
 int buffer_rewind(BUFFER * buffer) {
-	if (buffer == NULL) {
-    	log_error("buffer_rewind: buffer is a NULL pointer.");
-		return BUFFER_ERROR;
-	}
-	buffer->rpos= 0;
-	return BUFFER_OK;
+    if (buffer == NULL) {
+        log_error("buffer_rewind: buffer is a NULL pointer.");
+        return BUFFER_ERROR;
+    }
+    buffer->rpos= 0;
+    return BUFFER_OK;
 }
 
 int buffer_reset(BUFFER * buffer) {
-	if (buffer == NULL) {
-    	log_error("buffer_reset: buffer is a NULL pointer.");
-		return BUFFER_ERROR;
-	}
-	buffer->rpos= 0;
-	buffer->wpos= 0;
-	memset(buffer->data,0,buffer->size);
-	return BUFFER_OK;
+    if (buffer == NULL) {
+        log_error("buffer_reset: buffer is a NULL pointer.");
+        return BUFFER_ERROR;
+    }
+    buffer->rpos= 0;
+    buffer->wpos= 0;
+    memset(buffer->data,0,buffer->size);
+    return BUFFER_OK;
 }
 
 size_t buffer_length(BUFFER * buffer) {
-	if (buffer == NULL) {
-    	log_error("buffer_length: buffer is a NULL pointer.");
-		return 0;
-	}
-	return buffer->wpos - buffer->rpos;
+    if (buffer == NULL) {
+        log_error("buffer_length: buffer is a NULL pointer.");
+        return 0;
+    }
+    return buffer->wpos - buffer->rpos;
 }
 
 
