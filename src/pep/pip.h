@@ -90,4 +90,4 @@ typedef struct pep_pip {
 }
 #endif
 
-#endif // _PEP_PIP_H_
+#endif /* _PEP_PIP_H_ */

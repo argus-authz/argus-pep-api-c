@@ -56,23 +56,23 @@ extern "C" {
  * @see pep_strerror(pep_error_t errno)
  */
 typedef enum pep_error {
-	PEP_OK = 0, /**< OK, No error */
-	PEP_ERR_MEMORY, /**< Memory allocation error */
-	PEP_ERR_NULL_POINTER, /**< NULL pointer exception */
-	PEP_ERR_INIT_LISTS, /**< List allocation error in pep_initialize() */
-	PEP_ERR_INIT_CURL, /**< Curl initialization error in pep_initialize() */
-	PEP_ERR_INIT_PIP, /**< PIP pip_init_func() error in pep_addpip(pep_pip_t *) */
-	PEP_ERR_INIT_OH, /**< Obligation Hanlder oh_init_func() error in pep_addobligationhandler(pep_obligationhandler_t *) */
-	PEP_ERR_OPTION_INVALID, /**< PEP client option invalid in pep_setoption(pep_option_t,args) */
-	PEP_ERR_AUTHZ_PIP_PROCESS, /**< PIP process(pep_request_t) error in pep_authorize(pep_request_t **,pep_response_t **) */
-	PEP_ERR_AUTHZ_CURL, /**< Curl generic error in in pep_authorize(pep_request_t **,pep_response_t **) */
-	PEP_ERR_AUTHZ_CURL_PROCESS, /**< Curl POST error in pep_authorize(pep_request_t **,pep_response_t **) */
-	PEP_ERR_AUTHZ_REQUEST, /**< HTTP Request failed (status not 200) in pep_authorize(pep_request_t **,pep_response_t **) */
-	PEP_ERR_AUTHZ_OH_PROCESS, /**< Obligation Handler oh_process_func() error in pep_authorize(pep_request_t **,pep_response_t **) */
-	PEP_ERR_MARSHALLING_HESSIAN, /**< Hessian marshalling error in pep_authorize(pep_request_t **,pep_response_t **) */
-	PEP_ERR_MARSHALLING_IO, /**< IO error in pep_authorize(pep_request_t **,pep_response_t **) */
-	PEP_ERR_UNMARSHALLING_HESSIAN, /**< Hessian unmarshalling error in pep_authorize(pep_request_t **,pep_response_t **) */
-	PEP_ERR_UNMARSHALLING_IO, /**< IO error in pep_authorize(pep_request_t **,pep_response_t **) */
+    PEP_OK = 0, /**< OK, No error */
+    PEP_ERR_MEMORY, /**< Memory allocation error */
+    PEP_ERR_NULL_POINTER, /**< NULL pointer exception */
+    PEP_ERR_INIT_LISTS, /**< List allocation error in pep_initialize() */
+    PEP_ERR_INIT_CURL, /**< Curl initialization error in pep_initialize() */
+    PEP_ERR_INIT_PIP, /**< PIP pip_init_func() error in pep_addpip(pep_pip_t *) */
+    PEP_ERR_INIT_OH, /**< Obligation Hanlder oh_init_func() error in pep_addobligationhandler(pep_obligationhandler_t *) */
+    PEP_ERR_OPTION_INVALID, /**< PEP client option invalid in pep_setoption(pep_option_t,args) */
+    PEP_ERR_AUTHZ_PIP_PROCESS, /**< PIP process(pep_request_t) error in pep_authorize(pep_request_t **,pep_response_t **) */
+    PEP_ERR_AUTHZ_CURL, /**< Curl generic error in in pep_authorize(pep_request_t **,pep_response_t **) */
+    PEP_ERR_AUTHZ_CURL_PROCESS, /**< Curl POST error in pep_authorize(pep_request_t **,pep_response_t **) */
+    PEP_ERR_AUTHZ_REQUEST, /**< HTTP Request failed (status not 200) in pep_authorize(pep_request_t **,pep_response_t **) */
+    PEP_ERR_AUTHZ_OH_PROCESS, /**< Obligation Handler oh_process_func() error in pep_authorize(pep_request_t **,pep_response_t **) */
+    PEP_ERR_MARSHALLING_HESSIAN, /**< Hessian marshalling error in pep_authorize(pep_request_t **,pep_response_t **) */
+    PEP_ERR_MARSHALLING_IO, /**< IO error in pep_authorize(pep_request_t **,pep_response_t **) */
+    PEP_ERR_UNMARSHALLING_HESSIAN, /**< Hessian unmarshalling error in pep_authorize(pep_request_t **,pep_response_t **) */
+    PEP_ERR_UNMARSHALLING_IO /**< IO error in pep_authorize(pep_request_t **,pep_response_t **) */
 } pep_error_t;
 
 /**
@@ -89,4 +89,4 @@ const char * pep_strerror(pep_error_t pep_errno);
 }
 #endif
 
-#endif // _PEP_ERROR_H_
+#endif /* _PEP_ERROR_H_ */

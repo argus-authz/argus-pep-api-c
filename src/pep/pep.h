@@ -36,7 +36,7 @@ extern "C" {
 /** @defgroup PEPClient PEP-C Client */
 /** @defgroup Logging Log Level and Output */
 
-#include <stdarg.h> // va_list
+#include <stdarg.h> /* va_list */
 #include "pep/xacml.h"
 #include "pep/profiles.h"
 #include "pep/pip.h"
@@ -131,19 +131,19 @@ typedef int pep_log_handler_callback(int level, const char * format, va_list arg
  * @see pep_setoption(option, ...) to set a configuration option.
  */
 typedef enum pep_option {
-	PEP_OPTION_LOG_LEVEL,  /**< Set log level (default {@link #PEP_LOGLEVEL_NONE}) */
-	PEP_OPTION_LOG_STDERR,  /**< Set log engine file descriptor: @c stderr, @c stdout, @c NULL (default @c NULL) */
-	PEP_OPTION_LOG_HANDLER,  /**< Set the optional log handler callback function pointer (default @c NULL) */
-	PEP_OPTION_ENDPOINT_URL, /**< Set the @b mandatory PEP daemon URL. You can set failover URLs by setting this option many times. */
-	PEP_OPTION_ENDPOINT_SSL_VALIDATION, /**< Enable SSL validation: 0 or 1 (default 1) */
-	PEP_OPTION_ENDPOINT_SERVER_CERT, /**< PEP daemon server SSL certificate (PEM format): absolute filename */
-	PEP_OPTION_ENDPOINT_SERVER_CAPATH, /**< Directory holding CA certificates (hashed filenames in PEM format) to verify the PEP daemon: absolute directory name */
-	PEP_OPTION_ENDPOINT_CLIENT_CERT, /**< PEP client SSL certificate (PEM format) for client authN: absolute filename */
-	PEP_OPTION_ENDPOINT_CLIENT_KEY, /**< PEP client SSL private key (PEM format) for client authN: absolute filename */
-	PEP_OPTION_ENDPOINT_CLIENT_KEYPASSWORD, /**< PEP client SSL private key password for client authN: string */
-	PEP_OPTION_ENDPOINT_TIMEOUT, /**< Timeout for the connection to endpoint URL in second (default 30s) */
-	PEP_OPTION_ENABLE_PIPS, /**< Enable PIPs pre-processing: 0 or 1 (default 1) */
-	PEP_OPTION_ENABLE_OBLIGATIONHANDLERS /**< Enable OHs post-processing: 0 or 1 (default 1) */
+    PEP_OPTION_LOG_LEVEL,  /**< Set log level (default {@link #PEP_LOGLEVEL_NONE}) */
+    PEP_OPTION_LOG_STDERR,  /**< Set log engine file descriptor: @c stderr, @c stdout, @c NULL (default @c NULL) */
+    PEP_OPTION_LOG_HANDLER,  /**< Set the optional log handler callback function pointer (default @c NULL) */
+    PEP_OPTION_ENDPOINT_URL, /**< Set the @b mandatory PEP daemon URL. You can set failover URLs by setting this option many times. */
+    PEP_OPTION_ENDPOINT_SSL_VALIDATION, /**< Enable SSL validation: 0 or 1 (default 1) */
+    PEP_OPTION_ENDPOINT_SERVER_CERT, /**< PEP daemon server SSL certificate (PEM format): absolute filename */
+    PEP_OPTION_ENDPOINT_SERVER_CAPATH, /**< Directory holding CA certificates (hashed filenames in PEM format) to verify the PEP daemon: absolute directory name */
+    PEP_OPTION_ENDPOINT_CLIENT_CERT, /**< PEP client SSL certificate (PEM format) for client authN: absolute filename */
+    PEP_OPTION_ENDPOINT_CLIENT_KEY, /**< PEP client SSL private key (PEM format) for client authN: absolute filename */
+    PEP_OPTION_ENDPOINT_CLIENT_KEYPASSWORD, /**< PEP client SSL private key password for client authN: string */
+    PEP_OPTION_ENDPOINT_TIMEOUT, /**< Timeout for the connection to endpoint URL in second (default 30s) */
+    PEP_OPTION_ENABLE_PIPS, /**< Enable PIPs pre-processing: 0 or 1 (default 1) */
+    PEP_OPTION_ENABLE_OBLIGATIONHANDLERS /**< Enable OHs post-processing: 0 or 1 (default 1) */
 } pep_option_t;
 
 /**
@@ -220,7 +220,7 @@ pep_error_t pep_addobligationhandler(const pep_obligationhandler_t * oh);
  * @endcode
  * Option {@link #PEP_OPTION_ENABLE_OBLIGATIONHANDLERS} @c int (@a FALSE or @a TRUE) argument:
  * @code
- * 	 // already enabled by default, only for example purpose
+ *   // already enabled by default, only for example purpose
  *   pep_setoption(PEP_OPTION_ENABLE_OBLIGATIONHANDLERS, (int)1);
  * @endcode
  *

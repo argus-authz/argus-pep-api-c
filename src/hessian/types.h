@@ -31,8 +31,8 @@
  * Hessian object types
  */
 typedef enum {
-	HESSIAN_UNKNOWN,
-	/* Hessian object */
+    HESSIAN_UNKNOWN,
+    /* Hessian object */
     HESSIAN_BOOLEAN,
     HESSIAN_INTEGER,
     HESSIAN_LONG,
@@ -45,7 +45,7 @@ typedef enum {
     HESSIAN_LIST,
     HESSIAN_MAP,
     HESSIAN_NULL,
-    HESSIAN_REF,
+    HESSIAN_REF
 } hessian_t;
 
 /**
@@ -119,7 +119,7 @@ typedef struct hessian_list {
 typedef struct hessian_map {
     const void * class;
     char * type;
-    linkedlist_t * map; // <object,object> pairs (key,value)
+    linkedlist_t * map; /* <object,object> pairs (key,value) */
 } hessian_map_t;
 
 /**
@@ -154,5 +154,5 @@ typedef struct hessian_remote {
     char * url;
 } hessian_remote_t;
 
-#endif // _HESSIAN_TYPES_H_
+#endif /* _HESSIAN_TYPES_H_ */
 

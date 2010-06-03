@@ -158,18 +158,19 @@ static hessian_t _gettype(int tag) {
  */
 hessian_object_t * hessian_create(hessian_t type, ...) {
 	const hessian_class_t * class = _getclass(type);
+    void * object;
 	if (class == NULL) {
 		log_error("hessian_create: no class descriptor for type: %d", (int)type);
 		return NULL;
 	}
-	void * object = calloc(1, class->size);
+	object = calloc(1, class->size);
 	if (object == NULL) {
 		log_error("hessian_create: can't allocate object descriptor (%d bytes).", (int)class->size);
 		return NULL;
 	}
-	// first memory element of object is the class descriptor pointer
+	/* first memory element of object is the class descriptor pointer */
 	*(const hessian_class_t **) object = class;
-	// call constructor if any
+	/* call constructor if any */
 	if (class->ctor) {
 		va_list ap;
 		va_start(ap, type);
@@ -187,19 +188,18 @@ hessian_object_t * hessian_create(hessian_t type, ...) {
  * Delete an Hessian object.
  */
 void hessian_delete(hessian_object_t * object) {
+	const hessian_class_t * class;
 	if (object == NULL) return;
-	const hessian_class_t * class = hessian_getclass(object);
+	class = hessian_getclass(object);
 	if (class == NULL) {
 		log_error("hessian_delete: no class descriptor.");
 		return;
 	}
 	if (class->dtor) {
-		//printf("XXX:hessian_delete:%s->dtor(0x%04x)",class->name,(unsigned int)self);
 		if ( class->dtor(object) == HESSIAN_ERROR ) {
 			log_error("hessian_delete: object destructor failed.");
 		}
 	}
-	//printf("XXX:hessian_delete:%s:free(0x%04x)",class->name,(unsigned int)self);
 	if (object != NULL) free(object);
 	object= NULL;
 }
@@ -228,24 +228,26 @@ hessian_object_t * hessian_deserialize(BUFFER * input) {
 
 hessian_object_t * hessian_deserialize_tag(int tag, BUFFER * input) {
 	hessian_t type= _gettype(tag);
+	const hessian_class_t * class;
+    void * object;
 	if (type == HESSIAN_UNKNOWN) {
 		log_error("hessian_deserialize: unknown serialization tag: %c", tag );
 		return NULL;
 	}
-	const hessian_class_t * class = _getclass(type);
+	class = _getclass(type);
 	if (class == NULL) {
 		log_error("hessian_deserialize: NULL class for tag: %c", tag );
 		return NULL;
 	}
-	// allocate the object class descriptor
-	void * object = calloc(1, class->size);
+	/* allocate the object class descriptor */
+	object = calloc(1, class->size);
 	if (object == NULL) {
 		log_error("hessian_deserialize: can't allocate object (%d bytes)", (int)class->size );
 		return NULL;
 	}
-	// first memory element of object is the class pointer
+	/* first memory element of object is the class pointer */
 	*(const hessian_class_t **) object = class;
-	// deserialize the object
+	/* deserialize the object */
 	if (class->deserialize) {
 		if (class->deserialize(object, tag, input) == HESSIAN_OK) return object;
 		else {
@@ -263,12 +265,12 @@ hessian_object_t * hessian_deserialize_tag(int tag, BUFFER * input) {
 /*******************************************************/
 
 const hessian_class_t * hessian_getclass(const hessian_object_t * object) {
+	/* get the class pointer, first memory pointer of the struct */
+	const hessian_class_t * const *cp = object;
 	if (object == NULL) {
 		log_error("hessian_getclass: NULL pointer object.");
 		return NULL;
 	}
-	// get the class pointer, first memory pointer of the struct
-	const hessian_class_t * const *cp = object;
 	return (*cp);
 }
 

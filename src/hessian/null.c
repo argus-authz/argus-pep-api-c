@@ -37,8 +37,8 @@ static const hessian_class_t _hessian_null_descr = {
     "hessian.Null",
     sizeof(hessian_null_t),
     'N', 0,
-    NULL, // nothting to alloc
-    NULL, // nothing to release
+    NULL, /* nothting to alloc */
+    NULL, /* nothing to release */
     hessian_null_serialize,
     hessian_null_deserialize
 };
@@ -50,12 +50,12 @@ const void * hessian_null_class = &_hessian_null_descr;
 static int hessian_null_serialize (const hessian_object_t * object, BUFFER * output) {
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		log_error("hessian_null_serialize: NULL class descriptor.");
-		return HESSIAN_ERROR;
+        log_error("hessian_null_serialize: NULL class descriptor.");
+        return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_NULL) {
-		log_error("hessian_null_serialize: wrong class type: %d.", class->type);
-		return HESSIAN_ERROR;
+        log_error("hessian_null_serialize: wrong class type: %d.", class->type);
+        return HESSIAN_ERROR;
     }
     buffer_putc(class->tag,output);
     return HESSIAN_OK;
@@ -67,12 +67,12 @@ static int hessian_null_serialize (const hessian_object_t * object, BUFFER * out
 static int hessian_null_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-		log_error("hessian_null_deserialize: NULL class descriptor.");
-		return HESSIAN_ERROR;
+        log_error("hessian_null_deserialize: NULL class descriptor.");
+        return HESSIAN_ERROR;
     }
     if (tag != class->tag) {
-		log_error("hessian_null_deserialize: invalid tag: %c (%d).",(char)tag,tag);
-    	return HESSIAN_ERROR;
+        log_error("hessian_null_deserialize: invalid tag: %c (%d).",(char)tag,tag);
+        return HESSIAN_ERROR;
     }
     return HESSIAN_OK;
 }

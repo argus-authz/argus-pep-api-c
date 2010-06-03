@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 
-#include <stddef.h> // size_t
+#include <stddef.h> /* size_t */
 
 /** @defgroup XACML XACML Objects Model
  *
@@ -41,7 +41,7 @@ extern "C" {
  * PEP XACML model functions return codes
  */
 #define PEP_XACML_OK     1 /**< PEP XACML model functions return code OK */
-// WARN: PEP_XACML_ERROR should be size_t (unsigned int) compatible!
+/* WARN: PEP_XACML_ERROR should be size_t (unsigned int) compatible! */
 #define PEP_XACML_ERROR  0 /**< PEP XACML model functions return code ERROR */
 
 
@@ -957,4 +957,4 @@ void xacml_response_delete(xacml_response_t * response);
 }
 #endif
 
-#endif // _PEP_XACML_H_
+#endif /* _PEP_XACML_H_ */

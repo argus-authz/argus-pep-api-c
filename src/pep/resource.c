@@ -71,7 +71,7 @@ xacml_attribute_t * xacml_resource_getattribute(const xacml_resource_t * resourc
 	return llist_get(resource->attributes, index);
 }
 
-// if content is NULL, delete existing
+/* if content is NULL, delete existing */
 int xacml_resource_setcontent(xacml_resource_t * resource, const char * content) {
 	if (resource == NULL) {
 		log_error("xacml_resource_setcontent: NULL resource pointer.");

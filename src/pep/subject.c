@@ -43,7 +43,7 @@ xacml_subject_t * xacml_subject_create() {
 	return subject;
 }
 
-// category == NULL will delete the existing one.
+/* category == NULL will delete the existing one. */
 int xacml_subject_setcategory(xacml_subject_t * subject, const char * category) {
 	if (subject == NULL) {
 		log_error("xacml_subject_setcategory: NULL subject.");
