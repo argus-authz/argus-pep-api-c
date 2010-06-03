@@ -73,10 +73,15 @@ static char ERR_MSG_BUFFER[ERR_BUFFER_SIZE];
 static int err_msg_length= 0;
 
 void pep_errmsg(const char * format, ...) {
+    int msg_l= 0;
     va_list args;
     va_start(args,format);
     memset(ERR_MSG_BUFFER,0,ERR_BUFFER_SIZE);
-    vsnprintf(ERR_MSG_BUFFER,ERR_BUFFER_SIZE,format,args);
+    msg_l= vsnprintf(ERR_MSG_BUFFER,ERR_BUFFER_SIZE,format,args);
+    /* check buffer overflow */
+    if (msg_l > ERR_BUFFER_SIZE) {
+        ERR_MSG_BUFFER[ERR_BUFFER_SIZE-1]= '\0';
+    }
     err_msg_length= strlen(ERR_MSG_BUFFER);
     va_end(args);
 }
@@ -87,12 +92,17 @@ void pep_clearerr(void) {
 }
 
 const char * pep_strerror(pep_error_t pep_errno) {
+    int err_l= 0;
     memset(ERR_BUFFER,0,ERR_BUFFER_SIZE);
     if (err_msg_length > 0) {
-        snprintf(ERR_BUFFER,ERR_BUFFER_SIZE,"[%d]: %s: %s", (int)pep_errno,ERROR_STRINGS[pep_errno],ERR_MSG_BUFFER);
+        err_l= snprintf(ERR_BUFFER,ERR_BUFFER_SIZE,"[%d]: %s: %s", (int)pep_errno,ERROR_STRINGS[pep_errno],ERR_MSG_BUFFER);
     }
     else {
-        snprintf(ERR_BUFFER,ERR_BUFFER_SIZE,"[%d]: %s", (int)pep_errno,ERROR_STRINGS[pep_errno]);
+        err_l= snprintf(ERR_BUFFER,ERR_BUFFER_SIZE,"[%d]: %s", (int)pep_errno,ERROR_STRINGS[pep_errno]);
+    }
+    /* check buffer overflow */
+    if (err_l > ERR_BUFFER_SIZE) {
+        ERR_BUFFER[ERR_BUFFER_SIZE-1]= '\0';
     }
     return ERR_BUFFER;
 }
