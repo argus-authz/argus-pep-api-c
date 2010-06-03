@@ -18,7 +18,7 @@
 # $Id$
 #
 
-AC_INIT(glite-authz-pep-c, 1.3.0, grid@switch.ch)
+AC_INIT(glite-authz-pep-c, 1.3.1, grid@switch.ch)
 AC_CONFIG_AUX_DIR(project)
 AC_CONFIG_MACRO_DIR(project)
 
@@ -40,8 +40,10 @@ AC_SUBST(DOXYGEN)
 
 # GCC CFLAGS
 if test "$GCC" = "yes"; then
-    CFLAGS="$CFLAGS -Wall"
+    # pedantic ANSI C flags
+    CFLAGS="$CFLAGS -Wall -ansi -pedantic"
 fi
+
 # OSX CFLAGS
 #case $host in
 #*-*-darwin*)
