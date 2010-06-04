@@ -41,7 +41,7 @@ AC_SUBST(DOXYGEN)
 # GCC CFLAGS
 if test "$GCC" = "yes"; then
     # pedantic ANSI C flags
-    CFLAGS="$CFLAGS -Wall -ansi -pedantic"
+    CFLAGS="$CFLAGS -Wall -ansi -pedantic -std=c99"
 fi
 
 # OSX CFLAGS
