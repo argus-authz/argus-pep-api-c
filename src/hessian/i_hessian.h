@@ -51,4 +51,4 @@ extern "C" {
 #endif
 
 
-#endif /* _INTERNAL_HESSIAN_H_ */
+#endif

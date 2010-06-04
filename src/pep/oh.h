@@ -91,4 +91,4 @@ typedef struct pep_obligationhandler {
 }
 #endif
 
-#endif /* _PEP_OH_H_ */
+#endif

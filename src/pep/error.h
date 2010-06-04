@@ -89,4 +89,4 @@ const char * pep_strerror(pep_error_t pep_errno);
 }
 #endif
 
-#endif /* _PEP_ERROR_H_ */
+#endif 

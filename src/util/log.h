@@ -118,4 +118,4 @@ int log_trace(const char *, ...);
 #endif
 
 
-#endif // _LOG_H_
+#endif

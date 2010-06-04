@@ -255,4 +255,4 @@ hessian_object_t * hessian_map_getvalue(const hessian_object_t * map, int index)
 #endif
 
 
-#endif /* _HESSIAN_H_ */
+#endif

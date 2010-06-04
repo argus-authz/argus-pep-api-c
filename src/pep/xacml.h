@@ -957,4 +957,4 @@ void xacml_response_delete(xacml_response_t * response);
 }
 #endif
 
-#endif /* _PEP_XACML_H_ */
+#endif

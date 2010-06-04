@@ -154,5 +154,5 @@ typedef struct hessian_remote {
     char * url;
 } hessian_remote_t;
 
-#endif /* _HESSIAN_TYPES_H_ */
+#endif
 

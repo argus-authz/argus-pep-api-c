@@ -59,4 +59,4 @@ void base64_decode(BUFFER * in, BUFFER * out);
 }
 #endif
 
-#endif // _UTIL_BASE64_H_
+#endif

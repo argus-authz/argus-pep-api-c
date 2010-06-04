@@ -108,4 +108,4 @@ int llist_delete_elements(linkedlist_t * list, delete_element_func deletef);
 }
 #endif
 
-#endif /* _LINKEDLIST_H_ */
+#endif
