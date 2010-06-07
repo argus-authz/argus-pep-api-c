@@ -26,7 +26,7 @@ LDFLAGS=-L$(GLITE_LOCATION)/lib -L$(GLITE_LOCATION)/lib64 -lpep-c
 
 SOURCES=test_pep.c
 OBJECTS=$(SOURCES:.c=.o)
-EXEC=test-pep
+EXEC=test_pep
 
 all: $(EXEC)
 
