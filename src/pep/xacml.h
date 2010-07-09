@@ -94,7 +94,7 @@ int xacml_attribute_setid(xacml_attribute_t * attr, const char * id);
 const char * xacml_attribute_getid(const xacml_attribute_t * attr);
 
 /**
- * Sets the datatype attribute of the XACML Attribute.
+ * Sets the datatype attribute of the XACML Attribute. Default datatype: {@link #XACML_DATATYPE_STRING}
  * @param attr pointer to the XACML Attribute
  * @param datatype the datatype attribute (can be NULL)
  * @return int {@link #PEP_XACML_OK} or {@link #PEP_XACML_ERROR} on error.
