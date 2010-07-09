@@ -113,7 +113,7 @@ int main(void) {
  * with the given resourceid and a XACML Action with the given actionid.
  * 
  * @param [in/out] request address of the pointer to the XACML request object
- * @param [in] subjectid attribute value of the XACML Request/Subject element 
+ * @param [in] subjectid, a X.509 DN, attribute value of the XACML Request/Subject element 
  * @param [in] resourceid  attribute value of the XACML Request/Resource element
  * @param [in] actionid  attribute value of the XACML Request/Action element
  * @return 0 on success or error code on failure.
@@ -139,7 +139,10 @@ static int create_xacml_request(xacml_request_t ** request,const char * subjecti
         xacml_subject_delete(subject);
         return 1;
     }
+    // set X.509 DN value
     xacml_attribute_addvalue(subject_attr_id,subjectid);
+    // set attribute datatype for X.509 DN
+    xacml_attribute_setdatatype(subject_attr_id,XACML_DATATYPE_X500NAME); 
     xacml_subject_addattribute(subject,subject_attr_id);
 
     /* XACML Resource with resourceid Attribute value */
