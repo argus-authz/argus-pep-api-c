@@ -14,19 +14,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# $Id$
+# $Id: Makefile 1646 2010-03-22 14:10:12Z vtschopp $
 #
 ifndef GLITE_LOCATION
 GLITE_LOCATION=/opt/glite
 endif
 
 CC=gcc 
-CFLAGS=-Wall -I$(GLITE_LOCATION)/include
+CFLAGS=-Wall -I../../src -I$(GLITE_LOCATION)/include
 LDFLAGS=-L$(GLITE_LOCATION)/lib -L$(GLITE_LOCATION)/lib64 -lpep-c
 
-SOURCES=test_pep.c
+SOURCES=test_hessian.c
 OBJECTS=$(SOURCES:.c=.o)
-EXEC=test_pep
+EXEC=test_hessian
 
 all: $(EXEC)
 

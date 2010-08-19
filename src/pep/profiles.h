@@ -192,4 +192,4 @@ extern const pep_obligationhandler_t * gridwn2authzinterop_adapter_oh;
 }
 #endif
 
-#endif // _PEP_PROFILES_H_
+#endif

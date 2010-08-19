@@ -59,11 +59,12 @@ size_t llist_length(const linkedlist_t * list) {
 }
 
 int llist_add(linkedlist_t * list, void * element) {
+    struct linkedlist_node * node;
 	if (list == NULL) {
 		log_error("llist_add: NULL pointer list.");
 		return LLIST_ERROR;
 	}
-    struct linkedlist_node * node= calloc(1,sizeof(struct linkedlist_node));
+    node= calloc(1,sizeof(struct linkedlist_node));
 	if (node == NULL) {
 		log_error("llist_add: can't allocate linkedlist node.");
 		return LLIST_ERROR;
@@ -71,7 +72,7 @@ int llist_add(linkedlist_t * list, void * element) {
     node->element= element;
     node->next= NULL;
     if (list->head == NULL) {
-        // empty list
+        /* empty list */
         list->head= node;
     }
     else {
@@ -83,6 +84,8 @@ int llist_add(linkedlist_t * list, void * element) {
 }
 
 void * llist_get(linkedlist_t * list, int i) {
+	int j;
+    struct linkedlist_node * current;
 	if (list == NULL) {
 		log_error("llist_get: NULL pointer list.");
 		return NULL;
@@ -91,8 +94,8 @@ void * llist_get(linkedlist_t * list, int i) {
 		log_error("llist_get: index %d out of range.", i);
 		return NULL;
 	}
-	int j= 0;
-	struct linkedlist_node * current= list->head;
+	current= list->head;
+    j= 0;
 	while( j < i ) {
 		if (current == NULL) {
 			log_error("llist_get: element at %d is NULL.",j);
@@ -109,17 +112,20 @@ void * llist_get(linkedlist_t * list, int i) {
  * Returns the removed element or NULL.
  */
 void * llist_remove(linkedlist_t * list, int i) {
+    int j;
+    struct linkedlist_node * current, * previous;
+    void * element;
 	if (list == NULL) {
 		log_error("llist_remove: NULL pointer list.");
 		return NULL;
 	}
 	if (i < 0 || i >= list->length) {
 		log_error("llist_remove: index %d out of range.", i);
-		return NULL; // empty list case included
+		return NULL; /* empty list case included */
 	}
-	int j= 0;
-	struct linkedlist_node * current= list->head;
-	struct linkedlist_node * previous= NULL;
+	j= 0;
+	current= list->head;
+	previous= NULL;
 	while( j++ < i ) {
 		if (current == NULL) {
 			log_error("llist_remove: index %d not found, NULL at %d.", i, j);
@@ -129,53 +135,54 @@ void * llist_remove(linkedlist_t * list, int i) {
 		current= current->next;
 	}
 	if (current == list->head) {
-		// first element
+		/* first element */
 		list->head= current->next;
 	}
 	else {
-		// not the first element
+		/* not the first element */
 		previous->next= current->next;
 	}
 	if (current == list->tail) {
-		// last element
+		/* last element */
 		list->tail= previous;
 	}
 
-	void * element= current->element;
+	element= current->element;
 	free(current);
 	list->length--;
 	return element;
 }
 
 int llist_delete_elements(linkedlist_t * list, delete_element_func deletef) {
+    size_t list_l;
+    void ** unique_elts;
+    void * elt, * unique_elt;
+    int unique_elts_l, i, j, duplicated;
 	if (list == NULL) {
 		log_error("llist_delete_elements: NULL pointer list.");
 		return LLIST_ERROR;
 	}
-	// WARN: the list can contains many times the same element (same memory address)
-	size_t list_l= llist_length(list);
-	void ** unique_elts= calloc(list_l,sizeof(void *));
-	int unique_elts_l= 0, i= 0, j= 0;
+	/* WARN: the list can contains many times the same element (same memory address) */
+	list_l= llist_length(list);
+	unique_elts= calloc(list_l,sizeof(void *));
+	unique_elts_l= 0, i= 0, j= 0;
 	for (i=0; i<list_l; i++) {
-		void * elt= llist_get(list,i);
-		// add elt to elts list if not already included
-		int duplicated= 0;
+		elt= llist_get(list,i);
+		/* add elt to elts list if not already included */
+		duplicated= 0;
 		for(j= 0; j<unique_elts_l; j++) {
 			if (elt == unique_elts[j]) {
-				//printf("XXX:llist_delete_elements: %dth elt 0x%04x duplicated at elts[%d]\n", i, (unsigned int)elt, j);
 				duplicated= 1;
 			}
 		}
 		if (!duplicated) {
-			//printf("XXX:llist_delete_elements: add unique elt at elts[%d]\n", unique_elts_l);
-			// add at end
+			/* add at end */
 			unique_elts[unique_elts_l++]= elt;
 		}
 	}
-	// apply delete func on unique element
-	//printf("XXX:llist_delete_elements: %d unique elts\n", unique_elts_l);
+	/* apply delete func on unique element */
 	for(i= 0; i<unique_elts_l; i++) {
-		void * unique_elt= unique_elts[i];
+		unique_elt= unique_elts[i];
 		if (deletef) {
 			deletef(unique_elt);
 		}
@@ -185,12 +192,12 @@ int llist_delete_elements(linkedlist_t * list, delete_element_func deletef) {
 }
 
 int llist_delete(linkedlist_t * list) {
+    struct linkedlist_node * current, * next;
 	if (list == NULL) {
 		log_error("llist_delete: NULL pointer list.");
 		return LLIST_ERROR;
 	}
-	struct linkedlist_node * current= list->head;
-    struct linkedlist_node * next;
+	current= list->head;
     while( current != NULL ) {
         next= current->next;
         free(current);

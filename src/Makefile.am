@@ -27,4 +27,5 @@ libpep_c_la_SOURCES = libpep-c.c
 
 # headers files in <prefix>/include (public API)
 pepincludedir = $(includedir)/pep
-pepinclude_HEADERS = pep/pep.h pep/pip.h pep/oh.h pep/error.h pep/xacml.h pep/profiles.h util/buffer.h util/linkedlist.h
+#pepinclude_HEADERS = pep/pep.h pep/pip.h pep/oh.h pep/error.h pep/xacml.h pep/profiles.h util/buffer.h util/linkedlist.h
+pepinclude_HEADERS = pep/pep.h pep/pip.h pep/oh.h pep/error.h pep/xacml.h pep/profiles.h

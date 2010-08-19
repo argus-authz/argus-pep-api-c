@@ -103,7 +103,7 @@ static const char XACML_HESSIAN_ATTRIBUTEASSIGNMENT_CLASSNAME[]= "org.glite.auth
 static const char XACML_HESSIAN_ATTRIBUTEASSIGNMENT_ID[]= "attributeId";
 static const char XACML_HESSIAN_ATTRIBUTEASSIGNMENT_DATATYPE[]= "dataType";
 static const char XACML_HESSIAN_ATTRIBUTEASSIGNMENT_VALUE[]= "value";
-// kept for back compatibility with PEPd <= 1.0
+/* kept for back compatibility with PEPd <= 1.0 */
 static const char XACML_HESSIAN_ATTRIBUTEASSIGNMENT_VALUES[]= "values";
 
 static const char XACML_HESSIAN_OBLIGATION_CLASSNAME[]= "org.glite.authz.common.model.Obligation";
@@ -126,4 +126,4 @@ static const char XACML_HESSIAN_RESPONSE_RESULTS[]= "results";
 }
 #endif
 
-#endif // _PEP_IO_H_
+#endif 

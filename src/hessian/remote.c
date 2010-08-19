@@ -53,52 +53,52 @@ const void * hessian_remote_class = &_hessian_remote_descr;
  */
 static hessian_object_t * hessian_remote_ctor (hessian_object_t * object, va_list * ap) {
     hessian_remote_t * self= object;
+    const char * type, * url;
+    size_t type_l, url_l;
     if (self == NULL) {
-		log_error("hessian_remote_ctor: NULL object pointer.");
-    	return NULL;
+        log_error("hessian_remote_ctor: NULL object pointer.");
+        return NULL;
     }
-    const char * type = va_arg( *ap, const char *);
+    type = va_arg( *ap, const char *);
     if (type == NULL) {
-		log_error("hessian_remote_ctor: NULL type parameter 2.");
-    	return NULL;
+        log_error("hessian_remote_ctor: NULL type parameter 2.");
+        return NULL;
     }
-    const char * url= va_arg( *ap, const char *);
+    url= va_arg( *ap, const char *);
     if (type == NULL) {
-		log_error("hessian_remote_ctor: NULL url parameter 3.");
-    	return NULL;
+        log_error("hessian_remote_ctor: NULL url parameter 3.");
+        return NULL;
     }
-    size_t type_l= strlen(type);
+    type_l= strlen(type);
     self->type= calloc(type_l + 1, sizeof(char));
     if (self->type == NULL) {
-		log_error("hessian_remote_ctor: can't allocate type (%d chars).", (int)type_l);
-    	return NULL;
+        log_error("hessian_remote_ctor: can't allocate type (%d chars).", (int)type_l);
+        return NULL;
     }
     strncpy(self->type,type,type_l);
-    //printf("XXX:remote_ctor: type: %s",self->type);
-    size_t url_l= strlen(url);
+    url_l= strlen(url);
     self->url= calloc(url_l + 1, sizeof(char));
     if (self->type == NULL) {
-		log_error("hessian_remote_ctor: can't allocate url (%d chars).", (int)url_l);
-		free(self->type);
-    	return NULL;
+        log_error("hessian_remote_ctor: can't allocate url (%d chars).", (int)url_l);
+        free(self->type);
+        return NULL;
     }
     strncpy(self->url,url,url_l);
-    //printf("XXX:remote_ctor: url: %s",self->url);
     return self;
 }
 
 static int hessian_remote_dtor (hessian_object_t * object) {
     hessian_remote_t * self= object;
     if (self == NULL) {
-		log_error("hessian_remote_dtor: NULL object pointer.");
-    	return HESSIAN_ERROR;
+        log_error("hessian_remote_dtor: NULL object pointer.");
+        return HESSIAN_ERROR;
     }
     if (self->type != NULL) {
-    	free(self->type);
+        free(self->type);
     }
     self->type= NULL;
     if (self->url != NULL) {
-    	free(self->url);
+        free(self->url);
     }
     self->url= NULL;
     return HESSIAN_OK;
@@ -109,31 +109,33 @@ static int hessian_remote_dtor (hessian_object_t * object) {
  */
 static int hessian_remote_serialize (const hessian_object_t * object, BUFFER * output) {
     const hessian_remote_t * self= object;
+    const hessian_class_t * class;
+    size_t str_l, utf8_l;
+    int b8, b16;
     if (self == NULL) {
-		log_error("hessian_remote_serialize: NULL object pointer.");
-    	return HESSIAN_ERROR;
+        log_error("hessian_remote_serialize: NULL object pointer.");
+        return HESSIAN_ERROR;
     }
-    const hessian_class_t * class= hessian_getclass(object);
+    class= hessian_getclass(object);
     if (class == NULL) {
-		log_error("hessian_remote_serialize: NULL class descriptor.");
-    	return HESSIAN_ERROR;
+        log_error("hessian_remote_serialize: NULL class descriptor.");
+        return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_REMOTE) {
-		log_error("hessian_remote_serialize: wrong class type: %d.",class->type);
-    	return HESSIAN_ERROR;
+        log_error("hessian_remote_serialize: wrong class type: %d.",class->type);
+        return HESSIAN_ERROR;
     }
     buffer_putc(class->tag,output);
-    // write type
-    size_t str_l= strlen(self->type);
-    size_t utf8_l= utf8_strlen(self->type);
-    int b16= utf8_l >> 8;
-    int b8= utf8_l & 0x00FF;
+    /* write type */
+    str_l= strlen(self->type);
+    utf8_l= utf8_strlen(self->type);
+    b16= utf8_l >> 8;
+    b8= utf8_l & 0x00FF;
     buffer_putc('t',output);
     buffer_putc(b16,output);
     buffer_putc(b8,output);
-    //printf("XXX:remote_serialize: type{%d}: %s",(int)str_l,self->type);
     buffer_write(self->type,1,str_l,output);
-    // write url (utf8)
+    /* write url (utf8) */
     str_l= strlen(self->url);
     utf8_l= utf8_strlen(self->url);
     b16= utf8_l >> 8;
@@ -141,7 +143,6 @@ static int hessian_remote_serialize (const hessian_object_t * object, BUFFER * o
     buffer_putc('S',output);
     buffer_putc(b16,output);
     buffer_putc(b8,output);
-    //printf("XXX:remote_serialize: url{%d}: %s",(int)str_l,self->url);
     buffer_write(self->url,1,str_l,output);
 
     return HESSIAN_OK;
@@ -152,49 +153,51 @@ static int hessian_remote_serialize (const hessian_object_t * object, BUFFER * o
  */
 static int hessian_remote_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
     hessian_remote_t * self= object;
+    const hessian_class_t * class;
+    int b8, b16, type_tag, url_tag;
+    size_t utf8_l;
+    char * type, * url;
     if (self == NULL) {
-		log_error("hessian_remote_deserialize: NULL object pointer.");
-    	return HESSIAN_ERROR;
+        log_error("hessian_remote_deserialize: NULL object pointer.");
+        return HESSIAN_ERROR;
     }
-    const hessian_class_t * class= hessian_getclass(object);
+    class= hessian_getclass(object);
     if (class == NULL) {
-		log_error("hessian_remote_deserialize: NULL class descriptor.");
-    	return HESSIAN_ERROR;
+        log_error("hessian_remote_deserialize: NULL class descriptor.");
+        return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_REMOTE) {
-		log_error("hessian_remote_deserialize: wrong class type: %d.",class->type);
-    	return HESSIAN_ERROR;
+        log_error("hessian_remote_deserialize: wrong class type: %d.",class->type);
+        return HESSIAN_ERROR;
     }
-    // tag is 'r'
+    /* tag is 'r' */
     if (tag != class->tag) {
-		log_error("hessian_remote_deserialize: invalid tag: %c (%d).",(char)tag,tag);
-    	return HESSIAN_ERROR;
+        log_error("hessian_remote_deserialize: invalid tag: %c (%d).",(char)tag,tag);
+        return HESSIAN_ERROR;
     }
-    // parse type 't' and url 'S'
-    int type_tag= buffer_getc(input);
+    /* parse type 't' and url 'S' */
+    type_tag= buffer_getc(input);
     if (type_tag != 't') {
-		log_error("hessian_remote_deserialize: invalid type tag: %c (%d).",(char)type_tag,type_tag);
-    	return HESSIAN_ERROR;
+        log_error("hessian_remote_deserialize: invalid type tag: %c (%d).",(char)type_tag,type_tag);
+        return HESSIAN_ERROR;
     }
-    // read the utf8 type length
-	int b16= buffer_getc(input);
-	int b8= buffer_getc(input);
-	size_t utf8_l= (b16 << 8) + b8;
-	char * type= utf8_bgets(utf8_l,input);
-	//printf("XXX:hessian_remote_deserialize: type: %s", type);
-	self->type= type;
-    int url_tag= buffer_getc(input);
+    /* read the utf8 type length */
+    b16= buffer_getc(input);
+    b8= buffer_getc(input);
+    utf8_l= (b16 << 8) + b8;
+    type= utf8_bgets(utf8_l,input);
+    self->type= type;
+    url_tag= buffer_getc(input);
     if (url_tag != 'S') {
-		log_error("hessian_remote_deserialize: invalid url tag: %c (%d).",(char)url_tag,url_tag);
-    	return HESSIAN_ERROR;
+        log_error("hessian_remote_deserialize: invalid url tag: %c (%d).",(char)url_tag,url_tag);
+        return HESSIAN_ERROR;
     }
-    // read the utf8 url length
-	b16= buffer_getc(input);
-	b8= buffer_getc(input);
-	utf8_l= (b16 << 8) + b8;
-	char * url= utf8_bgets(utf8_l,input);
-	//printf("XXX:hessian_remote_deserialize: url: %s", url);
-	self->url= url;
+    /* read the utf8 url length */
+    b16= buffer_getc(input);
+    b8= buffer_getc(input);
+    utf8_l= (b16 << 8) + b8;
+    url= utf8_bgets(utf8_l,input);
+    self->url= url;
     return HESSIAN_OK;
 }
 
@@ -202,41 +205,43 @@ static int hessian_remote_deserialize (hessian_object_t * object, int tag, BUFFE
  * Returns the Hessian remote type.
  */
 const char * hessian_remote_gettype(const hessian_object_t * object) {
-	const hessian_remote_t * self= object;
+    const hessian_remote_t * self= object;
+    const hessian_class_t * class;
     if (self == NULL) {
-		log_error("hessian_remote_gettype: NULL object pointer.");
-    	return NULL;
+        log_error("hessian_remote_gettype: NULL object pointer.");
+        return NULL;
     }
-    const hessian_class_t * class= hessian_getclass(object);
+    class= hessian_getclass(object);
     if (class == NULL) {
-		log_error("hessian_remote_gettype: NULL class descriptor.");
-    	return NULL;
+        log_error("hessian_remote_gettype: NULL class descriptor.");
+        return NULL;
     }
     if (class->type != HESSIAN_REMOTE) {
-		log_error("hessian_remote_gettype: wrong class type: %d.",class->type);
-    	return NULL;
+        log_error("hessian_remote_gettype: wrong class type: %d.",class->type);
+        return NULL;
     }
-	return self->type;
+    return self->type;
 }
 
 /**
  * Returns the Hessian remote url.
  */
 const char * hessian_remote_geturl(const hessian_object_t * object) {
-	const hessian_remote_t * self= object;
+    const hessian_remote_t * self= object;
+    const hessian_class_t * class;
     if (self == NULL) {
-		log_error("hessian_remote_geturl: NULL object pointer.");
-    	return NULL;
+        log_error("hessian_remote_geturl: NULL object pointer.");
+        return NULL;
     }
-    const hessian_class_t * class= hessian_getclass(object);
+    class= hessian_getclass(object);
     if (class == NULL) {
-		log_error("hessian_remote_geturl: NULL class descriptor.");
-    	return NULL;
+        log_error("hessian_remote_geturl: NULL class descriptor.");
+        return NULL;
     }
     if (class->type != HESSIAN_REMOTE) {
-		log_error("hessian_remote_geturl: wrong class type: %d.",class->type);
-    	return NULL;
+        log_error("hessian_remote_geturl: wrong class type: %d.",class->type);
+        return NULL;
     }
-	return self->url;
+    return self->url;
 }
 

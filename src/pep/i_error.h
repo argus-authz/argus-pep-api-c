@@ -47,4 +47,4 @@ void pep_clearerr(void);
 }
 #endif
 
-#endif // _PEP_ERROR_H_
+#endif

@@ -15,6 +15,6 @@
  * limitations under the License.
  */
 
-//
-// dummy empty file to generate the libpep-c
-//
+/*
+ * dummy empty file to generate the libpep-c shared library
+ */

@@ -24,7 +24,7 @@ extern "C" {
 
 #include "util/buffer.h"
 
-// PEM default line size (RFC???)
+/* PEM default line size (RFC???) */
 #ifndef BASE64_DEFAULT_LINE_SIZE
 #define BASE64_DEFAULT_LINE_SIZE 64
 #endif
@@ -59,4 +59,4 @@ void base64_decode(BUFFER * in, BUFFER * out);
 }
 #endif
 
-#endif // _UTIL_BASE64_H_
+#endif

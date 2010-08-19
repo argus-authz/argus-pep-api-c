@@ -26,7 +26,7 @@ struct xacml_result {
 	char * resourceid;
 	xacml_decision_t decision;
 	xacml_status_t * status;
-	linkedlist_t * obligations; //
+	linkedlist_t * obligations; /* */
 };
 
 xacml_result_t * xacml_result_create() {
@@ -50,7 +50,7 @@ xacml_result_t * xacml_result_create() {
 xacml_decision_t xacml_result_getdecision(const xacml_result_t * result) {
 	if (result == NULL) {
 		log_error("xacml_result_getdecision: NULL result.");
-		return -1; // FIXME: define DECISION_INVALID ??
+		return -1; /* FIXME: define DECISION_INVALID ?? */
 	}
 	return result->decision;
 }
