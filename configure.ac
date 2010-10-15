@@ -18,7 +18,7 @@
 # $Id$
 #
 
-AC_INIT(glite-authz-pep-c, 1.3.1, grid@switch.ch)
+AC_INIT(argus-pep-api-c, 1.3.1, grid@switch.ch)
 AC_CONFIG_AUX_DIR(project)
 AC_CONFIG_MACRO_DIR(project)
 
