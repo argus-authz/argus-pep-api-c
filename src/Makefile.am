@@ -20,7 +20,8 @@ SUBDIRS = util hessian pep
 #
 # libpep-c = util + hessian + pep
 #
-lib_LTLIBRARIES = libpep-c.la
+#lib_LTLIBRARIES = libpep-c.la
+lib_LTLIBRARIES = libargus_pep.la
 libpep_c_la_LIBADD = util/libutil.la hessian/libhessian.la pep/libpep.la 
 libpep_c_la_LDFLAGS = -version-info 1:4:0
 libpep_c_la_SOURCES = libpep-c.c
