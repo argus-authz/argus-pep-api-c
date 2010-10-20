@@ -88,6 +88,7 @@ AC_CONFIG_SRCDIR(src)
 AM_CONFIG_HEADER(src/config.h)
 
 AC_CONFIG_FILES([
+argus-pep.pc
 Makefile
 src/Makefile
 src/util/Makefile

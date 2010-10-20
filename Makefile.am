@@ -23,6 +23,9 @@ EXTRA_DIST = LICENSE CHANGELOG autotools.sh test/test_pep.c test/Makefile doc/ht
 docdir = $(datadir)/doc/$(PACKAGE)
 doc_DATA = AUTHORS CHANGELOG LICENSE
 
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = argus-pep.pc
+
 # Generate doxygen doc
 doxygen: doc/Doxyfile
 	$(DOXYGEN) doc/Doxyfile
