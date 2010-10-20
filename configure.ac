@@ -65,11 +65,15 @@ AC_MSG_NOTICE([libdir for $host: $libdir])
 #AC_CHECK_HEADER([curl/curl.h],,[AC_MSG_ERROR(can not find libcurl header)])
 #AC_CHECK_LIB(curl,curl_easy_init)
 
-PKG_CHECK_MODULE([LIBCURL],[libcurl],
-    [AC_MSG_NOTICE([LIBCURL_CFLAGS=$LIBCURL_CFLAGS])
-     AC_MSG_NOTICE([LIBCURL_LIBS=$LIBCURL_LIBS])],
-    [AC_CHECK_HEADER([curl/curl.h],,[AC_MSG_ERROR(can not find libcurl header curl/curl.h)])
-     AC_CHECK_LIB(curl,curl_easy_init)]
+PKG_CHECK_MODULES(LIBCURL,[libcurl],
+    [
+        AC_MSG_NOTICE([LIBCURL_CFLAGS=$LIBCURL_CFLAGS])
+        AC_MSG_NOTICE([LIBCURL_LIBS=$LIBCURL_LIBS])
+    ],
+    [
+        AC_CHECK_HEADER([curl/curl.h],,[AC_MSG_ERROR(can not find libcurl header curl/curl.h)])
+        AC_CHECK_LIB(curl,curl_easy_init)
+    ]
 )
 
 # Checks for header files.
