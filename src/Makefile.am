@@ -22,8 +22,19 @@ SUBDIRS = util hessian pep
 #
 #lib_LTLIBRARIES = libpep-c.la
 lib_LTLIBRARIES = libargus_pep.la
-libargus_pep_la_LIBADD = util/libutil.la hessian/libhessian.la pep/libpep.la 
-libargus_pep_la_LDFLAGS = -version-info 1:4:0
+
+libargus_pep_la_CFLAGS = \
+    $(LIBCURL_CFLAGS)
+
+libargus_pep_la_LIBADD = \
+    util/libutil.la \
+    hessian/libhessian.la \
+    pep/libpep.la \
+    $(LIRCURL_LIBS)
+
+libargus_pep_la_LDFLAGS = \
+    -version-info 1:4:0
+
 libargus_pep_la_SOURCES = libargus_pep.c
 
 # headers files in <prefix>/include (public API)

@@ -18,7 +18,7 @@
 # $Id$
 #
 
-AC_INIT(argus-pep-api-c, 1.3.1, grid@switch.ch)
+AC_INIT(argus-pep-api-c, 1.3.1, argus-support@cern.ch)
 AC_CONFIG_AUX_DIR(project)
 AC_CONFIG_MACRO_DIR(project)
 
@@ -62,8 +62,15 @@ AC_MSG_NOTICE([libdir for $host: $libdir])
 
 # Checks for curl headers and library
 # will automatically add -lcurl in LDFLAGS
-AC_CHECK_HEADER([curl/curl.h],,[AC_MSG_ERROR(can not find libcurl header)])
-AC_CHECK_LIB(curl,curl_easy_init)
+#AC_CHECK_HEADER([curl/curl.h],,[AC_MSG_ERROR(can not find libcurl header)])
+#AC_CHECK_LIB(curl,curl_easy_init)
+
+PKG_CHECK_MODULE([LIBCURL],[libcurl],
+    [AC_MSG_NOTICE([LIBCURL_CFLAGS=$LIBCURL_CFLAGS])
+     AC_MSG_NOTICE([LIBCURL_LIBS=$LIBCURL_LIBS])],
+    [AC_CHECK_HEADER([curl/curl.h],,[AC_MSG_ERROR(can not find libcurl header curl/curl.h)])
+     AC_CHECK_LIB(curl,curl_easy_init)]
+)
 
 # Checks for header files.
 AC_HEADER_STDC
