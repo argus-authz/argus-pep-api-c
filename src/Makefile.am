@@ -30,7 +30,7 @@ libargus_pep_la_LIBADD = \
     util/libutil.la \
     hessian/libhessian.la \
     pep/libpep.la \
-    $(LIRCURL_LIBS)
+    $(LIBCURL_LIBS)
 
 libargus_pep_la_LDFLAGS = \
     -version-info 1:4:0
