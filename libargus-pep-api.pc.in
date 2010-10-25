@@ -3,7 +3,7 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: libargus_pep_api
+Name: libargus-pep-api
 Description: Argus PEP client API for C
 Requires: libcurl
 Version: @PACKAGE_VERSION@
