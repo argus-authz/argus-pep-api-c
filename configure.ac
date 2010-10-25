@@ -65,6 +65,8 @@ AC_MSG_NOTICE([libdir for $host: $libdir])
 #AC_CHECK_HEADER([curl/curl.h],,[AC_MSG_ERROR(can not find libcurl header)])
 #AC_CHECK_LIB(curl,curl_easy_init)
 
+# env var PKG_CONFIG_PATH
+
 PKG_CHECK_MODULES(LIBCURL,[libcurl],
     [
         AC_MSG_NOTICE([LIBCURL_CFLAGS=$LIBCURL_CFLAGS])
@@ -99,7 +101,7 @@ AC_CONFIG_SRCDIR(src)
 AM_CONFIG_HEADER(src/config.h)
 
 AC_CONFIG_FILES([
-argus-pep.pc
+libargus-pep-api.pc
 Makefile
 src/Makefile
 src/util/Makefile
