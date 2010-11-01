@@ -58,6 +58,7 @@ static char * option_client_cert= NULL;
 static char * option_client_key= NULL;
 static char * option_client_keypassword= NULL;
 static int option_ssl_validation= TRUE;
+static char * option_ssl_cipher_list= NULL;
 
 static int option_pips_enabled= TRUE;
 static int option_ohs_enabled= TRUE;
@@ -65,6 +66,11 @@ static int option_ohs_enabled= TRUE;
 const char * pep_version(void) {
     return PACKAGE_VERSION;
 }
+
+const char * pep_version_name(void) {
+    return PACKAGE_NAME;
+}
+
 
 pep_error_t pep_initialize(void) {
     /* clear all err message */
@@ -210,6 +216,26 @@ pep_error_t pep_setoption(pep_option_t option, ... ) {
             }
             log_debug("pep_setoption: PEP_OPTION_ENDPOINT_SSL_VALIDATION: %s",(option_ssl_validation == TRUE) ? "TRUE" : "FALSE");
             break;
+        case PEP_OPTION_ENDPOINT_SSL_CIPHER_LIST:
+            str= va_arg(args,char *);
+            if (str == NULL) {
+                log_error("pep_setoption: PEP_OPTION_ENDPOINT_SSL_CIPHER_LIST argument is NULL.");
+                rc= PEP_ERR_OPTION_INVALID;
+                break;
+            }
+            /* copy cipher list string */
+            str_l= strlen(str);
+            option_ssl_cipher_list= calloc(str_l + 1, sizeof(char));
+            if (option_ssl_cipher_list == NULL) {
+                log_error("pep_setoption: can't allocate option_ssl_cipher_list: %s.", str);
+                pep_errmsg("can't allocate option_ssl_cipher_list: %s.", str);
+                rc= PEP_ERR_MEMORY;
+                break;
+            }
+            strncpy(option_ssl_cipher_list,str,str_l);
+            log_debug("pep_setoption: PEP_OPTION_ENDPOINT_SSL_CIPHER_LIST: %s",option_ssl_cipher_list);
+            break;
+            
         case PEP_OPTION_ENDPOINT_SERVER_CERT:
             str= va_arg(args,char *);
             if (str == NULL) {
@@ -447,6 +473,16 @@ pep_error_t pep_authorize(xacml_request_t ** request, xacml_response_t ** respon
     if (curl_rc != CURLE_OK) {
         log_warn("pep_authorize: curl_easy_setopt(curl,CURLOPT_SSL_VERIFYPEER,%s) failed: %s",option_ssl_validation ? "TRUE" : "FALSE",curl_easy_strerror(curl_rc));
     }
+    /* set SSL connection ciphers list */
+    log_debug("pep_authorize: set option_ssl_cipher_list: %s",option_ssl_cipher_list);
+    if (option_ssl_cipher_list != NULL) {
+        curl_rc= curl_easy_setopt(curl,CURLOPT_SSL_CIPHER_LIST,option_ssl_cipher_list);
+        if (curl_rc != CURLE_OK) {
+            log_warn("pep_authorize: setting curl_easy_setopt(curl,CURLOPT_SSL_CIPHER_LIST,%s) failed: %s",option_ssl_cipher_list,curl_easy_strerror(curl_rc));
+        }
+    }
+    
+    
     /* server CURLOPT_CAINFO, CURLOPT_CAPATH */
     log_debug("pep_authorize: set option_server_cert: %s",option_server_cert);
     if (option_server_cert != NULL) {
@@ -705,6 +741,7 @@ pep_error_t pep_destroy(void) {
         option_urls= NULL;
     }
     /* free all char array options */
+    if (option_ssl_cipher_list != NULL) free(option_ssl_cipher_list);
     if (option_server_cert != NULL) free(option_server_cert);
     if (option_server_capath != NULL) free(option_server_capath);
     if (option_client_cert != NULL) free(option_client_cert);
