@@ -33,7 +33,7 @@ libargus_pep_api_la_LIBADD = \
     $(LIBCURL_LIBS)
 
 libargus_pep_api_la_LDFLAGS = \
-    -version-info 1:4:0
+    -version-info 1:5:1
 
 libargus_pep_api_la_SOURCES = libargus_pep.c
 
