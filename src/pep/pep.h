@@ -143,13 +143,21 @@ typedef enum pep_option {
     PEP_OPTION_ENDPOINT_CLIENT_KEYPASSWORD, /**< PEP client SSL private key password for client authN: string */
     PEP_OPTION_ENDPOINT_TIMEOUT, /**< Timeout for the connection to endpoint URL in second (default 30s) */
     PEP_OPTION_ENABLE_PIPS, /**< Enable PIPs pre-processing: 0 or 1 (default 1) */
-    PEP_OPTION_ENABLE_OBLIGATIONHANDLERS /**< Enable OHs post-processing: 0 or 1 (default 1) */
+    PEP_OPTION_ENABLE_OBLIGATIONHANDLERS, /**< Enable OHs post-processing: 0 or 1 (default 1) */
+    PEP_OPTION_ENDPOINT_SSL_CIPHER_LIST /**< PEP client list of ciphers to use for the SSL connection: string */
 } pep_option_t;
 
 /**
  * Returns the PEP client library version.
+ * @return a null terminated string. e.g. "1.3.4"
  */
 const char * pep_version(void);
+
+/**
+ * Returns the PEP client library name.
+ * @return a null terminated string. e.g. "argus-pep-api-c"
+ */
+const char * pep_version_name(void);
 
 /**
  * Initializes the PEP client.
