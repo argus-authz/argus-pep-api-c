@@ -1,5 +1,5 @@
-PEP-C client library dependencies
----------------------------------
+PEP client API library dependencies
+-----------------------------------
 * libcurl
 --
 $Id$
