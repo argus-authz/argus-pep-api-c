@@ -7,5 +7,5 @@ Name: libargus-pep-api
 Description: Argus PEP client API for C
 Requires: libcurl
 Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -largus_pep_api
+Libs: -L${libdir} -lpep-c
 Cflags: -I${includedir}
