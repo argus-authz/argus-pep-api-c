@@ -32,12 +32,12 @@ extern "C" {
 
 /** Log levels */
 typedef enum {
-	LOG_LEVEL_NONE = -1,
-	LOG_LEVEL_ERROR = 0,
-	LOG_LEVEL_WARN = 1,
-	LOG_LEVEL_INFO = 2,
-	LOG_LEVEL_DEBUG = 3,
-	LOG_LEVEL_TRACE = 4
+    LOG_LEVEL_NONE = -1,
+    LOG_LEVEL_ERROR = 0,
+    LOG_LEVEL_WARN = 1,
+    LOG_LEVEL_INFO = 2,
+    LOG_LEVEL_DEBUG = 3,
+    LOG_LEVEL_TRACE = 4
 } log_level_t;
 
 /**

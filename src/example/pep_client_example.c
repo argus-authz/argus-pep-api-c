@@ -18,7 +18,7 @@
 /*************
  * Simple PEP-C client example
  *
- * gcc -I/opt/glite/include -L/opt/glite/lib -lpep-c pep_client_example.c -o pep_client_example
+ * gcc -I/opt/emi/include -L/opt/emi/lib64 -largus_pep_api pep_client_example.c -o pep_client_example
  *
  * Author: Valery Tschopp <valery.tschopp@switch.ch>
  * $Id$
@@ -39,9 +39,13 @@ static const char * fulfillon_tostring(xacml_fulfillon_t fulfillon);
  * main
  */
 int main(void) {
+
+    /* PEP client handle */
+    PEP * pep;
+
     /* functions return code */
-    pep_error_t pep_rc; /* PEP-C function */
-    int rc;             /* others */
+    pep_error_t pep_rc; /* PEP function error */
+    int rc;             /* others functions */
     
     /* XACML request and response */
     xacml_request_t * request;
@@ -50,34 +54,32 @@ int main(void) {
     char * pep_url, * subjectid, * resourceid, * actionid;
 
     /* dump library version */
-    fprintf(stdout,"using libpep-c v.%s\n",pep_version());
+    fprintf(stdout,"using %s\n",pep_version());
 
     
-    /* initialize the PEP client library */
-    pep_rc= pep_initialize();
-    if (pep_rc != PEP_OK) {
-       fprintf(stderr,"failed to initialize PEP client: %s\n", pep_strerror(pep_rc));
+    /* create the PEP client handle */
+    pep= pep_initialize();
+    if (pep == NULL) {
+       fprintf(stderr,"failed to create PEP client\n");
        exit(1);
     }
 
     /* debugging options */
-    /*
-    pep_setoption(PEP_OPTION_LOG_STDERR,stderr);
-    pep_setoption(PEP_OPTION_LOG_LEVEL,PEP_LOGLEVEL_DEBUG);
-    */
+    pep_setoption(pep,PEP_OPTION_LOG_STDERR,stderr);
+    pep_setoption(pep,PEP_OPTION_LOG_LEVEL,PEP_LOGLEVEL_DEBUG);
 
     /* configure PEP client: PEPd url */
-    pep_url= "http://pepd.example.org:8154/authz";
-    pep_rc= pep_setoption(PEP_OPTION_ENDPOINT_URL,pep_url);
+    pep_url= "http://demeter.switch.ch:8154/authz";
+    pep_rc= pep_setoption(pep,PEP_OPTION_ENDPOINT_URL,pep_url);
     if (pep_rc != PEP_OK) {
        fprintf(stderr,"failed to set PEPd url: %s: %s\n", pep_url, pep_strerror(pep_rc));
        exit(1);
     }   
 
     /* create the XACML request */
-    subjectid= "CN=John Doe,O=Example Org,C=US";
-    resourceid= "x-urn:example.org:resource:resourceid:condor:57657";
-    actionid= "x-urn:example.org:action:actionid:submit";
+    subjectid= "CN=Valery Tschopp 9FEE5EE3,O=Switch - Teleinformatikdienste fuer Lehre und Forschung,DC=slcs,DC=switch,DC=ch";
+    resourceid= "switch";
+    actionid= "switch";
     rc= create_xacml_request(&request,subjectid,resourceid,actionid);
     if (rc != 0) {
        fprintf(stderr,"failed to create XACML request\n");
@@ -85,7 +87,7 @@ int main(void) {
     }
 
     /* submit the XACML request */
-    pep_rc= pep_authorize(&request, &response);
+    pep_rc= pep_authorize(pep,&request, &response);
     if (pep_rc != PEP_OK) {
        fprintf(stderr,"failed to authorize XACML request: %s\n", pep_strerror(pep_rc));
        exit(1);
@@ -98,12 +100,8 @@ int main(void) {
     xacml_request_delete(request);
     xacml_response_delete(response);
         
-    /* release the PEP client  */
-    pep_rc= pep_destroy();
-    if (pep_rc != PEP_OK) {
-        fprintf(stderr,"failed to release PEP client: %s\n", pep_strerror(pep_rc));
-        exit(1);
-    }
+    /* release the PEP client handle */
+    pep_destroy(pep);
 
     return 0;
 }

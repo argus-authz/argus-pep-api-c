@@ -29,350 +29,415 @@
 
 #include "pep/pep.h"
 #include "pep/io.h"
-#include "pep/i_error.h"
+#include "pep/error.h"
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"  /* PACKAGE_NAME and PACKAGE_VERSION const */
 #else
-#define PACKAGE_NAME "PEP-C"
-#define PACKAGE_VERSION "0.0.0"
+#define PACKAGE_NAME "argus-pep-api-c"
+#define PACKAGE_VERSION "2.0.0"
 #endif
 
-/** List of PIPs */
-static linkedlist_t * pips;
+/** buffer for version */
+#define VERSION_BUFFER_SIZE 1024
+static char VERSION_BUFFER[VERSION_BUFFER_SIZE];
 
-/** List of ObligationHandlers */
-static linkedlist_t * ohs;
+/** internal client counter */
+static int n_pep_clients= 0;
 
-/** CURL handler */
-static CURL * curl= NULL;
+/** Default constants */
+static const long   DEFAULT_CURL_TIMEOUT= 30L;
+static const int    DEFAULT_CURL_SSL_VALIDATION= TRUE;
+static const int    DEFAULT_LOG_LEVEL= PEP_LOGLEVEL_NONE;
+static const FILE * DEFAULT_LOG_FILE= NULL;
+static const int    DEFAULT_PIPS_ENABLE= TRUE;
+static const int    DEFAULT_OHS_ENABLE= TRUE;
 
-/** Options */
-static int option_loglevel= PEP_LOGLEVEL_NONE;
-static FILE * option_logout= NULL;
-static linkedlist_t * option_urls= NULL;
-static long option_timeout= 30L; /* default */
-static char * option_server_cert= NULL;
-static char * option_server_capath= NULL;
-static char * option_client_cert= NULL;
-static char * option_client_key= NULL;
-static char * option_client_keypassword= NULL;
-static int option_ssl_validation= TRUE;
-static char * option_ssl_cipher_list= NULL;
+/** internal functions prototypes */
+static void init_pep_defaults(PEP * pep);
+static void init_curl_defaults(const PEP * pep);
+static void init_log_defaults(const PEP * pep);
+static int set_curl_endpoint_url(const PEP * pep);
+static int set_curl_connection_timeout(const PEP * pep);
+static int set_curl_ssl_validation(const PEP * pep);
+static int set_curl_ssl_cipher_list(const PEP * pep);
+static int set_curl_server_cert(const PEP * pep);
+static int set_curl_server_capath(const PEP * pep);
+static int set_curl_client_cert(const PEP * pep);
+static int set_curl_client_key(const PEP * pep);
+static int set_curl_client_keypassword(const PEP * pep);
+static int set_curl_verbose(const PEP * pep);
+static int set_curl_stderr(const PEP * pep);
 
-static int option_pips_enabled= TRUE;
-static int option_ohs_enabled= TRUE;
+/** 
+* ADT for PEP client handle.
+*
+* CURL string parameters must be kept as with libcul <= 7.17.0, strings were not copied. 
+* Instead the user was forced keep them available until libcurl no longer needed them. 
+*/
+struct pep_client {
+    int id;
+    CURL * curl;
+    linkedlist_t * pips;
+    linkedlist_t * ohs;
+    char * option_endpoint_url;
+    int option_loglevel;
+    FILE * option_logout;
+    long option_timeout; 
+    char * option_server_cert;
+    char * option_server_capath;
+    char * option_client_cert;
+    char * option_client_key;
+    char * option_client_keypassword;
+    int option_ssl_validation;
+    char * option_ssl_cipher_list;
+    int option_pips_enabled;
+    int option_ohs_enabled;
+};
 
 const char * pep_version(void) {
-    return PACKAGE_VERSION;
+    snprintf(VERSION_BUFFER,VERSION_BUFFER_SIZE,"%s/%s (%s)",PACKAGE_NAME,PACKAGE_VERSION,curl_version());
+    return VERSION_BUFFER;
 }
 
-const char * pep_version_name(void) {
-    return PACKAGE_NAME;
-}
+/* create and init */
+PEP * pep_initialize(void) {
 
-
-pep_error_t pep_initialize(void) {
-    /* clear all err message */
-    pep_clearerr();
-
+    /* allocate struct */
+    PEP * pep= calloc(1,sizeof(struct pep_client));
+    if (pep == NULL) {
+        log_error("pep_initialize: can't allocate struct pep_client: %d", sizeof(struct pep_client));
+        return NULL;
+    }
+    /* set default PEP values */
+    init_pep_defaults(pep);
+    
+    /* create and init curl handle */
+    pep->curl= curl_easy_init();
+    if (pep->curl == NULL) {
+        log_error("pep_initialize: can't create CURL session handle.");
+        free(pep);
+        return NULL;
+    }
+    /* set default CURL options */
+    init_curl_defaults(pep);
+        
     /* create all required lists */
-    pips= llist_create();
-    if (pips == NULL) {
+    pep->pips= llist_create();
+    if (pep->pips == NULL) {
         log_error("pep_initialize: PIPs list allocation failed.");
-        pep_errmsg("failed to allocate PIPs list");
-        return PEP_ERR_INIT_LISTS;
+        curl_easy_cleanup(pep->curl);
+        free(pep);
+        return NULL;
     }
-    ohs= llist_create();
-    if (ohs == NULL) {
-        llist_delete(pips);
+    pep->ohs= llist_create();
+    if (pep->ohs == NULL) {
         log_error("pep_initialize: OHs list allocation failed.");
-        pep_errmsg("failed to allocate OHs list");
-        return PEP_ERR_INIT_LISTS;
+        curl_easy_cleanup(pep->curl);
+        llist_delete(pep->pips);
+        free(pep);
+        return NULL;
     }
-    /* init curl and create curl handler */
-/* NOT THREAD SAFE: breaks globus GT4 GSI callout plugin */
-/*
-    CURLcode curl_rc= curl_global_init(CURL_GLOBAL_ALL);
-    if (curl_rc != CURLE_OK) {
-        log_error("pep_initialize: CURL global initialization failed: %s", curl_easy_strerror(curl_rc));
-        llist_delete(pips);
-        llist_delete(ohs);
-        pep_errmsg("curl_global_init(CURL_GLOBAL_ALL) failed: %s",curl_easy_strerror(curl_rc));
-        return PEP_ERR_INIT_CURL;
-    }
-*/
-    curl= curl_easy_init();
-    if (curl == NULL) {
-        log_error("pep_initialize: can't create CURL session handler.");
-        llist_delete(pips);
-        llist_delete(ohs);
-        pep_errmsg("curl_easy_init() failed");
-        return PEP_ERR_INIT_CURL;
-    }
-    /* create option_urls list */
-    option_urls= llist_create();
-    if (option_urls == NULL) {
-        log_error("pep_initialize: can't create endpoint URLs list.");
-        llist_delete(pips);
-        llist_delete(ohs);
-        pep_errmsg("failed to create URLs list");
-        return PEP_ERR_INIT_LISTS;
-    }
-    return PEP_OK;
+    
+    return pep;
 }
 
-pep_error_t pep_addpip(const pep_pip_t * pip) {
+pep_error_t pep_addpip(PEP * pep, const pep_pip_t * pip) {
     int pip_rc = -1;
+    if (pep == NULL) {
+        log_error("pep_addpip: NULL pep handle");
+        /* pep_errmsg("NULL PEP handle"); */
+        return PEP_ERR_NULL_POINTER;
+    }
     if (pip == NULL) {
         log_error("pep_addpip: NULL pip pointer");
-        pep_errmsg("NULL pep_pip_t pointer");
+        /* pep_errmsg("NULL pep_pip_t pointer"); */
         return PEP_ERR_NULL_POINTER;
     }
     if ((pip_rc= pip->init()) != 0) {
         log_error("pep_addpip: PIP[%s] init() failed: %d.",pip->id, pip_rc);
-        pep_errmsg("PIP[%s] init() failed with code: %d",pip->id, pip_rc);
-        return PEP_ERR_INIT_PIP;
+        /* pep_errmsg("PIP[%s] init() failed with code: %d",pip->id, pip_rc); */
+        return PEP_ERR_PIP_INIT;
     }
-    if (llist_add(pips,(pep_pip_t *)pip) != LLIST_OK) {
-        log_error("pep_addpip: failed to add initialized PIP[%s] in list.",pip->id);
-        pep_errmsg("can't add PIP[%s] into list",pip->id);
-        return PEP_ERR_INIT_LISTS;
+    if (llist_add(pep->pips,(pep_pip_t *)pip) != LLIST_OK) {
+        log_error("pep_addpip: failed to add initialized PIP[%s] into PEP#%d list.",pip->id,pep->id);
+        /* pep_errmsg("can't add PIP[%s] into PEP#%d list",pip->id,pep->id); */
+        return PEP_ERR_LLIST;
     }
     return PEP_OK;
 }
 
-pep_error_t pep_addobligationhandler(const pep_obligationhandler_t * oh) {
+pep_error_t pep_addobligationhandler(PEP * pep, const pep_obligationhandler_t * oh) {
     int oh_rc= -1;
+    if (pep == NULL) {
+        log_error("pep_addobligationhandler: NULL pep handle");
+        /* pep_errmsg("NULL PEP handle"); */
+        return PEP_ERR_NULL_POINTER;
+    }
     if (oh == NULL) {
         log_error("pep_addobligationhandler: NULL oh pointer");
-        pep_errmsg("NULL pep_obligationhandler_t pointer");
+        /* pep_errmsg("NULL pep_obligationhandler_t pointer"); */
         return PEP_ERR_NULL_POINTER;
     }
     if ((oh_rc= oh->init()) != 0) {
         log_error("pep_addobligationhandler: OH[%s] init() failed: %d",oh->id, oh_rc);
-        pep_errmsg("OH[%s] init() failed with code: %d",oh->id, oh_rc);
-        return PEP_ERR_INIT_OH;
+        /* pep_errmsg("OH[%s] init() failed with code: %d",oh->id, oh_rc); */
+        return PEP_ERR_OH_INIT;
     }
-    if (llist_add(ohs,(pep_obligationhandler_t *)oh) != LLIST_OK) {
-        log_error("pep_addobligationhandler: failed to add initialized OH[%s] in list.", oh->id);
-        pep_errmsg("can't add OH[%s] into list",oh->id);
-        return PEP_ERR_INIT_LISTS;
+    if (llist_add(pep->ohs,(pep_obligationhandler_t *)oh) != LLIST_OK) {
+        log_error("pep_addobligationhandler: failed to add initialized OH[%s] into PEP#%d list.",oh->id,pep->id);
+        /* pep_errmsg("can't add OH[%s] into PEP#%d list",oh->id,pep->id); */
+        return PEP_ERR_LLIST;
     }
     return PEP_OK;
 }
 
-pep_error_t pep_setoption(pep_option_t option, ... ) {
+pep_error_t pep_setoption(PEP * pep, pep_option_t option, ... ) {
     pep_error_t rc= PEP_OK;
     va_list args;
-    char * str= NULL, * tmp;
+    char * str= NULL;
     size_t str_l= 0;
     int value= -1;
     FILE * file= NULL;
     pep_log_handler_callback * log_handler= NULL;
+    if (pep == NULL) {
+        log_error("pep_setoption: NULL pep handle");
+        /* pep_errmsg("NULL PEP handle"); */
+        return PEP_ERR_NULL_POINTER;
+    }
     va_start(args,option);
     switch (option) {
         case PEP_OPTION_ENDPOINT_URL:
             str= va_arg(args,char *);
             if (str == NULL) {
-                log_error("pep_setoption: PEP_OPTION_ENDPOINT_URL argument is NULL.");
+                log_error("pep_setoption: PEP#%d PEP_OPTION_ENDPOINT_URL argument is NULL.", pep->id);
                 rc= PEP_ERR_OPTION_INVALID;
                 break;
             }
             /* copy url */
+            if (pep->option_endpoint_url != NULL) { 
+                log_debug("pep_setoption: PEP#%d option_endpoint_url already set to '%s', freeing...",pep->id,pep->option_endpoint_url);
+                free(pep->option_endpoint_url); 
+            }
             str_l= strlen(str);
-            tmp= calloc(str_l + 1, sizeof(char));
-            if (tmp == NULL) {
-                log_error("pep_setoption: can't allocate url: %s.", str);
-                pep_errmsg("can't allocate url: %s.", str);
+            pep->option_endpoint_url= calloc(str_l + 1, sizeof(char));
+            if (pep->option_endpoint_url == NULL) {
+                log_error("pep_setoption: PEP#%d can't allocate option_endpoint_url: %s.",pep->id,str);
+                /* pep_errmsg("can't allocate url: %s.", str); */
                 rc= PEP_ERR_MEMORY;
                 break;
             }
-            strncpy(tmp,str,str_l);
-            /* and add it to the urls list */
-            if (llist_add(option_urls,tmp) == LLIST_ERROR) {
-                free(tmp);
-                log_error("pep_setoption: can't add url: %s to list.", str);
-                pep_errmsg("can't add url: %s to list.", str);
-                rc= PEP_ERR_MEMORY;
-                break;
-            }
-            log_debug("pep_setoption: PEP_OPTION_ENDPOINT_URL: %s",tmp);
+            strncpy(pep->option_endpoint_url,str,str_l);
+            log_debug("pep_setoption: PEP#%d PEP_OPTION_ENDPOINT_URL: %s",pep->id,pep->option_endpoint_url);
+            set_curl_endpoint_url(pep);
             break;
         case PEP_OPTION_ENDPOINT_TIMEOUT:
             value= va_arg(args,int);
             if (value > 0) {
-                option_timeout= (long)value;
+                pep->option_timeout= (long)value;
             }
-            log_debug("pep_setoption: PEP_OPTION_ENDPOINT_TIMEOUT: %d",(int)option_timeout);
+            log_debug("pep_setoption: PEP#%d PEP_OPTION_ENDPOINT_TIMEOUT: %d",pep->id,(int)(pep->option_timeout));
+            set_curl_connection_timeout(pep);
             break;
         case PEP_OPTION_ENDPOINT_SSL_VALIDATION:
             value= va_arg(args,int);
             if (value == 1) {
-                option_ssl_validation= TRUE;
+                pep->option_ssl_validation= TRUE;
             }
             else {
-                option_ssl_validation= FALSE;
+                pep->option_ssl_validation= FALSE;
             }
-            log_debug("pep_setoption: PEP_OPTION_ENDPOINT_SSL_VALIDATION: %s",(option_ssl_validation == TRUE) ? "TRUE" : "FALSE");
+            log_debug("pep_setoption: PEP#%d PEP_OPTION_ENDPOINT_SSL_VALIDATION: %s",pep->id,(pep->option_ssl_validation == TRUE) ? "TRUE" : "FALSE");
+            set_curl_ssl_validation(pep);
             break;
         case PEP_OPTION_ENDPOINT_SSL_CIPHER_LIST:
             str= va_arg(args,char *);
             if (str == NULL) {
-                log_error("pep_setoption: PEP_OPTION_ENDPOINT_SSL_CIPHER_LIST argument is NULL.");
+                log_error("pep_setoption: PEP#%d PEP_OPTION_ENDPOINT_SSL_CIPHER_LIST argument is NULL.",pep->id);
                 rc= PEP_ERR_OPTION_INVALID;
                 break;
             }
             /* copy cipher list string */
+            if (pep->option_ssl_cipher_list != NULL) { 
+                log_debug("pep_setoption: PEP#%d option_ssl_cipher_list already set to '%s', freeing...",pep->id,pep->option_ssl_cipher_list);
+                free(pep->option_ssl_cipher_list); 
+            }
             str_l= strlen(str);
-            option_ssl_cipher_list= calloc(str_l + 1, sizeof(char));
-            if (option_ssl_cipher_list == NULL) {
-                log_error("pep_setoption: can't allocate option_ssl_cipher_list: %s.", str);
-                pep_errmsg("can't allocate option_ssl_cipher_list: %s.", str);
+            pep->option_ssl_cipher_list= calloc(str_l + 1, sizeof(char));
+            if (pep->option_ssl_cipher_list == NULL) {
+                log_error("pep_setoption: PEP#%d can't allocate option_ssl_cipher_list: %s.",pep->id,str);
+                /* pep_errmsg("can't allocate option_ssl_cipher_list: %s.", str); */
                 rc= PEP_ERR_MEMORY;
                 break;
             }
-            strncpy(option_ssl_cipher_list,str,str_l);
-            log_debug("pep_setoption: PEP_OPTION_ENDPOINT_SSL_CIPHER_LIST: %s",option_ssl_cipher_list);
+            strncpy(pep->option_ssl_cipher_list,str,str_l);
+            log_debug("pep_setoption: PEP#%d PEP_OPTION_ENDPOINT_SSL_CIPHER_LIST: %s",pep->id,pep->option_ssl_cipher_list);
+            set_curl_ssl_cipher_list(pep);
             break;
             
         case PEP_OPTION_ENDPOINT_SERVER_CERT:
             str= va_arg(args,char *);
             if (str == NULL) {
-                log_error("pep_setoption: PEP_OPTION_ENDPOINT_SERVER_CERT argument is NULL.");
+                log_error("pep_setoption: PEP#%d PEP_OPTION_ENDPOINT_SERVER_CERT argument is NULL.", pep->id);
                 rc= PEP_ERR_OPTION_INVALID;
                 break;
             }
             /* copy client_cert */
+            if (pep->option_server_cert != NULL) { 
+                log_debug("pep_setoption: PEP#%d option_server_cert already set to '%s', freeing...",pep->id,pep->option_server_cert);
+                free(pep->option_server_cert);
+            }
             str_l= strlen(str);
-            option_server_cert= calloc(str_l + 1, sizeof(char));
-            if (option_server_cert == NULL) {
-                log_error("pep_setoption: can't allocate option_server_cert: %s.", str);
-                pep_errmsg("can't allocate option_server_cert: %s.", str);
+            pep->option_server_cert= calloc(str_l + 1, sizeof(char));
+            if (pep->option_server_cert == NULL) {
+                log_error("pep_setoption: PEP#%d can't allocate option_server_cert: %s.", pep->id,str);
+                /* pep_errmsg("can't allocate option_server_cert: %s.", str); */
                 rc= PEP_ERR_MEMORY;
                 break;
             }
-            strncpy(option_server_cert,str,str_l);
-            log_debug("pep_setoption: PEP_OPTION_ENDPOINT_SERVER_CERT: %s",option_server_cert);
+            strncpy(pep->option_server_cert,str,str_l);
+            log_debug("pep_setoption: PEP#%d PEP_OPTION_ENDPOINT_SERVER_CERT: %s",pep->id,pep->option_server_cert);
+            set_curl_server_cert(pep);
             break;
         case PEP_OPTION_ENDPOINT_SERVER_CAPATH:
             str= va_arg(args,char *);
             if (str == NULL) {
-                log_error("pep_setoption: PEP_OPTION_ENDPOINT_SERVER_CAPATH argument is NULL.");
+                log_error("pep_setoption: PEP#%d PEP_OPTION_ENDPOINT_SERVER_CAPATH argument is NULL.",pep->id);
                 rc= PEP_ERR_OPTION_INVALID;
                 break;
             }
             /* copy client_cert */
+            if (pep->option_server_capath != NULL) { 
+                log_debug("pep_setoption: PEP#%d option_server_capath already set to '%s', freeing...",pep->id,pep->option_server_capath);
+                free(pep->option_server_capath); 
+            }
             str_l= strlen(str);
-            option_server_capath= calloc(str_l + 1, sizeof(char));
-            if (option_server_capath == NULL) {
-                log_error("pep_setoption: can't allocate option_server_capath: %s.", str);
-                pep_errmsg("can't allocate option_server_capath: %s.", str);
+            pep->option_server_capath= calloc(str_l + 1, sizeof(char));
+            if (pep->option_server_capath == NULL) {
+                log_error("pep_setoption: PEP#%d can't allocate option_server_capath: %s.",pep->id, str);
+                /* pep_errmsg("can't allocate option_server_capath: %s.", str); */
                 rc= PEP_ERR_MEMORY;
                 break;
             }
-            strncpy(option_server_capath,str,str_l);
-            log_debug("pep_setoption: PEP_OPTION_ENDPOINT_SERVER_CAPATH: %s",option_server_capath);
+            strncpy(pep->option_server_capath,str,str_l);
+            log_debug("pep_setoption: PEP#%d PEP_OPTION_ENDPOINT_SERVER_CAPATH: %s",pep->id,pep->option_server_capath);
+            set_curl_server_capath(pep);
             break;
         case PEP_OPTION_ENDPOINT_CLIENT_CERT:
             str= va_arg(args,char *);
             if (str == NULL) {
-                log_error("pep_setoption: PEP_OPTION_ENDPOINT_CLIENT_CERT argument is NULL.");
+                log_error("pep_setoption: PEP#%d PEP_OPTION_ENDPOINT_CLIENT_CERT argument is NULL.",pep->id);
                 rc= PEP_ERR_OPTION_INVALID;
                 break;
             }
             /* copy client_cert */
+            if (pep->option_client_cert != NULL) { 
+                log_debug("pep_setoption: PEP#%d option_client_cert already set to '%s', freeing...",pep->id,pep->option_client_cert);
+                free(pep->option_client_cert); 
+            }
             str_l= strlen(str);
-            option_client_cert= calloc(str_l + 1, sizeof(char));
-            if (option_client_cert == NULL) {
-                log_error("pep_setoption: can't allocate option_client_cert: %s.", str);
-                pep_errmsg("can't allocate option_client_cert: %s.", str);
+            pep->option_client_cert= calloc(str_l + 1, sizeof(char));
+            if (pep->option_client_cert == NULL) {
+                log_error("pep_setoption: PEP#%d can't allocate option_client_cert: %s.", pep->id,str);
+                /* pep_errmsg("can't allocate option_client_cert: %s.", str); */
                 rc= PEP_ERR_MEMORY;
                 break;
             }
-            strncpy(option_client_cert,str,str_l);
-            log_debug("pep_setoption: PEP_OPTION_ENDPOINT_CLIENT_CERT: %s",option_client_cert);
+            strncpy(pep->option_client_cert,str,str_l);
+            log_debug("pep_setoption: PEP#%d PEP_OPTION_ENDPOINT_CLIENT_CERT: %s",pep->id,pep->option_client_cert);
+            set_curl_client_cert(pep);
             break;
         case PEP_OPTION_ENDPOINT_CLIENT_KEY:
             str= va_arg(args,char *);
             if (str == NULL) {
-                log_error("pep_setoption: PEP_OPTION_ENDPOINT_CLIENT_KEY argument is NULL.");
+                log_error("pep_setoption: PEP#%d PEP_OPTION_ENDPOINT_CLIENT_KEY argument is NULL.",pep->id);
                 rc= PEP_ERR_OPTION_INVALID;
                 break;
             }
             /* copy client_key */
+            if (pep->option_client_key != NULL) { 
+                log_debug("pep_setoption: PEP#%d option_client_key already set to '%s', freeing...",pep->id,pep->option_client_key);
+                free(pep->option_client_key); 
+            }
             str_l= strlen(str);
-            option_client_key= calloc(str_l + 1, sizeof(char));
-            if (option_client_key == NULL) {
-                log_error("pep_setoption: can't allocate option_client_key: %s.", str);
-                pep_errmsg("can't allocate option_client_key: %s.", str);
+            pep->option_client_key= calloc(str_l + 1, sizeof(char));
+            if (pep->option_client_key == NULL) {
+                log_error("pep_setoption: PEP#%d can't allocate option_client_key: %s.",pep->id,str);
                 rc= PEP_ERR_MEMORY;
                 break;
             }
-            strncpy(option_client_key,str,str_l);
-            log_debug("pep_setoption: PEP_OPTION_ENDPOINT_CLIENT_KEY: %s",option_client_key);
+            strncpy(pep->option_client_key,str,str_l);
+            log_debug("pep_setoption: PEP#%d PEP_OPTION_ENDPOINT_CLIENT_KEY: %s",pep->id,pep->option_client_key);
+            set_curl_client_key(pep);
             break;
         case PEP_OPTION_ENDPOINT_CLIENT_KEYPASSWORD:
             str= va_arg(args,char *);
             if (str == NULL) {
-                log_error("pep_setoption: PEP_OPTION_ENDPOINT_CLIENT_KEYPASSWORD argument is NULL.");
+                log_error("pep_setoption: PEP#%d PEP_OPTION_ENDPOINT_CLIENT_KEYPASSWORD argument is NULL.",pep->id);
                 rc= PEP_ERR_OPTION_INVALID;
                 break;
             }
             /* copy client_key */
+            if (pep->option_client_keypassword != NULL) { 
+                log_debug("pep_setoption: PEP#%d option_client_keypassword already set to '%s', freeing...",pep->id,pep->option_client_keypassword);
+                memset(pep->option_client_keypassword,'\0',strlen(pep->option_client_keypassword));
+                free(pep->option_client_keypassword); 
+            }
             str_l= strlen(str);
-            option_client_keypassword= calloc(str_l + 1, sizeof(char));
-            if (option_client_keypassword == NULL) {
-                log_error("pep_setoption: can't allocate option_client_keypassword: %s.", str);
-                pep_errmsg("can't allocate option_client_keypassword: %s.", str);
+            pep->option_client_keypassword= calloc(str_l + 1, sizeof(char));
+            if (pep->option_client_keypassword == NULL) {
+                log_error("pep_setoption: PEP#%d can't allocate option_client_keypassword: %s.",pep->id, str);
                 rc= PEP_ERR_MEMORY;
                 break;
             }
-            strncpy(option_client_keypassword,str,str_l);
-            log_debug("pep_setoption: PEP_OPTION_ENDPOINT_CLIENT_KEYPASSWORD: %d char long",(int)strlen(option_client_keypassword));
+            strncpy(pep->option_client_keypassword,str,str_l);
+            log_debug("pep_setoption: PEP#%d PEP_OPTION_ENDPOINT_CLIENT_KEYPASSWORD: %d char long",pep->id,(int)strlen(pep->option_client_keypassword));
+            set_curl_client_keypassword(pep);
             break;
         case PEP_OPTION_ENABLE_PIPS:
             value= va_arg(args,int);
             if (value == 1) {
-                option_pips_enabled= TRUE;
+                pep->option_pips_enabled= TRUE;
             }
             else {
-                option_pips_enabled= FALSE;
+                pep->option_pips_enabled= FALSE;
             }
-            log_debug("pep_setoption: PEP_OPTION_ENABLE_PIPS: %s",(option_pips_enabled == TRUE) ? "TRUE" : "FALSE");
+            log_debug("pep_setoption: PEP#%d PEP_OPTION_ENABLE_PIPS: %s",pep->id,(pep->option_pips_enabled == TRUE) ? "TRUE" : "FALSE");
             break;
         case PEP_OPTION_ENABLE_OBLIGATIONHANDLERS:
             value= va_arg(args,int);
             if (value == 1) {
-                option_ohs_enabled= TRUE;
+                pep->option_ohs_enabled= TRUE;
             }
             else {
-                option_ohs_enabled= FALSE;
+                pep->option_ohs_enabled= FALSE;
             }
-            log_debug("pep_setoption: PEP_OPTION_ENABLE_OBLIGATIONHANDLERS: %s",(option_ohs_enabled == TRUE) ? "TRUE" : "FALSE");
+            log_debug("pep_setoption: PEP#%d PEP_OPTION_ENABLE_OBLIGATIONHANDLERS: %s",pep->id,(pep->option_ohs_enabled == TRUE) ? "TRUE" : "FALSE");
             break;
         case PEP_OPTION_LOG_LEVEL:
             value= va_arg(args,int);
             if (PEP_LOGLEVEL_NONE <= value && value <= PEP_LOGLEVEL_DEBUG) {
-                option_loglevel= value;
-                log_setlevel(option_loglevel);
+                pep->option_loglevel= value;
+                log_setlevel(pep->option_loglevel);
             }
-            log_debug("pep_setoption: PEP_OPTION_LOG_LEVEL: %d",option_loglevel);
+            log_debug("pep_setoption: PEP#%d PEP_OPTION_LOG_LEVEL: %d",pep->id,pep->option_loglevel);
+            set_curl_verbose(pep);
             break;
         case PEP_OPTION_LOG_STDERR:
             file= va_arg(args,FILE *);
-            option_logout= file;
-            log_setout(file);
-            log_debug("pep_setoption: PEP_OPTION_LOG_STDERR set.");
+            pep->option_logout= file;
+            log_setout(pep->option_logout);
+            log_debug("pep_setoption: PEP#%d PEP_OPTION_LOG_STDERR: %p",pep->id,pep->option_logout);
+            set_curl_stderr(pep);
             break;
         case PEP_OPTION_LOG_HANDLER:
             log_handler= va_arg(args,pep_log_handler_callback *);
             log_sethandler(log_handler);
-            log_debug("pep_setoption: PEP_OPTION_LOG_HANDLER set.");
+            log_debug("pep_setoption: PEP_OPTION_LOG_HANDLER: %p",log_handler);
             break;
         default:
-            log_error("pep_setoption: %d invalid option.", option);
-            pep_errmsg("invalid option: %d", option);
+            log_error("pep_setoption: PEP#%d invalid option: %d",pep->id,option);
+            /* pep_errmsg("invalid option: %d", option); */
             rc= PEP_ERR_OPTION_INVALID;
             break;
     }
@@ -380,52 +445,59 @@ pep_error_t pep_setoption(pep_option_t option, ... ) {
     return rc;
 }
 
-pep_error_t pep_authorize(xacml_request_t ** request, xacml_response_t ** response) {
+
+pep_error_t pep_authorize(PEP * pep, xacml_request_t ** request, xacml_response_t ** response) {
     int i= 0;
     int pip_rc, oh_rc;
     BUFFER * output, * b64output, * b64input, * input;
     size_t output_l, b64output_l;
-    pep_error_t marshal_rc;
+    pep_error_t marshal_rc, unmarshal_rc;
     CURLcode curl_rc;
-    int failover_ok= FALSE;
-    size_t urls_l;
+    long http_code= 0;
     xacml_request_t * effective_request;
-    
-    if (*request == NULL) {
-        log_error("pep_authorize: NULL request pointer");
-        pep_errmsg("NULL xacml_request_t pointer");
+    if (pep == NULL) {
+        log_error("pep_authorize: NULL pep handle");
+        /* pep_errmsg("NULL PEP handle"); */
         return PEP_ERR_NULL_POINTER;
     }
+    if (pep->option_endpoint_url == NULL) {
+        log_error("pep_authorize: NULL mandatory option PEP_OPTION_ENDPOINT_URL");
+        return PEP_ERR_NULL_POINTER;
+    }
+    if (request == NULL || *request == NULL) {
+        log_error("pep_authorize: PEP#%d NULL request pointer",pep->id);
+        /* pep_errmsg("NULL xacml_request_t pointer"); */
+        return PEP_ERR_NULL_POINTER;
+    }
+    
     /* apply pips if enabled and any */
-    if (option_pips_enabled && llist_length(pips) > 0) {
-        size_t pips_l= llist_length(pips);
-        log_info("pep_authorize: %d PIPs available, processing...", (int)pips_l);
+    if (pep->option_pips_enabled && llist_length(pep->pips) > 0) {
+        size_t pips_l= llist_length(pep->pips);
+        log_info("pep_authorize: PEP#%d %d PIPs available, processing...",pep->id, (int)pips_l);
         for (i= 0; i<pips_l; i++) {
-            pep_pip_t * pip= llist_get(pips,i);
+            pep_pip_t * pip= llist_get(pep->pips,i);
             if (pip != NULL) {
-                log_debug("pep_authorize: calling pip[%s]->process(request)...",pip->id);
+                log_debug("pep_authorize: PEP#%d calling pip[%s]->process(request)...",pep->id,pip->id);
                 pip_rc= pip->process(request);
                 if (pip_rc != 0) {
                     log_error("pep_authorize: PIP[%s] process(request) failed: %d", pip->id, pip_rc);
-                    pep_errmsg("PIP[%s] process(request) failed: %d", pip->id, pip_rc);
-                    return PEP_ERR_AUTHZ_PIP_PROCESS;
+                    /* pep_errmsg("PIP[%s] process(request) failed: %d", pip->id, pip_rc); */
+                    return PEP_ERR_PIP_PROCESS;
                 }
             }
         }
     }
 
-    /* marshal the PEP request in output buffer */
+    /* marshal the authorization request into output buffer */
     output= buffer_create(512);
     if (output == NULL) {
-        log_error("pep_authorize: can't create output buffer.");
-        pep_errmsg("can't allocate output buffer (512 bytes)");
+        log_error("pep_authorize: PEP#%d can't create output buffer (512 bytes).",pep->id);
         return PEP_ERR_MEMORY;
     }
     marshal_rc= xacml_request_marshalling(*request,output);
     if ( marshal_rc != PEP_OK ) {
-        log_error("pep_authorize: can't marshal XACML request: %s.", pep_strerror(marshal_rc));
+        log_error("pep_authorize: PEP#%d can't marshal XACML request: %s.",pep->id,pep_strerror(marshal_rc));
         buffer_delete(output);
-        /* errmsg already set by pep_request_marshalling(...) */
         return marshal_rc;
     }
 
@@ -433,9 +505,8 @@ pep_error_t pep_authorize(xacml_request_t ** request, xacml_response_t ** respon
     output_l= buffer_length(output);
     b64output= buffer_create( output_l );
     if (b64output == NULL) {
-        log_error("ERROR:pep_authorize: can't create base64 output buffer.");
+        log_error("pep_authorize: PEP#%d can't create base64 output buffer (%d bytes).",pep->id,(int)output_l);
         buffer_delete(output);
-        pep_errmsg("can't allocate base64 output buffer (%d bytes)", (int)output_l);
         return PEP_ERR_MEMORY;
     }
     base64_encode_l(output,b64output,BASE64_DEFAULT_LINE_SIZE);
@@ -443,348 +514,419 @@ pep_error_t pep_authorize(xacml_request_t ** request, xacml_response_t ** respon
     /* output buffer not needed anymore. */
     buffer_delete(output);
 
-    /* set the CURL related options */
-    if (option_loglevel >= PEP_LOGLEVEL_DEBUG) {
-        FILE * log_stderr= log_getout();
-        if (log_stderr != NULL) {
-            log_debug("pep_authorize: setting curl_easy_setopt(curl,CURLOPT_STDERR,log_stderr).");
-            curl_easy_setopt(curl,CURLOPT_STDERR,log_stderr);
-        }
-        log_debug("pep_authorize: setting curl_easy_setopt(curl,CURLOPT_VERBOSE,1L).");
-        curl_easy_setopt(curl,CURLOPT_VERBOSE,1L);
-    }
-    /* set the UserAgent string */
-    curl_rc= curl_easy_setopt(curl, CURLOPT_USERAGENT, PACKAGE_NAME "/" PACKAGE_VERSION);
-    if (curl_rc != CURLE_OK) {
-        log_warn("pep_authorize: curl_easy_setopt(curl,CURLOPT_USERAGENT," PACKAGE_NAME "/" PACKAGE_VERSION ") failed: %s.",curl_easy_strerror(curl_rc));
-    }
-    /* set connection timeout */
-    log_debug("pep_authorize: set option_timeout: %d",(int)option_timeout);
-    curl_rc= curl_easy_setopt(curl, CURLOPT_TIMEOUT, option_timeout);
-    if (curl_rc != CURLE_OK) {
-        log_warn("pep_authorize: curl_easy_setopt(curl,CURLOPT_TIMEOUT,%d) failed: %s",option_timeout,curl_easy_strerror(curl_rc));
-    }
-
-    /* SSL client and server options */
-
-    /* set SSL validation enable|disable */
-    log_debug("pep_authorize: set option_ssl_validation: %s",option_ssl_validation ? "TRUE" : "FALSE");
-    curl_rc= curl_easy_setopt(curl,CURLOPT_SSL_VERIFYPEER,option_ssl_validation);
-    if (curl_rc != CURLE_OK) {
-        log_warn("pep_authorize: curl_easy_setopt(curl,CURLOPT_SSL_VERIFYPEER,%s) failed: %s",option_ssl_validation ? "TRUE" : "FALSE",curl_easy_strerror(curl_rc));
-    }
-    /* set SSL connection ciphers list */
-    log_debug("pep_authorize: set option_ssl_cipher_list: %s",option_ssl_cipher_list);
-    if (option_ssl_cipher_list != NULL) {
-        curl_rc= curl_easy_setopt(curl,CURLOPT_SSL_CIPHER_LIST,option_ssl_cipher_list);
-        if (curl_rc != CURLE_OK) {
-            log_warn("pep_authorize: setting curl_easy_setopt(curl,CURLOPT_SSL_CIPHER_LIST,%s) failed: %s",option_ssl_cipher_list,curl_easy_strerror(curl_rc));
-        }
-    }
-    
-    
-    /* server CURLOPT_CAINFO, CURLOPT_CAPATH */
-    log_debug("pep_authorize: set option_server_cert: %s",option_server_cert);
-    if (option_server_cert != NULL) {
-        curl_rc= curl_easy_setopt(curl,CURLOPT_CAINFO,option_server_cert);
-        if (curl_rc != CURLE_OK) {
-            log_error("pep_authorize: curl_easy_setopt(curl,CURLOPT_CAINFO,%s) failed: %s",option_server_cert,curl_easy_strerror(curl_rc));
-            buffer_delete(b64output);
-            pep_errmsg("curl_easy_setopt(curl,CURLOPT_CAINFO,%s) failed: %s",option_server_cert,curl_easy_strerror(curl_rc));
-            return PEP_ERR_AUTHZ_CURL;
-        }
-    }
-    log_debug("pep_authorize: set option_server_capath: %s",option_server_capath);
-    if (option_server_capath != NULL) {
-        curl_rc= curl_easy_setopt(curl,CURLOPT_CAPATH,option_server_capath);
-        if (curl_rc != CURLE_OK) {
-            log_error("pep_authorize: curl_easy_setopt(curl,CURLOPT_CAPATH,%s) failed: %s",option_server_capath,curl_easy_strerror(curl_rc));
-            buffer_delete(b64output);
-            pep_errmsg("curl_easy_setopt(curl,CURLOPT_CAPATH,%s) failed: %s",option_server_capath,curl_easy_strerror(curl_rc));
-            return PEP_ERR_AUTHZ_CURL;
-        }
-    }
-    /* client CURLOPT_SSLCERT, CURLOPT_SSLKEY, CURLOPT_KEYPASSWD */
-    log_debug("pep_authorize: set option_client_cert: %s",option_client_cert);
-    if (option_client_cert != NULL) {
-        curl_rc= curl_easy_setopt(curl,CURLOPT_SSLCERT,option_client_cert);
-        if (curl_rc != CURLE_OK) {
-            log_error("pep_authorize: curl_easy_setopt(curl,CURLOPT_SSLCERT,%s) failed: %s",option_client_cert,curl_easy_strerror(curl_rc));
-            buffer_delete(b64output);
-            pep_errmsg("curl_easy_setopt(curl,CURLOPT_SSLCERT,%s) failed: %s",option_client_cert,curl_easy_strerror(curl_rc));
-            return PEP_ERR_AUTHZ_CURL;
-        }
-    }
-    log_debug("pep_authorize: set option_client_key: %s",option_client_key);
-    if (option_client_key != NULL) {
-        curl_rc= curl_easy_setopt(curl,CURLOPT_SSLKEY,option_client_key);
-        if (curl_rc != CURLE_OK) {
-            log_error("pep_authorize: curl_easy_setopt(curl,CURLOPT_SSLKEY,%s) failed: %s",option_client_key,curl_easy_strerror(curl_rc));
-            buffer_delete(b64output);
-            pep_errmsg("curl_easy_setopt(curl,CURLOPT_SSLKEY,%s) failed: %s",option_client_key,curl_easy_strerror(curl_rc));
-            return PEP_ERR_AUTHZ_CURL;
-        }
-    }
-    if (option_client_keypassword != NULL) {
-        log_debug("pep_authorize: set option_client_keypassword: %d char long",(int)strlen(option_client_keypassword));
-        curl_rc= curl_easy_setopt(curl,CURLOPT_SSLKEYPASSWD,option_client_keypassword);
-        if (curl_rc != CURLE_OK) {
-            log_error("pep_authorize: curl_easy_setopt(curl,CURLOPT_SSLKEYPASSWD,%s) failed: %s",option_client_keypassword,curl_easy_strerror(curl_rc));
-            buffer_delete(b64output);
-            pep_errmsg("curl_easy_setopt(curl,CURLOPT_SSLKEYPASSWD,%s) failed: %s",option_client_keypassword,curl_easy_strerror(curl_rc));
-            return PEP_ERR_AUTHZ_CURL;
-        }
-    }
     /* configure curl handler to POST the base64 encoded marshalled PEP request buffer */
-    curl_rc= curl_easy_setopt(curl, CURLOPT_POST, 1L);
+    curl_rc= curl_easy_setopt(pep->curl, CURLOPT_POST, 1L);
     if (curl_rc != CURLE_OK) {
-        log_error("pep_authorize: curl_easy_setopt(curl,CURLOPT_POST,1) failed: %s.",curl_easy_strerror(curl_rc));
+        log_error("pep_authorize: PEP#%d curl_easy_setopt(curl,CURLOPT_POST,1) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
         buffer_delete(b64output);
-        pep_errmsg("curl_easy_setopt(curl,CURLOPT_POST,1) failed: %s.",curl_easy_strerror(curl_rc));
-        return PEP_ERR_AUTHZ_CURL;
+        return PEP_ERR_CURL;
     }
     b64output_l= buffer_length(b64output);
-    curl_rc= curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)b64output_l);
+    curl_rc= curl_easy_setopt(pep->curl, CURLOPT_POSTFIELDSIZE, (long)b64output_l);
     if (curl_rc != CURLE_OK) {
-        log_error("pep_authorize: curl_easy_setopt(curl,CURLOPT_POSTFIELDSIZE,%d) failed: %s.",(int)b64output_l,curl_easy_strerror(curl_rc));
+        log_error("pep_authorize: PEP#%d curl_easy_setopt(curl,CURLOPT_POSTFIELDSIZE,%d) failed: %s.",pep->id,(int)b64output_l,curl_easy_strerror(curl_rc));
         buffer_delete(b64output);
-        pep_errmsg("curl_easy_setopt(curl,CURLOPT_POSTFIELDSIZE,%d) failed: %s.",(int)b64output_l,curl_easy_strerror(curl_rc));
-        return PEP_ERR_AUTHZ_CURL;
+        return PEP_ERR_CURL;
     }
 
-    curl_rc= curl_easy_setopt(curl, CURLOPT_READDATA, b64output);
+    curl_rc= curl_easy_setopt(pep->curl, CURLOPT_READDATA, b64output);
     if (curl_rc != CURLE_OK) {
-        log_error("pep_authorize: curl_easy_setopt(curl,CURLOPT_READDATA,b64output) failed: %s.",curl_easy_strerror(curl_rc));
+        log_error("pep_authorize: PEP#%d curl_easy_setopt(curl,CURLOPT_READDATA,b64output) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
         buffer_delete(b64output);
-        pep_errmsg("curl_easy_setopt(curl,CURLOPT_READDATA,b64output) failed: %s.",curl_easy_strerror(curl_rc));
-        return PEP_ERR_AUTHZ_CURL;
+        return PEP_ERR_CURL;
     }
 
-    curl_rc= curl_easy_setopt(curl, CURLOPT_READFUNCTION, buffer_read);
+    curl_rc= curl_easy_setopt(pep->curl, CURLOPT_READFUNCTION, buffer_read);
     if (curl_rc != CURLE_OK) {
-        log_error("pep_authorize: curl_easy_setopt(curl,CURLOPT_READFUNCTION,buffer_read) failed: %s.",curl_easy_strerror(curl_rc));
+        log_error("pep_authorize: PEP#%d curl_easy_setopt(curl,CURLOPT_READFUNCTION,buffer_read) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
         buffer_delete(b64output);
-        pep_errmsg("curl_easy_setopt(curl,CURLOPT_READFUNCTION,buffer_read) failed: %s.",curl_easy_strerror(curl_rc));
-        return PEP_ERR_AUTHZ_CURL;
+        return PEP_ERR_CURL;
     }
 
 
     /* configure curl handler to read the base64 encoded HTTP response */
-    /* TODO: optimize size */
     b64input= buffer_create(1024);
     if (b64input == NULL) {
-        log_error("pep_authorize: can't create base64 input buffer.");
+        log_error("pep_authorize: PEP#%d can't create base64 input buffer.",pep->id);
         buffer_delete(b64output);
-        pep_errmsg("can't create base64 input buffer");
         return PEP_ERR_MEMORY;
     }
 
-    curl_rc= curl_easy_setopt(curl, CURLOPT_WRITEDATA, b64input);
+    curl_rc= curl_easy_setopt(pep->curl, CURLOPT_WRITEDATA, b64input);
     if (curl_rc != CURLE_OK) {
-        log_error("pep_authorize: curl_easy_setopt(curl,CURLOPT_WRITEDATA,b64input) failed: %s.",curl_easy_strerror(curl_rc));
+        log_error("pep_authorize: PEP#%d curl_easy_setopt(curl,CURLOPT_WRITEDATA,b64input) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
         buffer_delete(b64output);
         buffer_delete(b64input);
-        pep_errmsg("curl_easy_setopt(curl,CURLOPT_WRITEDATA,b64input) failed: %s.",curl_easy_strerror(curl_rc));
-        return PEP_ERR_AUTHZ_CURL;
+        return PEP_ERR_CURL;
     }
-    curl_rc= curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, buffer_write);
+    curl_rc= curl_easy_setopt(pep->curl, CURLOPT_WRITEFUNCTION, buffer_write);
     if (curl_rc != CURLE_OK) {
-        log_error("pep_authorize: curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,buffer_write) failed: %s.",curl_easy_strerror(curl_rc));
+        log_error("pep_authorize: PEP#%d curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,buffer_write) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
         buffer_delete(b64output);
         buffer_delete(b64input);
-        pep_errmsg("curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,buffer_write) failed: %s.",curl_easy_strerror(curl_rc));
-        return PEP_ERR_AUTHZ_CURL;
+        return PEP_ERR_CURL;
     }
 
     /* create the Hessian input buffer */
-    /* TODO: optimize size */
     input= buffer_create(1024);
     if (output == NULL) {
-        log_error("pep_authorize: can't create input buffer.");
+        log_error("pep_authorize: PEP#%d can't create input buffer.",pep->id);
         buffer_delete(b64output);
         buffer_delete(b64input);
-        pep_errmsg("can't create input buffer");
         return PEP_ERR_MEMORY;
     }
 
-    /*
-     * FAILOVER BEGIN
-     */
-    failover_ok= FALSE;
-    /* set the PEPd endpoint url */
-    urls_l= llist_length(option_urls);
-    log_info("pep_authorize: %d PEPd failover URLs available",(int)urls_l);
-
-    for (i= 0; i<urls_l; i++) {
-        const char * url= NULL;
-        long http_code= 0;
-        pep_error_t unmarshal_rc;
-        *response= NULL;
-
-        url= (const char *)llist_get(option_urls,i);
-        log_debug("pep_authorize: trying PEPd: %s",url);
-        curl_rc= curl_easy_setopt(curl, CURLOPT_URL, url);
-        if (curl_rc != CURLE_OK) {
-            log_error("pep_authorize: PEPd[%s]: curl_easy_setopt(curl,CURLOPT_URL,%s) failed: %s.",url,curl_easy_strerror(curl_rc));
-            pep_errmsg("PEPd[%s]: curl_easy_setopt(curl,CURLOPT_URL,%s) failed: %s.",url,curl_easy_strerror(curl_rc));
-            /* try next PEPd failover url */
-            log_info("pep_authorize: PEPd[%s] failed: trying next failover URL...",url);
-            continue;
-        }
-
-        /* send the request */
-        log_info("pep_authorize: sending XACML request to PEPd: %s",url);
-        curl_rc= curl_easy_perform(curl);
-        if (curl_rc != CURLE_OK) {
-            log_error("pep_authorize: PEPd[%s]: sending XACML request failed: curl[%d] %s.",url,(int)curl_rc,curl_easy_strerror(curl_rc));
-            pep_errmsg("PEPd[%s]: sending XACML request failed: curl[%d]: %s.",url,(int)curl_rc,curl_easy_strerror(curl_rc));
-            buffer_rewind(b64output);
-            buffer_reset(b64input);
-            buffer_reset(input);
-            log_info("pep_authorize: PEPd[%s] failed: trying next failover URL...",url);
-            continue;
-        }
-
-        /* check for HTTP 200 response code */
-        http_code= 0;
-        curl_rc= curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&http_code);
-        if (curl_rc != CURLE_OK) {
-            log_warn("pep_authorize: PEPd[%s]: curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&http_code) failed: %s.",url,curl_easy_strerror(curl_rc));
-        }
-        if (http_code != 200) {
-            log_error("pep_authorize: PEPd[%s]: HTTP status code: %d.",url,(int)http_code);
-            pep_errmsg("PEPd[%s] failed: HTTP response code: %d.",url,(int)http_code);
-            buffer_rewind(b64output);
-            buffer_reset(b64input);
-            buffer_reset(input);
-            log_info("pep_authorize: PEPd[%s] failed: trying next failover URL...",url);
-            continue;
-        }
-
-        log_debug("pep_authorize: PEPd[%s]: HTTP status code: %d.",url,(int)http_code);
-
-        /* base64 decode the input buffer into the Hessian buffer. */
-        base64_decode(b64input,input);
-
-        /* unmarshal the PEP response */
-        unmarshal_rc= xacml_response_unmarshalling(response,input);
-        if ( unmarshal_rc != PEP_OK) {
-            log_error("pep_authorize: PEPd[%s]: can't unmarshal the XACML response: %s.", url, pep_strerror(unmarshal_rc));
-            pep_errmsg("PEPd[%s] failed: can't unmarshal the XACML response: %s.", url, pep_strerror(unmarshal_rc));
-            buffer_rewind(b64output);
-            buffer_reset(b64input);
-            buffer_reset(input);
-            log_info("pep_authorize: PEPd[%s] failed: trying next failover URL...",url);
-            continue;
-        }
-
-        failover_ok= TRUE;
-        log_info("pep_authorize: PEPd[%s]: XACML Response decoded and unmarshalled.",url);
-        break;
-
-    } /* failover loop */
-
-    if (failover_ok != TRUE) {
-        log_error("pep_authorize: all %d PEPd failover URLs failed",(int)urls_l);
+    /* send the request */
+    log_info("pep_authorize: PEP#%d sending XACML request to: %s",pep->id,pep->option_endpoint_url);
+    curl_rc= curl_easy_perform(pep->curl);
+    if (curl_rc != CURLE_OK) {
+        log_error("pep_authorize: PEP#%d sending XACML request failed: curl[%d] %s.",pep->id,(int)curl_rc,curl_easy_strerror(curl_rc));
         buffer_delete(b64output);
         buffer_delete(b64input);
         buffer_delete(input);
-        /*pep_errmsg("all %d PEPd failover URLs failed",(int)url_l); */
+        return PEP_ERR_CURL_PERFORM;
+    }
+
+    /* check for HTTP 200 response code */
+    http_code= 0;
+    curl_rc= curl_easy_getinfo(pep->curl,CURLINFO_RESPONSE_CODE,&http_code);
+    if (curl_rc != CURLE_OK) {
+        log_error("pep_authorize: PEP#%d curl_easy_getinfo(pep->curl,CURLINFO_RESPONSE_CODE,&http_code) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
+        buffer_delete(b64output);
+        buffer_delete(b64input);
+        buffer_delete(input);
+        return PEP_ERR_CURL;
+    }
+    if (http_code != 200) {
+        log_error("pep_authorize: PEP#%d: HTTP status code: %d.",pep->id,(int)http_code);
+        buffer_delete(b64output);
+        buffer_delete(b64input);
+        buffer_delete(input);
         return PEP_ERR_AUTHZ_REQUEST;
     }
-    /*
-     * FAILOVER END
-     */
+
+    log_debug("pep_authorize: PEP#%d: HTTP status code: %d.",pep->id,(int)http_code);
+
+    /* base64 decode the input buffer into the Hessian buffer. */
+    base64_decode(b64input,input);
+
+    /* unmarshal the PEP response */
+    unmarshal_rc= xacml_response_unmarshalling(response,input);
+    if ( unmarshal_rc != PEP_OK) {
+        log_error("pep_authorize: PEP#%d can't unmarshal the XACML response: %s.", pep->id, pep_strerror(unmarshal_rc));
+        buffer_delete(b64output);
+        buffer_delete(b64input);
+        buffer_delete(input);
+        return unmarshal_rc;
+    }
+
+    log_info("pep_authorize: PEP#%d XACML Response decoded and unmarshalled.",pep->id);
 
     /* not required anymore */
     buffer_delete(b64output);
 
     /* get effective response */
     effective_request= xacml_response_getrequest(*response);
-    if (effective_request!=NULL) {
-        log_debug("pep_authorize: effective request");
+    if (effective_request != NULL) {
+        log_debug("pep_authorize: PEP#%d effective request received",pep->id);
         /* delete original */
         xacml_request_delete(*request);
-        /* take care of effective one */
+        /* and replace by effective one */
         *request= xacml_response_relinquishrequest(*response);
     }
 
     /* apply obligation handlers if enabled and any */
-    if (option_ohs_enabled && llist_length(ohs) > 0) {
-        size_t ohs_l= llist_length(ohs);
-        log_info("pep_authorize: %d OHs available, processing...", (int)ohs_l);
+    if (pep->option_ohs_enabled && llist_length(pep->ohs) > 0) {
+        size_t ohs_l= llist_length(pep->ohs);
+        log_info("pep_authorize: PEP#%d %d OHs available, processing...",pep->id,(int)ohs_l);
         for (i= 0; i<ohs_l; i++) {
-            pep_obligationhandler_t * oh= llist_get(ohs,i);
+            pep_obligationhandler_t * oh= llist_get(pep->ohs,i);
             if (oh != NULL) {
-                log_debug("pep_authorize: calling OH[%s]->process(request,response)...", oh->id);
+                log_debug("pep_authorize: PEP#%d calling OH[%s]->process(request,response)...",pep->id,oh->id);
                 oh_rc = oh->process(request,response);
                 if (oh_rc != 0) {
-                    log_error("pep_authorize: OH[%s] process(request,response) failed: %d.", oh->id,oh_rc);
-                    pep_errmsg("OH[%s] process(request,response) failed: %d.", oh->id,oh_rc);
-                    return PEP_ERR_AUTHZ_OH_PROCESS;
+                    log_error("pep_authorize: PEP#%d OH[%s] process(request,response) failed: %d.",pep->id,oh->id,oh_rc);
+                    buffer_delete(b64input);
+                    buffer_delete(input);
+                    return PEP_ERR_OH_PROCESS;
                 }
             }
         }
     }
+    
+    buffer_delete(b64input);
+    buffer_delete(input);
 
     return PEP_OK;
 }
 
-/* TODO: return code... */
-pep_error_t pep_destroy(void) {
+/* no return code, not useful */
+void pep_destroy(PEP * pep) {
     int pips_destroy_rc= 0;
     int ohs_destroy_rc= 0;
-    /* free options... */
-    if (option_urls != NULL) {
-        llist_delete_elements(option_urls,free);
-        llist_delete(option_urls);
-        option_urls= NULL;
-    }
-    /* free all char array options */
-    if (option_ssl_cipher_list != NULL) free(option_ssl_cipher_list);
-    if (option_server_cert != NULL) free(option_server_cert);
-    if (option_server_capath != NULL) free(option_server_capath);
-    if (option_client_cert != NULL) free(option_client_cert);
-    if (option_client_key != NULL) free(option_client_key);
-    if (option_client_keypassword != NULL) free(option_client_keypassword);
+    
+    if (pep == NULL) return;
 
     /* release curl */
-    if (curl != NULL) {
-        curl_easy_cleanup(curl);
-        curl= NULL;
+    if (pep->curl != NULL) {
+        curl_easy_cleanup(pep->curl);
+        pep->curl= NULL;
     }
-    /* NOT THREAD SAFE: breaks globus GT4 GSI callout plugin */
-    /* 
-    curl_global_cleanup();
-    */
+    
+    /* free options... */
+    if (pep->option_endpoint_url != NULL) {
+        free(pep->option_endpoint_url);
+        pep->option_endpoint_url= NULL;
+    }
+    if (pep->option_ssl_cipher_list != NULL) {
+        free(pep->option_ssl_cipher_list);
+        pep->option_ssl_cipher_list= NULL;
+    }
+    if (pep->option_server_cert != NULL) {
+        free(pep->option_server_cert);
+        pep->option_server_cert= NULL;
+    }
+    if (pep->option_server_capath != NULL) {
+        free(pep->option_server_capath);
+        pep->option_server_capath= NULL;
+    }
+    if (pep->option_client_cert != NULL) {
+        free(pep->option_client_cert);
+        pep->option_client_cert= NULL;
+    }
+    if (pep->option_client_key != NULL) {
+        free(pep->option_client_key);
+        pep->option_client_key= NULL;
+    }
+    if (pep->option_client_keypassword != NULL) {
+        memset(pep->option_client_keypassword,'\0',strlen(pep->option_client_keypassword));
+        free(pep->option_client_keypassword);
+        pep->option_client_keypassword= NULL;
+    }
 
     /* destroy all pips if any */
-    while (llist_length(pips) > 0) {
-        pep_pip_t * pip= llist_remove(pips,0);
+    while (llist_length(pep->pips) > 0) {
+        pep_pip_t * pip= llist_remove(pep->pips,0);
         if (pip != NULL) {
             pips_destroy_rc += pip->destroy();
         }
     }
-    llist_delete(pips);
+    llist_delete(pep->pips);
     if (pips_destroy_rc > 0) {
         log_warn("pep_destroy: some PIP->destroy() failed...");
     }
 
     /* destroy all obligation handlers if any */
-    while (llist_length(ohs) > 0) {
-        pep_obligationhandler_t * oh= llist_remove(ohs,0);
+    while (llist_length(pep->ohs) > 0) {
+        pep_obligationhandler_t * oh= llist_remove(pep->ohs,0);
         if (oh != NULL) {
             ohs_destroy_rc += oh->destroy();
         }
     }
-    llist_delete(ohs);
+    llist_delete(pep->ohs);
     if (ohs_destroy_rc > 0) {
         log_warn("pep_destroy: some OH->destroy() failed...");
     }
 
-    /* reset all error messages */
-    pep_clearerr();
-
-    return PEP_OK;
+    free(pep);
 }
+
+
+/**************************/
+/*** INTERNAL FUNCTIONS ***/
+/**************************/
+
+
+static void init_pep_defaults(PEP * pep) {
+    if (pep==NULL) return;
+    /* increase client counter */
+    pep->id= n_pep_clients++;
+    /* set default options */
+    pep->option_endpoint_url= NULL;
+    pep->option_loglevel= DEFAULT_LOG_LEVEL;
+    pep->option_logout= (FILE *)DEFAULT_LOG_FILE;
+    pep->option_timeout= (long)DEFAULT_CURL_TIMEOUT; 
+    pep->option_server_cert= NULL;
+    pep->option_server_capath= NULL;
+    pep->option_client_cert= NULL;
+    pep->option_client_key= NULL;
+    pep->option_client_keypassword= NULL;
+    pep->option_ssl_validation= DEFAULT_CURL_SSL_VALIDATION;
+    pep->option_ssl_cipher_list= NULL;
+    pep->option_pips_enabled= DEFAULT_PIPS_ENABLE;
+    pep->option_ohs_enabled= DEFAULT_OHS_ENABLE;
+}
+
+static void init_curl_defaults(const PEP * pep) {
+    CURLcode curl_rc;
+    /* set DEFAULT UserAgent string */
+    curl_rc= curl_easy_setopt(pep->curl, CURLOPT_USERAGENT, PACKAGE_NAME "/" PACKAGE_VERSION);
+    if (curl_rc != CURLE_OK) {
+        log_warn("set_curl_defauls: PEP#%d curl_easy_setopt(curl,CURLOPT_USERAGENT," PACKAGE_NAME "/" PACKAGE_VERSION ") failed: %s.",pep->id,curl_easy_strerror(curl_rc));
+    }
+    /* set default timeout */
+    set_curl_connection_timeout(pep);
+    /* set default ssl validation */
+    set_curl_ssl_validation(pep);
+    /* disable signal for multi-threading */
+    if (n_pep_clients > 0) {
+        curl_rc= curl_easy_setopt(pep->curl, CURLOPT_NOSIGNAL, 1);
+        if (curl_rc != CURLE_OK) {
+            log_warn("set_curl_defauls: PEP#%d curl_easy_setopt(curl,CURLOPT_NOSIGNAL,1) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
+        }
+    }
+
+}
+
+/** set libcurl CURLOPT_URL */
+static int set_curl_endpoint_url(const PEP * pep) {
+    CURLcode curl_rc;
+    log_debug("set_curl_endpoint_url: PEP#%d option_endpoint_url: %s",pep->id,pep->option_endpoint_url);
+    curl_rc= curl_easy_setopt(pep->curl, CURLOPT_URL, pep->option_endpoint_url);
+    if (curl_rc != CURLE_OK) {
+        log_error("set_curl_endpoint_url: PEP#%d curl_easy_setopt(curl,CURLOPT_URL,%s) failed: %s.",pep->id,pep->option_endpoint_url,curl_easy_strerror(curl_rc));
+        return 1;
+    }
+    return 0;
+}
+
+
+/* set libcurl CURLOPT_TIMEOUT */
+static int set_curl_connection_timeout(const PEP * pep) {
+    CURLcode curl_rc;
+    log_debug("set_curl_connection_timeout: PEP#%d option_timeout: %d",pep->id,(int)(pep->option_timeout));
+    curl_rc= curl_easy_setopt(pep->curl, CURLOPT_TIMEOUT, pep->option_timeout);
+    if (curl_rc != CURLE_OK) {
+        log_error("set_curl_connection_timeout: PEP#%d curl_easy_setopt(curl,CURLOPT_TIMEOUT,%d) failed: %s",pep->id, (int)(pep->option_timeout),curl_easy_strerror(curl_rc));
+        return 1;
+    }
+    return 0;
+}
+
+/* set libcurl CURLOPT_SSL_VERIFYPEER */
+static int set_curl_ssl_validation(const PEP * pep) {
+    CURLcode curl_rc;
+    log_debug("set_curl_ssl_validation: PEP#%d option_ssl_validation: %s",pep->id,pep->option_ssl_validation ? "TRUE" : "FALSE");
+    curl_rc= curl_easy_setopt(pep->curl,CURLOPT_SSL_VERIFYPEER,pep->option_ssl_validation);
+    if (curl_rc != CURLE_OK) {
+        log_error("set_curl_ssl_validation: PEP#%d curl_easy_setopt(curl,CURLOPT_SSL_VERIFYPEER,%d) failed: %s",pep->option_ssl_validation,curl_easy_strerror(curl_rc));
+        return 1;
+    }
+    return 0;
+}
+
+/* set libcurl CURLOPT_SSL_CIPHER_LIST iff option_ssl_cipher_list not NULL */
+static int set_curl_ssl_cipher_list(const PEP * pep) {
+    CURLcode curl_rc;
+    log_debug("set_curl_ssl_cipher_list: PEP#%d option_ssl_cipher_list: %s",pep->id,pep->option_ssl_cipher_list);
+    if (pep->option_ssl_cipher_list != NULL) {
+        curl_rc= curl_easy_setopt(pep->curl,CURLOPT_SSL_CIPHER_LIST,pep->option_ssl_cipher_list);
+        if (curl_rc != CURLE_OK) {
+            log_error("set_curl_ssl_cipher_list: PEP#%d curl_easy_setopt(curl,CURLOPT_SSL_CIPHER_LIST,%s) failed: %s",pep->id,pep->option_ssl_cipher_list,curl_easy_strerror(curl_rc));
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/** set libcurl CURLOPT_CAINFO iff option_server_cert not NULL */
+static int set_curl_server_cert(const PEP * pep) {
+    CURLcode curl_rc;
+    log_debug("set_curl_server_cert: PEP#%d option_server_cert: %s",pep->id,pep->option_server_cert);
+    if (pep->option_server_cert != NULL) {
+        curl_rc= curl_easy_setopt(pep->curl,CURLOPT_CAINFO,pep->option_server_cert);
+        if (curl_rc != CURLE_OK) {
+            log_error("set_curl_server_cert: PEP#%d curl_easy_setopt(curl,CURLOPT_CAINFO,%s) failed: %s",pep->id,pep->option_server_cert,curl_easy_strerror(curl_rc));
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/** set libcurl CURLOPT_CAPATH iff option_server_capath not NULL */
+static int set_curl_server_capath(const PEP * pep) {
+    CURLcode curl_rc;
+    log_debug("set_curl_server_capath: PEP#%d option_server_capath: %s",pep->id,pep->option_server_capath);
+    if (pep->option_server_capath != NULL) {
+        curl_rc= curl_easy_setopt(pep->curl,CURLOPT_CAPATH,pep->option_server_capath);
+        if (curl_rc != CURLE_OK) {
+            log_error("set_curl_server_capath: PEP#%d curl_easy_setopt(curl,CURLOPT_CAPATH,%s) failed: %s",pep->id,pep->option_server_capath,curl_easy_strerror(curl_rc));
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/** set libcurl CURLOPT_SSLCERT iff option_client_cert not NULL */
+static int set_curl_client_cert(const PEP * pep) {
+    CURLcode curl_rc;
+    log_debug("set_curl_client_cert: PEP#%d option_client_cert: %s",pep->id,pep->option_client_cert);
+    if (pep->option_client_cert != NULL) {
+        curl_rc= curl_easy_setopt(pep->curl,CURLOPT_SSLCERT,pep->option_client_cert);
+        if (curl_rc != CURLE_OK) {
+            log_error("set_curl_client_cert: PEP#%d curl_easy_setopt(curl,CURLOPT_SSLCERT,%s) failed: %s",pep->id,pep->option_client_cert,curl_easy_strerror(curl_rc));
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
+/** set libcurl CURLOPT_SSLKEY iff option_client_key not NULL */
+static int set_curl_client_key(const PEP * pep) {
+    CURLcode curl_rc;
+    log_debug("set_curl_client_key: PEP#%d option_client_key: %s",pep->id,pep->option_client_key);
+    if (pep->option_client_key != NULL) {
+        curl_rc= curl_easy_setopt(pep->curl,CURLOPT_SSLKEY,pep->option_client_key);
+        if (curl_rc != CURLE_OK) {
+            log_error("set_curl_client_key: PEP#%d curl_easy_setopt(curl,CURLOPT_SSLKEY,%s) failed: %s",pep->id,pep->option_client_key,curl_easy_strerror(curl_rc));
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
+/** set libcurl CURLOPT_SSLKEYPASSWD iff option_client_keypassword not NULL */
+static int set_curl_client_keypassword(const PEP * pep) {
+    CURLcode curl_rc;
+    if (pep->option_client_keypassword != NULL) {
+        log_debug("set_curl_client_keypassword: PEP#%d option_client_keypassword: %d char long",pep->id,(int)strlen(pep->option_client_keypassword));
+        curl_rc= curl_easy_setopt(pep->curl,CURLOPT_SSLKEYPASSWD,pep->option_client_keypassword);
+        if (curl_rc != CURLE_OK) {
+            log_error("set_curl_client_keypassword: PEP#%d curl_easy_setopt(curl,CURLOPT_SSLKEYPASSWD,%s) failed: %s",pep->id,pep->option_client_keypassword,curl_easy_strerror(curl_rc));
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/** set libcurl CURLOPT_VERBOSE to true if option_loglevel >= DEBUG, false otherwise */
+static int set_curl_verbose(const PEP * pep) {
+    CURLcode curl_rc;
+    long enabled= 0L;
+    log_debug("set_curl_verbose: PEP#%d option_loglevel: %d",pep->id,pep->option_loglevel);
+    if (pep->option_loglevel >= PEP_LOGLEVEL_DEBUG) {
+        enabled= 1L;
+    }
+    curl_rc= curl_easy_setopt(pep->curl,CURLOPT_VERBOSE,enabled);
+    if (curl_rc != CURLE_OK) {
+        log_error("set_curl_verbose: PEP#%d curl_easy_setopt(curl,CURLOPT_VERBOSE,%d) failed: %s",pep->id,(int)enabled,curl_easy_strerror(curl_rc));
+        return 1;
+    }
+    return 0;
+}
+
+/** set libcurl CURLOPT_STDERR */
+static int set_curl_stderr(const PEP * pep) {
+    CURLcode curl_rc;
+    log_debug("set_curl_stderr: PEP#%d option_logout: %p",pep->id,pep->option_logout);
+    curl_rc= curl_easy_setopt(pep->curl,CURLOPT_STDERR,pep->option_logout);
+    if (curl_rc != CURLE_OK) {
+        log_error("set_curl_stderr: PEP#%d curl_easy_setopt(curl,CURLOPT_STDERR,%p) failed: %s",pep->id,pep->option_logout,curl_easy_strerror(curl_rc));
+        return 1;
+    }
+    return 0;
+}
+
 

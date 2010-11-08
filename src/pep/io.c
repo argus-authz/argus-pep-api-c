@@ -18,7 +18,6 @@
 #include <string.h>
 
 #include "pep/io.h"
-#include "pep/i_error.h"
 #include "hessian/hessian.h"
 #include "util/log.h"
 
@@ -1160,13 +1159,13 @@ pep_error_t xacml_request_marshalling(const xacml_request_t * request, BUFFER * 
     hessian_object_t * h_request= NULL;
     if (xacml_request_marshal(request,&h_request) != PEP_IO_OK) {
         log_error("xacml_request_marshalling: can't marshal XACML request into Hessian object.");
-        pep_errmsg("failed to marshal XACML request into Hessian object");
+        /* pep_errmsg("failed to marshal XACML request into Hessian object"); */
         return PEP_ERR_MARSHALLING_HESSIAN;
     }
     if (hessian_serialize(h_request,output) != HESSIAN_OK) {
         log_error("xacml_request_marshalling: failed to serialize Hessian object.");
         hessian_delete(h_request);
-        pep_errmsg("failed to serialize Hessian object");
+        /* pep_errmsg("failed to serialize Hessian object"); */
         return PEP_ERR_MARSHALLING_IO;
     }
     hessian_delete(h_request);
@@ -1178,13 +1177,13 @@ pep_error_t xacml_response_unmarshalling(xacml_response_t ** response, BUFFER * 
     hessian_object_t * h_response= hessian_deserialize(input);
     if (h_response == NULL) {
         log_error("xacml_response_unmarshalling: failed to deserialize Hessian object.");
-        pep_errmsg("failed to deserialize base64 encoded Hessian object");
+        /* pep_errmsg("failed to deserialize base64 encoded Hessian object"); */
         return PEP_ERR_UNMARSHALLING_IO;
     }
     if (xacml_response_unmarshal(response, h_response) != PEP_IO_OK) {
         log_error("xacml_response_unmarshalling: can't unmarshal XACML response from Hessian object.");
         hessian_delete(h_response);
-        pep_errmsg("failed to unmarshal XACML response from Hessian object");
+        /* pep_errmsg("failed to unmarshal XACML response from Hessian object"); */
         return PEP_ERR_UNMARSHALLING_HESSIAN;
     }
     hessian_delete(h_response);

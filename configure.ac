@@ -18,7 +18,7 @@
 # $Id$
 #
 
-AC_INIT(argus-pep-api-c, 1.3.2, argus-support@cern.ch)
+AC_INIT(libargus-pep-api, 2.0.0, argus-support@cern.ch)
 AC_CONFIG_AUX_DIR(project)
 AC_CONFIG_MACRO_DIR(project)
 
@@ -44,35 +44,22 @@ if test "$GCC" = "yes"; then
     CFLAGS="$CFLAGS -Wall -ansi -pedantic -std=c99"
 fi
 
-# OSX CFLAGS
-#case $host in
-#*-*-darwin*)
-#    CFLAGS="$CFLAGS -arch i386 -arch x86_64 -mmacosx-version-min=10.5 -iwithsysroot=/Developer/SDKs/MacOSX10.5.sdk"
-#    AC_MSG_NOTICE([Mac OSX ($host_os) CFLAGS: $CFLAGS])
-#    ;;
-#esac
-
 AC_MSG_NOTICE([libdir for $host: $libdir])
-# <prefix>/lib64 for x86_64 cpu 
-#AC_MSG_CHECKING([libdir for $host])
-#if test "x$host_cpu" = "xx86_64"; then
-#    AC_SUBST([libdir], ['${exec_prefix}/lib64'])
-#fi
-#AC_MSG_RESULT([$libdir])
 
-# Checks for curl headers and library
-# will automatically add -lcurl in LDFLAGS
-#AC_CHECK_HEADER([curl/curl.h],,[AC_MSG_ERROR(can not find libcurl header)])
-#AC_CHECK_LIB(curl,curl_easy_init)
-
-# env var PKG_CONFIG_PATH
-
-PKG_CHECK_MODULES(LIBCURL,[libcurl],
+#
+# use pkg-config tool for libcurl
+#
+# export PKG_CONFIG_PATH=...
+#
+PKG_CHECK_MODULES(
+    LIBCURL, [libcurl],
     [
         AC_MSG_NOTICE([LIBCURL_CFLAGS=$LIBCURL_CFLAGS])
         AC_MSG_NOTICE([LIBCURL_LIBS=$LIBCURL_LIBS])
     ],
     [
+        # Checks for curl headers and library
+        # will automatically add -lcurl in LDFLAGS
         AC_CHECK_HEADER([curl/curl.h],,[AC_MSG_ERROR(can not find libcurl header curl/curl.h)])
         AC_CHECK_LIB(curl,curl_easy_init)
     ]

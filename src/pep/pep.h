@@ -27,13 +27,13 @@
 extern "C" {
 #endif
 
-/** @mainpage Argus Authorization Service PEP client library for C
+/** @mainpage Argus Authorization Service PEP client API for C
  *
- * This is the PEP client library for C, used to talk with the Argus PEP daemon.
- *
+ * The PEP client library for C is used to authorize requests with the Argus PEP daemon, and
+ * receive authorization decisions.
  */
 
-/** @defgroup PEPClient PEP-C Client */
+/** @defgroup PEPClient PEP client API */
 /** @defgroup Logging Log Level and Output */
 
 #include <stdarg.h> /* va_list */
@@ -42,6 +42,8 @@ extern "C" {
 #include "pep/pip.h"
 #include "pep/oh.h"
 #include "pep/error.h"
+
+
 
 /** @addtogroup Logging
  *
@@ -56,12 +58,12 @@ extern "C" {
  * @code
  * ...
  * // set log output to mylogfile
- * rc= pep_setoption(PEP_OPTION_LOG_STDERR, my_logfile);
+ * rc= pep_setoption(pep,PEP_OPTION_LOG_STDERR, my_logfile);
  * if (rc != PEP_OK) {
  *    fprintf(stderr,"ERROR: %s\n",pep_strerror(rc));
  * }
  * // set log level to DEBUG
- * rc= pep_setoption(PEP_OPTION_LOG_LEVEL, PEP_LOGLEVEL_DEBUG);
+ * rc= pep_setoption(pep,PEP_OPTION_LOG_LEVEL, PEP_LOGLEVEL_DEBUG);
  * if (rc != PEP_OK) {
  *    fprintf(stderr,"ERROR: %s\n",pep_strerror(rc));
  * }
@@ -105,14 +107,14 @@ extern "C" {
  * }
  * ...
  * // set my log function as log handler callback function
- * rc= pep_setoption(PEP_OPTION_LOG_HANDLER, (pep_log_handler_callback)my_vlog);
+ * rc= pep_setoption(pep,PEP_OPTION_LOG_HANDLER, (pep_log_handler_callback)my_vlog);
  * if (rc != PEP_OK) {
  *    my_log_error("pep_setoption(PEP_OPTION_LOG_HANDLER,...) failed: %s\n",pep_strerror(rc));
  * }
  * ...
  * @endcode
  *
- * @see pep_setoption(pep_option_t option,...)
+ * @see pep_setoption(pep,pep_option_t option,...)
  * @see pep_log_handler_callback function prototype
  */
 typedef int pep_log_handler_callback(int level, const char * format, va_list args);
@@ -121,20 +123,26 @@ typedef int pep_log_handler_callback(int level, const char * format, va_list arg
 
 
 /** @addtogroup PEPClient
- * PEP client used to send PEP request to the PEP daemon and receive PEP response back.
+ * PEP client used to send authorization request to the PEP daemon and receive authorization response with decision back.
  * @{
  */
+
+
+/**
+ * PEP client @b handle
+ */
+typedef struct pep_client PEP;
 
 /**
  * PEP client configuration options.
  *
- * @see pep_setoption(option, ...) to set a configuration option.
+ * @see pep_setoption(pep,option, ...) to set a configuration option.
  */
 typedef enum pep_option {
     PEP_OPTION_LOG_LEVEL,  /**< Set log level (default {@link #PEP_LOGLEVEL_NONE}) */
     PEP_OPTION_LOG_STDERR,  /**< Set log engine file descriptor: @c stderr, @c stdout, @c NULL (default @c NULL) */
     PEP_OPTION_LOG_HANDLER,  /**< Set the optional log handler callback function pointer (default @c NULL) */
-    PEP_OPTION_ENDPOINT_URL, /**< Set the @b mandatory PEP daemon URL. You can set failover URLs by setting this option many times. */
+    PEP_OPTION_ENDPOINT_URL, /**< Set the @b mandatory PEP daemon endpoint URL. */
     PEP_OPTION_ENDPOINT_SSL_VALIDATION, /**< Enable SSL validation: 0 or 1 (default 1) */
     PEP_OPTION_ENDPOINT_SERVER_CERT, /**< PEP daemon server SSL certificate (PEM format): absolute filename */
     PEP_OPTION_ENDPOINT_SERVER_CAPATH, /**< Directory holding CA certificates (hashed filenames in PEM format) to verify the PEP daemon: absolute directory name */
@@ -148,23 +156,19 @@ typedef enum pep_option {
 } pep_option_t;
 
 /**
- * Returns the PEP client library version.
- * @return a null terminated string. e.g. "1.3.4"
+ * Returns a human readable string with the version number of the PEP client API and some of its important components (like libcurl version).
+ * @return a null terminated string. e.g. "libargus-pep-api/2.0.0 ..."
  */
 const char * pep_version(void);
 
 /**
- * Returns the PEP client library name.
- * @return a null terminated string. e.g. "argus-pep-api-c"
- */
-const char * pep_version_name(void);
-
-/**
- * Initializes the PEP client.
+ * Creates and initializes a new PEP client @b handle. This function must be the first function 
+ * to call, and it returns a PEP client handle that you must use as input to other PEP client 
+ * functions.
  *
- * @return {@link #pep_error_t} PEP_OK on success or an error code.
+ * @return the PEP client @b handle or null on error.
  */
-pep_error_t pep_initialize(void);
+PEP * pep_initialize(void);
 
 /**
  * Adds a PIP request pre-processor to the PEP client. The PIP init() function
@@ -172,11 +176,12 @@ pep_error_t pep_initialize(void);
  *
  * See @ref PIP and @ref ProfilesAdapters for more info.
  *
+ * @param pep pointer to the @b handle of the PEP client.
  * @param pip pointer to the {@link #pep_pip_t} to add.
  *
  * @return {@link #pep_error_t} PEP_OK on success or an error code.
  */
-pep_error_t pep_addpip(const pep_pip_t * pip);
+pep_error_t pep_addpip(PEP * pep, const pep_pip_t * pip);
 
 /**
  * Adds an Obligation Handler post-processor to the
@@ -184,15 +189,17 @@ pep_error_t pep_addpip(const pep_pip_t * pip);
  *
  * See @ref ObligationHandler and @ref ProfilesAdapters for more info.
  *
+ * @param pep pointer to the @b handle of the PEP client.
  * @param oh pointer to the {@link #pep_obligationhandler_t} to add.
  *
  * @return {@link #pep_error_t} PEP_OK on success or an error code.
  */
-pep_error_t pep_addobligationhandler(const pep_obligationhandler_t * oh);
+pep_error_t pep_addobligationhandler(PEP * pep, const pep_obligationhandler_t * oh);
 
 /**
  * Sets a PEP client configuration option.
  *
+ * @param pep pointer to the @b handle of the PEP client.
  * @param option the PEP client option to set.
  * @param ... argument(s) for the PEP client option.
  *
@@ -201,54 +208,52 @@ pep_error_t pep_addobligationhandler(const pep_obligationhandler_t * oh);
  *
  * Option {@link #PEP_OPTION_ENDPOINT_URL} @c const @c char @c * argument:
  * @code
- *   // set the PEP daemon endpoint URL (with failover URLs)
- *   pep_setoption(PEP_OPTION_ENDPOINT_URL, (const char *)"https://pepd.switch.ch:8154/authz");
- *   pep_setoption(PEP_OPTION_ENDPOINT_URL, (const char *)"https://pepd-backup.switch.ch:8154/authz");
- *   pep_setoption(PEP_OPTION_ENDPOINT_URL, (const char *)"https://pepd.example.ch:8154/authz");
+ *   // set the PEP daemon endpoint URL
+ *   pep_setoption(pep,PEP_OPTION_ENDPOINT_URL, (const char *)"https://pepd.switch.ch:8154/authz");
  * @endcode
  * Option {@link #PEP_OPTION_ENDPOINT_SERVER_CAPATH} @c const @c char * argument:
  * @code
  *   // set the PEP daemon server CA directory for SSL/TLS validation
- *   pep_setoption(PEP_OPTION_ENDPOINT_SERVER_CAPATH, (const char *)"/etc/grid-security/certificates");
+ *   pep_setoption(pep,PEP_OPTION_ENDPOINT_SERVER_CAPATH, (const char *)"/etc/grid-security/certificates");
  * @endcode 
  * Option {@link #PEP_OPTION_ENDPOINT_CLIENT_CERT} @c const @c char * argument:
  * @code
  *   // set the PEP client certificate for SSL/TLS client authentication
- *   pep_setoption(PEP_OPTION_ENDPOINT_CLIENT_CERT, (const char *)"/tmp/x509up_u5000");
+ *   pep_setoption(pep,PEP_OPTION_ENDPOINT_CLIENT_CERT, (const char *)"/tmp/x509up_u5000");
  * @endcode 
  * Option {@link #PEP_OPTION_ENDPOINT_CLIENT_KEY} @c const @c char * argument:
  * @code
  *   // set the PEP client private key for SSL/TLS client authentication
- *   pep_setoption(PEP_OPTION_ENDPOINT_CLIENT_KEY, (const char *)"/tmp/x509up_u5000");
+ *   pep_setoption(pep,PEP_OPTION_ENDPOINT_CLIENT_KEY, (const char *)"/tmp/x509up_u5000");
  * @endcode 
  * Option {@link #PEP_OPTION_LOG_LEVEL} @c int argument:
  * @code
  *   // set logging level to WARN (only ERROR + WARN messages shown)
- *   pep_setoption(PEP_OPTION_LOG_LEVEL, (int)PEP_LOGLEVEL_WARN);
+ *   pep_setoption(pep,PEP_OPTION_LOG_LEVEL, (int)PEP_LOGLEVEL_WARN);
  * @endcode
  * Option {@link #PEP_OPTION_LOG_STDERR} @c FILE @c * argument:
  * @code
  *   // set logging output to stderr
- *   pep_setoption(PEP_OPTION_LOG_STDERR, (FILE *)stdout);
+ *   pep_setoption(pep,PEP_OPTION_LOG_STDERR, (FILE *)stdout);
  * @endcode
  * Option {@link #PEP_OPTION_LOG_HANDLER} {@link #pep_log_handler_callback} @c * argument:
  * @code
  *   // override default logging handler with own logging callback function
- *   pep_setoption(PEP_OPTION_LOG_HANDLER, (pep_log_handler_callback *)my_logging_callback);
+ *   pep_setoption(pep,PEP_OPTION_LOG_HANDLER, (pep_log_handler_callback *)my_logging_callback);
  * @endcode
  * Option {@link #PEP_OPTION_ENABLE_PIPS} @c int (@a FALSE or @a TRUE) argument:
  * @code
  *   // disable PIPs processing
- *   pep_setoption(PEP_OPTION_ENABLE_PIPS, (int)0);
+ *   pep_setoption(pep,PEP_OPTION_ENABLE_PIPS, (int)0);
  * @endcode
  * Option {@link #PEP_OPTION_ENABLE_OBLIGATIONHANDLERS} @c int (@a FALSE or @a TRUE) argument:
  * @code
  *   // already enabled by default, only for example purpose
- *   pep_setoption(PEP_OPTION_ENABLE_OBLIGATIONHANDLERS, (int)1);
+ *   pep_setoption(pep,PEP_OPTION_ENABLE_OBLIGATIONHANDLERS, (int)1);
  * @endcode
  *
  */
-pep_error_t pep_setoption(pep_option_t option, ... );
+pep_error_t pep_setoption(PEP * pep, pep_option_t option, ... );
 
 /**
  * Sends the XACML request to the PEP daemon and returns the XACML response.
@@ -260,19 +265,22 @@ pep_error_t pep_setoption(pep_option_t option, ... );
  *
  * After the call, the @c request parameter is the @b effective XACML request, as processed by the PEPd.
  *
+ * @param pep pointer to the @b handle of the PEP client.
  * @param request address of the pointer to the {@link #xacml_request_t} to send.
  * @param response address of pointer to the {@link #xacml_response_t} received.
  *
  * @return {@link #pep_error_t} PEP_OK on success or an error code.
  */
-pep_error_t pep_authorize(xacml_request_t ** request, xacml_response_t ** response);
+pep_error_t pep_authorize(PEP * pep, xacml_request_t ** request, xacml_response_t ** response);
 
 /**
- * Cleanups and destroys the PEP client.
+ * Cleanups and destroys the PEP client. Any uses of the @b handle after this function has been called are illegal. 
  *
- * @return {@link #pep_error_t} PEP_OK on success or an error code.
+ * @param pep pointer to the @b handle of the PEP client.
+ *
+ * @return none
  */
-pep_error_t pep_destroy(void);
+void pep_destroy(PEP * pep);
 
 /** @example pep_client_example.c
  * This is an example how to use the PEP client.

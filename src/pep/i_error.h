@@ -35,13 +35,15 @@ extern "C" {
 /** @internal
  * Sets an optional error message.
  */
+/*
 void pep_errmsg(const char * format, ...);
-
+*/
 /** @internal
  * Reset all the error messages previously set.
  */
+/*
 void pep_clearerr(void);
-
+*/
 
 #ifdef  __cplusplus
 }

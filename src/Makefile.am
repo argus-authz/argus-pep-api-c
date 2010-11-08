@@ -20,7 +20,6 @@ SUBDIRS = util hessian pep
 #
 # libpep-c = util + hessian + pep
 #
-#lib_LTLIBRARIES = libpep-c.la
 lib_LTLIBRARIES = libargus_pep_api.la
 
 libargus_pep_api_la_CFLAGS = \
@@ -33,11 +32,10 @@ libargus_pep_api_la_LIBADD = \
     $(LIBCURL_LIBS)
 
 libargus_pep_api_la_LDFLAGS = \
-    -version-info 1:5:1
+    -version-info 2:0:0
 
 libargus_pep_api_la_SOURCES = libargus_pep.c
 
 # headers files in <prefix>/include (public API)
 pepincludedir = $(includedir)/pep
-#pepinclude_HEADERS = pep/pep.h pep/pip.h pep/oh.h pep/error.h pep/xacml.h pep/profiles.h util/buffer.h util/linkedlist.h
 pepinclude_HEADERS = pep/pep.h pep/pip.h pep/oh.h pep/error.h pep/xacml.h pep/profiles.h
