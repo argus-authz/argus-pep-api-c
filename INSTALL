@@ -1,5 +1,5 @@
-PEP-C thin client library
--------------------------
+Argus PEP client API
+--------------------
 
 1. First you have to bootstrap the autotools:
 
@@ -23,7 +23,7 @@ make install
 
 4. you are all done :)
 
-The library libpep-c and the header files are now installed. 
+The library libargus_pep_api and the header files are now installed. 
 To use it, simply include the library header in your code:
 
 #include <pep/pep.h>
