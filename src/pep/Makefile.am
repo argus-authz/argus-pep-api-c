@@ -28,7 +28,6 @@ attributeassignment.c \
 environment.c \
 error.c \
 error.h \
-i_error.h \
 io.c \
 io.h \
 obligation.c \
