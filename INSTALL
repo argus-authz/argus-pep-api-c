@@ -5,13 +5,13 @@ Argus PEP client API
 
 ./autotools.sh
 
-2. Then use configure (default prefix: /opt/glite):
+2. Then use configure (default prefix: /opt/emi):
 
 ./configure
 
 or if you want to install the lib and include in a different directory:
 
-./configure --prefix=/other/directory
+./configure --prefix=/usr [--libdir=/usr/lib64]
 
 3. Build the library:
 
@@ -28,6 +28,9 @@ To use it, simply include the library header in your code:
 
 #include <pep/pep.h>
 
+A pkg-config configuration file libargus-pep-api.pc is available in $libdir/pkgconfig.
+You can use it in your autoconf configure.ac as descibed here: 
+http://www.openismus.com/documents/linux/using_libraries/using_libraries#cflagsandlibs
 
 --
 $Id$
