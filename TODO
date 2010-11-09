@@ -1,6 +1,0 @@
-TODO
-----
-- options with filename should check existence and readability of file or return error when set (--cacert, --cert, ...)
-
---
-$Id$
