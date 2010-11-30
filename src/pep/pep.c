@@ -41,6 +41,7 @@
 /** buffer for version */
 #define VERSION_BUFFER_SIZE 1024
 static char VERSION_BUFFER[VERSION_BUFFER_SIZE];
+static int VERSION_BUFFER_initialized= 0;
 
 /** internal client counter */
 static int n_pep_clients= 0;
@@ -50,12 +51,12 @@ static const long   DEFAULT_CURL_TIMEOUT= 30L;
 static const int    DEFAULT_CURL_SSL_VALIDATION= TRUE;
 static const int    DEFAULT_LOG_LEVEL= PEP_LOGLEVEL_NONE;
 static const FILE * DEFAULT_LOG_FILE= NULL;
-static const int    DEFAULT_PIPS_ENABLE= TRUE;
-static const int    DEFAULT_OHS_ENABLE= TRUE;
+static const int    DEFAULT_PIPS_ENABLED= TRUE;
+static const int    DEFAULT_OHS_ENABLED= TRUE;
 
 /** internal functions prototypes */
 static void init_pep_defaults(PEP * pep);
-static void init_curl_defaults(const PEP * pep);
+static void init_curl_defaults(PEP * pep);
 static void init_log_defaults(const PEP * pep);
 static int set_curl_endpoint_url(const PEP * pep);
 static int set_curl_connection_timeout(const PEP * pep);
@@ -75,9 +76,10 @@ static int set_curl_stderr(const PEP * pep);
 * CURL string parameters must be kept as with libcul <= 7.17.0, strings were not copied. 
 * Instead the user was forced keep them available until libcurl no longer needed them. 
 */
-struct pep_client {
+struct pep_handle {
     int id;
     CURL * curl;
+    struct curl_slist * curl_http_headers;
     linkedlist_t * pips;
     linkedlist_t * ohs;
     char * option_endpoint_url;
@@ -96,7 +98,10 @@ struct pep_client {
 };
 
 const char * pep_version(void) {
-    snprintf(VERSION_BUFFER,VERSION_BUFFER_SIZE,"%s/%s (%s)",PACKAGE_NAME,PACKAGE_VERSION,curl_version());
+    if (!VERSION_BUFFER_initialized) {
+        snprintf(VERSION_BUFFER,VERSION_BUFFER_SIZE,"%s/%s (%s)",PACKAGE_NAME,PACKAGE_VERSION,curl_version());
+        VERSION_BUFFER_initialized= 1;
+    }
     return VERSION_BUFFER;
 }
 
@@ -104,9 +109,9 @@ const char * pep_version(void) {
 PEP * pep_initialize(void) {
 
     /* allocate struct */
-    PEP * pep= calloc(1,sizeof(struct pep_client));
+    PEP * pep= calloc(1,sizeof(struct pep_handle));
     if (pep == NULL) {
-        log_error("pep_initialize: can't allocate struct pep_client: %d", sizeof(struct pep_client));
+        log_error("pep_initialize: can't allocate struct pep_client: %d", sizeof(struct pep_handle));
         return NULL;
     }
     /* set default PEP values */
@@ -667,6 +672,12 @@ void pep_destroy(PEP * pep) {
     
     if (pep == NULL) return;
 
+    /* release curl http headers */
+    if (pep->curl_http_headers != NULL) {
+        curl_slist_free_all(pep->curl_http_headers);
+        pep->curl_http_headers= NULL;
+    }
+
     /* release curl */
     if (pep->curl != NULL) {
         curl_easy_cleanup(pep->curl);
@@ -741,6 +752,7 @@ static void init_pep_defaults(PEP * pep) {
     if (pep==NULL) return;
     /* increase client counter */
     pep->id= n_pep_clients++;
+    pep->curl_http_headers= NULL;
     /* set default options */
     pep->option_endpoint_url= NULL;
     pep->option_loglevel= DEFAULT_LOG_LEVEL;
@@ -753,28 +765,35 @@ static void init_pep_defaults(PEP * pep) {
     pep->option_client_keypassword= NULL;
     pep->option_ssl_validation= DEFAULT_CURL_SSL_VALIDATION;
     pep->option_ssl_cipher_list= NULL;
-    pep->option_pips_enabled= DEFAULT_PIPS_ENABLE;
-    pep->option_ohs_enabled= DEFAULT_OHS_ENABLE;
+    pep->option_pips_enabled= DEFAULT_PIPS_ENABLED;
+    pep->option_ohs_enabled= DEFAULT_OHS_ENABLED;
 }
 
-static void init_curl_defaults(const PEP * pep) {
+/** set some curl default value */
+static void init_curl_defaults(PEP * pep) {
     CURLcode curl_rc;
-    /* set DEFAULT UserAgent string */
-    curl_rc= curl_easy_setopt(pep->curl, CURLOPT_USERAGENT, PACKAGE_NAME "/" PACKAGE_VERSION);
+    
+    /* disable 'Expect: 100-continue' HTTP 1.1 header in POST */
+    pep->curl_http_headers= curl_slist_append(pep->curl_http_headers, "Expect:");  
+    /* set 'User-Agent:' header */
+    pep->curl_http_headers= curl_slist_append(pep->curl_http_headers, "User-Agent: " PACKAGE_NAME "/" PACKAGE_VERSION );  
+    curl_rc= curl_easy_setopt(pep->curl, CURLOPT_HTTPHEADER, pep->curl_http_headers);
     if (curl_rc != CURLE_OK) {
-        log_warn("set_curl_defauls: PEP#%d curl_easy_setopt(curl,CURLOPT_USERAGENT," PACKAGE_NAME "/" PACKAGE_VERSION ") failed: %s.",pep->id,curl_easy_strerror(curl_rc));
+        log_warn("init_curl_defaults: PEP#%d curl_easy_setopt(curl,CURLOPT_HTTPHEADER,curl_http_headers) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
     }
+    
     /* set default timeout */
     set_curl_connection_timeout(pep);
     /* set default ssl validation */
     set_curl_ssl_validation(pep);
     /* disable signal for multi-threading */
-    if (n_pep_clients > 0) {
-        curl_rc= curl_easy_setopt(pep->curl, CURLOPT_NOSIGNAL, 1);
-        if (curl_rc != CURLE_OK) {
-            log_warn("set_curl_defauls: PEP#%d curl_easy_setopt(curl,CURLOPT_NOSIGNAL,1) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
-        }
+    curl_rc= curl_easy_setopt(pep->curl, CURLOPT_NOSIGNAL, 1);
+    if (curl_rc != CURLE_OK) {
+        log_warn("init_curl_defaults: PEP#%d curl_easy_setopt(curl,CURLOPT_NOSIGNAL,1) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
     }
+    
+    
+
 
 }
 

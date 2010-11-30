@@ -131,7 +131,7 @@ typedef int pep_log_handler_callback(int level, const char * format, va_list arg
 /**
  * PEP client @b handle
  */
-typedef struct pep_client PEP;
+typedef struct pep_handle PEP;
 
 /**
  * PEP client configuration options.
