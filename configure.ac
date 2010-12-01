@@ -18,7 +18,7 @@
 # $Id$
 #
 
-AC_INIT(libargus-pep-api, 2.0.0, argus-support@cern.ch)
+AC_INIT(libargus-pep-api, 2.0.1, argus-support@cern.ch)
 AC_CONFIG_AUX_DIR(project)
 AC_CONFIG_MACRO_DIR(project)
 

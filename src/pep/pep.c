@@ -791,10 +791,6 @@ static void init_curl_defaults(PEP * pep) {
     if (curl_rc != CURLE_OK) {
         log_warn("init_curl_defaults: PEP#%d curl_easy_setopt(curl,CURLOPT_NOSIGNAL,1) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
     }
-    
-    
-
-
 }
 
 /** set libcurl CURLOPT_URL */
