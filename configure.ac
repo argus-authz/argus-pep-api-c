@@ -74,8 +74,8 @@ AC_C_CONST
 AC_TYPE_SIZE_T
 
 # FUCK!!! int32_t and int64_t macro not available on SLC4
-#AC_TYPE_INT32_T
-#AC_TYPE_INT64_T
+AC_TYPE_INT32_T
+AC_TYPE_INT64_T
 
 # Checks for library and functions.
 AC_FUNC_REALLOC
