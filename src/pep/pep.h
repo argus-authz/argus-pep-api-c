@@ -29,9 +29,9 @@ extern "C" {
 
 /** @mainpage Argus Authorization Service PEP client API for C
  *
- * The PEP client library for C is used to authorize requests with the Argus PEP daemon, and
+ * The PEP client API for C is used to authorize requests with the Argus PEP daemon, and
  * receive authorization decisions. 
- * 
+ * <p>
  * Version 2.X of the PEP client C API is multi-thread safe.
  */
 
