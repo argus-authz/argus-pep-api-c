@@ -809,7 +809,7 @@ xacml_result_t * xacml_result_create(void);
 /**
  * Gets the XACML Result/Decision value.
  * @param result pointer to the XACML Result
- * @return xacml_decision_t the XACML Result/Decision.
+ * @return xacml_decision_t the XACML Result/Decision or @a -1 if result is @a NULL..
  * @see xacml_decision for valid Decision constants.
  */
 xacml_decision_t xacml_result_getdecision(const xacml_result_t * result);
