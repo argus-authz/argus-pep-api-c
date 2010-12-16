@@ -167,6 +167,8 @@ static int _log_vfprintf(FILE * out, time_t * epoch, const char * level, const c
         strncat(buffer,"\n",size);
         /* write buffer to out file */
         vfprintf(out,buffer,args);
+        /* flush it */
+        fflush(out);
         /* free tmp buffer */
         free(buffer);
     }
