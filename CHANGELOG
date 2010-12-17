@@ -2,6 +2,7 @@ PEP client API 2.0.1
 --------------------
 * bug fix: the HTTP header "Expect: 100-continue" is not used for the POST.
 * bug fix: curl option CURLOPT_NOSIGNAL is enabled by default.
+* bug fix: fflush every log messages.
 
 PEP client API 2.0.0
 --------------------
