@@ -17,7 +17,6 @@
 
 /*
  * $Id$
- * $Name:  $
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.0
  */

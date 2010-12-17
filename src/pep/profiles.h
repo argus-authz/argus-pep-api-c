@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-/* * $Id: xacml.h 1299 2009-10-15 15:29:34Z vtschopp $
- * $Name:  $
+/* 
+ * $Id$
  * @author Valery Tschopp <valery.tschopp@switch.ch>
+ * @version 1.0
  */
 #ifndef _PEP_PROFILES_H_
 #define _PEP_PROFILES_H_
