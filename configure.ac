@@ -101,7 +101,7 @@ AC_CONFIG_SRCDIR(src)
 AM_CONFIG_HEADER(src/config.h)
 
 AC_CONFIG_FILES([
-libargus-pep-api.pc
+libpep-c.pc
 Makefile
 src/Makefile
 src/util/Makefile
