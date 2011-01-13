@@ -18,13 +18,21 @@
 #
 
 SUBDIRS = src 
+
 EXTRA_DIST = LICENSE CHANGELOG autotools.sh test/test_pep.c test/Makefile doc/html
 
 docdir = $(datadir)/doc/$(PACKAGE)
-doc_DATA = AUTHORS CHANGELOG LICENSE 
 
+if ENABLE_LIBRARY
+doc_DATA = AUTHORS CHANGELOG LICENSE 
+endif
+
+if ENABLE_DEVEL
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpep-c.pc
+exampledir = $(docdir)/example
+example_DATA = src/example/pep_client_example.c
+endif
 
 # Generate doxygen doc
 doxygen: doc/Doxyfile
@@ -33,8 +41,14 @@ doxygen: doc/Doxyfile
 html-local: doxygen
 
 # Install doxygen doc in $(prefix)/share/doc/glite-authz-pep-c/api
+
 htmldir = $(docdir)/api
+
+if ENABLE_DEVEL
 install-data-local: install-html
+else
+install-data-local:
+endif
 
 uninstall-local: uninstall-html
 
@@ -51,3 +65,4 @@ uninstall-html:
 
 distclean-local:
 	$(RM) -fr doc/html doc/man
+

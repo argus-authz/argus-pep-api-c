@@ -15,33 +15,27 @@
 # limitations under the License.
 #
 
+if ENABLE_LIBRARY
 SUBDIRS = util hessian pep 
-
-#
-# libpep-c = util + hessian + pep
-#
-#lib_LTLIBRARIES = libargus_pep_api.la
 lib_LTLIBRARIES = libpep-c.la
+endif
 
-#libargus_pep_api_la_CFLAGS = 
 libpep_c_la_CFLAGS = \
     $(LIBCURL_CFLAGS)
 
-#libargus_pep_api_la_LIBADD = 
 libpep_c_la_LIBADD = \
     util/libutil.la \
     hessian/libhessian.la \
     pep/libpep.la \
     $(LIBCURL_LIBS)
 
-#libargus_pep_api_la_LDFLAGS = 
 libpep_c_la_LDFLAGS = \
     -version-info 1:5:1
 
-#libargus_pep_api_la_SOURCES = libargus_pep.c
 libpep_c_la_SOURCES = libargus_pep.c
 
 # headers files in <prefix>/include (public API)
+if ENABLE_DEVEL
 pepincludedir = $(includedir)/pep
-#pepinclude_HEADERS = pep/pep.h pep/pip.h pep/oh.h pep/error.h pep/xacml.h pep/profiles.h util/buffer.h util/linkedlist.h
 pepinclude_HEADERS = pep/pep.h pep/pip.h pep/oh.h pep/error.h pep/xacml.h pep/profiles.h
+endif
