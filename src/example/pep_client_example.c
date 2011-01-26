@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/* include Argus PEP API header */
 #include "argus/pep.h"
 
 /* prototypes */
@@ -40,7 +41,7 @@ static const char * fulfillon_tostring(xacml_fulfillon_t fulfillon);
  */
 int main(void) {
 
-    /* PEP client handle */
+    /* Argus PEP client handle */
     PEP * pep;
 
     /* functions return code */
