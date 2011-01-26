@@ -18,7 +18,7 @@
 # $Id$
 #
 
-AC_INIT(libargus-pep-api, 2.0.1, argus-support@cern.ch)
+AC_INIT(libargus-pep, 2.0.1, argus-support@cern.ch)
 AC_CONFIG_AUX_DIR(project)
 AC_CONFIG_MACRO_DIR(project)
 
@@ -84,7 +84,7 @@ AC_CONFIG_SRCDIR(src)
 AM_CONFIG_HEADER(src/config.h)
 
 AC_CONFIG_FILES([
-libargus-pep-api.pc
+libargus-pep.pc
 Makefile
 src/Makefile
 src/util/Makefile
