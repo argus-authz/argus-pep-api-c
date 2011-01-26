@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-SUBDIRS = util hessian pep 
+SUBDIRS = util hessian argus 
 
 #
 # libpep-c = util + hessian + pep
@@ -28,7 +28,7 @@ libargus_pep_api_la_CFLAGS = \
 libargus_pep_api_la_LIBADD = \
     util/libutil.la \
     hessian/libhessian.la \
-    pep/libpep.la \
+    argus/libpep.la \
     $(LIBCURL_LIBS)
 
 libargus_pep_api_la_LDFLAGS = \
@@ -38,4 +38,4 @@ libargus_pep_api_la_SOURCES = libargus_pep.c
 
 # headers files in <prefix>/include (public API)
 pepincludedir = $(includedir)/argus
-pepinclude_HEADERS = pep/pep.h pep/pip.h pep/oh.h pep/error.h pep/xacml.h pep/profiles.h
+pepinclude_HEADERS = argus/pep.h argus/pip.h argus/oh.h argus/error.h argus/xacml.h argus/profiles.h
