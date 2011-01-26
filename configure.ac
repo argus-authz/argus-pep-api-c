@@ -78,7 +78,7 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([strerror strrchr calloc])
 
 # Sets default prefix
-AC_PREFIX_DEFAULT(/opt/emi)
+#AC_PREFIX_DEFAULT(/opt/emi)
 
 AC_CONFIG_SRCDIR(src)
 AM_CONFIG_HEADER(src/config.h)
