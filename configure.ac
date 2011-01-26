@@ -89,7 +89,7 @@ Makefile
 src/Makefile
 src/util/Makefile
 src/hessian/Makefile
-src/pep/Makefile
+src/argus/Makefile
 ])
 
 AC_OUTPUT
