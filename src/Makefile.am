@@ -37,5 +37,5 @@ libargus_pep_api_la_LDFLAGS = \
 libargus_pep_api_la_SOURCES = libargus_pep.c
 
 # headers files in <prefix>/include (public API)
-pepincludedir = $(includedir)/pep
+pepincludedir = $(includedir)/argus
 pepinclude_HEADERS = pep/pep.h pep/pip.h pep/oh.h pep/error.h pep/xacml.h pep/profiles.h
