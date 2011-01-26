@@ -15,12 +15,10 @@
 # limitations under the License.
 #
 
+if ENABLE_LIBRARY
 SUBDIRS = util hessian argus 
-
-#
-# libpep-c = util + hessian + pep
-#
 lib_LTLIBRARIES = libargus-pep.la
+endif
 
 libargus_pep_la_CFLAGS = \
     $(LIBCURL_CFLAGS)
@@ -37,5 +35,7 @@ libargus_pep_la_LDFLAGS = \
 libargus_pep_la_SOURCES = libargus_pep.c
 
 # headers files in <prefix>/include (public API)
+if ENABLE_DEVEL
 pepincludedir = $(includedir)/argus
 pepinclude_HEADERS = argus/pep.h argus/pip.h argus/oh.h argus/error.h argus/xacml.h argus/profiles.h
+endif

@@ -21,10 +21,17 @@ SUBDIRS = src
 EXTRA_DIST = LICENSE CHANGELOG autotools.sh test/test_pep.c test/Makefile doc/html
 
 docdir = $(datadir)/doc/$(PACKAGE)
-doc_DATA = AUTHORS CHANGELOG LICENSE src/example/pep_client_example.c
 
+if ENABLE_LIBRARY
+doc_DATA = AUTHORS CHANGELOG LICENSE
+endif
+
+if ENABLE_DEVEL
+exampledir = $(docdir)/example
+example_DATA = src/example/pep_client_example.c
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libargus-pep.pc
+endif
 
 # Generate doxygen doc
 doxygen: doc/Doxyfile
@@ -33,7 +40,11 @@ doxygen: doc/Doxyfile
 html-local: doxygen
 
 htmldir = $(docdir)/api
+if ENABLE_DEVEL
 install-data-local: install-html
+else
+install-data-local:
+endif
 
 uninstall-local: uninstall-html
 

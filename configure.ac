@@ -27,6 +27,23 @@ AM_INIT_AUTOMAKE([no-dependencies])
 # disable static library
 AM_DISABLE_STATIC
 
+#
+# check for options
+#
+AC_ARG_ENABLE([devel],
+    [AS_HELP_STRING([--disable-devel],
+        [create a package without the header files and doc])],
+    [enable_devel=no],
+    [enable_devel=yes])
+AM_CONDITIONAL([ENABLE_DEVEL], [test "x$enable_devel" == xyes])
+
+AC_ARG_ENABLE([library],
+    [AS_HELP_STRING([--disable-library],
+        [create a package without the shared library])],
+    [enable_library=no],
+    [enable_library=yes])
+AM_CONDITIONAL([ENABLE_LIBRARY], [test "x$enable_library" == xyes])
+
 # Checks for programs.
 AM_PROG_MKDIR_P
 AC_PROG_LIBTOOL
