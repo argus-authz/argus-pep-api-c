@@ -21,7 +21,7 @@ SUBDIRS = src
 EXTRA_DIST = LICENSE CHANGELOG autotools.sh test/test_pep.c test/Makefile doc/html
 
 docdir = $(datadir)/doc/$(PACKAGE)
-doc_DATA = AUTHORS CHANGELOG LICENSE
+doc_DATA = AUTHORS CHANGELOG LICENSE src/example/pep_client_example.c
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libargus-pep-api.pc
@@ -32,7 +32,6 @@ doxygen: doc/Doxyfile
 
 html-local: doxygen
 
-# Install doxygen doc in $(prefix)/share/doc/glite-authz-pep-c/api
 htmldir = $(docdir)/api
 install-data-local: install-html
 
