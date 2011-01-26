@@ -16,9 +16,9 @@
  */
 
 /*************
- * Simple PEP-C client example
+ * Simple Argus PEP client example
  *
- * gcc -I/opt/emi/include -L/opt/emi/lib64 -largus_pep_api pep_client_example.c -o pep_client_example
+ * gcc -I/usr/include -L/usr/lib64 -largus_pep_api pep_client_example.c -o pep_client_example
  *
  * Author: Valery Tschopp <valery.tschopp@switch.ch>
  * $Id$
@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "pep/pep.h"
+#include "argus/pep.h"
 
 /* prototypes */
 static int create_xacml_request(xacml_request_t ** request,const char * subjectid, const char * resourceid, const char * actionid);
