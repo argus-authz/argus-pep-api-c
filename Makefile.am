@@ -34,13 +34,13 @@ pkgconfig_DATA = libargus-pep.pc
 endif
 
 # Generate doxygen doc
+htmldir = $(docdir)/api
+if ENABLE_DEVEL
 doxygen: doc/Doxyfile
 	$(DOXYGEN) doc/Doxyfile
 
 html-local: doxygen
 
-htmldir = $(docdir)/api
-if ENABLE_DEVEL
 install-data-local: install-html
 else
 install-data-local:
