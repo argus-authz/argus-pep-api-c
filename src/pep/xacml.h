@@ -16,6 +16,8 @@
  */
 
 /* 
+ * Argus PEP client API
+ *
  * $Id$
  * @author Valery Tschopp <valery.tschopp@switch.ch>
  * @version 1.0
