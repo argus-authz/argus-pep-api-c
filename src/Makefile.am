@@ -20,7 +20,7 @@ SUBDIRS = util hessian argus
 #
 # libpep-c = util + hessian + pep
 #
-lib_LTLIBRARIES = libargus_pep.la
+lib_LTLIBRARIES = libargus-pep.la
 
 libargus_pep_la_CFLAGS = \
     $(LIBCURL_CFLAGS)
