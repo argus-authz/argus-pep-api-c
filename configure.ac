@@ -30,7 +30,6 @@ AM_DISABLE_STATIC
 # Checks for programs.
 AC_PROG_LIBTOOL
 AC_PROG_CC
-AC_PROG_MKDIR_P # not defined on SL4 !!!
 AC_PROG_INSTALL
 AC_PROG_LN_S
 

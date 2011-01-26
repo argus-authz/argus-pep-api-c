@@ -38,7 +38,7 @@ install-data-local: install-html
 uninstall-local: uninstall-html
 
 install-html:
-	test -z "$(htmldir)" || $(MKDIR_P) "$(DESTDIR)$(htmldir)"
+	test -d "$(htmldir)" || $(mkdir_p) "$(DESTDIR)$(htmldir)"
 	@if test -d "doc/html"; then \
 	    for file in doc/html/* ; do \
 	        if test -f "$$file"; then \
