@@ -24,7 +24,7 @@ docdir = $(datadir)/doc/$(PACKAGE)
 doc_DATA = AUTHORS CHANGELOG LICENSE src/example/pep_client_example.c
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = libargus-pep-api.pc
+pkgconfig_DATA = libargus-pep.pc
 
 # Generate doxygen doc
 doxygen: doc/Doxyfile
