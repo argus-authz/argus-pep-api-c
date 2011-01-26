@@ -20,21 +20,21 @@ SUBDIRS = util hessian argus
 #
 # libpep-c = util + hessian + pep
 #
-lib_LTLIBRARIES = libargus_pep_api.la
+lib_LTLIBRARIES = libargus_pep.la
 
-libargus_pep_api_la_CFLAGS = \
+libargus_pep_la_CFLAGS = \
     $(LIBCURL_CFLAGS)
 
-libargus_pep_api_la_LIBADD = \
+libargus_pep_la_LIBADD = \
     util/libutil.la \
     hessian/libhessian.la \
     argus/libpep.la \
     $(LIBCURL_LIBS)
 
-libargus_pep_api_la_LDFLAGS = \
+libargus_pep_la_LDFLAGS = \
     -version-info 2:0:0
 
-libargus_pep_api_la_SOURCES = libargus_pep.c
+libargus_pep_la_SOURCES = libargus_pep.c
 
 # headers files in <prefix>/include (public API)
 pepincludedir = $(includedir)/argus
