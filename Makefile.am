@@ -38,10 +38,10 @@ install-data-local: install-html
 uninstall-local: uninstall-html
 
 install-html: 
-	[ -d "$(htmldir)" ] || $(mkinstalldirs) $(htmldir)
+	[ -d "$(DESTDIR)$(htmldir)" ] || $(mkinstalldirs) $(DESTDIR)$(htmldir)
 	if [ -d "doc/html" ] ; then \
 	for file in doc/html/* ; do \
-		[ -f "$$file" ] && $(INSTALL_DATA) $$file $(htmldir)/`basename $$file`; \
+		[ -f "$$file" ] && $(INSTALL_DATA) $$file $(DESTDIR)$(htmldir)/`basename $$file`; \
 	done \
 	fi
 
