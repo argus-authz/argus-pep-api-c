@@ -19,7 +19,7 @@
 
 #include "util/linkedlist.h"
 #include "util/log.h"
-#include "pep/xacml.h"
+#include "argus/xacml.h"
 
 struct xacml_request {
 	linkedlist_t * subjects;

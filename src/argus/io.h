@@ -22,8 +22,8 @@
 extern "C" {
 #endif
 
-#include "pep/error.h"
-#include "pep/xacml.h"
+#include "argus/error.h"
+#include "argus/xacml.h"
 #include "util/buffer.h"
 
 /**

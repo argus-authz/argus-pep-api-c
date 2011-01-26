@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 
-#include "pep/xacml.h"
+#include "argus/xacml.h"
 
 /** @defgroup PIP Policy Information Point (PIP)
  * PEP client PIP function prototypes and type.

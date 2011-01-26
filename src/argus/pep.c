@@ -27,14 +27,14 @@
 #include "util/base64.h"
 #include "util/log.h"
 
-#include "pep/pep.h"
-#include "pep/io.h"
-#include "pep/error.h"
+#include "argus/pep.h"
+#include "argus/io.h"
+#include "argus/error.h"
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"  /* PACKAGE_NAME and PACKAGE_VERSION const */
 #else
-#define PACKAGE_NAME "argus-pep-api-c"
+#define PACKAGE_NAME "argus-pep-api"
 #define PACKAGE_VERSION "2.0.0"
 #endif
 

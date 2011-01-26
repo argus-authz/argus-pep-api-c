@@ -19,7 +19,7 @@
 #include <string.h>
 
 #include "util/log.h"
-#include "pep/xacml.h"
+#include "argus/xacml.h"
 
 struct xacml_attributeassignment {
     char * id; /* mandatory */

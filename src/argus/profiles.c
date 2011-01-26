@@ -26,7 +26,7 @@
 #include <limits.h>
 
 #include "util/log.h"
-#include "pep/profiles.h"
+#include "argus/profiles.h"
 
 #ifndef NGROUPS_MAX
 #define NGROUPS_MAX 128
