@@ -18,7 +18,7 @@
 /*************
  * Simple Argus PEP client example
  *
- * gcc -I/usr/include -L/usr/lib64 -largus_pep_api pep_client_example.c -o pep_client_example
+ * gcc -I/usr/include -L/usr/lib64 -largus_pep pep_client_example.c -o pep_client_example
  *
  * Author: Valery Tschopp <valery.tschopp@switch.ch>
  * $Id$
