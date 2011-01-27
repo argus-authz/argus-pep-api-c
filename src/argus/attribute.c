@@ -215,6 +215,12 @@ int xacml_attribute_addvalue(xacml_attribute_t * attr, const char *value) {
     }
     /* copy the const value */
     size= strlen(value);
+/*
+    if (size <= 0) {
+        log_error("xacml_attribute_addvalue: empty value not allowed.");
+        return PEP_XACML_ERROR;
+    }
+*/
     v= calloc(size + 1, sizeof(char));
     if (v == NULL) {
         log_error("xacml_attribute_addvalue: can't allocate value (%d bytes).", (int)size);
