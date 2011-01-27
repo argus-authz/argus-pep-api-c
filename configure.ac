@@ -49,7 +49,7 @@ AM_CONDITIONAL([ENABLE_LIBRARY], [test "x$enable_library" == xyes])
 # Checks for programs.
 AC_PROG_LIBTOOL
 AC_PROG_CC
-#AC_PROG_MKDIR_P # not defined on SL4 !!!
+AM_PROG_MKDIR_P
 AC_PROG_INSTALL
 AC_PROG_LN_S
 
