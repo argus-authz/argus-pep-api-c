@@ -4,7 +4,7 @@ libdir=@libdir@
 includedir=@includedir@
 
 Name: libpep-c
-Description: Argus PEP client API for C (old)
+Description: Argus PEP client API for C (DEPRECATED, non thread-safe)
 Requires: libcurl
 Version: @PACKAGE_VERSION@
 Libs: -L${libdir} -lpep-c
