@@ -27,7 +27,7 @@
  * compiler flags: CFLAGS=-I/opt/glite/include
  * linker flags: LDFLAGS=-L/opt/glite/lib
  */
-#include "pep/pep.h"
+#include "argus/pep.h"
 
 /*
  * local logging functions
@@ -81,7 +81,7 @@ static void debug(const char * format, ...) {
  * PEP-C logging callback function
  */
 static void log_handler_pep(int level, const char * format, va_list args) {
-	fprintf(stdout,"XXX:PEP-C[%d]: ",level);
+	fprintf(stdout,"libargus-pep[%d]: ",level);
 	vfprintf(stdout,format,args);
 	fprintf(stdout,"\n");
 }
@@ -373,6 +373,8 @@ static int oh_delete(pep_obligationhandler_t * oh) {
  */
 int main(int argc, char **argv) {
 
+    PEP * pep;
+    pep_error_t pep_rc;
 
 	char * url= "http://localhost:8080/PEPd/authz?random";
 	if (argc == 2) {
@@ -380,47 +382,46 @@ int main(int argc, char **argv) {
 		info("%s: using endpoint URL: %s",argv[0], url);
 	}
 	info("initialize PEP...");
-	pep_error_t pep_rc= pep_initialize();
-	if (pep_rc != PEP_OK) {
-		error("test_pep: pep_initialize() failed: %s",pep_strerror(pep_rc));
-		pep_destroy();
+	pep= pep_initialize();
+	if (pep == NULL) {
+		error("test_pep: pep_initialize() failed");
 		return -1;
 	}
 
 	info("set LOG options...");
-	pep_setoption(PEP_OPTION_LOG_STDERR,stderr);
-	pep_setoption(PEP_OPTION_LOG_LEVEL,PEP_LOGLEVEL_DEBUG); // DEBUG, INFO, WARN and ERROR
-	pep_setoption(PEP_OPTION_LOG_HANDLER,log_handler_pep); // will override stderr log handler
+	pep_setoption(pep,PEP_OPTION_LOG_STDERR,stderr);
+	pep_setoption(pep,PEP_OPTION_LOG_LEVEL,PEP_LOGLEVEL_DEBUG); // DEBUG, INFO, WARN and ERROR
+	pep_setoption(pep,PEP_OPTION_LOG_HANDLER,log_handler_pep); // will override stderr log handler
 
 	info("create PIP");
 	pep_pip_t * pip= pip_create("PIPRequestDumper",pip_init,pip_process,pip_destroy);
 	if (pip == NULL) {
 		error("test_pep: pip_create(...) failed");
-		pep_destroy();
+		pep_destroy(pep);
 		return -1;
 	}
 
 	info("install PIP: %s",pip->id);
-	pep_rc= pep_addpip(pip);
+	pep_rc= pep_addpip(pep,pip);
 	if (pep_rc != PEP_OK) {
 		error("test_pep: pep_addpip() failed: %s",pep_strerror(pep_rc));
-		pep_destroy();
+		pep_destroy(pep);
 		return -1;
 	}
 
 	info("install PIP: %s",authzinterop2gridwn_adapter_pip->id);
-	pep_rc= pep_addpip(authzinterop2gridwn_adapter_pip);
+	pep_rc= pep_addpip(pip,authzinterop2gridwn_adapter_pip);
 	if (pep_rc != PEP_OK) {
 		error("test_pep: pep_addpip() failed: %s",pep_strerror(pep_rc));
-		pep_destroy();
+		pep_destroy(pep);
 		return -1;
 	}
 
 	info("install PIP: %s",pip->id);
-	pep_rc= pep_addpip(pip);
+	pep_rc= pep_addpip(pep,pip);
 	if (pep_rc != PEP_OK) {
 		error("test_pep: pep_addpip() failed: %s",pep_strerror(pep_rc));
-		pep_destroy();
+		pep_destroy(pep);
 		return -1;
 	}
 
@@ -428,13 +429,13 @@ int main(int argc, char **argv) {
 	pep_obligationhandler_t * oh= oh_create("OHResponseDumper",oh_init,oh_process,oh_destroy);
 	if (oh == NULL) {
 		error("test_pep: oh_create(...) failed");
-		pep_destroy();
+		pep_destroy(pep);
 		return -1;
 	}
-	pep_rc= pep_addobligationhandler(oh);
+	pep_rc= pep_addobligationhandler(pep,oh);
 	if (pep_rc != PEP_OK) {
 		error("test_pep: pep_addobligationhandler() failed: %s",pep_strerror(pep_rc));
-		pep_destroy();
+		pep_destroy(pep);
 		return -1;
 	}
 

@@ -16,13 +16,13 @@
 #
 # $Id: Makefile 1646 2010-03-22 14:10:12Z vtschopp $
 #
-ifndef GLITE_LOCATION
-GLITE_LOCATION=/opt/glite
+ifndef PREFIX
+PREFIX=/opt/emi
 endif
 
 CC=gcc 
-CFLAGS=-Wall -I../../src -I$(GLITE_LOCATION)/include
-LDFLAGS=-L$(GLITE_LOCATION)/lib -L$(GLITE_LOCATION)/lib64 -lpep-c
+CFLAGS=-Wall -I../../src -I$(PREFIX)/include
+LDFLAGS=-L$(PREFIX)/lib -L$(PREFIX)/lib64 -largus-pep
 
 SOURCES=test_hessian.c
 OBJECTS=$(SOURCES:.c=.o)
