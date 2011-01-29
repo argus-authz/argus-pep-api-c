@@ -18,7 +18,7 @@
 # $Id$
 #
 
-AC_INIT(argus-pep-api-c, 2.0.1, argus-support@cern.ch)
+AC_INIT(glite-authz-pep-api-c, 2.0.1, argus-support@cern.ch)
 AC_CONFIG_AUX_DIR(project)
 AC_CONFIG_MACRO_DIR(project)
 
@@ -95,7 +95,7 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([strerror strrchr calloc])
 
 # Sets default prefix
-#AC_PREFIX_DEFAULT(/opt/emi)
+AC_PREFIX_DEFAULT(/opt/glite)
 
 AC_CONFIG_SRCDIR(src)
 AM_CONFIG_HEADER(src/config.h)
