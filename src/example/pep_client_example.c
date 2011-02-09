@@ -18,7 +18,7 @@
 /*************
  * Simple Argus PEP client example
  *
- * gcc -I/usr/include -L/usr/lib64 -largus-pep pep_client_example.c -o pep_client_example
+ * gcc -I/opt/glite/include -L/opt/glite/lib64 -largus-pep pep_client_example.c -o pep_client_example
  *
  * or use "pkg-config libargus-pep --cflags --libs" to dertermine the required CFLAGS and 
  * LDFLAGS.
