@@ -23,7 +23,7 @@ EXTRA_DIST = LICENSE CHANGELOG autotools.sh test/test_pep.c test/Makefile doc/ht
 docdir = $(datadir)/doc/$(PACKAGE)
 
 if ENABLE_LIBRARY
-doc_DATA = AUTHORS CHANGELOG LICENSE
+doc_DATA = AUTHORS CHANGELOG LICENSE INSTALL
 endif
 
 if ENABLE_DEVEL
