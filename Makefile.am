@@ -20,10 +20,10 @@
 SUBDIRS = src 
 EXTRA_DIST = LICENSE CHANGELOG autotools.sh test/test_pep.c test/Makefile doc/html
 
-docdir = $(datadir)/doc/$(PACKAGE)
+docdir = $(datadir)/doc/$(PACKAGE_NAME)-$(PACKAGE_VERSION)
 
 if ENABLE_LIBRARY
-doc_DATA = AUTHORS CHANGELOG LICENSE
+doc_DATA = AUTHORS CHANGELOG LICENSE README
 endif
 
 if ENABLE_DEVEL
