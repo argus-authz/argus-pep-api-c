@@ -18,9 +18,9 @@
 # $Id$
 #
 
-AC_INIT(argus-pep-api-c, 2.0.1, argus-support@cern.ch)
-AC_CONFIG_AUX_DIR(project)
-AC_CONFIG_MACRO_DIR(project)
+AC_INIT([argus-pep-api-c], [2.0.1], [argus-support@cern.ch])
+AC_CONFIG_AUX_DIR([project])
+AC_CONFIG_MACRO_DIR([project])
 
 # OSX requires ./configure --disable-dependency-tracking to compile, others don't care
 AM_INIT_AUTOMAKE([no-dependencies])
@@ -52,7 +52,7 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 
 # Check for doxygen
-AC_CHECK_PROG(DOXYGEN,doxygen,doxygen,$ac_aux_dir/missing --run doxygen)
+AC_CHECK_PROG(DOXYGEN,[doxygen],[doxygen],[$ac_aux_dir/missing --run doxygen])
 AC_SUBST(DOXYGEN)
 
 # GCC CFLAGS
@@ -97,8 +97,8 @@ AC_CHECK_FUNCS([strerror strrchr calloc])
 # Sets default prefix
 #AC_PREFIX_DEFAULT(/opt/emi)
 
-AC_CONFIG_SRCDIR(src)
-AM_CONFIG_HEADER(src/config.h)
+AC_CONFIG_SRCDIR([src])
+AM_CONFIG_HEADER([src/config.h])
 
 AC_CONFIG_FILES([
 libargus-pep.pc
