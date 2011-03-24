@@ -53,11 +53,13 @@ static const int    DEFAULT_LOG_LEVEL= PEP_LOGLEVEL_NONE;
 static const FILE * DEFAULT_LOG_FILE= NULL;
 static const int    DEFAULT_PIPS_ENABLED= TRUE;
 static const int    DEFAULT_OHS_ENABLED= TRUE;
+/* default SSL cipher without ECDH: OpenSSL 1.0 bug */
+static const char * DEFAULT_SSL_CIPHER_LIST= "DEFAULT:-ECDH";
 
 /** internal functions prototypes */
 static void init_pep_defaults(PEP * pep);
 static void init_curl_defaults(PEP * pep);
-static void init_log_defaults(const PEP * pep);
+/* static void init_log_defaults(const PEP * pep); */
 static int set_curl_endpoint_url(const PEP * pep);
 static int set_curl_connection_timeout(const PEP * pep);
 static int set_curl_ssl_validation(const PEP * pep);
@@ -69,6 +71,8 @@ static int set_curl_client_key(const PEP * pep);
 static int set_curl_client_keypassword(const PEP * pep);
 static int set_curl_verbose(const PEP * pep);
 static int set_curl_stderr(const PEP * pep);
+static int set_curl_nosignal(const PEP * pep);
+static int set_curl_http_headers(PEP * pep);
 
 /** 
 * ADT for PEP client handle.
@@ -747,7 +751,7 @@ void pep_destroy(PEP * pep) {
 /*** INTERNAL FUNCTIONS ***/
 /**************************/
 
-
+/** set the pep handle default values */
 static void init_pep_defaults(PEP * pep) {
     if (pep==NULL) return;
     /* increase client counter */
@@ -772,25 +776,53 @@ static void init_pep_defaults(PEP * pep) {
 /** set some curl default value */
 static void init_curl_defaults(PEP * pep) {
     CURLcode curl_rc;
-    
-    /* disable 'Expect: 100-continue' HTTP 1.1 header in POST */
-    pep->curl_http_headers= curl_slist_append(pep->curl_http_headers, "Expect:");  
-    /* set 'User-Agent:' header */
-    pep->curl_http_headers= curl_slist_append(pep->curl_http_headers, "User-Agent: " PACKAGE_NAME "/" PACKAGE_VERSION );  
-    curl_rc= curl_easy_setopt(pep->curl, CURLOPT_HTTPHEADER, pep->curl_http_headers);
-    if (curl_rc != CURLE_OK) {
-        log_warn("init_curl_defaults: PEP#%d curl_easy_setopt(curl,CURLOPT_HTTPHEADER,curl_http_headers) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
-    }
-    
+    /* set default http headers */
+    set_curl_http_headers(pep);
     /* set default timeout */
     set_curl_connection_timeout(pep);
     /* set default ssl validation */
     set_curl_ssl_validation(pep);
     /* disable signal for multi-threading */
+    set_curl_nosignal(pep);
+    /* OpenSSL 1.0 bug fix: will disable ECDH ciphers, see DEFAULT_SSL_CIPHER_LIST */
+    log_debug("init_curl_defaults: PEP#%d DEFAULT_SSL_CIPHER_LIST: %s",pep->id,DEFAULT_SSL_CIPHER_LIST);    
+    curl_rc= curl_easy_setopt(pep->curl,CURLOPT_SSL_CIPHER_LIST,DEFAULT_SSL_CIPHER_LIST);
+    if (curl_rc != CURLE_OK) {
+        log_warn("init_curl_defaults: PEP#%d curl_easy_setopt(curl,CURLOPT_SSL_CIPHER_LIST,%s) failed: %s",pep->id,DEFAULT_SSL_CIPHER_LIST,curl_easy_strerror(curl_rc));
+    }
+}
+
+/** 
+ * set curl http headers:
+ * - disable 'Expect: 100-continue' HTTP 1.1 header in POST
+ * - set 'User-Agent: <value>' header
+ */
+static int set_curl_http_headers(PEP * pep) {
+    CURLcode curl_rc;
+    /* disable 'Expect: 100-continue' HTTP 1.1 header in POST */
+    pep->curl_http_headers= curl_slist_append(pep->curl_http_headers, "Expect:");  
+    log_debug("set_curl_http_headers: PEP#%d curl_http_headers: 'Expect:'",pep->id);    
+    /* set 'User-Agent:' header */
+    pep->curl_http_headers= curl_slist_append(pep->curl_http_headers, "User-Agent: " PACKAGE_NAME "/" PACKAGE_VERSION );  
+    log_debug("set_curl_http_headers: PEP#%d curl_http_headers: 'User-Agent: " PACKAGE_NAME "/" PACKAGE_VERSION "'",pep->id);    
+    curl_rc= curl_easy_setopt(pep->curl, CURLOPT_HTTPHEADER, pep->curl_http_headers);
+    if (curl_rc != CURLE_OK) {
+        log_warn("set_curl_http_headers: PEP#%d curl_easy_setopt(curl,CURLOPT_HTTPHEADER,curl_http_headers) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
+        return 1;
+    }
+    return 0;
+}
+
+/** disable signal for multi-threading */
+static int set_curl_nosignal(const PEP * pep) {
+    CURLcode curl_rc;
+    log_debug("set_curl_nosignal: PEP#%d curl_easy_setopt(curl,CURLOPT_NOSIGNAL,1)",pep->id);
     curl_rc= curl_easy_setopt(pep->curl, CURLOPT_NOSIGNAL, 1);
     if (curl_rc != CURLE_OK) {
-        log_warn("init_curl_defaults: PEP#%d curl_easy_setopt(curl,CURLOPT_NOSIGNAL,1) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
+        log_warn("set_curl_nosignal: PEP#%d curl_easy_setopt(curl,CURLOPT_NOSIGNAL,1) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
+        return 1;
     }
+    return 0;
 }
 
 /** set libcurl CURLOPT_URL */

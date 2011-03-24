@@ -1,11 +1,17 @@
-PEP client API 2.0.1
---------------------
+argus-pep-api-c 2.0.2
+---------------------
+* bug fix: disable the SSL cipher ECDH as workaround for the EC SSL handshake 
+           problem with OpenSSL 1.0 (actually this should be fixed on the server, 
+           not on the client).
+
+argus-pep-api-c 2.0.1
+---------------------
 * bug fix: the HTTP header "Expect: 100-continue" is not used for the POST.
 * bug fix: curl option CURLOPT_NOSIGNAL is enabled by default.
 * bug fix: fflush every log messages.
 
-PEP client API 2.0.0
---------------------
+argus-pep-api-c 2.0.0
+---------------------
 * refactoring: include dir renamed to argus (e.g. /usr/include/argus)
 * refactoring: new thread safe implementation.
 * refactoring: using a PEP handle for function call.
