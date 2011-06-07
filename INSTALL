@@ -5,7 +5,7 @@ Argus PEP client API
 
 ./autotools.sh
 
-2. Then use configure (default prefix: /opt/emi):
+2. Then use configure (default prefix: /usr/local):
 
 ./configure
 
