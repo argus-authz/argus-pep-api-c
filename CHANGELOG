@@ -20,8 +20,8 @@ argus-pep-api-c 2.0.0
 * refactoring: include dir renamed to argus (e.g. /usr/include/argus)
 * refactoring: new thread safe implementation.
 * refactoring: using a PEP handle for function call.
-* refactoring: library renamed libargus_pep_api.
-* pkg-config libargus-pep-api added for autotools.
+* refactoring: library renamed libargus-pep.so
+* pkg-config libargus-pep.pc file added for autotools.
 
 --------------------------------------------------------------
 
