@@ -784,12 +784,14 @@ static void init_curl_defaults(PEP * pep) {
     set_curl_ssl_validation(pep);
     /* disable signal for multi-threading */
     set_curl_nosignal(pep);
+#ifndef HAVE_LIBCURL_NSS
     /* OpenSSL 1.0 bug fix: will disable ECDH ciphers, see DEFAULT_SSL_CIPHER_LIST */
     log_debug("init_curl_defaults: PEP#%d DEFAULT_SSL_CIPHER_LIST: %s",pep->id,DEFAULT_SSL_CIPHER_LIST);    
     curl_rc= curl_easy_setopt(pep->curl,CURLOPT_SSL_CIPHER_LIST,DEFAULT_SSL_CIPHER_LIST);
     if (curl_rc != CURLE_OK) {
         log_warn("init_curl_defaults: PEP#%d curl_easy_setopt(curl,CURLOPT_SSL_CIPHER_LIST,%s) failed: %s",pep->id,DEFAULT_SSL_CIPHER_LIST,curl_easy_strerror(curl_rc));
     }
+#endif
 }
 
 /** 

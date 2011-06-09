@@ -44,6 +44,18 @@ AC_ARG_ENABLE([library],
     [enable_library=yes])
 AM_CONDITIONAL([ENABLE_LIBRARY], [test "x$enable_library" == xyes])
 
+# RHEL6/SL6 use libcurl with NSS, not OpenSSL!!!
+AC_ARG_WITH([libcurl-nss],
+   [AS_HELP_STRING([--with-libcurl-nss],
+      [assume libcurl is compiled with NSS [default=libcurl-openssl]])],
+   [],
+   [with_libcurl_nss=no])
+
+AS_IF([test "x$with_libcurl_nss" != xno],
+   [AC_DEFINE([HAVE_LIBCURL_NSS],[1],[Define to 1 if libcurl is compiled with NSS, not OpenSSL])])
+
+
+
 # Checks for programs.
 AM_PROG_MKDIR_P
 AC_PROG_LIBTOOL

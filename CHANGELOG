@@ -1,7 +1,8 @@
 argus-pep-api-c 2.0.2
 ---------------------
-* bug fix: disable the SSL cipher ECDH as workaround for the EC SSL handshake 
-           problem with OpenSSL 1.0 (actually this should be fixed on the server, 
+* autotools: added configure --with-libcurl-nss option (RHEL6/SL6)
+* bug fix: for libcurl-openssl, disable the SSL cipher ECDH as workaround for the EC SSL 
+           handshake problem with OpenSSL 1.0 (actually this should be fixed on the server, 
            not on the client).
 
 argus-pep-api-c 2.0.1
