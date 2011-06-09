@@ -1,5 +1,5 @@
-PEP client API library dependencies
------------------------------------
-* libcurl
+Argus PEP client API library dependencies
+-----------------------------------------
+* libcurl (openssl or nss)
 --
 $Id$
