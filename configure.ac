@@ -18,7 +18,7 @@
 # $Id$
 #
 
-AC_INIT([argus-pep-api-c], [2.0.2], [argus-support@cern.ch])
+AC_INIT([argus-pep-api-c], [2.0.3], [argus-support@cern.ch])
 AC_CONFIG_AUX_DIR([project])
 AC_CONFIG_MACRO_DIR([project])
 
