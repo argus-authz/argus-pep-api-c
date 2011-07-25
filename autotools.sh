@@ -19,17 +19,22 @@
 ##
 #set -x
 
+die() {
+    echo "$@"
+    exit
+}
+
 echo "Bootstrapping autotools..."
 
 echo "aclocal..."
-aclocal -I project
+aclocal -I project || die "aclocal failed"
 echo "libtoolize..."
-libtoolize --force
+libtoolize --force || die "libtoolize failed"
 echo "autoheader..."
-autoheader
+autoheader || die "autoheader failed"
 echo "automake..."
-automake --foreign --add-missing --copy
+automake --foreign --add-missing --copy || die "automake failed"
 echo "autoconf..."
-autoconf
+autoconf || die "autoconf failed"
 
 echo "Done."
