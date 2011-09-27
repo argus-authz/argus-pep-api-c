@@ -1,0 +1,16 @@
+Simple Argus PEP client example
+-------------------------------
+
+The PEP client connect to the Argus PEP Server endpoint with HTTPS/clientAuthN (key/cert), 
+and send a authorization request. The authorization response is then parsed and displayed.
+
+To compile use:
+
+ gcc -I/usr/include -L/usr/lib64 -largus-pep pep_client_example.c -o pep_client_example
+
+or use "pkg-config libargus-pep --cflags --libs" to dertermine the required CFLAGS and 
+LDFLAGS.
+
+---
+$Id: pep_client_example.c 2010 2011-01-26 14:43:13Z vtschopp $
+

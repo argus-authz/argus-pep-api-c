@@ -72,11 +72,29 @@ int main(void) {
     pep_setoption(pep,PEP_OPTION_LOG_STDERR,stderr);
     pep_setoption(pep,PEP_OPTION_LOG_LEVEL,PEP_LOGLEVEL_DEBUG);
 
-    /* configure PEP client: PEPd url */
-    pep_url= "http://demeter.switch.ch:8154/authz";
+    /* configure PEP client: PEP Server endpoint url */
+    pep_url= "https://chaos.switch.ch:8154/authz";
     pep_rc= pep_setoption(pep,PEP_OPTION_ENDPOINT_URL,pep_url);
     if (pep_rc != PEP_OK) {
-       fprintf(stderr,"failed to set PEPd url: %s: %s\n", pep_url, pep_strerror(pep_rc));
+       fprintf(stderr,"failed to set PEP endpoint: %s: %s\n", pep_url, pep_strerror(pep_rc));
+       exit(1);
+    }   
+    /* configure PEP client: private key and certificate required to access the PEP Server */
+    /* endpoint (HTTPS with client authentication) */
+    pep_rc= pep_setoption(pep,PEP_OPTION_ENDPOINT_CLIENT_KEY,"/etc/grid-security/hostkey.pem");
+    if (pep_rc != PEP_OK) {
+       fprintf(stderr,"failed to set client key: %s: %s\n", "/etc/grid-security/hostkey.pem", pep_strerror(pep_rc));
+       exit(1);
+    }   
+    pep_rc= pep_setoption(pep,PEP_OPTION_ENDPOINT_CLIENT_CERT,"/etc/grid-security/hostcert.pem");
+    if (pep_rc != PEP_OK) {
+       fprintf(stderr,"failed to set client cert: %s: %s\n", "/etc/grid-security/hostcert.pem", pep_strerror(pep_rc));
+       exit(1);
+    }   
+    /* server certificate CA path for validation */
+    pep_rc= pep_setoption(pep,PEP_OPTION_ENDPOINT_SERVER_CAPATH,"/etc/grid-security/certificates");
+    if (pep_rc != PEP_OK) {
+       fprintf(stderr,"failed to set server CA path: %s: %s\n", "/etc/grid-security/certificates", pep_strerror(pep_rc));
        exit(1);
     }   
 
