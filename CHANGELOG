@@ -1,5 +1,6 @@
 argus-pep-api-c 2.0.3
 ---------------------
+* refactoring: small changes in configure and Makefiles to handle 'make distcheck' correctly.
 * configure: added option --with-libcurl-nss for RHEL6/SL6.
 * bug fix: for libcurl-nss, don't set the default SSL cipher list.
 

@@ -17,6 +17,8 @@
 
 noinst_LTLIBRARIES = libhessian.la
 
+AM_CPPFLAGS = -I$(srcdir)/..
+
 libhessian_la_SOURCES = \
 binary.c \
 boolean.c \

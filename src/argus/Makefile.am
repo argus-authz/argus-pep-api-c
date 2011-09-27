@@ -20,6 +20,8 @@
 #
 noinst_LTLIBRARIES = libpep.la
 
+AM_CPPFLAGS = -I$(srcdir)/..
+
 # sources not distributed
 libpep_la_SOURCES = \
 action.c \

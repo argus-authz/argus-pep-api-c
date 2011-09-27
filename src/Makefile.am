@@ -20,6 +20,8 @@ SUBDIRS = util hessian argus
 lib_LTLIBRARIES = libargus-pep.la
 endif
 
+AM_CPPFLAGS = -I$(srcdir)
+
 libargus_pep_la_CFLAGS = \
     $(LIBCURL_CFLAGS)
 

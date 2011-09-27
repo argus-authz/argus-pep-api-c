@@ -17,6 +17,8 @@
 
 noinst_LTLIBRARIES = libutil.la
 
+AM_CPPFLAGS = -I$(srcdir)/..
+
 libutil_la_SOURCES = \
 base64.c \
 base64.h \
