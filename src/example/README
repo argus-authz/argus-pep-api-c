@@ -12,5 +12,5 @@ or use "pkg-config libargus-pep --cflags --libs" to dertermine the required CFLA
 LDFLAGS.
 
 ---
-$Id: pep_client_example.c 2010 2011-01-26 14:43:13Z vtschopp $
+$Id$
 
