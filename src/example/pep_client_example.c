@@ -30,8 +30,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* include Argus PEP API header */
-#include "argus/pep.h"
+/* include Argus PEP client API header */
+#include <argus/pep.h>
 
 /* prototypes */
 static int create_xacml_request(xacml_request_t ** request,const char * subjectid, const char * resourceid, const char * actionid);
