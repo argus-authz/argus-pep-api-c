@@ -21,7 +21,7 @@ PREFIX=/opt/emi
 endif
 
 CC=gcc 
-CFLAGS=-Wall -I../../src -I$(PREFIX)/include
+CFLAGS=-Wall -I../../src -I../../src/util -I../../src/hessia -I$(PREFIX)/include
 LDFLAGS=-L$(PREFIX)/lib -L$(PREFIX)/lib64 -largus-pep
 
 SOURCES=test_hessian.c
