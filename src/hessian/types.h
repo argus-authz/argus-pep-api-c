@@ -24,8 +24,8 @@
 #define _HESSIAN_TYPES_H_
 
 #include <stdint.h>
-#include "util/buffer.h"
-#include "util/linkedlist.h"
+#include "buffer.h"
+#include "linkedlist.h"
 
 /**
  * Hessian object types

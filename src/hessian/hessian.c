@@ -19,8 +19,8 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "hessian/hessian.h"
-#include "util/log.h"
+#include "hessian.h"
+#include "log.h"
 
 /**
  * Hessian class descriptors

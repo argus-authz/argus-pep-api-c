@@ -25,8 +25,8 @@ extern "C" {
 #include <stdarg.h>
 #include <stdio.h>
 
-#include "hessian/types.h"
-#include "util/buffer.h"
+#include "types.h"
+#include "buffer.h"
 
 /** Hessian return codes */
 #define HESSIAN_OK     0

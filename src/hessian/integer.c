@@ -19,9 +19,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "hessian/hessian.h"
-#include "hessian/i_hessian.h"
-#include "util/log.h"
+#include "hessian.h"
+#include "i_hessian.h"
+#include "log.h"
 
 /***********************************
  * Hessian integer and ref objects *
