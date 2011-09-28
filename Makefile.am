@@ -41,7 +41,7 @@ doc: html
 htmldir = $(docdir)/api
 if ENABLE_DEVEL
 doxygen: doc/Doxyfile
-	$(DOXYGEN) doc/Doxyfile
+	$(DOXYGEN) $(srcdir)/doc/Doxyfile
 
 html-local: doxygen
 
