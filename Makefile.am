@@ -17,6 +17,8 @@
 # $Id$
 #
 
+ACLOCAL_AMFLAGS = -I project
+
 SUBDIRS = src 
 
 if ENABLE_DEVEL
