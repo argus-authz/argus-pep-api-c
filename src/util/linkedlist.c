@@ -19,7 +19,7 @@
 #include <stdio.h>
 
 #include "linkedlist.h"
-#include "util/log.h"
+#include "log.h"
 
 /**
  * List node

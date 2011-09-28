@@ -21,7 +21,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "util/log.h"
+#include "log.h"
 
 /* tmp buffer for logging */
 #define LOG_BUFFER_SIZE 1024

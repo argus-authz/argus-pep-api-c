@@ -19,8 +19,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "util/buffer.h"
-#include "util/log.h"
+#include "buffer.h"
+#include "log.h"
 
 /*
  * buffer memory increase policies used by the buffer_ensure_capacity()

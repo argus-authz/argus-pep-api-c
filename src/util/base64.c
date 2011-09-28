@@ -16,7 +16,7 @@
  */
 
 #include <string.h>
-#include "util/base64.h"
+#include "base64.h"
 
 #define NO_LINE_BREAK -1000
 

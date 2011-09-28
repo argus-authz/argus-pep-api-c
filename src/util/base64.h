@@ -22,7 +22,7 @@
 extern "C" {
 #endif
 
-#include "util/buffer.h"
+#include "buffer.h"
 
 /* PEM default line size (RFC???) */
 #ifndef BASE64_DEFAULT_LINE_SIZE

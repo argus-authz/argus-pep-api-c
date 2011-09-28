@@ -17,8 +17,6 @@
 
 noinst_LTLIBRARIES = libutil.la
 
-AM_CPPFLAGS = -I$(srcdir)/..
-
 libutil_la_SOURCES = \
 base64.c \
 base64.h \
@@ -28,12 +26,4 @@ linkedlist.c \
 linkedlist.h \
 log.c \
 log.h
-
-
-#
-# headers files
-#
-#includedir=$(prefix)/include/pep
-#include_HEADERS = log.h
-
 
