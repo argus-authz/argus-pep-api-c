@@ -22,9 +22,9 @@
 extern "C" {
 #endif
 
-#include "argus/error.h"
-#include "argus/xacml.h"
-#include "util/buffer.h"
+#include "error.h"
+#include "xacml.h"
+#include "buffer.h" /* ../util/buffer.h */
 
 /**
  * Marshalls the PEP XACML request object and writes the serialized Hessian bytes

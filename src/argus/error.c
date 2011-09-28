@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <stdarg.h>  /* va_list, va_arg, ... */
 
-#include "argus/error.h"
+#include "error.h"
 
 /*
 typedef enum {

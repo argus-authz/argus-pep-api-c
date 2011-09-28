@@ -17,9 +17,11 @@
 
 #include <stdlib.h>
 
-#include "util/linkedlist.h"
-#include "util/log.h"
-#include "argus/xacml.h"
+/* from ../util */
+#include "linkedlist.h"
+#include "log.h"
+
+#include "xacml.h"
 
 struct xacml_action {
     linkedlist_t * attributes;

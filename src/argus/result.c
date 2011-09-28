@@ -18,9 +18,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "util/linkedlist.h"
-#include "util/log.h"
-#include "argus/xacml.h"
+/* from ../util */
+#include "linkedlist.h"
+#include "log.h"
+
+#include "xacml.h"
 
 struct xacml_result {
 	char * resourceid;

@@ -25,8 +25,9 @@
 #include <errno.h>
 #include <limits.h>
 
-#include "util/log.h"
-#include "argus/profiles.h"
+#include "log.h" /* ../util/log.h */
+
+#include "profiles.h"
 
 #ifndef NGROUPS_MAX
 #define NGROUPS_MAX 128

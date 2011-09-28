@@ -41,11 +41,11 @@ extern "C" {
 /** @defgroup Logging Log Level and Output */
 
 #include <stdarg.h> /* va_list */
-#include "argus/xacml.h"
-#include "argus/profiles.h"
-#include "argus/pip.h"
-#include "argus/oh.h"
-#include "argus/error.h"
+#include "xacml.h"
+#include "profiles.h"
+#include "pip.h"
+#include "oh.h"
+#include "error.h"
 
 
 

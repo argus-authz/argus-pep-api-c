@@ -17,9 +17,9 @@
 
 #include <string.h>
 
-#include "argus/io.h"
-#include "hessian/hessian.h"
-#include "util/log.h"
+#include "io.h"
+#include "hessian.h" /* ../hessian/hessian.h */
+#include "log.h" /* ../util/log.h */
 
 /** functions return codes  */
 #define PEP_IO_OK     0

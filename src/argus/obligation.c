@@ -18,9 +18,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "util/linkedlist.h"
-#include "util/log.h"
-#include "argus/xacml.h"
+#include "linkedlist.h" /* ../util/linkedlist.h */
+#include "log.h" /* ../util/log.h */
+#include "xacml.h"
 
 struct xacml_obligation {
     char * id; /* mandatory */

@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 
-#include "argus/xacml.h"
+#include "xacml.h"
 
 /** @defgroup ObligationHandler Obligation Handler (OH)
  * PEP client Obligation handler function prototypes and type.

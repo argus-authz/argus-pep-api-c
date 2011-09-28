@@ -20,7 +20,7 @@
 #
 noinst_LTLIBRARIES = libpep.la
 
-AM_CPPFLAGS = -I$(srcdir)/..
+AM_CPPFLAGS = -I$(top_srcdir)/src/util -I$(top_srcdir)/src/hessian
 
 # sources not distributed
 libpep_la_SOURCES = \

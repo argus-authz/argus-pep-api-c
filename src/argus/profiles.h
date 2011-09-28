@@ -32,9 +32,9 @@ extern "C" {
  * XACML constants, PIPs and Obligation Handlers for the implemented XACML Profiles.
  */
 
-#include "argus/xacml.h"
-#include "argus/pip.h"
-#include "argus/oh.h"
+#include "xacml.h"
+#include "pip.h"
+#include "oh.h"
 
 /** @defgroup AuthzInterop Authorization Interoperability Profile
  *  @ingroup Profiles

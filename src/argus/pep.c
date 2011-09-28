@@ -22,20 +22,21 @@
 #include <stdlib.h>
 #include <curl/curl.h>
 
-#include "util/linkedlist.h"
-#include "util/buffer.h"
-#include "util/base64.h"
-#include "util/log.h"
+/* from ../util */
+#include "linkedlist.h"
+#include "buffer.h"
+#include "base64.h"
+#include "log.h"
 
-#include "argus/pep.h"
-#include "argus/io.h"
-#include "argus/error.h"
+#include "pep.h"
+#include "io.h"
+#include "error.h"
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"  /* PACKAGE_NAME and PACKAGE_VERSION const */
 #else
 #define PACKAGE_NAME "argus-pep-api"
-#define PACKAGE_VERSION "2.0.0"
+#define PACKAGE_VERSION "2.0.3"
 #endif
 
 /** buffer for version */
