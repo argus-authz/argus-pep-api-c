@@ -17,7 +17,8 @@
 # $Id$
 #
 
-ACLOCAL_AMFLAGS = -I project
+#ACLOCAL_AMFLAGS = -I project
+ACLOCAL_AMFLAGS = -I $(srcdir)/project
 
 SUBDIRS = src 
 
