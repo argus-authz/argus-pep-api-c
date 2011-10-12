@@ -21,7 +21,7 @@
 AC_INIT([argus-pep-api-c], [2.0-DEV], [argus-support@cern.ch])
 AC_CONFIG_AUX_DIR([project])
 # ACLOCAL_AMFLAGS = -I <dir> required in your top-level Makefile.am
-AC_CONFIG_MACRO_DIR([project])
+#AC_CONFIG_MACRO_DIR([project])
 
 # OSX requires ./configure --disable-dependency-tracking to compile, others don't care
 AM_INIT_AUTOMAKE([no-dependencies])
