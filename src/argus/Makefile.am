@@ -22,6 +22,10 @@ noinst_LTLIBRARIES = libpep.la
 
 AM_CPPFLAGS = -I$(top_srcdir)/src/util -I$(top_srcdir)/src/hessian
 
+# libcurl CFLAGS
+libpep_la_CFLAGS = \
+    $(LIBCURL_CFLAGS)
+
 # sources not distributed
 libpep_la_SOURCES = \
 action.c \
