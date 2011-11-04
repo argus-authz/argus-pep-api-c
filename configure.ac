@@ -86,6 +86,7 @@ AC_MSG_NOTICE([libdir for $host: $libdir])
 #
 # export PKG_CONFIG_PATH=...
 #
+AC_MSG_NOTICE([PKG_CONFIG_PATH=$PKG_CONFIG_PATH])
 PKG_CHECK_MODULES(
     LIBCURL, [libcurl],
     [
