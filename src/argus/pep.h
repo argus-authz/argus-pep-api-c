@@ -31,10 +31,23 @@ extern "C" {
 
 /** @mainpage Argus Authorization Service PEP client API for C
  *
- * The PEP client API for C is used to authorize requests with the Argus PEP daemon, and
+ * <h2>Description</h2>
+ * The PEP client API for C is used to authorize requests with the Argus PEP Server, and
  * receive authorization decisions. 
  * <p>
- * Version 2.X of the PEP client C API is multi-thread safe.
+ * <h2>Functionalities</h2>
+ * 
+ * 
+ * <p>
+ * <h2>Multi-threading</h2>
+ * Version 2.X of the PEP client C API is multi-thread friendly. However, you are not allowed 
+ * to share a PEP handle among multiple threads:
+ * <ul> 
+ * <li>Each thread must create its own PEP handle 
+ * <li>If your threads are object (OO programming, ...), it is recommended you to 
+ * create (pep_initialize) the PEP handle in the constructor, and release it (pep_destroy) 
+ * in the destructor. 
+ * </ul> 
  */
 
 /** @defgroup PEPClient PEP client API */
