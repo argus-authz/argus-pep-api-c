@@ -579,7 +579,8 @@ pep_error_t pep_authorize(PEP * pep, xacml_request_t ** request, xacml_response_
 
     /* create the Hessian input buffer */
     input= buffer_create(1024);
-    if (output == NULL) {
+    // BUG fixed
+    if (input == NULL) {
         log_error("pep_authorize: PEP#%d can't create input buffer.",pep->id);
         buffer_delete(b64output);
         buffer_delete(b64input);
