@@ -1,3 +1,8 @@
+argus-pep-api-c 2.0.4
+---------------------
+* refactoring: improved multi-thread safety in pep_authorize().
+* refactoring: rename internal base64 functions to prevent name clash with other libraries.
+
 argus-pep-api-c 2.0.3
 ---------------------
 * refactoring: small changes in configure and Makefiles to handle 'make distcheck' correctly.

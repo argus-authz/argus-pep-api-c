@@ -100,6 +100,11 @@ struct pep_handle {
     char * option_ssl_cipher_list;
     int option_pips_enabled;
     int option_ohs_enabled;
+    // temporary buffers for pep_authorize
+    BUFFER * output;
+    BUFFER * b64output;
+    BUFFER * input;
+    BUFFER * b64input;
 };
 
 const char * pep_version(void) {
@@ -459,7 +464,7 @@ pep_error_t pep_setoption(PEP * pep, pep_option_t option, ... ) {
 pep_error_t pep_authorize(PEP * pep, xacml_request_t ** request, xacml_response_t ** response) {
     int i= 0;
     int pip_rc, oh_rc;
-    BUFFER * output, * b64output, * b64input, * input;
+    //BUFFER * output, * b64output, * b64input, * input;
     size_t output_l, b64output_l;
     pep_error_t marshal_rc, unmarshal_rc;
     CURLcode curl_rc;
@@ -499,102 +504,94 @@ pep_error_t pep_authorize(PEP * pep, xacml_request_t ** request, xacml_response_
     }
 
     /* marshal the authorization request into output buffer */
-    output= buffer_create(512);
-    if (output == NULL) {
+    pep->output= buffer_create(512);
+    if (pep->output == NULL) {
         log_error("pep_authorize: PEP#%d can't create output buffer (512 bytes).",pep->id);
         return PEP_ERR_MEMORY;
     }
-    marshal_rc= xacml_request_marshalling(*request,output);
+    marshal_rc= xacml_request_marshalling(*request,pep->output);
     if ( marshal_rc != PEP_OK ) {
         log_error("pep_authorize: PEP#%d can't marshal XACML request: %s.",pep->id,pep_strerror(marshal_rc));
-        buffer_delete(output);
+        buffer_delete(pep->output);
         return marshal_rc;
     }
 
     /* base64 encode the output buffer */
-    output_l= buffer_length(output);
-    b64output= buffer_create( output_l );
-    if (b64output == NULL) {
+    output_l= buffer_length(pep->output);
+    pep->b64output= buffer_create( output_l );
+    if (pep->b64output == NULL) {
         log_error("pep_authorize: PEP#%d can't create base64 output buffer (%d bytes).",pep->id,(int)output_l);
-        buffer_delete(output);
+        buffer_delete(pep->output);
         return PEP_ERR_MEMORY;
     }
-    base64_encode_l(output,b64output,BASE64_DEFAULT_LINE_SIZE);
+    
+    log_debug("pep_authorize: PEP#%d: encoding base64 output...",pep->id);
+    base64_encode_buffer_l(pep->output,pep->b64output,BASE64_DEFAULT_LINE_SIZE);
 
     /* output buffer not needed anymore. */
-    buffer_delete(output);
+    buffer_delete(pep->output);
 
     /* configure curl handler to POST the base64 encoded marshalled PEP request buffer */
     curl_rc= curl_easy_setopt(pep->curl, CURLOPT_POST, 1L);
     if (curl_rc != CURLE_OK) {
         log_error("pep_authorize: PEP#%d curl_easy_setopt(curl,CURLOPT_POST,1) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
-        buffer_delete(b64output);
+        buffer_delete(pep->b64output);
         return PEP_ERR_CURL;
     }
-    b64output_l= buffer_length(b64output);
+    b64output_l= buffer_length(pep->b64output);
     curl_rc= curl_easy_setopt(pep->curl, CURLOPT_POSTFIELDSIZE, (long)b64output_l);
     if (curl_rc != CURLE_OK) {
         log_error("pep_authorize: PEP#%d curl_easy_setopt(curl,CURLOPT_POSTFIELDSIZE,%d) failed: %s.",pep->id,(int)b64output_l,curl_easy_strerror(curl_rc));
-        buffer_delete(b64output);
+        buffer_delete(pep->b64output);
         return PEP_ERR_CURL;
     }
 
-    curl_rc= curl_easy_setopt(pep->curl, CURLOPT_READDATA, b64output);
+    curl_rc= curl_easy_setopt(pep->curl, CURLOPT_READDATA, pep->b64output);
     if (curl_rc != CURLE_OK) {
         log_error("pep_authorize: PEP#%d curl_easy_setopt(curl,CURLOPT_READDATA,b64output) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
-        buffer_delete(b64output);
+        buffer_delete(pep->b64output);
         return PEP_ERR_CURL;
     }
 
     curl_rc= curl_easy_setopt(pep->curl, CURLOPT_READFUNCTION, buffer_read);
     if (curl_rc != CURLE_OK) {
         log_error("pep_authorize: PEP#%d curl_easy_setopt(curl,CURLOPT_READFUNCTION,buffer_read) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
-        buffer_delete(b64output);
+        buffer_delete(pep->b64output);
         return PEP_ERR_CURL;
     }
 
 
     /* configure curl handler to read the base64 encoded HTTP response */
-    b64input= buffer_create(1024);
-    if (b64input == NULL) {
+    pep->b64input= buffer_create(1024);
+    if (pep->b64input == NULL) {
         log_error("pep_authorize: PEP#%d can't create base64 input buffer.",pep->id);
-        buffer_delete(b64output);
+        buffer_delete(pep->b64output);
         return PEP_ERR_MEMORY;
     }
 
-    curl_rc= curl_easy_setopt(pep->curl, CURLOPT_WRITEDATA, b64input);
+    curl_rc= curl_easy_setopt(pep->curl, CURLOPT_WRITEDATA, pep->b64input);
     if (curl_rc != CURLE_OK) {
         log_error("pep_authorize: PEP#%d curl_easy_setopt(curl,CURLOPT_WRITEDATA,b64input) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
-        buffer_delete(b64output);
-        buffer_delete(b64input);
+        buffer_delete(pep->b64output);
+        buffer_delete(pep->b64input);
         return PEP_ERR_CURL;
     }
     curl_rc= curl_easy_setopt(pep->curl, CURLOPT_WRITEFUNCTION, buffer_write);
     if (curl_rc != CURLE_OK) {
         log_error("pep_authorize: PEP#%d curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,buffer_write) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
-        buffer_delete(b64output);
-        buffer_delete(b64input);
+        buffer_delete(pep->b64output);
+        buffer_delete(pep->b64input);
         return PEP_ERR_CURL;
     }
 
-    /* create the Hessian input buffer */
-    input= buffer_create(1024);
-    // BUG fixed
-    if (input == NULL) {
-        log_error("pep_authorize: PEP#%d can't create input buffer.",pep->id);
-        buffer_delete(b64output);
-        buffer_delete(b64input);
-        return PEP_ERR_MEMORY;
-    }
 
     /* send the request */
     log_info("pep_authorize: PEP#%d sending XACML request to: %s",pep->id,pep->option_endpoint_url);
     curl_rc= curl_easy_perform(pep->curl);
     if (curl_rc != CURLE_OK) {
         log_error("pep_authorize: PEP#%d sending XACML request failed: curl[%d] %s.",pep->id,(int)curl_rc,curl_easy_strerror(curl_rc));
-        buffer_delete(b64output);
-        buffer_delete(b64input);
-        buffer_delete(input);
+        buffer_delete(pep->b64output);
+        buffer_delete(pep->b64input);
         return PEP_ERR_CURL_PERFORM;
     }
 
@@ -603,38 +600,49 @@ pep_error_t pep_authorize(PEP * pep, xacml_request_t ** request, xacml_response_
     curl_rc= curl_easy_getinfo(pep->curl,CURLINFO_RESPONSE_CODE,&http_code);
     if (curl_rc != CURLE_OK) {
         log_error("pep_authorize: PEP#%d curl_easy_getinfo(pep->curl,CURLINFO_RESPONSE_CODE,&http_code) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
-        buffer_delete(b64output);
-        buffer_delete(b64input);
-        buffer_delete(input);
+        buffer_delete(pep->b64output);
+        buffer_delete(pep->b64input);
         return PEP_ERR_CURL;
     }
     if (http_code != 200) {
         log_error("pep_authorize: PEP#%d: HTTP status code: %d.",pep->id,(int)http_code);
-        buffer_delete(b64output);
-        buffer_delete(b64input);
-        buffer_delete(input);
+        buffer_delete(pep->b64output);
+        buffer_delete(pep->b64input);
         return PEP_ERR_AUTHZ_REQUEST;
     }
 
+    /* not required anymore */
+    buffer_delete(pep->b64output);
+
     log_debug("pep_authorize: PEP#%d: HTTP status code: %d.",pep->id,(int)http_code);
 
+    /* create the Hessian input buffer */
+    pep->input= buffer_create(1024);
+    if (pep->input == NULL) {
+        log_error("pep_authorize: PEP#%d can't create input buffer.",pep->id);
+        buffer_delete(pep->b64input);
+        return PEP_ERR_MEMORY;
+    }
+
     /* base64 decode the input buffer into the Hessian buffer. */
-    base64_decode(b64input,input);
+    log_debug("pep_authorize: PEP#%d: decoding base64 input...",pep->id);
+    base64_decode_buffer(pep->b64input,pep->input);
 
     /* unmarshal the PEP response */
-    unmarshal_rc= xacml_response_unmarshalling(response,input);
+    unmarshal_rc= xacml_response_unmarshalling(response,pep->input);
     if ( unmarshal_rc != PEP_OK) {
         log_error("pep_authorize: PEP#%d can't unmarshal the XACML response: %s.", pep->id, pep_strerror(unmarshal_rc));
-        buffer_delete(b64output);
-        buffer_delete(b64input);
-        buffer_delete(input);
+        buffer_delete(pep->b64input);
+        buffer_delete(pep->input);
         return unmarshal_rc;
     }
 
-    log_info("pep_authorize: PEP#%d XACML Response decoded and unmarshalled.",pep->id);
+    log_info("pep_authorize: PEP#%d XACML Response decoded and deserialized.",pep->id);
 
     /* not required anymore */
-    buffer_delete(b64output);
+    buffer_delete(pep->b64input);
+    buffer_delete(pep->input);
+
 
     /* get effective response */
     effective_request= xacml_response_getrequest(*response);
@@ -657,17 +665,12 @@ pep_error_t pep_authorize(PEP * pep, xacml_request_t ** request, xacml_response_
                 oh_rc = oh->process(request,response);
                 if (oh_rc != 0) {
                     log_error("pep_authorize: PEP#%d OH[%s] process(request,response) failed: %d.",pep->id,oh->id,oh_rc);
-                    buffer_delete(b64input);
-                    buffer_delete(input);
                     return PEP_ERR_OH_PROCESS;
                 }
             }
         }
     }
     
-    buffer_delete(b64input);
-    buffer_delete(input);
-
     return PEP_OK;
 }
 

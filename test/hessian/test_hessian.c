@@ -3,9 +3,11 @@
 
 #include "argus/xacml.h"
 #include "argus/io.h"
+#include "argus/pep.h"
 #include "hessian/hessian.h"
 #include "util/buffer.h"
 #include "util/log.h"
+#include "util/base64.h"
 
 #define PEP_IO_ERROR -1
 #define PEP_IO_OK 0
@@ -242,6 +244,194 @@ static int xacml_resource_unmarshal(xacml_resource_t ** res, const hessian_objec
 }
 
 
+static const char * decision_str(int decision) {
+    switch(decision) {
+    case 0:
+        return "Deny";
+        break;
+    case 1:
+        return "Permit";
+        break;
+    case 2:
+        return "Indeterminate";
+        break;
+    case 3:
+        return "Not Applicable";
+        break;
+    default:
+        return "Unknown!?!";
+        break;
+    }
+}
+
+
+/**
+ * Dump a XACML request into a file. NULL values are not displayed.
+ */
+static int dump_xacml_request(FILE * fout, xacml_request_t * request) {
+    if (request == NULL) {
+        fprintf(fout,"ERROR: dump_xacml_request: request is NULL\n");
+        return 1;
+    }
+    size_t subjects_l= xacml_request_subjects_length(request);
+    fprintf(fout,"request: %d subjects\n", (int)subjects_l);
+    int i= 0;
+    for (i= 0; i<subjects_l; i++) {
+        xacml_subject_t * subject= xacml_request_getsubject(request,i);
+        const char * category= xacml_subject_getcategory(subject);
+        if (category)
+            fprintf(fout,"request.subject[%d].category= %s\n", i, category);
+        size_t attrs_l= xacml_subject_attributes_length(subject);
+        fprintf(fout,"request.subject[%d]: %d attributes\n", i, (int)attrs_l);
+        int j= 0;
+        for(j= 0; j<attrs_l; j++) {
+            xacml_attribute_t * attr= xacml_subject_getattribute(subject,j);
+            const char * attr_id= xacml_attribute_getid(attr);
+            if (attr_id)
+                fprintf(fout,"request.subject[%d].attribute[%d].id= %s\n", i,j,attr_id);
+            const char * attr_datatype= xacml_attribute_getdatatype(attr);
+            if (attr_datatype)
+                fprintf(fout,"request.subject[%d].attribute[%d].datatype= %s\n", i,j,attr_datatype);
+            const char * attr_issuer= xacml_attribute_getissuer(attr);
+            if (attr_issuer)
+                fprintf(fout,"request.subject[%d].attribute[%d].issuer= %s\n", i,j,attr_issuer);
+            size_t values_l= xacml_attribute_values_length(attr);
+            //fprintf(fout,"request.subject[%d].attribute[%d]: %d values", i,j,(int)values_l);
+            int k= 0;
+            for (k= 0; k<values_l; k++) {
+                const char * attr_value= xacml_attribute_getvalue(attr,k);
+                fprintf(fout,"request.subject[%d].attribute[%d].value[%d]= %s\n", i,j,k,attr_value);
+            }
+        }
+    }
+    size_t resources_l= xacml_request_resources_length(request);
+    fprintf(fout,"request: %d resources\n", (int)resources_l);
+    for (i= 0; i<resources_l; i++) {
+        xacml_resource_t * resource= xacml_request_getresource(request,i);
+        const char * res_content= xacml_resource_getcontent(resource);
+        if (res_content)
+            fprintf(fout,"request.resource[%d].content= %s\n", i, res_content);
+        size_t attrs_l= xacml_resource_attributes_length(resource);
+        fprintf(fout,"request.resource[%d]: %d attributes\n", i, (int)attrs_l);
+        int j= 0;
+        for(j= 0; j<attrs_l; j++) {
+            xacml_attribute_t * attr= xacml_resource_getattribute(resource,j);
+            const char * attr_id= xacml_attribute_getid(attr);
+            if (attr_id)
+                fprintf(fout,"request.resource[%d].attribute[%d].id= %s\n", i,j,attr_id);
+            const char * attr_datatype= xacml_attribute_getdatatype(attr);
+            if (attr_datatype)
+                fprintf(fout,"request.resource[%d].attribute[%d].datatype= %s\n", i,j,attr_datatype);
+            const char * attr_issuer= xacml_attribute_getissuer(attr);
+            if (attr_issuer)
+                fprintf(fout,"request.resource[%d].attribute[%d].issuer= %s\n", i,j,attr_issuer);
+            size_t values_l= xacml_attribute_values_length(attr);
+            //fprintf(fout,"request.resource[%d].attribute[%d]: %d values", i,j,(int)values_l);
+            int k= 0;
+            for (k= 0; k<values_l; k++) {
+                const char * attr_value= xacml_attribute_getvalue(attr,k);
+                if (attr_value)
+                    fprintf(fout,"request.resource[%d].attribute[%d].value[%d]= %s\n", i,j,k,attr_value);
+            }
+        }
+    }
+    int j= 0;
+    xacml_action_t * action= xacml_request_getaction(request);
+    if (action) {
+        size_t act_attrs_l= xacml_action_attributes_length(action);
+        fprintf(fout,"request.action: %d attributes\n",(int)act_attrs_l);
+        for (j= 0; j<act_attrs_l; j++) {
+            xacml_attribute_t * attr= xacml_action_getattribute(action,j);
+            const char * attr_id= xacml_attribute_getid(attr);
+            if (attr_id)
+                fprintf(fout,"request.action.attribute[%d].id= %s\n", j,attr_id);
+            const char * attr_datatype= xacml_attribute_getdatatype(attr);
+            if (attr_datatype)
+                fprintf(fout,"request.action.attribute[%d].datatype= %s\n", j,attr_datatype);
+            const char * attr_issuer= xacml_attribute_getissuer(attr);
+            if (attr_issuer)
+                fprintf(fout,"request.action.attribute[%d].issuer= %s\n", j,attr_issuer);
+            size_t values_l= xacml_attribute_values_length(attr);
+            //fprintf(fout,"request.action.attribute[%d]: %d values", j,(int)values_l);
+            int k= 0;
+            for (k= 0; k<values_l; k++) {
+                const char * attr_value= xacml_attribute_getvalue(attr,k);
+                if (attr_value)
+                    fprintf(fout,"request.action.attribute[%d].value[%d]= %s\n",j,k,attr_value);
+            }
+        }
+    }
+    xacml_environment_t * env= xacml_request_getenvironment(request);
+    if (env) {
+        size_t env_attrs_l= xacml_environment_attributes_length(env);
+        fprintf(fout,"request.environment: %d attributes\n",(int)env_attrs_l);
+        for (j= 0; j<env_attrs_l; j++) {
+            xacml_attribute_t * attr= xacml_environment_getattribute(env,j);
+            const char * attr_id= xacml_attribute_getid(attr);
+            if (attr_id)
+                fprintf(fout,"request.environment.attribute[%d].id= %s\n", j,attr_id);
+            const char * attr_datatype= xacml_attribute_getdatatype(attr);
+            if (attr_datatype)
+                fprintf(fout,"request.environment.attribute[%d].datatype= %s\n", j,attr_datatype);
+            const char * attr_issuer= xacml_attribute_getissuer(attr);
+            if (attr_issuer)
+                fprintf(fout,"request.environment.attribute[%d].issuer= %s\n", j,attr_issuer);
+            size_t values_l= xacml_attribute_values_length(attr);
+            //fprintf(fout,"request.environment.attribute[%d]: %d values", j,(int)values_l);
+            int k= 0;
+            for (k= 0; k<values_l; k++) {
+                const char * attr_value= xacml_attribute_getvalue(attr,k);
+                if (attr_value)
+                    fprintf(fout,"request.environment.attribute[%d].value[%d]= %s\n",j,k,attr_value);
+            }
+        }
+    }
+    return 0;
+}
+
+static int dump_xacml_response(FILE * fout,xacml_response_t * response) {
+    if (response == NULL) {
+        fprintf(fout,"ERROR: dump_xacml_response: response is NULL\n");
+        return 1;
+    }
+    size_t results_l= xacml_response_results_length(response);
+    fprintf(fout,"response: %d results\n", (int)results_l);
+    int i= 0;
+    for(i= 0; i<results_l; i++) {
+        xacml_result_t * result= xacml_response_getresult(response,i);
+        fprintf(fout,"response.result[%d].decision= %s\n", i, decision_str(xacml_result_getdecision(result)));
+
+        fprintf(fout,"response.result[%d].resourceid= %s\n", i, xacml_result_getresourceid(result));
+        xacml_status_t * status= xacml_result_getstatus(result);
+        fprintf(fout,"response.result[%d].status.message= %s\n", i, xacml_status_getmessage(status));
+        xacml_statuscode_t * statuscode= xacml_status_getcode(status);
+        fprintf(fout,"response.result[%d].status.code.value= %s\n", i, xacml_statuscode_getvalue(statuscode));
+        xacml_statuscode_t * subcode= xacml_statuscode_getsubcode(statuscode);
+        if (subcode != NULL) {
+            fprintf(fout,"response.result[%d].status.code.subcode.value= %s\n", i, xacml_statuscode_getvalue(subcode));
+        }
+        size_t obligations_l= xacml_result_obligations_length(result);
+        fprintf(fout,"response.result[%d]: %d obligations\n", i, (int)obligations_l);
+        int j=0;
+        for(j= 0; j<obligations_l; j++) {
+            xacml_obligation_t * obligation= xacml_result_getobligation(result,j);
+            fprintf(fout,"response.result[%d].obligation[%d].id= %s\n",i,j, xacml_obligation_getid(obligation));
+            fprintf(fout,"response.result[%d].obligation[%d].fulfillOn= %s\n",i,j, decision_str(xacml_obligation_getfulfillon(obligation)));
+            size_t attrs_l= xacml_obligation_attributeassignments_length(obligation);
+            fprintf(fout,"response.result[%d].obligation[%d]: %d attribute assignments\n",i,j,(int)attrs_l);
+            int k= 0;
+            for (k= 0; k<attrs_l; k++) {
+                xacml_attributeassignment_t * attr= xacml_obligation_getattributeassignment(obligation,k);
+                fprintf(fout,"response.result[%d].obligation[%d].attributeassignment[%d].id= %s\n",i,j,k,xacml_attributeassignment_getid(attr));
+                fprintf(fout,"response.result[%d].obligation[%d].attributeassignment[%d].datatype= %s\n",i,j,k,xacml_attributeassignment_getdatatype(attr));
+                fprintf(fout,"response.result[%d].obligation[%d].attributeassignment[%d].value= %s\n",i,j,k,xacml_attributeassignment_getvalue(attr));
+            }
+        }
+    }
+    return 0;
+}
+
+
 
 int main(void) {
     BUFFER * buffer;
@@ -325,6 +515,7 @@ int main(void) {
         return 3;
     }
 
+/*
     const char * filename= "/tmp/java_hessian_resource.data";
     FILE * file;
     printf("test deserialization from Java serialization. Data: %s\n", filename);
@@ -346,7 +537,61 @@ int main(void) {
     xacml_resource_t * resource;
     int io_rc= xacml_resource_unmarshal(&resource, h_resource);
     printf("result: %d\n",io_rc);
+*/    
+
+
+
+    printf("using: %s\n",pep_version());
+    printf("base64 decoding and hessian deserialization test...\n");
+
+    log_setout(stderr);
+    log_setlevel(LOG_LEVEL_TRACE);
+
+    const char * b64filename= "b64input1";
+    FILE * b64file= fopen(b64filename,"r");
+    if (b64file==NULL) {
+        printf("failed to open b64 file: %s\n", b64filename);
+        return 5;
+    }
+    BUFFER * b64input= buffer_create(1024);
+    if (b64input==NULL) {
+        printf("failed to create b64input buffer\n");
+        return 5;
+    }
+    size_t size= buffer_fread(b64input,b64file);
+    printf("%d bytes read from %s\n", (int)size, b64filename);
     
+    BUFFER * input= buffer_create(1024);
+    if (input==NULL) {
+        printf("failed to create input buffer\n");
+        return 5;
+    }
+    
+    printf("base64 decode input buffer...\n");
+    base64_decode(b64input,input);
+    size= buffer_length(input);
+    printf("%d bytes available in input buffer\n", (int)size);
+
+    /* unmarshal the PEP response */
+    xacml_response_t * response;
+    pep_error_t unmarshal_rc= xacml_response_unmarshalling(&response,input);
+    if ( unmarshal_rc != PEP_OK) {
+        printf("pep_authorize: can't unmarshal the XACML response: %s.", pep_strerror(unmarshal_rc));
+        buffer_delete(b64input);
+        buffer_delete(input);
+        return unmarshal_rc;
+    }
+
+    printf("hessian response deserialized from: %s.\n", b64filename);
+    dump_xacml_request(stdout, xacml_response_getrequest(response));
+    dump_xacml_response(stdout,response);
+
+
+    printf("buffer tests...\n");
+    BUFFER * buf= buffer_create(1024);
+    buffer_delete(buf);
+    if (buf == NULL) printf("buf is NULL\n");
+    else printf("buf not NULL\n");
 
     return 0;
 }

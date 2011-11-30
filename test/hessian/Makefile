@@ -17,11 +17,11 @@
 # $Id: Makefile 1646 2010-03-22 14:10:12Z vtschopp $
 #
 ifndef PREFIX
-PREFIX=/opt/emi
+PREFIX=/opt/local
 endif
 
 CC=gcc 
-CFLAGS=-Wall -I../../src -I../../src/util -I../../src/hessia -I$(PREFIX)/include
+CFLAGS=-Wall -I../../src -I../../src/util -I../../src/hessian -I$(PREFIX)/include
 LDFLAGS=-L$(PREFIX)/lib -L$(PREFIX)/lib64 -largus-pep
 
 SOURCES=test_hessian.c
