@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef _BASE64_H_
-#define _BASE64_H_
+#ifndef _PEP_BASE64_H_
+#define _PEP_BASE64_H_
 
 #ifdef  __cplusplus
 extern "C" {
@@ -35,7 +35,7 @@ extern "C" {
  * @param BUFFER * in pointer to the in buffer.
  * @param BUFFER * out pointer to the out buffer.
  */
-void base64_encode_buffer(BUFFER * in, BUFFER * out);
+void pep_base64_encode_buffer(BUFFER * in, BUFFER * out);
 
 /**
  * Base64 encodes the in buffer into the out buffer.
@@ -45,7 +45,7 @@ void base64_encode_buffer(BUFFER * in, BUFFER * out);
  * @param BUFFER * out pointer to the out buffer.
  * @param int linesize length of the line (min 4)
  */
-void base64_encode_buffer_l(BUFFER * in, BUFFER * out, int linesize);
+void pep_base64_encode_buffer_l(BUFFER * in, BUFFER * out, int linesize);
 
 /**
  * Base64 decodes the in buffer into the out buffer.
@@ -53,7 +53,7 @@ void base64_encode_buffer_l(BUFFER * in, BUFFER * out, int linesize);
  * @param BUFFER * in pointer to the in buffer.
  * @param BUFFER * out pointer to the out buffer.
  */
-void base64_decode_buffer(BUFFER * in, BUFFER * out);
+void pep_base64_decode_buffer(BUFFER * in, BUFFER * out);
 
 #ifdef  __cplusplus
 }
