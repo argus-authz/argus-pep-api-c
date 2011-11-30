@@ -526,7 +526,7 @@ pep_error_t pep_authorize(PEP * pep, xacml_request_t ** request, xacml_response_
     }
     
     log_debug("pep_authorize: PEP#%d: encoding base64 output...",pep->id);
-    base64_encode_l(pep->output,pep->b64output,BASE64_DEFAULT_LINE_SIZE);
+    base64_encode_buffer_l(pep->output,pep->b64output,BASE64_DEFAULT_LINE_SIZE);
 
     /* output buffer not needed anymore. */
     buffer_delete(pep->output);
@@ -626,7 +626,7 @@ pep_error_t pep_authorize(PEP * pep, xacml_request_t ** request, xacml_response_
 
     /* base64 decode the input buffer into the Hessian buffer. */
     log_debug("pep_authorize: PEP#%d: decoding base64 input...",pep->id);
-    base64_decode(pep->b64input,pep->input);
+    base64_decode_buffer(pep->b64input,pep->input);
 
     /* unmarshal the PEP response */
     unmarshal_rc= xacml_response_unmarshalling(response,pep->input);

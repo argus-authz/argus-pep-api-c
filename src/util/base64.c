@@ -23,51 +23,51 @@
 /**
  * Base64 codec table (RFC1113)
  */
-static const char base64[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const char base64_codec_table[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /**
  * Encodes int_l 8-bit binary bytes as 4 '6-bit' characters (including '=' padding).
  */
-static void encodeblock( const unsigned char in[3], int in_l, unsigned char out[4] )
+static void encodeblock3to4( const unsigned char in[3], int in_l, unsigned char out[4] )
 {
-    out[0] = base64[ in[0] >> 2 ];
-    out[1] = base64[ ((in[0] & 0x03) << 4) | ((in[1] & 0xf0) >> 4) ];
-    out[2] = (unsigned char) (in_l > 1 ? base64[ ((in[1] & 0x0f) << 2) | ((in[2] & 0xc0) >> 6) ] : '=');
-    out[3] = (unsigned char) (in_l > 2 ? base64[ in[2] & 0x3f ] : '=');
+    out[0] = base64_codec_table[ in[0] >> 2 ];
+    out[1] = base64_codec_table[ ((in[0] & 0x03) << 4) | ((in[1] & 0xf0) >> 4) ];
+    out[2] = (unsigned char) (in_l > 1 ? base64_codec_table[ ((in[1] & 0x0f) << 2) | ((in[2] & 0xc0) >> 6) ] : '=');
+    out[3] = (unsigned char) (in_l > 2 ? base64_codec_table[ in[2] & 0x3f ] : '=');
 }
 
 /**
  * Base64 encodes the in buffer into the out buffer (without line break).
  */
-void base64_encode( BUFFER * inbuf, BUFFER * outbuf ) {
-	base64_encode_l(inbuf,outbuf,NO_LINE_BREAK);
+void base64_encode_buffer( BUFFER * inbuf, BUFFER * outbuf ) {
+    base64_encode_buffer_l(inbuf,outbuf,NO_LINE_BREAK);
 }
 
 /**
  * Base64 encodes the in buffer into the out buffer.
  */
-void base64_encode_l( BUFFER * inbuf, BUFFER * outbuf, int linesize ) {
+void base64_encode_buffer_l( BUFFER * inbuf, BUFFER * outbuf, int linesize ) {
 
     unsigned char in[3], out[4];
     int i= 0, in_l= 0;
     size_t b_out = 0; /* byte written */
 
-	if (linesize != NO_LINE_BREAK && linesize < 4) {
-	    linesize= BASE64_DEFAULT_LINE_SIZE;
-	}
+    if (linesize != NO_LINE_BREAK && linesize < 4) {
+        linesize= BASE64_DEFAULT_LINE_SIZE;
+    }
 
     while( !buffer_eof( inbuf ) ) {
         in_l = 0;
         in[0] = in[1] = in[2] = 0;
         for( i = 0; i < 3; i++ ) {
-        	int c = buffer_getc( inbuf );
+            int c = buffer_getc( inbuf );
             if ( c != BUFFER_EOF ) {
-            	in[i] = (unsigned char) c;
+                in[i] = (unsigned char) c;
                 in_l++;
             }
         }
         if( in_l > 0 ) {
-            encodeblock( in, in_l, out );
+            encodeblock3to4( in, in_l, out );
             b_out += buffer_write(out,1,4,outbuf);
         }
         if (linesize != NO_LINE_BREAK) {
@@ -82,37 +82,37 @@ void base64_encode_l( BUFFER * inbuf, BUFFER * outbuf, int linesize ) {
 /**
  * Decodes 4 '6-bit' characters into 3 8-bit binary bytes.
  */
-static void decodeblock( const unsigned char in[4], unsigned char out[3] ) {
-	out[0] = (in[0] << 2 | in[1] >> 4);
-	out[1] = (in[1] << 4 | in[2] >> 2);
-	out[2] = (((in[2] << 6) & 0xc0) | in[3]);
+static void decodeblock4to3( const unsigned char in[4], unsigned char out[3] ) {
+    out[0] = (in[0] << 2 | in[1] >> 4);
+    out[1] = (in[1] << 4 | in[2] >> 2);
+    out[2] = (((in[2] << 6) & 0xc0) | in[3]);
 }
 
 /**
  * Base64 decodes the in buffer into the out buffer.
  */
-void base64_decode( BUFFER * inbuf, BUFFER * outbuf ) {
+void base64_decode_buffer( BUFFER * inbuf, BUFFER * outbuf ) {
     unsigned char in[4], out[3];
     int c, i, in_l;
     char * p;
 
     while( !buffer_eof( inbuf ) ) {
-    	in_l= 0;
-    	in[0] = in[1] = in[2] = in[3] = 0;
+        in_l= 0;
+        in[0] = in[1] = in[2] = in[3] = 0;
         for( i = 0; i < 4;) {
-        	c= buffer_getc( inbuf );
-        	if (c == BUFFER_EOF) break;
-        	/* drop every char not in table */
-			p= strchr(base64,c);
-			if (p != NULL) {
-				/* index of c in base64 table */
-				in[i] = p - base64;
-				in_l++;
-				i++;
-			}
+            c= buffer_getc( inbuf );
+            if (c == BUFFER_EOF) break;
+            /* drop every char not in table */
+            p= strchr(base64_codec_table,c);
+            if (p != NULL) {
+                /* index of c in base64 table */
+                in[i] = p - base64_codec_table;
+                in_l++;
+                i++;
+            }
         }
         if( in_l > 0) {
-            decodeblock( in, out );
+            decodeblock4to3( in, out );
             for( i = 0; i < in_l - 1; i++ ) {
                 buffer_putc( out[i], outbuf );
             }
