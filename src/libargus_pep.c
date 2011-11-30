@@ -18,3 +18,4 @@
 /*
  * dummy empty file to generate the libpep-c shared library
  */
+void pep_fuck_the_gcc_warning(void) {}
