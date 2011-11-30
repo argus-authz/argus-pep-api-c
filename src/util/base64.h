@@ -32,28 +32,28 @@ extern "C" {
 /**
  * Base64 encodes the in buffer into the out buffer (without line break).
  *
- * @param BUFFER * in pointer to the in buffer.
- * @param BUFFER * out pointer to the out buffer.
+ * @param pep_buffer_t * in pointer to the in buffer.
+ * @param pep_buffer_t * out pointer to the out buffer.
  */
-void pep_base64_encode_buffer(BUFFER * in, BUFFER * out);
+void pep_base64_encode_buffer(pep_buffer_t * in, pep_buffer_t * out);
 
 /**
  * Base64 encodes the in buffer into the out buffer.
  * The base64 encoded block have a line length of linesize [4..inf].
  *
- * @param BUFFER * in pointer to the in buffer.
- * @param BUFFER * out pointer to the out buffer.
+ * @param pep_buffer_t * in pointer to the in buffer.
+ * @param pep_buffer_t * out pointer to the out buffer.
  * @param int linesize length of the line (min 4)
  */
-void pep_base64_encode_buffer_l(BUFFER * in, BUFFER * out, int linesize);
+void pep_base64_encode_buffer_l(pep_buffer_t * in, pep_buffer_t * out, int linesize);
 
 /**
  * Base64 decodes the in buffer into the out buffer.
  *
- * @param BUFFER * in pointer to the in buffer.
- * @param BUFFER * out pointer to the out buffer.
+ * @param pep_buffer_t * in pointer to the in buffer.
+ * @param pep_buffer_t * out pointer to the out buffer.
  */
-void pep_base64_decode_buffer(BUFFER * in, BUFFER * out);
+void pep_base64_decode_buffer(pep_buffer_t * in, pep_buffer_t * out);
 
 #ifdef  __cplusplus
 }

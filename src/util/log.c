@@ -30,7 +30,7 @@
 static FILE * log_out= NULL;
 
 /* log level */
-static log_level_t log_level= LOG_LEVEL_NONE;
+static pep_log_level_t log_level= LOG_LEVEL_NONE;
 
 /* internal prototypes: */
 static int _log_vfprintf(FILE * out, time_t * epoch, const char * level, const char * fmt, va_list args);
@@ -39,42 +39,42 @@ static int _log_vfprintf(FILE * out, time_t * epoch, const char * level, const c
 static const char * LEVEL_EVENTS[]= {"ERROR"," WARN"," INFO","DEBUG","TRACE"};
 
 /* internal log handler function */
-static int default_log_handler(log_level_t level,const char *fmt, va_list args) {
+static int default_log_handler(pep_log_level_t level,const char *fmt, va_list args) {
     time_t epoch;
     time(&epoch);
     return _log_vfprintf(log_out, &epoch, LEVEL_EVENTS[level], fmt, args);
 }
 
 /* log handler function pointer */
-static log_handler_func * log_handler= (log_handler_func*)default_log_handler;
+static pep_log_handler_func * log_handler= (pep_log_handler_func*)default_log_handler;
 
 
-int log_sethandler(log_handler_func * handler) {
+int pep_log_sethandler(pep_log_handler_func * handler) {
     log_handler= handler;
     return LOG_OK;
 }
 
-int log_setlevel(log_level_t level) {
+int pep_log_setlevel(pep_log_level_t level) {
     log_level= level;
     return LOG_OK;
 }
 
-log_level_t log_getlevel(void) {
+pep_log_level_t pep_log_getlevel(void) {
     return log_level;
 }
 
-int log_setout(FILE * file) {
+int pep_log_setout(FILE * file) {
     log_out= file;
     return LOG_OK;
 }
 
-FILE * log_getout(void) {
+FILE * pep_log_getout(void) {
     return log_out;
 }
 
 
 
-int log_info(const char *fmt, ...) {
+int pep_log_info(const char *fmt, ...) {
     int rc= LOG_OK;
     va_list args;
     if (log_level >= LOG_LEVEL_INFO) {
@@ -87,7 +87,7 @@ int log_info(const char *fmt, ...) {
     return rc;
 }
 
-int log_warn(const char *fmt, ...) {
+int pep_log_warn(const char *fmt, ...) {
     int rc= LOG_OK;
     va_list args;
     if (log_level >= LOG_LEVEL_WARN) {
@@ -100,7 +100,7 @@ int log_warn(const char *fmt, ...) {
     return rc;
 }
 
-int log_error(const char *fmt, ...) {
+int pep_log_error(const char *fmt, ...) {
     int rc= LOG_OK;
     va_list args;
     if (log_level >= LOG_LEVEL_ERROR) {
@@ -113,7 +113,7 @@ int log_error(const char *fmt, ...) {
     return rc;
 }
 
-int log_debug(const char *fmt, ...) {
+int pep_log_debug(const char *fmt, ...) {
     int rc= LOG_OK;
     va_list args;
     if (log_level >= LOG_LEVEL_DEBUG) {
@@ -126,7 +126,7 @@ int log_debug(const char *fmt, ...) {
     return rc;
 }
 
-int log_trace(const char *fmt, ...) {
+int pep_log_trace(const char *fmt, ...) {
     int rc= LOG_OK;
     va_list args;
     if (log_level >= LOG_LEVEL_TRACE) {
