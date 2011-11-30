@@ -30,7 +30,7 @@ extern "C" {
 #define LLIST_ERROR -1
 
 /**
- * Linked list type
+ * ADT Linked list type
  */
 typedef struct pep_linkedlist pep_linkedlist_t;
 
