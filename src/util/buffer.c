@@ -64,7 +64,7 @@ pep_buffer_t * pep_buffer_create(size_t size) {
     buffer->rpos= 0;
     buffer->data= calloc(buffer->size,sizeof(unsigned char));
     if (buffer->data == NULL) {
-        pep_log_error("buffer_create: calloc of %d bytes failed.", (int)buffer->size);
+        pep_log_error("pep_buffer_create: calloc of %d bytes failed.", (int)buffer->size);
         free(buffer);
         return NULL;
     }
@@ -150,7 +150,7 @@ size_t pep_buffer_fread(pep_buffer_t * buffer, FILE * istream) {
     size_t nbytes= 0;
     int c;
     if (buffer == NULL || istream == NULL) {
-        pep_log_error("buffer_fread: buffer or istream is a NULL pointer.");
+        pep_log_error("pep_buffer_fread: buffer or istream is a NULL pointer.");
         return BUFFER_ERROR;
     }
     while((c=fgetc(istream)) != EOF) {
@@ -165,7 +165,7 @@ size_t pep_buffer_read(void * dst, size_t size, size_t count, void * _buffer) {
     pep_buffer_t * buffer;
     size_t nbytes, available;
     if (dst == NULL || _buffer == NULL) {
-        pep_log_error("buffer_fread: dst or buffer is a NULL pointer.");
+        pep_log_error("pep_buffer_read: dst or buffer is a NULL pointer.");
         return BUFFER_ERROR;
     }
     buffer = (pep_buffer_t *)_buffer;
@@ -182,7 +182,7 @@ size_t pep_buffer_read(void * dst, size_t size, size_t count, void * _buffer) {
 
 int pep_buffer_eof(pep_buffer_t * buffer) {
     if (buffer == NULL) {
-        pep_log_error("buffer_eof: buffer is a NULL pointer.");
+        pep_log_error("pep_buffer_eof: buffer is a NULL pointer.");
         return TRUE;
     }
     return (buffer->wpos <= buffer->rpos) ? TRUE : FALSE;
@@ -191,7 +191,7 @@ int pep_buffer_eof(pep_buffer_t * buffer) {
 int pep_buffer_getc(pep_buffer_t * buffer) {
     unsigned char c;
     if (buffer == NULL) {
-        pep_log_error("buffer_getc: buffer is a NULL pointer.");
+        pep_log_error("pep_buffer_getc: buffer is a NULL pointer.");
         return BUFFER_EOF;
     }
     if (pep_buffer_eof(buffer))
@@ -206,14 +206,14 @@ int pep_buffer_getc(pep_buffer_t * buffer) {
 int pep_buffer_ungetc(int c, pep_buffer_t * buffer) {
     unsigned char uc;
     if (buffer == NULL) {
-        pep_log_error("buffer_ungetc: buffer is a NULL pointer.");
+        pep_log_error("pep_buffer_ungetc: buffer is a NULL pointer.");
         return BUFFER_ERROR;
     }
     uc= (unsigned char)c;
     if (buffer->rpos == 0) {
         /* shift the whole data buffer by 1 */
         if (pep_buffer_ensure_capacity(buffer, 1) != BUFFER_OK) {
-            pep_log_error("buffer_ungetc: can't increase buffer capacity by 1 byte.");
+            pep_log_error("pep_buffer_ungetc: can't increase buffer capacity by 1 byte.");
             return BUFFER_ERROR;
         }
         memmove(&(buffer->data[1]),&(buffer->data[0]), buffer->wpos);
@@ -229,12 +229,12 @@ int pep_buffer_ungetc(int c, pep_buffer_t * buffer) {
 int pep_buffer_putc(int c, pep_buffer_t * buffer) {
     unsigned char uc;
     if (buffer == NULL) {
-        pep_log_error("buffer_putc: buffer is a NULL pointer.");
+        pep_log_error("pep_buffer_putc: buffer is a NULL pointer.");
         return BUFFER_ERROR;
     }
     uc= (unsigned char)c;
     if (pep_buffer_ensure_capacity(buffer, 1) != BUFFER_OK) {
-        pep_log_error("buffer_putc: can't increase buffer capacity by 1 byte.");
+        pep_log_error("pep_buffer_putc: can't increase buffer capacity by 1 byte.");
         return BUFFER_ERROR;
     }
     buffer->data[buffer->wpos++]= uc;
@@ -246,7 +246,7 @@ int pep_buffer_putc(int c, pep_buffer_t * buffer) {
  */
 int pep_buffer_rewind(pep_buffer_t * buffer) {
     if (buffer == NULL) {
-        pep_log_error("buffer_rewind: buffer is a NULL pointer.");
+        pep_log_error("pep_buffer_rewind: buffer is a NULL pointer.");
         return BUFFER_ERROR;
     }
     buffer->rpos= 0;
@@ -255,7 +255,7 @@ int pep_buffer_rewind(pep_buffer_t * buffer) {
 
 int pep_buffer_reset(pep_buffer_t * buffer) {
     if (buffer == NULL) {
-        pep_log_error("buffer_reset: buffer is a NULL pointer.");
+        pep_log_error("pep_buffer_reset: buffer is a NULL pointer.");
         return BUFFER_ERROR;
     }
     buffer->rpos= 0;
@@ -266,7 +266,7 @@ int pep_buffer_reset(pep_buffer_t * buffer) {
 
 size_t pep_buffer_length(pep_buffer_t * buffer) {
     if (buffer == NULL) {
-        pep_log_error("buffer_length: buffer is a NULL pointer.");
+        pep_log_error("pep_buffer_length: buffer is a NULL pointer.");
         return 0;
     }
     return buffer->wpos - buffer->rpos;
