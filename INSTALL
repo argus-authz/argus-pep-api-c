@@ -1,0 +1,54 @@
+Argus PEP client API
+--------------------
+0. Build Requirement
+
+curl-devel (or libcurl-devel) package is required to build the Argus PEP client API.
+
+1. First you have to bootstrap the autotools:
+
+./autotools.sh
+
+2. Then use configure (default prefix: /usr/local):
+
+./configure
+
+NOTE: for RHEL6/SL6 add the --with-libcurl-nss flag!
+
+or if you want to install the lib and include in a different directory:
+
+./configure --prefix=/usr [--libdir=/usr/lib64]
+
+3. Build the library:
+
+make
+
+and install it:
+
+make install
+
+4. you are all done :)
+
+The library libargus-pep and the header files are now installed. 
+To use it, simply include the library header in your code:
+
+#include <argus/pep.h>
+
+A pkg-config configuration file libargus-pep.pc is available in $libdir/pkgconfig.
+
+You can use it in your autoconf configure.ac as descibed here: 
+http://www.openismus.com/documents/linux/using_libraries/using_libraries#cflagsandlibs
+
+Example (configure.ac):
+
+PKG_CHECK_MODULES(LIBARGUS_PEP,[libargus-pep >= 2],
+    [
+        AC_MSG_NOTICE([LIBARGUS_PEP_CFLAGS=$LIBARGUS_PEP_CFLAGS])
+        AC_MSG_NOTICE([LIBARGUS_PEP_LIBS=$LIBARGUS_PEP_LIBS])
+    ],
+    [
+        AC_MSG_ERROR([Argus PEP client API (libargus-pep >= 2) not available. Check the PKG_CONFIG_PATH environment variable.])
+    ]
+)
+
+--
+$Id$
