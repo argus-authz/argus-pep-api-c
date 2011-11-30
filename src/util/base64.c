@@ -39,14 +39,14 @@ static void encodeblock3to4( const unsigned char in[3], int in_l, unsigned char 
 /**
  * Base64 encodes the in buffer into the out buffer (without line break).
  */
-void base64_encode_buffer( BUFFER * inbuf, BUFFER * outbuf ) {
-    base64_encode_buffer_l(inbuf,outbuf,NO_LINE_BREAK);
+void pep_base64_encode_buffer( BUFFER * inbuf, BUFFER * outbuf ) {
+    pep_base64_encode_buffer_l(inbuf,outbuf,NO_LINE_BREAK);
 }
 
 /**
  * Base64 encodes the in buffer into the out buffer.
  */
-void base64_encode_buffer_l( BUFFER * inbuf, BUFFER * outbuf, int linesize ) {
+void pep_base64_encode_buffer_l( BUFFER * inbuf, BUFFER * outbuf, int linesize ) {
 
     unsigned char in[3], out[4];
     int i= 0, in_l= 0;
@@ -91,7 +91,7 @@ static void decodeblock4to3( const unsigned char in[4], unsigned char out[3] ) {
 /**
  * Base64 decodes the in buffer into the out buffer.
  */
-void base64_decode_buffer( BUFFER * inbuf, BUFFER * outbuf ) {
+void pep_base64_decode_buffer( BUFFER * inbuf, BUFFER * outbuf ) {
     unsigned char in[4], out[3];
     int c, i, in_l;
     char * p;
