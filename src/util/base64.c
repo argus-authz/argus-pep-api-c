@@ -39,14 +39,14 @@ static void encodeblock3to4( const unsigned char in[3], int in_l, unsigned char 
 /**
  * Base64 encodes the in buffer into the out buffer (without line break).
  */
-void pep_base64_encode_buffer( BUFFER * inbuf, BUFFER * outbuf ) {
+void pep_base64_encode_buffer( pep_buffer_t * inbuf, pep_buffer_t * outbuf ) {
     pep_base64_encode_buffer_l(inbuf,outbuf,NO_LINE_BREAK);
 }
 
 /**
  * Base64 encodes the in buffer into the out buffer.
  */
-void pep_base64_encode_buffer_l( BUFFER * inbuf, BUFFER * outbuf, int linesize ) {
+void pep_base64_encode_buffer_l( pep_buffer_t * inbuf, pep_buffer_t * outbuf, int linesize ) {
 
     unsigned char in[3], out[4];
     int i= 0, in_l= 0;
@@ -56,11 +56,11 @@ void pep_base64_encode_buffer_l( BUFFER * inbuf, BUFFER * outbuf, int linesize )
         linesize= BASE64_DEFAULT_LINE_SIZE;
     }
 
-    while( !buffer_eof( inbuf ) ) {
+    while( !pep_buffer_eof( inbuf ) ) {
         in_l = 0;
         in[0] = in[1] = in[2] = 0;
         for( i = 0; i < 3; i++ ) {
-            int c = buffer_getc( inbuf );
+            int c = pep_buffer_getc( inbuf );
             if ( c != BUFFER_EOF ) {
                 in[i] = (unsigned char) c;
                 in_l++;
@@ -68,11 +68,11 @@ void pep_base64_encode_buffer_l( BUFFER * inbuf, BUFFER * outbuf, int linesize )
         }
         if( in_l > 0 ) {
             encodeblock3to4( in, in_l, out );
-            b_out += buffer_write(out,1,4,outbuf);
+            b_out += pep_buffer_write(out,1,4,outbuf);
         }
         if (linesize != NO_LINE_BREAK) {
-            if( b_out >= linesize || buffer_eof( inbuf )) {
-                buffer_write("\r\n",1,2,outbuf);
+            if( b_out >= linesize || pep_buffer_eof( inbuf )) {
+                pep_buffer_write("\r\n",1,2,outbuf);
                 b_out = 0;
             }
         }
@@ -91,16 +91,16 @@ static void decodeblock4to3( const unsigned char in[4], unsigned char out[3] ) {
 /**
  * Base64 decodes the in buffer into the out buffer.
  */
-void pep_base64_decode_buffer( BUFFER * inbuf, BUFFER * outbuf ) {
+void pep_base64_decode_buffer( pep_buffer_t * inbuf, pep_buffer_t * outbuf ) {
     unsigned char in[4], out[3];
     int c, i, in_l;
     char * p;
 
-    while( !buffer_eof( inbuf ) ) {
+    while( !pep_buffer_eof( inbuf ) ) {
         in_l= 0;
         in[0] = in[1] = in[2] = in[3] = 0;
         for( i = 0; i < 4;) {
-            c= buffer_getc( inbuf );
+            c= pep_buffer_getc( inbuf );
             if (c == BUFFER_EOF) break;
             /* drop every char not in table */
             p= strchr(base64_codec_table,c);
@@ -114,7 +114,7 @@ void pep_base64_decode_buffer( BUFFER * inbuf, BUFFER * outbuf ) {
         if( in_l > 0) {
             decodeblock4to3( in, out );
             for( i = 0; i < in_l - 1; i++ ) {
-                buffer_putc( out[i], outbuf );
+                pep_buffer_putc( out[i], outbuf );
             }
         }
     }

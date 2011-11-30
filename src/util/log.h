@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef _LOG_H_
-#define _LOG_H_
+#ifndef _PEP_LOG_H_
+#define _PEP_LOG_H_
 
 #ifdef  __cplusplus
 extern "C" {
@@ -38,7 +38,7 @@ typedef enum {
     LOG_LEVEL_INFO = 2,
     LOG_LEVEL_DEBUG = 3,
     LOG_LEVEL_TRACE = 4
-} log_level_t;
+} pep_log_level_t;
 
 /**
  * Optional log_handler function prototype
@@ -48,7 +48,7 @@ typedef enum {
  * @param args the variable arguments list
  * @return int 0 on success or an error code
  */
-typedef int log_handler_func(int level,const char * fmt, va_list args);
+typedef int pep_log_handler_func(int level,const char * fmt, va_list args);
 
 /**
  * Sets the optional log handler function.
@@ -59,59 +59,59 @@ typedef int log_handler_func(int level,const char * fmt, va_list args);
  * @note If the optional log handler function is set, the log messages will
  * be send to the handler and not written to the logging output anymore.
  */
-int log_sethandler(log_handler_func * handler);
+int pep_log_sethandler(pep_log_handler_func * handler);
 
 /**
  * Sets the log level to level.
  * @return {@link #LOG_OK} or {@link #LOG_ERROR} on error
  */
-int log_setlevel(log_level_t level);
+int pep_log_setlevel(pep_log_level_t level);
 
 /**
  * Returns the current log level
  * @return log_level_t the current log level.
  */
-log_level_t log_getlevel(void);
+pep_log_level_t pep_log_getlevel(void);
 
 /**
  * Sets the file descriptor fd as logging file descriptor. NULL for no logging.
  * @return {@link #LOG_OK} or {@link #LOG_ERROR} on error
  */
-int log_setout(FILE * fd);
+int pep_log_setout(FILE * fd);
 
 /**
  * Returns the current output stream for logging.
  * @return FILE * pointer to the log file or @a NULL if not enabled.
  */
-FILE * log_getout(void);
+FILE * pep_log_getout(void);
 
 /**
  * Logs message at LOG_LEVEL_INFO level.
  * @return {@link #LOG_OK} or {@link #LOG_ERROR} on error
  */
-int log_info(const char *, ...);
+int pep_log_info(const char *, ...);
 /**
  * Logs message at LOG_LEVEL_WARN level.
  * @return {@link #LOG_OK} or {@link #LOG_ERROR} on error
  */
-int log_warn(const char *, ...);
+int pep_log_warn(const char *, ...);
 /**
  * Logs message at LOG_LEVEL_ERROR level.
  * @return {@link #LOG_OK} or {@link #LOG_ERROR} on error
  */
-int log_error(const char *, ...);
+int pep_log_error(const char *, ...);
 
 /**
  * Logs message at LOG_LEVEL_DEBUG level.
  * @return {@link #LOG_OK} or {@link #LOG_ERROR} on error
  */
-int log_debug(const char *, ...);
+int pep_log_debug(const char *, ...);
 
 /**
  * Logs message at LOG_LEVEL_TRACE level.
  * @return {@link #LOG_OK} or {@link #LOG_ERROR} on error
  */
-int log_trace(const char *, ...);
+int pep_log_trace(const char *, ...);
 
 #ifdef  __cplusplus
 }
