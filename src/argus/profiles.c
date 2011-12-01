@@ -115,53 +115,53 @@ static int authzinterop2gridwn_pip_process(xacml_request_t ** request) {
             const char * attr_id= xacml_attribute_getid(attr);
             if (strncmp(XACML_AUTHZINTEROP_SUBJECT_CERTCHAIN,attr_id,strlen(XACML_AUTHZINTEROP_SUBJECT_CERTCHAIN)) == 0) {
                 xacml_attribute_t * keyinfo= xacml_attribute_clone(attr);
-                log_debug("%s: clone subject[%d].attribute[%d].id= %s",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID, i,j,attr_id);
+                pep_log_debug("%s: clone subject[%d].attribute[%d].id= %s",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID, i,j,attr_id);
                 if (keyinfo!=NULL) {
-                    log_debug("%s: set cloned attribute id= %s",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,XACML_SUBJECT_KEY_INFO);
+                    pep_log_debug("%s: set cloned attribute id= %s",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,XACML_SUBJECT_KEY_INFO);
                     xacml_attribute_setid(keyinfo,XACML_SUBJECT_KEY_INFO);
-                    log_debug("%s: set cloned attribute datatype= %s",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,XACML_DATATYPE_STRING);
+                    pep_log_debug("%s: set cloned attribute datatype= %s",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,XACML_DATATYPE_STRING);
                     xacml_attribute_setdatatype(keyinfo,XACML_DATATYPE_STRING);
                     if (xacml_subject_addattribute(subject,keyinfo) != PEP_XACML_OK) {
-                        log_error("%s: failed to add new attribute{%s} to subject[%d]",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,XACML_SUBJECT_KEY_INFO,i);
+                        pep_log_error("%s: failed to add new attribute{%s} to subject[%d]",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,XACML_SUBJECT_KEY_INFO,i);
                         xacml_attribute_delete(keyinfo);
                     }
                 }
                 else {
-                    log_warn("%s: failed to clone subject[%d].attribute[%d]",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID, i,j);
+                    pep_log_warn("%s: failed to clone subject[%d].attribute[%d]",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID, i,j);
                 }
             }
             else if (strncmp(XACML_AUTHZINTEROP_SUBJECT_VOMS_PRIMARY_FQAN,attr_id,strlen(XACML_AUTHZINTEROP_SUBJECT_VOMS_PRIMARY_FQAN))==0) {
                 xacml_attribute_t * fqan_primary= xacml_attribute_clone(attr);
-                log_debug("%s: clone subject[%d].attribute[%d].id= %s",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID, i,j,attr_id);
+                pep_log_debug("%s: clone subject[%d].attribute[%d].id= %s",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID, i,j,attr_id);
                 if (fqan_primary!=NULL) {
-                    log_debug("%s: set cloned attribute id= %s",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,XACML_GRIDWN_ATTRIBUTE_FQAN_PRIMARY);
+                    pep_log_debug("%s: set cloned attribute id= %s",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,XACML_GRIDWN_ATTRIBUTE_FQAN_PRIMARY);
                     xacml_attribute_setid(fqan_primary,XACML_GRIDWN_ATTRIBUTE_FQAN_PRIMARY);
-                    log_debug("%s: set cloned attribute datatype= %s",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,XACML_GRIDWN_DATATYPE_FQAN);
+                    pep_log_debug("%s: set cloned attribute datatype= %s",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,XACML_GRIDWN_DATATYPE_FQAN);
                     xacml_attribute_setdatatype(fqan_primary,XACML_GRIDWN_DATATYPE_FQAN);
                     if (xacml_subject_addattribute(subject,fqan_primary) != PEP_XACML_OK) {
-                        log_error("%s: failed to add new attribute{%s} to subject[%d]",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,XACML_GRIDWN_ATTRIBUTE_FQAN_PRIMARY,i);
+                        pep_log_error("%s: failed to add new attribute{%s} to subject[%d]",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,XACML_GRIDWN_ATTRIBUTE_FQAN_PRIMARY,i);
                         xacml_attribute_delete(fqan_primary);
                     }
                 }
                 else {
-                    log_warn("%s: failed to clone subject[%d].attribute[%d]",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID, i,j);
+                    pep_log_warn("%s: failed to clone subject[%d].attribute[%d]",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID, i,j);
                 }
             }
             else if (strncmp(XACML_AUTHZINTEROP_SUBJECT_VOMS_FQAN,attr_id,strlen(XACML_AUTHZINTEROP_SUBJECT_VOMS_FQAN))==0) {
                 xacml_attribute_t * fqans= xacml_attribute_clone(attr);
-                log_debug("%s: clone subject[%d].attribute[%d].id= %s",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID, i,j,attr_id);
+                pep_log_debug("%s: clone subject[%d].attribute[%d].id= %s",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID, i,j,attr_id);
                 if (fqans!=NULL) {
-                    log_debug("%s: set cloned attribute id= %s",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,XACML_GRIDWN_ATTRIBUTE_FQAN_PRIMARY);
+                    pep_log_debug("%s: set cloned attribute id= %s",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,XACML_GRIDWN_ATTRIBUTE_FQAN_PRIMARY);
                     xacml_attribute_setid(fqans,XACML_GRIDWN_ATTRIBUTE_FQAN_PRIMARY);
-                    log_debug("%s: set cloned attribute datatype= %s",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,XACML_GRIDWN_DATATYPE_FQAN);
+                    pep_log_debug("%s: set cloned attribute datatype= %s",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,XACML_GRIDWN_DATATYPE_FQAN);
                     xacml_attribute_setdatatype(fqans,XACML_GRIDWN_DATATYPE_FQAN);
                     if (xacml_subject_addattribute(subject,fqans) != PEP_XACML_OK) {
-                        log_error("%s: failed to add new attribute{%s} to subject[%d]",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,XACML_GRIDWN_ATTRIBUTE_FQAN_PRIMARY,i);
+                        pep_log_error("%s: failed to add new attribute{%s} to subject[%d]",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,XACML_GRIDWN_ATTRIBUTE_FQAN_PRIMARY,i);
                         xacml_attribute_delete(fqans);
                     }
                 }
                 else {
-                    log_warn("%s: failed to clone subject[%d].attribute[%d]",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID, i,j);
+                    pep_log_warn("%s: failed to clone subject[%d].attribute[%d]",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID, i,j);
                 }
             }
         }
@@ -175,7 +175,7 @@ static int authzinterop2gridwn_pip_process(xacml_request_t ** request) {
             xacml_request_setenvironment(*request,environment);
         }
         else {
-            log_warn("%s: failed to create XACML Environment",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID);
+            pep_log_warn("%s: failed to create XACML Environment",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID);
         }
     }
     environment_attrs_l= xacml_environment_attributes_length(environment);
@@ -184,7 +184,7 @@ static int authzinterop2gridwn_pip_process(xacml_request_t ** request) {
         xacml_attribute_t * attr= xacml_environment_getattribute(environment,i);
         const char * attr_id= xacml_attribute_getid(attr);
         if (strncmp(XACML_GRIDWN_ATTRIBUTE_PROFILE_ID,attr_id,strlen(XACML_GRIDWN_ATTRIBUTE_PROFILE_ID))==0) {
-            log_debug("%s: found environment.attribute[%d].id= %s",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,i,attr_id);
+            pep_log_debug("%s: found environment.attribute[%d].id= %s",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,i,attr_id);
             profile_id_present= 1;
         }
     }
@@ -198,7 +198,7 @@ static int authzinterop2gridwn_pip_process(xacml_request_t ** request) {
             xacml_environment_addattribute(environment,env_attr);
         }
         else {
-            log_warn("%s: failed to create XACML Environment/Attribute{%s}",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,XACML_GRIDWN_ATTRIBUTE_PROFILE_ID);
+            pep_log_warn("%s: failed to create XACML Environment/Attribute{%s}",AUTHZINTEROP_TO_GRIDWN_ADAPTER_ID,XACML_GRIDWN_ATTRIBUTE_PROFILE_ID);
         }
     }
     return 0;
@@ -237,7 +237,7 @@ static int gridwn2authzinterop_oh_process(xacml_request_t ** request,xacml_respo
                     size_t n_groupnames= 0;
                     char ** groupnames= calloc(NGROUPS_MAX,sizeof(char *));
                     size_t attrs_l= xacml_obligation_attributeassignments_length(obligation);
-                    log_debug("%s: resolve local POSIX account mapping",GRIDWN_TO_AUTHZINTEROP_ADAPTER_ID);
+                    pep_log_debug("%s: resolve local POSIX account mapping",GRIDWN_TO_AUTHZINTEROP_ADAPTER_ID);
                     for (k= 0; k<attrs_l; k++) {
                         xacml_attributeassignment_t * attr= xacml_obligation_getattributeassignment(obligation,k);
                         const char * attr_id= xacml_attributeassignment_getid(attr);
@@ -313,14 +313,14 @@ static xacml_obligation_t * create_username_obligation(xacml_fulfillon_t fulfill
     xacml_obligation_t * username_obligation= xacml_obligation_create(XACML_AUTHZINTEROP_OBLIGATION_USERNAME);
     xacml_attributeassignment_t * username_attr;
     if (username_obligation==NULL) {
-        log_error("failed to create Obligation{%s}",XACML_AUTHZINTEROP_OBLIGATION_USERNAME);
+        pep_log_error("failed to create Obligation{%s}",XACML_AUTHZINTEROP_OBLIGATION_USERNAME);
         return NULL;
     }
     xacml_obligation_setfulfillon(username_obligation,fulfillon);
 
     username_attr= xacml_attributeassignment_create(XACML_AUTHZINTEROP_OBLIGATION_ATTR_USERNAME);
     if (username_attr==NULL) {
-        log_error("failed to create Obligation/AttributeAssignment{%s}",XACML_AUTHZINTEROP_OBLIGATION_ATTR_USERNAME);
+        pep_log_error("failed to create Obligation/AttributeAssignment{%s}",XACML_AUTHZINTEROP_OBLIGATION_ATTR_USERNAME);
         xacml_obligation_delete(username_obligation);
         return NULL;
     }
@@ -338,14 +338,14 @@ static xacml_obligation_t * create_uidgid_obligation(xacml_fulfillon_t fulfillon
     char value[1024];
     xacml_attributeassignment_t * uid_attr, * gid_attr;
     if (uidgid_obligation==NULL) {
-        log_error("failed to create Obligation{%s}",XACML_AUTHZINTEROP_OBLIGATION_UIDGID);
+        pep_log_error("failed to create Obligation{%s}",XACML_AUTHZINTEROP_OBLIGATION_UIDGID);
         return NULL;
     }
     xacml_obligation_setfulfillon(uidgid_obligation,fulfillon);
 
     uid_attr= xacml_attributeassignment_create(XACML_AUTHZINTEROP_OBLIGATION_ATTR_POSIX_UID);
     if (uid_attr==NULL) {
-        log_error("failed to create Obligation/AttributeAssignment{%s}",XACML_AUTHZINTEROP_OBLIGATION_ATTR_POSIX_UID);
+        pep_log_error("failed to create Obligation/AttributeAssignment{%s}",XACML_AUTHZINTEROP_OBLIGATION_ATTR_POSIX_UID);
         xacml_obligation_delete(uidgid_obligation);
         return NULL;
     }
@@ -356,7 +356,7 @@ static xacml_obligation_t * create_uidgid_obligation(xacml_fulfillon_t fulfillon
 
     gid_attr= xacml_attributeassignment_create(XACML_AUTHZINTEROP_OBLIGATION_ATTR_POSIX_GID);
     if (gid_attr==NULL) {
-        log_error("failed to create Obligation/AttributeAssignment{%s}",XACML_AUTHZINTEROP_OBLIGATION_ATTR_POSIX_GID);
+        pep_log_error("failed to create Obligation/AttributeAssignment{%s}",XACML_AUTHZINTEROP_OBLIGATION_ATTR_POSIX_GID);
         xacml_obligation_delete(uidgid_obligation);
         return NULL;
     }
@@ -377,7 +377,7 @@ static xacml_obligation_t * create_secondarygids_obligation(xacml_fulfillon_t fu
     char value[1024];
 
     if (gids_obligation==NULL) {
-        log_error("failed to create Obligation{%s}",XACML_AUTHZINTEROP_OBLIGATION_SECONDARY_GIDS);
+        pep_log_error("failed to create Obligation{%s}",XACML_AUTHZINTEROP_OBLIGATION_SECONDARY_GIDS);
         return NULL;
     }
     xacml_obligation_setfulfillon(gids_obligation,fulfillon);
@@ -385,7 +385,7 @@ static xacml_obligation_t * create_secondarygids_obligation(xacml_fulfillon_t fu
     for (i= 0; i<gids_length; i++) {
         xacml_attributeassignment_t * gid_attr= xacml_attributeassignment_create(XACML_AUTHZINTEROP_OBLIGATION_ATTR_POSIX_GID);
         if (gid_attr==NULL) {
-            log_error("failed to create Obligation/AttributeAssignment{%s}",XACML_AUTHZINTEROP_OBLIGATION_ATTR_POSIX_GID);
+            pep_log_error("failed to create Obligation/AttributeAssignment{%s}",XACML_AUTHZINTEROP_OBLIGATION_ATTR_POSIX_GID);
             xacml_obligation_delete(gids_obligation);
             return NULL;
         }
@@ -410,18 +410,18 @@ static int resolve_group_gid(const char * groupname, gid_t * gid) {
     int rc;
 
     if (groupname==NULL) {
-        log_warn("resolve_group_gid: groupname is NULL");
+        pep_log_warn("resolve_group_gid: groupname is NULL");
         return -1;
     }    
-    log_debug("resolve_group_gid for %s",groupname);
+    pep_log_debug("resolve_group_gid for %s",groupname);
     rc= getgrnam_r(groupname,&gr,buf,bufsize,&result);
     if (rc==0 && result!=NULL) {
         *gid= gr.gr_gid;
-        log_debug("resolve_group_gid: gid=%d",gr.gr_gid);
+        pep_log_debug("resolve_group_gid: gid=%d",gr.gr_gid);
         return 0;
     }
     else {
-        log_error("resolve_group_gid: failed to resolve POSIX gid for %s: %s",groupname,strerror(errno));
+        pep_log_error("resolve_group_gid: failed to resolve POSIX gid for %s: %s",groupname,strerror(errno));
         return -2;
     }
 }
@@ -437,19 +437,19 @@ static int resolve_user_uidgid(const char * username, uid_t * uid, gid_t * gid) 
     size_t bufsize= GETPW_R_SIZE_MAX;
     int rc;
     if (username==NULL) {
-        log_warn("resolve_user_uidgid: username is NULL");
+        pep_log_warn("resolve_user_uidgid: username is NULL");
         return -1;
     }
-    log_debug("resolve_user_uidgid for %s",username);
+    pep_log_debug("resolve_user_uidgid for %s",username);
     rc= getpwnam_r(username,&pw,buf,bufsize,&result);
     if (rc==0 && result!=NULL) {
         *uid= pw.pw_uid;
         *gid= pw.pw_gid;
-        log_debug("resolve_user_uidgid: uid=%d, gid=%d",pw.pw_uid,pw.pw_gid);
+        pep_log_debug("resolve_user_uidgid: uid=%d, gid=%d",pw.pw_uid,pw.pw_gid);
         return 0;
     }
     else {
-        log_error("failed to resolve POSIX uid/gid for %s: %s", username, strerror(errno));
+        pep_log_error("failed to resolve POSIX uid/gid for %s: %s", username, strerror(errno));
         return -2;
     }
 }

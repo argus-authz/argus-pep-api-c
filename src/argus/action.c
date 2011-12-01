@@ -24,18 +24,18 @@
 #include "xacml.h"
 
 struct xacml_action {
-    linkedlist_t * attributes;
+    pep_linkedlist_t * attributes;
 };
 
 xacml_action_t * xacml_action_create() {
-    xacml_action_t * action= calloc(1,sizeof(xacml_action_t));
+    xacml_action_t * action= calloc(1,sizeof(struct xacml_action));
     if (action == NULL) {
-        log_error("xacml_action_create: can't allocate xacml_action_t.");
+        pep_log_error("xacml_action_create: can't allocate xacml_action_t.");
         return NULL;
     }
-    action->attributes= llist_create();
+    action->attributes= pep_llist_create();
     if (action->attributes == NULL) {
-        log_error("xacml_action_create: can't create attributes list.");
+        pep_log_error("xacml_action_create: can't create attributes list.");
         free(action);
         return NULL;
     }
@@ -44,11 +44,11 @@ xacml_action_t * xacml_action_create() {
 
 int xacml_action_addattribute(xacml_action_t * action, xacml_attribute_t * attr) {
     if (action == NULL || attr == NULL) {
-        log_error("xacml_action_addattribute: NULL action or attribute.");
+        pep_log_error("xacml_action_addattribute: NULL action or attribute.");
         return PEP_XACML_ERROR;
     }
-    if (llist_add(action->attributes,attr) != LLIST_OK) {
-        log_error("xacml_action_addattribute: can't add attribute to list.");
+    if (pep_llist_add(action->attributes,attr) != LLIST_OK) {
+        pep_log_error("xacml_action_addattribute: can't add attribute to list.");
         return PEP_XACML_ERROR;
     }
     else return PEP_XACML_OK;
@@ -56,25 +56,25 @@ int xacml_action_addattribute(xacml_action_t * action, xacml_attribute_t * attr)
 
 void xacml_action_delete(xacml_action_t * action) {
     if (action == NULL) return;
-    llist_delete_elements(action->attributes,(delete_element_func)xacml_attribute_delete);
-    llist_delete(action->attributes);
+    pep_llist_delete_elements(action->attributes,(pep_llist_delete_elt_f)xacml_attribute_delete);
+    pep_llist_delete(action->attributes);
     free(action);
     action= NULL;
 }
 
 size_t xacml_action_attributes_length(const xacml_action_t * action) {
     if (action == NULL) {
-        log_warn("xacml_action_attributes_length: NULL action.");
+        pep_log_warn("xacml_action_attributes_length: NULL action.");
         return 0;
     }
-    return llist_length(action->attributes);
+    return pep_llist_length(action->attributes);
 }
 
 xacml_attribute_t * xacml_action_getattribute(const xacml_action_t * action, int index) {
     if (action == NULL) {
-        log_error("xacml_action_getattribute: NULL action.");
+        pep_log_error("xacml_action_getattribute: NULL action.");
         return NULL;
     }
-    return llist_get(action->attributes, index);
+    return pep_llist_get(action->attributes, index);
 }
 
