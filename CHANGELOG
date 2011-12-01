@@ -1,7 +1,7 @@
-argus-pep-api-c 2.0.4
+argus-pep-api-c 2.1.0
 ---------------------
-* refactoring: improved multi-thread safety in pep_authorize().
-* refactoring: rename internal base64 functions to prevent name clash with other libraries.
+* improved multi-thread safety in pep_authorize().
+* refactoring: rename all internal, non published types and functions to prevent name clash with other libraries.
 
 argus-pep-api-c 2.0.3
 ---------------------
