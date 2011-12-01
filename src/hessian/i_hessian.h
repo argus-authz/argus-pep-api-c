@@ -34,9 +34,9 @@ extern "C" {
 #define OBJECT_DTOR(objname) \
     int objname ## _dtor (hessian_object_t * self)
 #define OBJECT_SERIALIZE(objname) \
-    int objname ## _serialize (const hessian_object_t * self, BUFFER * output)
+    int objname ## _serialize (const hessian_object_t * self, pep_buffer_t * output)
 #define OBJECT_DESERIALIZE(objname) \
-    int objname ## _deserialize (hessian_object_t * self, int tag, BUFFER * input)
+    int objname ## _deserialize (hessian_object_t * self, int tag, pep_buffer_t * input)
 
 /*
  * Hessian serialization chunk size

@@ -57,7 +57,7 @@ static hessian_object_t * hessian_long_ctor (hessian_object_t * object, va_list 
     hessian_long_t * self= object;
     int64_t value;
     if (self == NULL) {
-        log_error("hessian_long_ctor: NULL object pointer.");
+        pep_log_error("hessian_long_ctor: NULL object pointer.");
         return NULL;
     }
     value= va_arg( *ap, int64_t);
@@ -68,22 +68,22 @@ static hessian_object_t * hessian_long_ctor (hessian_object_t * object, va_list 
 /**
  * hessian_long serialize method.
  */
-static int hessian_long_serialize (const hessian_object_t * object, BUFFER * output) {
+static int hessian_long_serialize (const hessian_object_t * object, pep_buffer_t * output) {
     const hessian_long_t * self= object;
     const hessian_class_t * class;
     int64_t value;
     int b8, b16, b24, b32, b40, b48, b56, b64;
     if (self == NULL) {
-        log_error("hessian_long_serialize: NULL object pointer.");
+        pep_log_error("hessian_long_serialize: NULL object pointer.");
         return HESSIAN_ERROR;
     }
     class= hessian_getclass(object);
     if (class == NULL) {
-        log_error("hessian_long_serialize: NULL class descriptor.");
+        pep_log_error("hessian_long_serialize: NULL class descriptor.");
         return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_LONG && class->type != HESSIAN_DATE) {
-        log_error("hessian_long_serialize: wrong class type: %d.",class->type);
+        pep_log_error("hessian_long_serialize: wrong class type: %d.",class->type);
         return HESSIAN_ERROR;
     }
     value= self->value;
@@ -95,50 +95,50 @@ static int hessian_long_serialize (const hessian_object_t * object, BUFFER * out
     b24 = (value >> 16) & 0x000000FF;
     b16 = (value >> 8) & 0x000000FF;
     b8 = value & 0x000000FF;
-    buffer_putc(class->tag,output);
-    buffer_putc(b64,output);
-    buffer_putc(b56,output);
-    buffer_putc(b48,output);
-    buffer_putc(b40,output);
-    buffer_putc(b32,output);
-    buffer_putc(b24,output);
-    buffer_putc(b16,output);
-    buffer_putc(b8,output);
+    pep_buffer_putc(class->tag,output);
+    pep_buffer_putc(b64,output);
+    pep_buffer_putc(b56,output);
+    pep_buffer_putc(b48,output);
+    pep_buffer_putc(b40,output);
+    pep_buffer_putc(b32,output);
+    pep_buffer_putc(b24,output);
+    pep_buffer_putc(b16,output);
+    pep_buffer_putc(b8,output);
     return HESSIAN_OK;
 }
 
 /**
  * hessian_long deserialize method.
  */
-static int hessian_long_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
+static int hessian_long_deserialize (hessian_object_t * object, int tag, pep_buffer_t * input) {
     hessian_long_t * self= object;
     const hessian_class_t * class;
     int64_t b8, b16, b24, b32, b40, b48, b56, b64, value;
     if (self == NULL) {
-        log_error("hessian_long_deserialize: NULL object pointer.");
+        pep_log_error("hessian_long_deserialize: NULL object pointer.");
         return HESSIAN_ERROR;
     }
     class= hessian_getclass(object);
     if (class == NULL) {
-        log_error("hessian_long_deserialize: NULL class descriptor.");
+        pep_log_error("hessian_long_deserialize: NULL class descriptor.");
         return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_LONG && class->type != HESSIAN_DATE) {
-        log_error("hessian_long_deserialize: wrong class type: %d.",class->type);
+        pep_log_error("hessian_long_deserialize: wrong class type: %d.",class->type);
         return HESSIAN_ERROR;
     }
     if (tag != class->tag) {
-        log_error("hessian_long_deserialize: invalid tag: %c (%d).",(char)tag,tag);
+        pep_log_error("hessian_long_deserialize: invalid tag: %c (%d).",(char)tag,tag);
         return HESSIAN_ERROR;
     }
-    b64 = buffer_getc(input);
-    b56 = buffer_getc(input);
-    b48 = buffer_getc(input);
-    b40 = buffer_getc(input);
-    b32 = buffer_getc(input);
-    b24 = buffer_getc(input);
-    b16 = buffer_getc(input);
-    b8 = buffer_getc(input);
+    b64 = pep_buffer_getc(input);
+    b56 = pep_buffer_getc(input);
+    b48 = pep_buffer_getc(input);
+    b40 = pep_buffer_getc(input);
+    b32 = pep_buffer_getc(input);
+    b24 = pep_buffer_getc(input);
+    b16 = pep_buffer_getc(input);
+    b8 = pep_buffer_getc(input);
     value= (b64 << 56)
         + (b56 << 48)
         + (b48 << 40)
@@ -159,16 +159,16 @@ int64_t hessian_long_getvalue(const hessian_object_t * object) {
     const hessian_long_t * self= object;
     const hessian_class_t * class;
     if (self == NULL) {
-        log_error("hessian_long_getvalue: NULL object pointer.");
+        pep_log_error("hessian_long_getvalue: NULL object pointer.");
         return 0;
     }
     class= hessian_getclass(object);
     if (class == NULL) {
-        log_error("hessian_long_getvalue: NULL class descriptor.");
+        pep_log_error("hessian_long_getvalue: NULL class descriptor.");
         return 0;
     }
     if (class->type != HESSIAN_LONG && class->type != HESSIAN_DATE) {
-        log_error("hessian_long_getvalue: wrong class type: %d.",class->type);
+        pep_log_error("hessian_long_getvalue: wrong class type: %d.",class->type);
         return 0;
     }
     return self->value;
