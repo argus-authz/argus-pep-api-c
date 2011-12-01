@@ -15,7 +15,20 @@
  * limitations under the License.
  */
 
-/*
- * dummy empty file to generate the libpep-c shared library
- */
-void pep_fuck_the_gcc_warning(void) {}
+#include "config.h"  /* PACKAGE_NAME and PACKAGE_VERSION const */
+
+#include <stdio.h> /* snprintf() */
+#include <curl/curl.h> /* curl_version() */
+
+/** buffer for version */
+#define VERSION_BUFFER_SIZE 1024
+static char VERSION_BUFFER[VERSION_BUFFER_SIZE];
+static int VERSION_BUFFER_initialized= 0;
+
+const char * pep_version(void) {
+    if (!VERSION_BUFFER_initialized) {
+        snprintf(VERSION_BUFFER,VERSION_BUFFER_SIZE,"%s/%s (%s)",PACKAGE_NAME,PACKAGE_VERSION,curl_version());
+        VERSION_BUFFER_initialized= 1;
+    }
+    return VERSION_BUFFER;
+}
