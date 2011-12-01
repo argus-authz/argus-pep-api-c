@@ -26,18 +26,18 @@
 
 struct xacml_response {
     xacml_request_t * request; /* original request */
-    linkedlist_t * results; /* list of results */
+    pep_linkedlist_t * results; /* list of results */
 };
 
 xacml_response_t * xacml_response_create() {
-    xacml_response_t * response= calloc(1,sizeof(xacml_response_t));
+    xacml_response_t * response= calloc(1,sizeof(struct xacml_response));
     if (response == NULL) {
-        log_error("xacml_response_create: can't allocate xacml_response_t.");
+        pep_log_error("xacml_response_create: can't allocate xacml_response_t.");
         return NULL;
     }
-    response->results= llist_create();
+    response->results= pep_llist_create();
     if (response->results == NULL) {
-        log_error("xacml_response_create: can't create results list.");
+        pep_log_error("xacml_response_create: can't create results list.");
         free(response);
         return NULL;
     }
@@ -47,7 +47,7 @@ xacml_response_t * xacml_response_create() {
 
 int xacml_response_setrequest(xacml_response_t * response, xacml_request_t * request) {
     if (response == NULL || request == NULL) {
-        log_error("xacml_response_setrequest: NULL response or request.");
+        pep_log_error("xacml_response_setrequest: NULL response or request.");
         return PEP_XACML_ERROR;
     }
     if (response->request != NULL) xacml_request_delete(response->request);
@@ -57,7 +57,7 @@ int xacml_response_setrequest(xacml_response_t * response, xacml_request_t * req
 
 xacml_request_t * xacml_response_getrequest(const xacml_response_t * response) {
     if (response == NULL) {
-        log_error("xacml_response_getrequest: NULL response.");
+        pep_log_error("xacml_response_getrequest: NULL response.");
         return NULL;
     }
     return response->request;
@@ -66,7 +66,7 @@ xacml_request_t * xacml_response_getrequest(const xacml_response_t * response) {
 xacml_request_t * xacml_response_relinquishrequest(xacml_response_t * response) {
     xacml_request_t * request;
     if (response == NULL) {
-        log_error("xacml_response_getrequest: NULL response.");
+        pep_log_error("xacml_response_getrequest: NULL response.");
         return NULL;
     }
     /* forget about the request, caller is responsible to call xacml_delete_request */
@@ -78,11 +78,11 @@ xacml_request_t * xacml_response_relinquishrequest(xacml_response_t * response) 
 
 int xacml_response_addresult(xacml_response_t * response, xacml_result_t * result) {
     if (response == NULL || result == NULL) {
-        log_error("xacml_response_addresult: NULL response or result.");
+        pep_log_error("xacml_response_addresult: NULL response or result.");
         return PEP_XACML_ERROR;
     }
-    if (llist_add(response->results,result) != LLIST_OK) {
-        log_error("xacml_response_addresult: can't add result to list.");
+    if (pep_llist_add(response->results,result) != LLIST_OK) {
+        pep_log_error("xacml_response_addresult: can't add result to list.");
         return PEP_XACML_ERROR;
     }
     else return PEP_XACML_OK;
@@ -90,25 +90,25 @@ int xacml_response_addresult(xacml_response_t * response, xacml_result_t * resul
 
 size_t xacml_response_results_length(const xacml_response_t * response) {
     if (response == NULL) {
-        log_warn("xacml_response_results_length: NULL response.");
+        pep_log_warn("xacml_response_results_length: NULL response.");
         return 0;
     }
-    return llist_length(response->results);
+    return pep_llist_length(response->results);
 }
 
 xacml_result_t * xacml_response_getresult(const xacml_response_t * response, int index) {
     if (response == NULL) {
-        log_error("xacml_response_getresult: NULL response.");
+        pep_log_error("xacml_response_getresult: NULL response.");
         return NULL;
     }
-    return llist_get(response->results,index);
+    return pep_llist_get(response->results,index);
 }
 
 void xacml_response_delete(xacml_response_t * response) {
     if (response == NULL) return;
     if (response->request != NULL) xacml_request_delete(response->request);
-    llist_delete_elements(response->results,(delete_element_func)xacml_result_delete);
-    llist_delete(response->results);
+    pep_llist_delete_elements(response->results,(pep_llist_delete_elt_f)xacml_result_delete);
+    pep_llist_delete(response->results);
     free(response);
     response= NULL;
 }

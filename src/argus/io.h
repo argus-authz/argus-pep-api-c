@@ -31,11 +31,11 @@ extern "C" {
  * into the output buffer.
  *
  * @param const xacml_request_t * request the PEP XACML request to marshal.
- * @param BUFFER * output buffer.
+ * @param pep_buffer_t * output buffer.
  *
  * @return pep_error_t PEP_OK or an error code.
  */
-pep_error_t xacml_request_marshalling(const xacml_request_t * request, BUFFER * output);
+pep_error_t xacml_request_marshalling(const xacml_request_t * request, pep_buffer_t * output);
 
 /**
  * Reads the serialized Hessian bytes from the input buffer and unmarshalls the PEP
@@ -45,7 +45,7 @@ pep_error_t xacml_request_marshalling(const xacml_request_t * request, BUFFER * 
  * (should be NULL)
  *
  * @param xacml_response_t ** response the unmarshalled PEP XACML response (output).
- * @param BUFFER * input the buffer to read from.
+ * @param pep_buffer_t * input the buffer to read from.
  *
  * @return pep_error_t PEP_OK or an error code.
  *
@@ -59,7 +59,7 @@ pep_error_t xacml_request_marshalling(const xacml_request_t * request, BUFFER * 
  *      error handling...
  *   }
  */
-pep_error_t xacml_response_unmarshalling(xacml_response_t ** response, BUFFER * input);
+pep_error_t xacml_response_unmarshalling(xacml_response_t ** response, pep_buffer_t * input);
 
 /**
  * The Java class namespaces and variable name constants for the PEP model

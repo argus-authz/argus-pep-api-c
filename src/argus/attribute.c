@@ -28,16 +28,16 @@ struct xacml_attribute {
     char * id; /* mandatory */
     char * datatype; /* optional */
     char * issuer; /* optional */
-    linkedlist_t * values; /* string list */
+    pep_linkedlist_t * values; /* string list */
 };
 
 /**
  * Creates a PEP attribute with the given id.
  */
 xacml_attribute_t * xacml_attribute_create(const char * id) {
-    xacml_attribute_t * attr= calloc(1,sizeof(xacml_attribute_t));
+    xacml_attribute_t * attr= calloc(1,sizeof(struct xacml_attribute));
     if (attr == NULL) {
-        log_error("xacml_attribute_create: can't allocate xacml_attribute_t.");
+        pep_log_error("xacml_attribute_create: can't allocate xacml_attribute_t.");
         return NULL;
     }
     attr->id= NULL;
@@ -45,7 +45,7 @@ xacml_attribute_t * xacml_attribute_create(const char * id) {
         size_t size= strlen(id);
         attr->id= calloc(size + 1,sizeof(char));
         if (attr->id == NULL) {
-            log_error("xacml_attribute_create: can't allocate id (%d bytes).",(int)size);
+            pep_log_error("xacml_attribute_create: can't allocate id (%d bytes).",(int)size);
             free(attr);
             return NULL;
         }
@@ -53,9 +53,9 @@ xacml_attribute_t * xacml_attribute_create(const char * id) {
     }
     attr->datatype= NULL;
     attr->issuer= NULL;
-    attr->values= llist_create();
+    attr->values= pep_llist_create();
     if (attr->values == NULL) {
-        log_error("xacml_attribute_create: can't create values list.");
+        pep_log_error("xacml_attribute_create: can't create values list.");
         free(attr->id);
         free(attr);
         return NULL;
@@ -71,23 +71,23 @@ xacml_attribute_t * xacml_attribute_clone(const xacml_attribute_t * attr) {
     size_t nvalues;
     int i;
     if (attr == NULL) {
-        log_warn("xacml_attribute_clone: attr is NULL.");
+        pep_log_warn("xacml_attribute_clone: attr is NULL.");
         return NULL;
     }
     clone= xacml_attribute_create(attr->id);
     if (clone == NULL) {
-        log_error("xacml_attribute_clone: can't create clone with id: %s", attr->id);
+        pep_log_error("xacml_attribute_clone: can't create clone with id: %s", attr->id);
         return NULL;
     }
     /* datatype */
     if (xacml_attribute_setdatatype(clone,attr->datatype) != PEP_XACML_OK) {
-        log_error("xacml_attribute_clone: can't set datatype: %s",attr->datatype);
+        pep_log_error("xacml_attribute_clone: can't set datatype: %s",attr->datatype);
         xacml_attribute_delete(clone);
         return NULL;
     }
     /* issuer */
     if (xacml_attribute_setissuer(clone,attr->issuer) != PEP_XACML_OK) {
-        log_error("xacml_attribute_clone: can't set issuer: %s",attr->issuer);
+        pep_log_error("xacml_attribute_clone: can't set issuer: %s",attr->issuer);
         xacml_attribute_delete(clone);
         return NULL;
     }
@@ -96,7 +96,7 @@ xacml_attribute_t * xacml_attribute_clone(const xacml_attribute_t * attr) {
     for(i= 0; i<nvalues; i++) {
         const char * value= xacml_attribute_getvalue(attr,i);
         if (xacml_attribute_addvalue(clone,value) != PEP_XACML_OK) {
-            log_error("xacml_attribute_clone: can't clone value[%d]: %s",i,value);
+            pep_log_error("xacml_attribute_clone: can't clone value[%d]: %s",i,value);
             xacml_attribute_delete(clone);
             return NULL;
         }
@@ -111,11 +111,11 @@ xacml_attribute_t * xacml_attribute_clone(const xacml_attribute_t * attr) {
 int xacml_attribute_setid(xacml_attribute_t * attr, const char * id) {
     size_t size;
     if (attr == NULL) {
-        log_error("xacml_attribute_setid: NULL attribute.");
+        pep_log_error("xacml_attribute_setid: NULL attribute.");
         return PEP_XACML_ERROR;
     }
     if (id == NULL) {
-        log_error("xacml_attribute_setid: NULL id.");
+        pep_log_error("xacml_attribute_setid: NULL id.");
         return PEP_XACML_ERROR;
     }
     if (attr->id != NULL) {
@@ -124,7 +124,7 @@ int xacml_attribute_setid(xacml_attribute_t * attr, const char * id) {
     size= strlen(id);
     attr->id= calloc(size + 1,sizeof(char));
     if (attr->id == NULL) {
-        log_error("xacml_attribute_setid: can't allocate id (%d bytes).", (int)size);
+        pep_log_error("xacml_attribute_setid: can't allocate id (%d bytes).", (int)size);
         return PEP_XACML_ERROR;
     }
     strncpy(attr->id,id,size);
@@ -133,7 +133,7 @@ int xacml_attribute_setid(xacml_attribute_t * attr, const char * id) {
 
 const char * xacml_attribute_getid(const xacml_attribute_t * attr) {
     if (attr == NULL) {
-        log_error("xacml_attribute_getid: NULL attribute.");
+        pep_log_error("xacml_attribute_getid: NULL attribute.");
         return NULL;
     }
     return attr->id;
@@ -144,7 +144,7 @@ const char * xacml_attribute_getid(const xacml_attribute_t * attr) {
  */
 int xacml_attribute_setdatatype(xacml_attribute_t * attr, const char * datatype) {
     if (attr == NULL) {
-        log_error("xacml_attribute_setdatatype: NULL attribute.");
+        pep_log_error("xacml_attribute_setdatatype: NULL attribute.");
         return PEP_XACML_ERROR;
     }
     if (attr->datatype != NULL) {
@@ -155,7 +155,7 @@ int xacml_attribute_setdatatype(xacml_attribute_t * attr, const char * datatype)
         size_t size= strlen(datatype);
         attr->datatype= calloc(size + 1,sizeof(char));
         if (attr->datatype == NULL) {
-            log_error("xacml_attribute_setdatatype: can't allocate datatype (%d bytes).", (int)size);
+            pep_log_error("xacml_attribute_setdatatype: can't allocate datatype (%d bytes).", (int)size);
             return PEP_XACML_ERROR;
         }
         strncpy(attr->datatype,datatype,size);
@@ -165,7 +165,7 @@ int xacml_attribute_setdatatype(xacml_attribute_t * attr, const char * datatype)
 
 const char * xacml_attribute_getdatatype(const xacml_attribute_t * attr) {
     if (attr == NULL) {
-        log_error("xacml_attribute_getdatatype: NULL attribute.");
+        pep_log_error("xacml_attribute_getdatatype: NULL attribute.");
         return NULL;
     }
     return attr->datatype;
@@ -177,7 +177,7 @@ const char * xacml_attribute_getdatatype(const xacml_attribute_t * attr) {
  */
 int xacml_attribute_setissuer(xacml_attribute_t * attr, const char * issuer) {
     if (attr == NULL) {
-        log_error("xacml_attribute_setissuer: NULL attribute.");
+        pep_log_error("xacml_attribute_setissuer: NULL attribute.");
         return PEP_XACML_ERROR;
     }
     if (attr->issuer != NULL) {
@@ -188,7 +188,7 @@ int xacml_attribute_setissuer(xacml_attribute_t * attr, const char * issuer) {
         size_t size= strlen(issuer);
         attr->issuer= calloc(size + 1,sizeof(char));
         if (attr->issuer == NULL) {
-            log_error("xacml_attribute_setissuer: can't allocate issuer (%d bytes).", (int)size);
+            pep_log_error("xacml_attribute_setissuer: can't allocate issuer (%d bytes).", (int)size);
             return PEP_XACML_ERROR;
         }
         strncpy(attr->issuer,issuer,size);
@@ -199,7 +199,7 @@ int xacml_attribute_setissuer(xacml_attribute_t * attr, const char * issuer) {
 
 const char * xacml_attribute_getissuer(const xacml_attribute_t * attr) {
     if (attr == NULL) {
-        log_error("xacml_attribute_getissuer: NULL attribute.");
+        pep_log_error("xacml_attribute_getissuer: NULL attribute.");
         return NULL;
     }
     return attr->issuer;
@@ -212,25 +212,25 @@ int xacml_attribute_addvalue(xacml_attribute_t * attr, const char *value) {
     size_t size;
     char * v;
     if (attr == NULL || value == NULL) {
-        log_error("xacml_attribute_addvalue: NULL attribute or value.");
+        pep_log_error("xacml_attribute_addvalue: NULL attribute or value.");
         return PEP_XACML_ERROR;
     }
     /* copy the const value */
     size= strlen(value);
 /*
     if (size <= 0) {
-        log_error("xacml_attribute_addvalue: empty value not allowed.");
+        pep_log_error("xacml_attribute_addvalue: empty value not allowed.");
         return PEP_XACML_ERROR;
     }
 */
     v= calloc(size + 1, sizeof(char));
     if (v == NULL) {
-        log_error("xacml_attribute_addvalue: can't allocate value (%d bytes).", (int)size);
+        pep_log_error("xacml_attribute_addvalue: can't allocate value (%d bytes).", (int)size);
         return PEP_XACML_ERROR;
     }
     strncpy(v,value,size);
-    if (llist_add(attr->values,v) != LLIST_OK) {
-        log_error("xacml_attribute_addvalue: can't add value to list.");
+    if (pep_llist_add(attr->values,v) != LLIST_OK) {
+        pep_log_error("xacml_attribute_addvalue: can't add value to list.");
         return PEP_XACML_ERROR;
     }
     else return PEP_XACML_OK;
@@ -238,18 +238,18 @@ int xacml_attribute_addvalue(xacml_attribute_t * attr, const char *value) {
 
 size_t xacml_attribute_values_length(const xacml_attribute_t * attr) {
     if (attr == NULL) {
-        log_warn("xacml_attribute_values_length: NULL attribute.");
+        pep_log_warn("xacml_attribute_values_length: NULL attribute.");
         return 0;
     }
-    return llist_length(attr->values);
+    return pep_llist_length(attr->values);
 }
 
 const char * xacml_attribute_getvalue(const xacml_attribute_t * attr,int index) {
     if (attr == NULL) {
-        log_error("xacml_attribute_getvalue: NULL attribute.");
+        pep_log_error("xacml_attribute_getvalue: NULL attribute.");
         return NULL;
     }
-    return llist_get(attr->values,index);
+    return pep_llist_get(attr->values,index);
 }
 
 /**
@@ -260,8 +260,8 @@ void xacml_attribute_delete(xacml_attribute_t * attr) {
     if (attr->id != NULL) free(attr->id);
     if (attr->datatype != NULL) free(attr->datatype);
     if (attr->issuer != NULL) free(attr->issuer);
-    llist_delete_elements(attr->values,(delete_element_func)free);
-    llist_delete(attr->values);
+    pep_llist_delete_elements(attr->values,(pep_llist_delete_elt_f)free);
+    pep_llist_delete(attr->values);
     free(attr);
     attr= NULL;
 }
