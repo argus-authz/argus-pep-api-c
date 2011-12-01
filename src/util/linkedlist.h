@@ -97,12 +97,12 @@ int pep_llist_delete(pep_linkedlist_t * list);
  * linked list is not released.
  *
  * @param linkedlist_t * list pointer to the linked list.
- * @param delete_element_func delete function to apply to each element.
+ * @param pep_llist_delete_elt_f delete function to apply to each element.
  *
  * @return LLIST_OK or LLIST_ERROR if an error occurs.
  */
-typedef void (*delete_element_func) (void *);
-int pep_llist_delete_elements(pep_linkedlist_t * list, delete_element_func deletef);
+typedef void (*pep_llist_delete_elt_f) (void *);
+int pep_llist_delete_elements(pep_linkedlist_t * list, pep_llist_delete_elt_f deletef);
 
 #ifdef  __cplusplus
 }

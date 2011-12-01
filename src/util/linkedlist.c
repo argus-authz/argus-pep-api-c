@@ -153,7 +153,7 @@ void * pep_llist_remove(pep_linkedlist_t * list, int i) {
     return element;
 }
 
-int pep_llist_delete_elements(pep_linkedlist_t * list, delete_element_func deletef) {
+int pep_llist_delete_elements(pep_linkedlist_t * list, pep_llist_delete_elt_f deletef) {
     size_t list_l;
     void ** unique_elts;
     void * elt, * unique_elt;
