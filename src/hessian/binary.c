@@ -58,18 +58,18 @@ static hessian_object_t * hessian_binary_ctor (hessian_object_t * object, va_lis
     size_t length= va_arg(*ap, size_t);
     const char * data = va_arg(*ap, const char *);
     if (self == NULL) {
-		log_error("hessian_binary_ctor: NULL object pointer.");
-    	return NULL;
+        pep_log_error("hessian_binary_ctor: NULL object pointer.");
+        return NULL;
     }
     if (data == NULL) {
-		log_error("hessian_binary_ctor: NULL data parameter 3.");
-    	return NULL;
+        pep_log_error("hessian_binary_ctor: NULL data parameter 3.");
+        return NULL;
     }
     self->length= length;
     self->data= calloc(self->length,sizeof(char));
     if (self->data == NULL) {
-		log_error("hessian_binary_ctor: can't allocate data (%d bytes).",(int)self->length);
-    	return NULL;
+        pep_log_error("hessian_binary_ctor: can't allocate data (%d bytes).",(int)self->length);
+        return NULL;
     }
     memcpy(self->data,data,length);
     return self;
@@ -81,8 +81,8 @@ static hessian_object_t * hessian_binary_ctor (hessian_object_t * object, va_lis
 static int hessian_binary_dtor (hessian_object_t * object) {
     hessian_binary_t * self= object;
     if (self == NULL) {
-		log_error("hessian_binary_dtor: NULL object pointer.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_binary_dtor: NULL object pointer.");
+        return HESSIAN_ERROR;
     }
     if (self->data != NULL) free(self->data);
     self->data= NULL;
@@ -93,115 +93,115 @@ static int hessian_binary_dtor (hessian_object_t * object) {
 /**
  * hessian_binary deserialize method.
  */
-static int hessian_binary_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
+static int hessian_binary_deserialize (hessian_object_t * object, int tag, pep_buffer_t * input) {
     hessian_binary_t * self= object;
     const hessian_class_t * class;
     size_t buf_size, buf_l;
     int fully_read;
-    BUFFER * buf;
+    pep_buffer_t * buf;
     if (self == NULL) {
-		log_error("hessian_binary_deserialize: NULL object pointer.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_binary_deserialize: NULL object pointer.");
+        return HESSIAN_ERROR;
     }
     class= hessian_getclass(object);
     if (class == NULL) {
-    	log_error("hessian_binary_deserialize: NULL class descriptor.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_binary_deserialize: NULL class descriptor.");
+        return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_BINARY) {
-    	log_error("hessian_binary_deserialize: wrong class type: %d.", class->type);
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_binary_deserialize: wrong class type: %d.", class->type);
+        return HESSIAN_ERROR;
     }
     /* tag is 'x' for chunks and 'X' for final */
     if (tag != class->tag && tag != class->chunk_tag) {
-    	log_error("hessian_binary_deserialize: wrong tag: %c.", (char)tag);
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_binary_deserialize: wrong tag: %c.", (char)tag);
+        return HESSIAN_ERROR;
     }
-	/* use a buffer as tmp */
+    /* use a buffer as tmp */
     buf_size= 32;
     if (tag == class->chunk_tag) buf_size= HESSIAN_CHUNK_SIZE;
-	buf= buffer_create(buf_size);
+    buf= pep_buffer_create(buf_size);
     fully_read= FALSE;
     while (!fully_read) {
         /* read the binary length */
-		int b16= buffer_getc(input);
-		int b8= buffer_getc(input);
-		size_t bin_l= (b16 << 8) + b8;
-		/* fully read string (chunk) */
-		size_t n_bytes= 0;
-		while(n_bytes < bin_l) {
-			int b= buffer_getc(input);
-			buffer_putc(b,buf);
-			n_bytes++;
-		}
-		/* was it final chunk? */
-		if (tag == class->chunk_tag) {
-			tag= buffer_getc(input);
-		}
-		else {
-			/* tag == class->tag (final) */
-			fully_read= TRUE;
-		}
+        int b16= pep_buffer_getc(input);
+        int b8= pep_buffer_getc(input);
+        size_t bin_l= (b16 << 8) + b8;
+        /* fully read string (chunk) */
+        size_t n_bytes= 0;
+        while(n_bytes < bin_l) {
+            int b= pep_buffer_getc(input);
+            pep_buffer_putc(b,buf);
+            n_bytes++;
+        }
+        /* was it final chunk? */
+        if (tag == class->chunk_tag) {
+            tag= pep_buffer_getc(input);
+        }
+        else {
+            /* tag == class->tag (final) */
+            fully_read= TRUE;
+        }
     }
     /* copy the buffer into the hessian binary */
-    buf_l= buffer_length(buf);
+    buf_l= pep_buffer_length(buf);
     self->length= buf_l;
     self->data= calloc(self->length,sizeof(char));
     if (self->data == NULL) {
-    	log_error("hessian_binary_deserialize: can't allocated data (%d bytes).", (int)self->length);
-        buffer_delete(buf);
+        pep_log_error("hessian_binary_deserialize: can't allocated data (%d bytes).", (int)self->length);
+        pep_buffer_delete(buf);
         return HESSIAN_ERROR;
     }
-    buffer_read(self->data,sizeof(char),buf_l,buf);
-    buffer_delete(buf);
+    pep_buffer_read(self->data,sizeof(char),buf_l,buf);
+    pep_buffer_delete(buf);
     return HESSIAN_OK;
 }
 
 /**
  * hessian_binary serialize method.
  */
-static int hessian_binary_serialize (const hessian_object_t * object, BUFFER * output) {
+static int hessian_binary_serialize (const hessian_object_t * object, pep_buffer_t * output) {
     hessian_binary_t * self= (hessian_object_t *) object;
     const hessian_class_t * class;
     size_t byte_l, pos;
     int b8, b16;
     const char * chunk, * rest;
     if (self == NULL) {
-		log_error("hessian_binary_serialize: NULL object pointer.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_binary_serialize: NULL object pointer.");
+        return HESSIAN_ERROR;
     }
     class= hessian_getclass(object);
     if (class == NULL) {
-    	log_error("hessian_binary_serialize: NULL class descriptor.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_binary_serialize: NULL class descriptor.");
+        return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_BINARY) {
-    	log_error("hessian_binary_serialize: wrong class type: %d.",(int)(class->type));
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_binary_serialize: wrong class type: %d.",(int)(class->type));
+        return HESSIAN_ERROR;
     }
     byte_l= self->length;
     pos= 0;
     while (byte_l > HESSIAN_CHUNK_SIZE) {
         /* send binary chunks */
-        buffer_putc(class->chunk_tag,output);
+        pep_buffer_putc(class->chunk_tag,output);
         b16= HESSIAN_CHUNK_SIZE >> 8;
         b8= HESSIAN_CHUNK_SIZE & 0x00FF;
-        buffer_putc(b16,output);
-        buffer_putc(b8,output);
+        pep_buffer_putc(b16,output);
+        pep_buffer_putc(b8,output);
         /* write HESSIAN_CHUNK_SIZE bytes */
         chunk= &(self->data[pos]);
-        buffer_write(chunk,1,HESSIAN_CHUNK_SIZE,output);
+        pep_buffer_write(chunk,1,HESSIAN_CHUNK_SIZE,output);
         pos= pos + HESSIAN_CHUNK_SIZE;
         byte_l= byte_l - HESSIAN_CHUNK_SIZE;
     }
 
-    buffer_putc(class->tag,output);
+    pep_buffer_putc(class->tag,output);
     b16= byte_l >> 8;
     b8= byte_l & 0x00FF;
-    buffer_putc(b16,output);
-    buffer_putc(b8,output);
+    pep_buffer_putc(b16,output);
+    pep_buffer_putc(b8,output);
     rest= &(self->data[pos]);
-    buffer_write(rest,1,byte_l,output);
+    pep_buffer_write(rest,1,byte_l,output);
 
     return HESSIAN_OK;
 }
@@ -213,17 +213,17 @@ size_t hessian_binary_length(const hessian_object_t * obj) {
     const hessian_binary_t * self= obj;
     const hessian_class_t * class;
     if (self == NULL) {
-    	log_error("hessian_binary_length: NULL object pointer.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_binary_length: NULL object pointer.");
+        return HESSIAN_ERROR;
     }
     class= hessian_getclass(obj);
     if (class == NULL) {
-    	log_error("hessian_binary_length: NULL class descriptor.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_binary_length: NULL class descriptor.");
+        return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_BINARY) {
-    	log_error("hessian_binary_length: wrong class type: %d.", class->type);
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_binary_length: wrong class type: %d.", class->type);
+        return HESSIAN_ERROR;
     }
     return self->length;
 }
@@ -235,17 +235,17 @@ const char * hessian_binary_getdata(const hessian_object_t * obj) {
     const hessian_binary_t * self= obj;
     const hessian_class_t * class;
     if (self == NULL) {
-    	log_error("hessian_binary_getdata: NULL pointer.");
-    	return NULL;
+        pep_log_error("hessian_binary_getdata: NULL pointer.");
+        return NULL;
     }
     class= hessian_getclass(obj);
     if (class == NULL) {
-    	log_error("hessian_binary_getdata: no class descriptor.");
-    	return NULL;
+        pep_log_error("hessian_binary_getdata: no class descriptor.");
+        return NULL;
     }
     if (class->type != HESSIAN_BINARY) {
-    	log_error("hessian_binary_getdata: wrong class type: %d.", class->type);
-    	return NULL;
+        pep_log_error("hessian_binary_getdata: wrong class type: %d.", class->type);
+        return NULL;
     }
     return self->data;
 }

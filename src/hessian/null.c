@@ -47,31 +47,31 @@ const void * hessian_null_class = &_hessian_null_descr;
 /**
  * Hessian null serialize method.
  */
-static int hessian_null_serialize (const hessian_object_t * object, BUFFER * output) {
+static int hessian_null_serialize (const hessian_object_t * object, pep_buffer_t * output) {
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-        log_error("hessian_null_serialize: NULL class descriptor.");
+        pep_log_error("hessian_null_serialize: NULL class descriptor.");
         return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_NULL) {
-        log_error("hessian_null_serialize: wrong class type: %d.", class->type);
+        pep_log_error("hessian_null_serialize: wrong class type: %d.", class->type);
         return HESSIAN_ERROR;
     }
-    buffer_putc(class->tag,output);
+    pep_buffer_putc(class->tag,output);
     return HESSIAN_OK;
 }
 
 /**
  * Hessian null deserialize method.
  */
-static int hessian_null_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
+static int hessian_null_deserialize (hessian_object_t * object, int tag, pep_buffer_t * input) {
     const hessian_class_t * class= hessian_getclass(object);
     if (class == NULL) {
-        log_error("hessian_null_deserialize: NULL class descriptor.");
+        pep_log_error("hessian_null_deserialize: NULL class descriptor.");
         return HESSIAN_ERROR;
     }
     if (tag != class->tag) {
-        log_error("hessian_null_deserialize: invalid tag: %c (%d).",(char)tag,tag);
+        pep_log_error("hessian_null_deserialize: invalid tag: %c (%d).",(char)tag,tag);
         return HESSIAN_ERROR;
     }
     return HESSIAN_OK;

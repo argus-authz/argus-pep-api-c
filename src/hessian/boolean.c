@@ -55,8 +55,8 @@ static hessian_object_t * hessian_boolean_ctor (hessian_object_t * _self, va_lis
     hessian_boolean_t * self= _self;
     int value= va_arg( *ap, int);
     if (self == NULL) {
-		log_error("hessian_boolean_ctor: NULL pointer.");
-    	return NULL;
+        pep_log_error("hessian_boolean_ctor: NULL pointer.");
+        return NULL;
     }
     if (value == TRUE) self->value= TRUE;
     else self->value= FALSE;
@@ -67,50 +67,50 @@ static hessian_object_t * hessian_boolean_ctor (hessian_object_t * _self, va_lis
 /**
  * Hessian boolean serialize method.
  */
-static int hessian_boolean_serialize (const hessian_object_t * object, BUFFER * output) {
+static int hessian_boolean_serialize (const hessian_object_t * object, pep_buffer_t * output) {
     const hessian_boolean_t * self= object;
     const hessian_class_t * class;
     int b;
     if (self == NULL) {
-    	log_error("hessian_boolean_serialize: NULL object pointer.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_boolean_serialize: NULL object pointer.");
+        return HESSIAN_ERROR;
     }
     class= hessian_getclass(object);
     if (class == NULL) {
-    	log_error("hessian_boolean_serialize: NULL class descriptor.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_boolean_serialize: NULL class descriptor.");
+        return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_BOOLEAN) {
-    	log_error("hessian_boolean_serialize: wrong class type: %d.", class->type);
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_boolean_serialize: wrong class type: %d.", class->type);
+        return HESSIAN_ERROR;
     }
     b= self->value == TRUE ? class->tag : class->chunk_tag;
-    buffer_putc(b,output);
+    pep_buffer_putc(b,output);
     return HESSIAN_OK;
 }
 
 /**
  * Hessian boolean deserialize method.
  */
-static int hessian_boolean_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
+static int hessian_boolean_deserialize (hessian_object_t * object, int tag, pep_buffer_t * input) {
     hessian_boolean_t * self= object;
     const hessian_class_t * class;
     if (self == NULL) {
-    	log_error("hessian_boolean_deserialize: NULL object pointer.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_boolean_deserialize: NULL object pointer.");
+        return HESSIAN_ERROR;
     }
     class= hessian_getclass(object);
     if (class == NULL) {
-    	log_error("hessian_boolean_deserialize: NULL class descriptor.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_boolean_deserialize: NULL class descriptor.");
+        return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_BOOLEAN) {
-    	log_error("hessian_boolean_deserialize: wrong class type: %d.", class->type);
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_boolean_deserialize: wrong class type: %d.", class->type);
+        return HESSIAN_ERROR;
     }
     if (tag != class->tag && tag != class->chunk_tag) {
-    	log_error("hessian_boolean_deserialize: invalid tag: %c (%d).", (char)tag, tag);
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_boolean_deserialize: invalid tag: %c (%d).", (char)tag, tag);
+        return HESSIAN_ERROR;
     }
     self->value= tag == class->tag ? TRUE : FALSE;
     return HESSIAN_OK;
@@ -120,20 +120,20 @@ static int hessian_boolean_deserialize (hessian_object_t * object, int tag, BUFF
  * Returns the Hessian boolean value (TRUE or FALSE) or HESSIAN_ERROR (-1) on error.
  */
 int hessian_boolean_getvalue(const hessian_object_t * object) {
-	const hessian_boolean_t * self= object;
+    const hessian_boolean_t * self= object;
     const hessian_class_t * class;
     if (self == NULL) {
-    	log_error("hessian_boolean_getvalue: NULL object pointer.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_boolean_getvalue: NULL object pointer.");
+        return HESSIAN_ERROR;
     }
     class= hessian_getclass(object);
     if (class == NULL) {
-    	log_error("hessian_boolean_getvalue: NULL class descriptor.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_boolean_getvalue: NULL class descriptor.");
+        return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_BOOLEAN) {
-    	log_error("hessian_boolean_getvalue: wrong class type: %d.", class->type);
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_boolean_getvalue: wrong class type: %d.", class->type);
+        return HESSIAN_ERROR;
     }
     return self->value;
 }
