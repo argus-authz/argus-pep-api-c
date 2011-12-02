@@ -51,7 +51,9 @@ static const FILE * DEFAULT_LOG_FILE= NULL;
 static const int    DEFAULT_PIPS_ENABLED= TRUE;
 static const int    DEFAULT_OHS_ENABLED= TRUE;
 /* default SSL cipher without ECDH: OpenSSL 1.0 bug */
+/*
 static const char * DEFAULT_SSL_CIPHER_LIST= "DEFAULT:-ECDH";
+*/
 
 /** internal functions prototypes */
 static void init_pep_defaults(PEP * pep);
@@ -778,7 +780,9 @@ static void init_pep_defaults(PEP * pep) {
 
 /** set some curl default value */
 static void init_curl_defaults(PEP * pep) {
+/*
     CURLcode curl_rc;
+*/
     /* set default http headers */
     set_curl_http_headers(pep);
     /* set default timeout */
