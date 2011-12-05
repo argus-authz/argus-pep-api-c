@@ -31,9 +31,9 @@ extern "C" {
 
 #include <stddef.h> /* size_t */
 
-/** @defgroup XACML XACML Objects Model
+/** @defgroup XACML XACML Constants and Objects Model
  *
- * The XACML object model (Request, Response, ...) used by the PEP client.
+ * The XACML constants and object model (Request, Response, ...) used by the PEP client.
  *
  * TODO: add object schema with the \@image tag
  *
