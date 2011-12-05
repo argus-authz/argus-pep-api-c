@@ -61,18 +61,17 @@ typedef enum pep_error {
     PEP_ERR_MEMORY, /**< Memory allocation error */
     PEP_ERR_NULL_POINTER, /**< NULL pointer exception */
     PEP_ERR_LLIST, /**< Linked list allocation error */
-    PEP_ERR_CURL, /**< Curl error */
     PEP_ERR_PIP_INIT, /**< PIP pip_init_func() error in pep_addpip(pep_pip_t *) */
     PEP_ERR_OH_INIT, /**< Obligation Hanlder oh_init_func() error in pep_addobligationhandler(pep_obligationhandler_t *) */
     PEP_ERR_OPTION_INVALID, /**< PEP client option invalid in pep_setoption(pep_option_t,args) */
     PEP_ERR_PIP_PROCESS, /**< PIP process(pep_request_t) error in pep_authorize(pep_request_t **,pep_response_t **) */
-    PEP_ERR_CURL_PERFORM, /**< Curl POST error in pep_authorize(pep_request_t **,pep_response_t **) */
     PEP_ERR_AUTHZ_REQUEST, /**< HTTP Request failed (status not 200) in pep_authorize(pep_request_t **,pep_response_t **) */
     PEP_ERR_OH_PROCESS, /**< Obligation Handler oh_process_func() error in pep_authorize(pep_request_t **,pep_response_t **) */
     PEP_ERR_MARSHALLING_HESSIAN, /**< Hessian marshalling error in pep_authorize(pep_request_t **,pep_response_t **) */
     PEP_ERR_MARSHALLING_IO, /**< IO error in pep_authorize(pep_request_t **,pep_response_t **) */
     PEP_ERR_UNMARSHALLING_HESSIAN, /**< Hessian unmarshalling error in pep_authorize(pep_request_t **,pep_response_t **) */
-    PEP_ERR_UNMARSHALLING_IO /**< IO error in pep_authorize(pep_request_t **,pep_response_t **) */
+    PEP_ERR_UNMARSHALLING_IO, /**< IO error in pep_authorize(pep_request_t **,pep_response_t **) */
+    PEP_ERR_CURL = 1024 /**< Any CURL error (MUST BE LAST OF ENUM)*/
 } pep_error_t;
 
 /**
