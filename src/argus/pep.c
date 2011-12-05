@@ -536,28 +536,28 @@ pep_error_t pep_authorize(PEP * pep, xacml_request_t ** request, xacml_response_
     if (curl_rc != CURLE_OK) {
         pep_log_error("pep_authorize: PEP#%d curl_easy_setopt(curl,CURLOPT_POST,1) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
         pep_buffer_delete(pep->b64output);
-        return PEP_ERR_CURL;
+        return PEP_ERR_CURL + curl_rc;
     }
     b64output_l= pep_buffer_length(pep->b64output);
     curl_rc= curl_easy_setopt(pep->curl, CURLOPT_POSTFIELDSIZE, (long)b64output_l);
     if (curl_rc != CURLE_OK) {
         pep_log_error("pep_authorize: PEP#%d curl_easy_setopt(curl,CURLOPT_POSTFIELDSIZE,%d) failed: %s.",pep->id,(int)b64output_l,curl_easy_strerror(curl_rc));
         pep_buffer_delete(pep->b64output);
-        return PEP_ERR_CURL;
+        return PEP_ERR_CURL + curl_rc;
     }
 
     curl_rc= curl_easy_setopt(pep->curl, CURLOPT_READDATA, pep->b64output);
     if (curl_rc != CURLE_OK) {
         pep_log_error("pep_authorize: PEP#%d curl_easy_setopt(curl,CURLOPT_READDATA,b64output) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
         pep_buffer_delete(pep->b64output);
-        return PEP_ERR_CURL;
+        return PEP_ERR_CURL + curl_rc;
     }
 
     curl_rc= curl_easy_setopt(pep->curl, CURLOPT_READFUNCTION, pep_buffer_read);
     if (curl_rc != CURLE_OK) {
         pep_log_error("pep_authorize: PEP#%d curl_easy_setopt(curl,CURLOPT_READFUNCTION,buffer_read) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
         pep_buffer_delete(pep->b64output);
-        return PEP_ERR_CURL;
+        return PEP_ERR_CURL + curl_rc;
     }
 
 
@@ -574,14 +574,14 @@ pep_error_t pep_authorize(PEP * pep, xacml_request_t ** request, xacml_response_
         pep_log_error("pep_authorize: PEP#%d curl_easy_setopt(curl,CURLOPT_WRITEDATA,b64input) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
         pep_buffer_delete(pep->b64output);
         pep_buffer_delete(pep->b64input);
-        return PEP_ERR_CURL;
+        return PEP_ERR_CURL + curl_rc;
     }
     curl_rc= curl_easy_setopt(pep->curl, CURLOPT_WRITEFUNCTION, pep_buffer_write);
     if (curl_rc != CURLE_OK) {
         pep_log_error("pep_authorize: PEP#%d curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,buffer_write) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
         pep_buffer_delete(pep->b64output);
         pep_buffer_delete(pep->b64input);
-        return PEP_ERR_CURL;
+        return PEP_ERR_CURL + curl_rc;
     }
 
 
@@ -589,10 +589,10 @@ pep_error_t pep_authorize(PEP * pep, xacml_request_t ** request, xacml_response_
     pep_log_info("pep_authorize: PEP#%d sending XACML request to: %s",pep->id,pep->option_endpoint_url);
     curl_rc= curl_easy_perform(pep->curl);
     if (curl_rc != CURLE_OK) {
-        pep_log_error("pep_authorize: PEP#%d sending XACML request failed: curl[%d] %s.",pep->id,(int)curl_rc,curl_easy_strerror(curl_rc));
+        pep_log_error("pep_authorize: PEP#%d sending XACML request to %s failed: curl[%d] %s.",pep->id,pep->option_endpoint_url,(int)curl_rc,curl_easy_strerror(curl_rc));
         pep_buffer_delete(pep->b64output);
         pep_buffer_delete(pep->b64input);
-        return PEP_ERR_CURL_PERFORM;
+        return PEP_ERR_CURL + curl_rc;
     }
 
     /* check for HTTP 200 response code */
@@ -602,7 +602,7 @@ pep_error_t pep_authorize(PEP * pep, xacml_request_t ** request, xacml_response_
         pep_log_error("pep_authorize: PEP#%d curl_easy_getinfo(pep->curl,CURLINFO_RESPONSE_CODE,&http_code) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
         pep_buffer_delete(pep->b64output);
         pep_buffer_delete(pep->b64input);
-        return PEP_ERR_CURL;
+        return PEP_ERR_CURL + curl_rc;
     }
     if (http_code != 200) {
         pep_log_error("pep_authorize: PEP#%d: HTTP status code: %d.",pep->id,(int)http_code);
