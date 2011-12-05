@@ -18,27 +18,27 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>  /* va_list, va_arg, ... */
+#include <curl/curl.h> /* curl_easy_strerror */
 
 #include "error.h"
 
 /*
 typedef enum {
     PEP_OK                          = 0,
-    PEP_ERR_MEMORY                  = 1,
-    PEP_ERR_NULL_POINTER            = 2,
-    PEP_ERR_LLIST                   = 3,
-    PEP_ERR_CURL                    = 4,
-    PEP_ERR_PIP_INIT                = 5,
-    PEP_ERR_OH_INIT                 = 6,
-    PEP_ERR_OPTION_INVALID          = 7,
-    PEP_ERR_PIP_PROCESS             = 8,
-    PEP_ERR_CURL_PROCESS            = 9,
-    PEP_ERR_AUTHZ_REQUEST           = 10,
-    PEP_ERR_OH_PROCESS              = 11, 
-    PEP_ERR_MARSHALLING_HESSIAN     = 12,
-    PEP_ERR_MARSHALLING_IO          = 13,
-    PEP_ERR_UNMARSHALLING_HESSIAN   = 14,
-    PEP_ERR_UNMARSHALLING_IO        = 15
+    PEP_ERR_MEMORY,
+    PEP_ERR_NULL_POINTER,
+    PEP_ERR_LLIST,
+    PEP_ERR_PIP_INIT,
+    PEP_ERR_OH_INIT,
+    PEP_ERR_OPTION_INVALID,
+    PEP_ERR_PIP_PROCESS,
+    PEP_ERR_AUTHZ_REQUEST,
+    PEP_ERR_OH_PROCESS, 
+    PEP_ERR_MARSHALLING_HESSIAN,
+    PEP_ERR_MARSHALLING_IO,
+    PEP_ERR_UNMARSHALLING_HESSIAN,
+    PEP_ERR_UNMARSHALLING_IO,
+    PEP_ERR_CURL                    = 1024,
 } pep_error_t;
 */
 
@@ -56,9 +56,6 @@ const char * pep_strerror(pep_error_t pep_errno) {
     case PEP_ERR_LLIST:
         return "linkedlist error";
         
-    case PEP_ERR_CURL:
-        return "CURL error";
-        
     case PEP_ERR_PIP_INIT:
         return "PIP init error";
         
@@ -70,9 +67,6 @@ const char * pep_strerror(pep_error_t pep_errno) {
         
     case PEP_ERR_PIP_PROCESS:
         return "PIP process error";
-        
-    case PEP_ERR_CURL_PERFORM:
-        return "CURL processing error";
         
     case PEP_ERR_AUTHZ_REQUEST:
         return "authorize request error";
@@ -93,6 +87,7 @@ const char * pep_strerror(pep_error_t pep_errno) {
         return "Unmarshalling IO error";
         
     default:
-        return "Unkown error";
+        /* should be PEP_ERR_CURL. curl_easy_strerror returns "Unkown error" if no match */
+        return curl_easy_strerror(pep_errno - PEP_ERR_CURL);
     }
 }
