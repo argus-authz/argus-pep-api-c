@@ -1,6 +1,7 @@
 argus-pep-api-c 2.1.0
 ---------------------
 * improved multi-thread safety in pep_authorize().
+* pep_strerror() returns the underlying CURL error message.
 * configure: remove option --with-libcurl-nss, not needed.
 * refactoring: rename all internal, non published types and functions to prevent name clash with other libraries.
 * bug fix: don't set any special SSL cipher suite. The SSL handshake problem with OpenSSL 1.0 is 
