@@ -63,7 +63,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libargus-pep.so.2
 
 %doc AUTHORS LICENSE README CHANGELOG
-%doc src/example
 
 %files devel
 %defattr(-,root,root,-)
@@ -76,6 +75,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/argus/pip.h
 %{_includedir}/argus/oh.h
 %{_includedir}/argus/profiles.h
+
+%doc src/example
 
 %changelog
 * Tue Dec 6 2011 Valery Tschopp <valery.tschopp@switch.ch> 2.1.0-1
