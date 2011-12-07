@@ -1,19 +1,19 @@
 Summary: Argus PEP client library
 Name: argus-pep-api-c
-Version: 2.0.3
+Version: 2.1.0
 Release: 1%{?dist}
-#Release: 0.%(date +%%Y%%m%%d_%%H%%M)%{?dist}
 License: ASL 2.0
 Group: System Environment/Libraries
 URL: https://twiki.cern.ch/twiki/bin/view/EGEE/AuthorizationFramework
-Source0: http://www.switch.ch/grid/authz/emi.argus.pep-api-c/%{name}-%{version}.tar.gz
+Source: %{name}-%{version}.tar.gz
+#Source0: http://www.switch.ch/grid/authz/emi.argus.pep-api-c/%{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires: curl-devel
 
 %description
-The Argus PEP client API for C is a multi-thread safe client library used to 
-communicate with the Argus PEP Server. It authorizes request and receives 
-authorization response back from the Argus server.
+The Argus PEP client API for C is a multi-thread friendly client library used to 
+communicate with the Argus PEP Server. It authorizes request and receives
+authorization response back from Argus.
 
 %package devel
 Group: Development/Libraries
@@ -21,9 +21,9 @@ Summary: Argus PEP client development libraries
 Requires: %{name} = %{version}-%{release}
 
 %description devel
-The Argus PEP client API for C is a multi-thread safe client library used to 
-communicate with the Argus PEP Server. It authorizes request and receives 
-authorization response back from the Argus server.
+The Argus PEP client API for C is a multi-thread friendly client library used to 
+communicate with the Argus PEP Server. It authorizes request and receives
+authorization response back from Argus.
 
 This package contains the development libraries.
 
@@ -59,7 +59,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%{_libdir}/libargus-pep.so.2.0.2
+%{_libdir}/libargus-pep.so.2.0.3
 %{_libdir}/libargus-pep.so.2
 
 %doc AUTHORS LICENSE README CHANGELOG
@@ -78,7 +78,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/argus/profiles.h
 
 %changelog
-* Tue Oct 4 2011 Mischa Salle <msalle@nikhef.nl> 2.0.3-1
+* Tue Dec 6 2011 Valery Tschopp <valery.tschopp@switch.ch> 2.1.0-1
+- New package for version 2.1.0
+* Tue Oct 4 2011 Mischa Salle <msalle@nikhef.nl> 2.0.3-2
 - Initial build.
 
 
