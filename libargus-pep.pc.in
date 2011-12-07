@@ -13,8 +13,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-# $Id: configure.ac 2249 2011-03-24 15:07:50Z vtschopp $
 ##
 prefix=@prefix@
 exec_prefix=@exec_prefix@
