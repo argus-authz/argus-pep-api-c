@@ -85,7 +85,8 @@ struct pep_handle {
     struct curl_slist * curl_http_headers;
     pep_linkedlist_t * pips;
     pep_linkedlist_t * ohs;
-    char * option_endpoint_url;
+    char * option_endpoint_url; /* current url */
+    pep_linkedlist_t * option_endpoint_urls;
     int option_loglevel;
     FILE * option_logout;
     long option_timeout; 
@@ -154,6 +155,16 @@ PEP * pep_initialize(void) {
         return NULL;
     }
     
+    pep->option_endpoint_urls= pep_llist_create();
+    if (pep->option_endpoint_urls == NULL) {
+        pep_log_error("pep_initialize: endpoint URLs list allocation failed.");
+        curl_easy_cleanup(pep->curl);
+        pep_llist_delete(pep->pips);
+        pep_llist_delete(pep->ohs);
+        free(pep);
+        return NULL;
+    }
+    
     return pep;
 }
 
@@ -161,22 +172,18 @@ pep_error_t pep_addpip(PEP * pep, const pep_pip_t * pip) {
     int pip_rc = -1;
     if (pep == NULL) {
         pep_log_error("pep_addpip: NULL pep handle");
-        /* pep_errmsg("NULL PEP handle"); */
         return PEP_ERR_NULL_POINTER;
     }
     if (pip == NULL) {
         pep_log_error("pep_addpip: NULL pip pointer");
-        /* pep_errmsg("NULL pep_pip_t pointer"); */
         return PEP_ERR_NULL_POINTER;
     }
     if ((pip_rc= pip->init()) != 0) {
         pep_log_error("pep_addpip: PIP[%s] init() failed: %d.",pip->id, pip_rc);
-        /* pep_errmsg("PIP[%s] init() failed with code: %d",pip->id, pip_rc); */
         return PEP_ERR_PIP_INIT;
     }
     if (pep_llist_add(pep->pips,(pep_pip_t *)pip) != LLIST_OK) {
         pep_log_error("pep_addpip: failed to add initialized PIP[%s] into PEP#%d list.",pip->id,pep->id);
-        /* pep_errmsg("can't add PIP[%s] into PEP#%d list",pip->id,pep->id); */
         return PEP_ERR_LLIST;
     }
     return PEP_OK;
@@ -186,22 +193,18 @@ pep_error_t pep_addobligationhandler(PEP * pep, const pep_obligationhandler_t * 
     int oh_rc= -1;
     if (pep == NULL) {
         pep_log_error("pep_addobligationhandler: NULL pep handle");
-        /* pep_errmsg("NULL PEP handle"); */
         return PEP_ERR_NULL_POINTER;
     }
     if (oh == NULL) {
         pep_log_error("pep_addobligationhandler: NULL oh pointer");
-        /* pep_errmsg("NULL pep_obligationhandler_t pointer"); */
         return PEP_ERR_NULL_POINTER;
     }
     if ((oh_rc= oh->init()) != 0) {
         pep_log_error("pep_addobligationhandler: OH[%s] init() failed: %d",oh->id, oh_rc);
-        /* pep_errmsg("OH[%s] init() failed with code: %d",oh->id, oh_rc); */
         return PEP_ERR_OH_INIT;
     }
     if (pep_llist_add(pep->ohs,(pep_obligationhandler_t *)oh) != LLIST_OK) {
         pep_log_error("pep_addobligationhandler: failed to add initialized OH[%s] into PEP#%d list.",oh->id,pep->id);
-        /* pep_errmsg("can't add OH[%s] into PEP#%d list",oh->id,pep->id); */
         return PEP_ERR_LLIST;
     }
     return PEP_OK;
@@ -217,7 +220,6 @@ pep_error_t pep_setoption(PEP * pep, pep_option_t option, ... ) {
     pep_log_handler_callback * log_handler= NULL;
     if (pep == NULL) {
         pep_log_error("pep_setoption: NULL pep handle");
-        /* pep_errmsg("NULL PEP handle"); */
         return PEP_ERR_NULL_POINTER;
     }
     va_start(args,option);
@@ -238,7 +240,6 @@ pep_error_t pep_setoption(PEP * pep, pep_option_t option, ... ) {
             pep->option_endpoint_url= calloc(str_l + 1, sizeof(char));
             if (pep->option_endpoint_url == NULL) {
                 pep_log_error("pep_setoption: PEP#%d can't allocate option_endpoint_url: %s.",pep->id,str);
-                /* pep_errmsg("can't allocate url: %s.", str); */
                 rc= PEP_ERR_MEMORY;
                 break;
             }
@@ -281,7 +282,6 @@ pep_error_t pep_setoption(PEP * pep, pep_option_t option, ... ) {
             pep->option_ssl_cipher_list= calloc(str_l + 1, sizeof(char));
             if (pep->option_ssl_cipher_list == NULL) {
                 pep_log_error("pep_setoption: PEP#%d can't allocate option_ssl_cipher_list: %s.",pep->id,str);
-                /* pep_errmsg("can't allocate option_ssl_cipher_list: %s.", str); */
                 rc= PEP_ERR_MEMORY;
                 break;
             }
@@ -306,7 +306,6 @@ pep_error_t pep_setoption(PEP * pep, pep_option_t option, ... ) {
             pep->option_server_cert= calloc(str_l + 1, sizeof(char));
             if (pep->option_server_cert == NULL) {
                 pep_log_error("pep_setoption: PEP#%d can't allocate option_server_cert: %s.", pep->id,str);
-                /* pep_errmsg("can't allocate option_server_cert: %s.", str); */
                 rc= PEP_ERR_MEMORY;
                 break;
             }
@@ -330,7 +329,6 @@ pep_error_t pep_setoption(PEP * pep, pep_option_t option, ... ) {
             pep->option_server_capath= calloc(str_l + 1, sizeof(char));
             if (pep->option_server_capath == NULL) {
                 pep_log_error("pep_setoption: PEP#%d can't allocate option_server_capath: %s.",pep->id, str);
-                /* pep_errmsg("can't allocate option_server_capath: %s.", str); */
                 rc= PEP_ERR_MEMORY;
                 break;
             }
@@ -354,7 +352,6 @@ pep_error_t pep_setoption(PEP * pep, pep_option_t option, ... ) {
             pep->option_client_cert= calloc(str_l + 1, sizeof(char));
             if (pep->option_client_cert == NULL) {
                 pep_log_error("pep_setoption: PEP#%d can't allocate option_client_cert: %s.", pep->id,str);
-                /* pep_errmsg("can't allocate option_client_cert: %s.", str); */
                 rc= PEP_ERR_MEMORY;
                 break;
             }
@@ -452,7 +449,6 @@ pep_error_t pep_setoption(PEP * pep, pep_option_t option, ... ) {
             break;
         default:
             pep_log_error("pep_setoption: PEP#%d invalid option: %d",pep->id,option);
-            /* pep_errmsg("invalid option: %d", option); */
             rc= PEP_ERR_OPTION_INVALID;
             break;
     }
@@ -472,7 +468,6 @@ pep_error_t pep_authorize(PEP * pep, xacml_request_t ** request, xacml_response_
     xacml_request_t * effective_request;
     if (pep == NULL) {
         pep_log_error("pep_authorize: NULL pep handle");
-        /* pep_errmsg("NULL PEP handle"); */
         return PEP_ERR_NULL_POINTER;
     }
     if (pep->option_endpoint_url == NULL) {
@@ -481,7 +476,6 @@ pep_error_t pep_authorize(PEP * pep, xacml_request_t ** request, xacml_response_
     }
     if (request == NULL || *request == NULL) {
         pep_log_error("pep_authorize: PEP#%d NULL request pointer",pep->id);
-        /* pep_errmsg("NULL xacml_request_t pointer"); */
         return PEP_ERR_NULL_POINTER;
     }
     
@@ -496,7 +490,6 @@ pep_error_t pep_authorize(PEP * pep, xacml_request_t ** request, xacml_response_
                 pip_rc= pip->process(request);
                 if (pip_rc != 0) {
                     pep_log_error("pep_authorize: PIP[%s] process(request) failed: %d", pip->id, pip_rc);
-                    /* pep_errmsg("PIP[%s] process(request) failed: %d", pip->id, pip_rc); */
                     return PEP_ERR_PIP_PROCESS;
                 }
             }
