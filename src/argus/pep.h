@@ -43,11 +43,20 @@ extern "C" {
  * Version 2.X of the PEP client C API is multi-thread friendly. However, you are not allowed 
  * to share a PEP handle among multiple threads:
  * <ul> 
- * <li>Each thread must create its own PEP handle 
+ * <li>Each thread must create its own PEP handle. 
+ * <li>Never ever call pep-functions simultaneously using the same  handle  from  several
+ *      threads. The PEP library is thread-safe and can be used in any number of threads, but you
+ *      must use separate PEP handles if you want to use it in more than  one  thread
+ *      simultaneously.
  * <li>If your threads are object (OO programming, ...), it is recommended you to 
  * create (pep_initialize) the PEP handle in the constructor, and release it (pep_destroy) 
  * in the destructor. 
  * </ul> 
+ * <h4>Global functions</h4>
+ * The global functions pep_global_init() and pep_global_cleanup() are <b>NOT THREAD SAFE</b>. 
+ * These functions wrap the underlying libcurl curl_global_init() and curl_global_cleanup() functions,
+ * the same restriction applies. See the man pages for @b libcurl(3) , @b curl_global_init(3) and @b 
+ * curl_global_cleanup(3) for more information.
  */
 
 /** @defgroup PEPClient PEP client API */
@@ -174,9 +183,37 @@ typedef enum pep_option {
 
 /**
  * Returns a human readable string with the version number of the PEP client API and some of its important components (like libcurl version).
- * @return a null terminated string. e.g. "libargus-pep-api/2.0.0 ..."
+ * @return a null terminated string. e.g. "argus-pep-api-c/2.0.0 (libcurl/7.21.7 ...)"
  */
 const char * pep_version(void);
+
+/**
+ * <b>NOT THREAD SAFE</b>. You must not call it when any other thread in the
+ * program (i.e. a thread sharing the same memory) is running.  This doesn't just mean
+ * no other thread that is using libcurl or the PEP client library.
+ *
+ * Because this function wraps the libcurl curl_global_init(), it calls  functions
+ * of  other  libraries  that  are similarly thread unsafe, it could conflict with any
+ * other thread that uses these other libraries.
+ *
+ * See the @b licurl(3) man page for details of how to use these global functions.
+ *
+ * @return {@link #pep_error_t} PEP_OK on success or an error code.
+ */
+pep_error_t pep_global_init(void);
+
+/**
+ * <b>NOT THREAD SAFE</b>.  You must not call it when any other thread in the
+ * program (i.e. a thread sharing the same memory) is running.  This doesn't just mean
+ * no other thread that is using libcurl or the PEP client library.  
+ *
+ * Because this function wraps the libcurl curl_global_cleanup(), it calls  functions
+ * of  other  libraries  that  are similarly thread unsafe, it could conflict with any
+ * other thread that uses these other libraries.
+ *
+ * See the @b licurl(3) man page for details of how to use these global functions.
+ */
+void pep_global_cleanup(void);
 
 /**
  * Creates and initializes a new PEP client @b handle. This function must be the first function 

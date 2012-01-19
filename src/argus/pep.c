@@ -86,7 +86,7 @@ struct pep_handle {
     pep_linkedlist_t * pips;
     pep_linkedlist_t * ohs;
     char * option_endpoint_url; /* current url */
-    pep_linkedlist_t * option_endpoint_urls;
+    pep_linkedlist_t * option_endpoint_urls; /* urls list */
     int option_loglevel;
     FILE * option_logout;
     long option_timeout; 
@@ -115,6 +115,21 @@ const char * pep_version(void) {
     return VERSION_BUFFER;
 }
 */
+
+/* GLOBAL NOT THREAD SAFE FUNCTIONS */
+pep_error_t pep_global_init(void) {
+    CURLcode curl_rc;
+    curl_rc= curl_global_init(CURL_GLOBAL_ALL);
+    if (curl_rc != CURLE_OK) {
+        pep_log_error("pep_global_init: curl_global_init(CURL_GLOBAL_ALL) failed: %s", curl_easy_strerror(curl_rc));
+        return PEP_ERR_CURL + curl_rc;
+    }
+    return PEP_OK;
+}
+
+void pep_global_cleanup(void) {
+    curl_global_cleanup();
+}
 
 /* create and init */
 PEP * pep_initialize(void) {
