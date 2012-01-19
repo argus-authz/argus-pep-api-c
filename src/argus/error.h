@@ -56,7 +56,7 @@ extern "C" {
  *
  * @see pep_strerror(pep_error_t errno)
  */
-typedef enum pep_error {
+typedef enum {
     PEP_OK = 0, /**< OK, No error */
     PEP_ERR_MEMORY, /**< Memory allocation error */
     PEP_ERR_NULL_POINTER, /**< NULL pointer exception */
