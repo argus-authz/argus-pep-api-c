@@ -41,7 +41,7 @@ extern "C" {
  * EMI Common XACML Authorization Profile (Version 1.1)
  * @version 1.1
  *
- * Document: http://dci-sec.org/xacml/profile/common-atuhz/1.1
+ * Document: http://dci-sec.org/xacml/profile/common-authz/1.1
  *
  * Profile version, XACML attribute identifiers and obligation identifiers for the Common XACML
  * Authorization Profile.
