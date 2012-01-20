@@ -48,10 +48,10 @@ extern "C" {
  *      threads. The PEP library is thread-safe and can be used in any number of threads, but you
  *      must use separate PEP handles if you want to use it in more than  one  thread
  *      simultaneously.
- * <li>If your threads are object (OO programming, ...), it is recommended you to 
+ * </ul> 
+ * If your threads are object (OO programming, ...), it is recommended you to 
  * create (pep_initialize) the PEP handle in the constructor, and release it (pep_destroy) 
  * in the destructor. 
- * </ul> 
  * <h4>Global functions</h4>
  * The global functions pep_global_init() and pep_global_cleanup() are <b>NOT THREAD SAFE</b>. 
  * These functions wrap the underlying libcurl curl_global_init() and curl_global_cleanup() functions,
@@ -196,7 +196,7 @@ const char * pep_version(void);
  * of  other  libraries  that  are similarly thread unsafe, it could conflict with any
  * other thread that uses these other libraries.
  *
- * See the @b licurl(3) man page for details of how to use these global functions.
+ * See the @b libcurl(3) man page for details of how to use these global functions.
  *
  * @return {@link #pep_error_t} PEP_OK on success or an error code.
  */
@@ -211,7 +211,7 @@ pep_error_t pep_global_init(void);
  * of  other  libraries  that  are similarly thread unsafe, it could conflict with any
  * other thread that uses these other libraries.
  *
- * See the @b licurl(3) man page for details of how to use these global functions.
+ * See the @b libcurl(3) man page for details of how to use these global functions.
  */
 void pep_global_cleanup(void);
 
