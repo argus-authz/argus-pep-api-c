@@ -1,0 +1,6 @@
+argus-pep-api-c (2.1.0-1) unstable; urgency=low
+
+  * Initial release for Debian.
+  * Ajusted Makefile.am docdir for Debian.
+
+ -- Valery Tschopp <valery.tschopp@switch.ch>  Wed, 11 Jan 2012 17:05:39 +0100
