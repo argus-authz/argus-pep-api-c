@@ -72,6 +72,7 @@ static int set_curl_verbose(const PEP * pep);
 static int set_curl_stderr(const PEP * pep);
 static int set_curl_nosignal(const PEP * pep);
 static int set_curl_http_headers(PEP * pep);
+static int set_curl_ssl_option_allow_beast(PEP * pep);
 
 /** 
 * ADT for PEP client handle.
@@ -106,17 +107,7 @@ struct pep_handle {
     pep_buffer_t * b64input;
 };
 
-/* MOVED to ../libargus_pep.c
-const char * pep_version(void) {
-    if (!VERSION_BUFFER_initialized) {
-        snprintf(VERSION_BUFFER,VERSION_BUFFER_SIZE,"%s/%s (%s)",PACKAGE_NAME,PACKAGE_VERSION,curl_version());
-        VERSION_BUFFER_initialized= 1;
-    }
-    return VERSION_BUFFER;
-}
-*/
-
-/* GLOBAL NOT THREAD SAFE FUNCTIONS */
+/* GLOBAL NOT THREAD SAFE FUNCTION */
 pep_error_t pep_global_init(void) {
     CURLcode curl_rc;
     curl_rc= curl_global_init(CURL_GLOBAL_ALL);
@@ -127,9 +118,11 @@ pep_error_t pep_global_init(void) {
     return PEP_OK;
 }
 
+/* GLOBAL NOT THREAD SAFE FUNCTION */
 void pep_global_cleanup(void) {
     curl_global_cleanup();
 }
+
 
 /* create and init */
 PEP * pep_initialize(void) {
@@ -788,9 +781,6 @@ static void init_pep_defaults(PEP * pep) {
 
 /** set some curl default value */
 static void init_curl_defaults(PEP * pep) {
-/*
-    CURLcode curl_rc;
-*/
     /* set default http headers */
     set_curl_http_headers(pep);
     /* set default timeout */
@@ -799,16 +789,29 @@ static void init_curl_defaults(PEP * pep) {
     set_curl_ssl_validation(pep);
     /* disable signal for multi-threading */
     set_curl_nosignal(pep);
-    /* OpenSSL 1.0 bug fix: will disable ECDH ciphers, see DEFAULT_SSL_CIPHER_LIST */
-/* DON'T DO THIS ANYMORE: Argus >= 1.3.1 disable it on the server!!!!
-#ifndef HAVE_LIBCURL_NSS
-    pep_log_debug("init_curl_defaults: PEP#%d DEFAULT_SSL_CIPHER_LIST: %s",pep->id,DEFAULT_SSL_CIPHER_LIST);    
-    curl_rc= curl_easy_setopt(pep->curl,CURLOPT_SSL_CIPHER_LIST,DEFAULT_SSL_CIPHER_LIST);
+    /* enable curl SSL option CURLSSLOPT_ALLOW_BEAST (libcurl >= 7.25) */
+    set_curl_ssl_option_allow_beast(pep);
+}
+
+/**
+ * Set curl SSL option CURLSSLOPT_ALLOW_BEAST to renable SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS
+ * to support old/broken SSL Java version.
+ * 
+ * See http://curl.haxx.se/mail/lib-2012-02/0001.html
+ * 
+ * The curl SSL option CURLSSLOPT_ALLOW_BEAST is not present in all version of libcurl, only in version >= 7.25
+ */
+static int set_curl_ssl_option_allow_beast(PEP * pep) {
+#ifdef CURLSSLOPT_ALLOW_BEAST
+    CURLcode curl_rc;
+    pep_log_debug("set_curl_ssl_option_allow_beast: PEP#%d curl_easy_setopt(curl,CURLOPT_SSL_OPTIONS,CURLSSLOPT_ALLOW_BEAST)...",pep->id);
+    curl_rc= curl_easy_setopt(pep->curl,CURLOPT_SSL_OPTIONS,CURLSSLOPT_ALLOW_BEAST);
     if (curl_rc != CURLE_OK) {
-        pep_log_warn("init_curl_defaults: PEP#%d curl_easy_setopt(curl,CURLOPT_SSL_CIPHER_LIST,%s) failed: %s",pep->id,DEFAULT_SSL_CIPHER_LIST,curl_easy_strerror(curl_rc));
-    }
+        pep_log_warn("set_curl_ssl_option_allow_beast: PEP#%d curl_easy_setopt(curl,CURLOPT_SSL_OPTIONS,CURLSSLOPT_ALLOW_BEAST) failed: %s.",pep->id,curl_easy_strerror(curl_rc));
+        return PEP_ERR_CURL + curl_rc;
+    }   
 #endif
-*/
+    return 0;
 }
 
 /** 
