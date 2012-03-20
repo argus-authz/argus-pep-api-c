@@ -93,6 +93,6 @@ const char * pep_strerror(pep_error_t pep_errno) {
         return "Unmarshalling IO error";
         
     default:
-        return "Unkown error";
+        return "Unknown error";
     }
 }
