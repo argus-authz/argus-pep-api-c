@@ -176,6 +176,16 @@ PEP * pep_initialize(void) {
     return pep;
 }
 
+int pep_getid(PEP * pep) {
+    if (pep == NULL) {
+        pep_log_error("pep_getid: NULL pep handle");
+        return -1;
+    }
+    return pep->id;
+}
+
+
+
 pep_error_t pep_addpip(PEP * pep, const pep_pip_t * pip) {
     int pip_rc = -1;
     if (pep == NULL) {
