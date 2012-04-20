@@ -225,6 +225,15 @@ void pep_global_cleanup(void);
 PEP * pep_initialize(void);
 
 /**
+ * Returns the id of the PEP handle.
+ *
+ * @param pep pointer to the @b handle of the PEP client.
+ *
+ * @return the id >= 0 or a negative id on error.
+ */
+int pep_getid(PEP * pep);
+
+/**
  * Adds a PIP request pre-processor to the PEP client. The PIP init() function
  * is called in this method.
  *
