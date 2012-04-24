@@ -52,9 +52,15 @@ extern "C" {
  * If your threads are object (OO programming, ...), it is recommended you to 
  * create (pep_initialize) the PEP handle in the constructor, and release it (pep_destroy) 
  * in the destructor. 
+ * <h4>Application using libcurl</h4>
+ * If the application using the PEP client API uses libcurl too, then it is recommended to 
+ * bootstrap your application with curl_global_init(CURL_GLOBAL_ALL). The PEP client API uses SSL
+ * for its connections with the Argus server, therefore the flag @b CURL_GLOBAL_ALL should be used to
+ * initialize the libcurl library. See the man pages for @b libcurl(3) , @b curl_global_init(3) and @b 
+ * curl_global_cleanup(3) for more information.
  * <h4>Global functions</h4>
  * The global functions pep_global_init() and pep_global_cleanup() are <b>NOT THREAD SAFE</b>. 
- * These functions wrap the underlying libcurl curl_global_init() and curl_global_cleanup() functions,
+ * These functions wrap the underlying libcurl curl_global_init(CURL_GLOBAL_ALL) and curl_global_cleanup() functions,
  * the same restriction applies. See the man pages for @b libcurl(3) , @b curl_global_init(3) and @b 
  * curl_global_cleanup(3) for more information.
  */
