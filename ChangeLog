@@ -1,5 +1,7 @@
 argus-pep-api-c 2.1.0
 ---------------------
+* pep_id(PEP * pep) function added.
+* No thread-safe pep_global_init() and pep_global_cleanup() added.
 * improved multi-thread safety in pep_authorize().
 * pep_strerror() returns the underlying CURL error message.
 * configure: remove option --with-libcurl-nss, not needed.
