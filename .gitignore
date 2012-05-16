@@ -1,0 +1,48 @@
+
+# /
+/Makefile.in
+/Makefile
+/autom4te.cache
+/configure
+/config.status
+/aclocal.m4
+/libtool
+/config.log
+/*.pc
+
+# /doc/
+/doc/html
+
+# /project/
+/project/config.sub
+/project/install-sh
+/project/missing
+/project/ltmain.sh
+/project/config.guess
+/project/*.m4
+
+# /src/
+/src/config.h.in
+/src/Makefile
+/src/Makefile.in
+/src/config.h
+/src/stamp-h1
+/src/.libs
+
+# /src/argus/
+/src/argus/.libs
+/src/argus/Makefile
+/src/argus/Makefile.in
+
+# /src/example/
+/src/example/a.out
+
+# /src/hessian/
+/src/hessian/.libs
+/src/hessian/Makefile
+/src/hessian/Makefile.in
+
+# /src/util/
+/src/util/.libs
+/src/util/Makefile
+/src/util/Makefile.in
