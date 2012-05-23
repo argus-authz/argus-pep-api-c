@@ -1,6 +1,6 @@
 /*
- * Copyright 2008 Members of the EGEE Collaboration.
- * See http://www.eu-egee.org/partners for details on the copyright holders.
+ * Copyright (c) Members of the EGEE Collaboration. 2006-2010.
+ * See http://www.eu-egee.org/partners/ for details on the copyright holders.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * $Id$
  */
 
 /******************************************/
@@ -26,15 +24,15 @@
 #define _HESSIAN_TYPES_H_
 
 #include <stdint.h>
-#include "util/buffer.h"
-#include "util/linkedlist.h"
+#include "buffer.h"
+#include "linkedlist.h"
 
 /**
  * Hessian object types
  */
 typedef enum {
-	HESSIAN_UNKNOWN,
-	/* Hessian object */
+    HESSIAN_UNKNOWN,
+    /* Hessian object */
     HESSIAN_BOOLEAN,
     HESSIAN_INTEGER,
     HESSIAN_LONG,
@@ -47,7 +45,7 @@ typedef enum {
     HESSIAN_LIST,
     HESSIAN_MAP,
     HESSIAN_NULL,
-    HESSIAN_REF,
+    HESSIAN_REF
 } hessian_t;
 
 /**
@@ -68,8 +66,8 @@ typedef struct hessian_class {
     const char chunk_tag;
     hessian_object_t * (* ctor) (hessian_object_t * self, va_list * app);
     int (* dtor) (hessian_object_t * self);
-    int (* serialize) (const hessian_object_t * self, BUFFER * output);
-    int (* deserialize) (hessian_object_t * self, int tag, BUFFER * input);
+    int (* serialize) (const hessian_object_t * self, pep_buffer_t * output);
+    int (* deserialize) (hessian_object_t * self, int tag, pep_buffer_t * input);
 } hessian_class_t;
 
 /**
@@ -112,7 +110,7 @@ typedef struct hessian_integer {
 typedef struct hessian_list {
     const void * class;
     char * type;
-    linkedlist_t * list;
+    pep_linkedlist_t * list;
 } hessian_list_t;
 
 /**
@@ -121,7 +119,7 @@ typedef struct hessian_list {
 typedef struct hessian_map {
     const void * class;
     char * type;
-    linkedlist_t * map; // <object,object> pairs (key,value)
+    pep_linkedlist_t * map; /* <object,object> pairs (key,value) */
 } hessian_map_t;
 
 /**
@@ -156,5 +154,5 @@ typedef struct hessian_remote {
     char * url;
 } hessian_remote_t;
 
-#endif // _HESSIAN_TYPES_H_
+#endif
 

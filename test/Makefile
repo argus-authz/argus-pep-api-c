@@ -1,5 +1,5 @@
 #
-# Copyright 2008 Members of the EGEE Collaboration.
+# Copyright (c) Members of the EGEE Collaboration. 2008.
 # See http://www.eu-egee.org/partners for details on the copyright holders. 
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,15 +16,17 @@
 #
 # $Id$
 #
-GLITE_LOCATION ?= /opt/glite
+ifndef GLITE_LOCATION
+GLITE_LOCATION=/opt/glite
+endif
 
-CC = gcc 
-CFLAGS = -Wall -I$(GLITE_LOCATION)/include
-LDFLAGS = -L$(GLITE_LOCATION)/lib -L$(GLITE_LOCATION)/lib64 -lpep-c
+CC=gcc 
+CFLAGS=-Wall -I$(GLITE_LOCATION)/include
+LDFLAGS=-L$(GLITE_LOCATION)/lib -L$(GLITE_LOCATION)/lib64 -lpep-c
 
-SOURCES = test_pep.c
-OBJECTS = $(SOURCES:.c=.o)
-EXEC = test-pep
+SOURCES=test_pep.c
+OBJECTS=$(SOURCES:.c=.o)
+EXEC=test_pep
 
 all: $(EXEC)
 

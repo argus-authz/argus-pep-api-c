@@ -1,6 +1,6 @@
 /*
- * Copyright 2008 Members of the EGEE Collaboration.
- * See http://www.eu-egee.org/partners for details on the copyright holders.
+ * Copyright (c) Members of the EGEE Collaboration. 2006-2010.
+ * See http://www.eu-egee.org/partners/ for details on the copyright holders.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * $Id$
  */
+
 #ifndef _HESSIAN_H_
 #define _HESSIAN_H_
 
@@ -26,24 +25,12 @@ extern "C" {
 #include <stdarg.h>
 #include <stdio.h>
 
-#include "hessian/types.h"
-#include "util/buffer.h"
+#include "types.h"
+#include "buffer.h"
 
 /** Hessian return codes */
 #define HESSIAN_OK     0
 #define HESSIAN_ERROR -1
-
-/**
- * Object methods prototype macro
- */
-#define OBJECT_CTOR(objname) \
-    hessian_object_t * objname ## _ctor (hessian_object_t * self, va_list * app)
-#define OBJECT_DTOR(objname) \
-    int objname ## _dtor (hessian_object_t * self)
-#define OBJECT_SERIALIZE(objname) \
-    int objname ## _serialize (const hessian_object_t * self, BUFFER * output)
-#define OBJECT_DESERIALIZE(objname) \
-    int objname ## _deserialize (hessian_object_t * self, int tag, BUFFER * input)
 
 /**
  * Creates a Hessian object.
@@ -84,34 +71,34 @@ void hessian_delete (hessian_object_t * object);
  * Serializes the Hessian object into the output buffer.
  *
  * @param hessian_object_t * object the pointer to the Hessian object to serialize.
- * @param BUFFER * output pointer to the output buffer.
+ * @param pep_buffer_t * output pointer to the output buffer.
  *
  * @return HESSIAN_OK or HESSIAN_ERROR if an error occurs
  */
-int hessian_serialize (const hessian_object_t * object, BUFFER * output);
+int hessian_serialize (const hessian_object_t * object, pep_buffer_t * output);
 
 /**
  * Deserializes an Hessian object from the input buffer. The first character
  * delimiter is directly read from the buffer.
  *
- * @param BUFFER * input pointer to the input buffer.
+ * @param pep_buffer_t * input pointer to the input buffer.
  *
  * @return hessian_object_t * pointer to the deserialized Hessian object
  *         or NULL if an error occurs.
  */
-hessian_object_t * hessian_deserialize (BUFFER * input);
+hessian_object_t * hessian_deserialize (pep_buffer_t * input);
 
 /**
  * Deserializes an Hessian object from the input buffer, identified with the
  * first tag character delimiter.
  *
- * @param BUFFER * input pointer to the input buffer.
+ * @param pep_buffer_t * input pointer to the input buffer.
  * @param int tag the first character delimiter.
  *
  * @return hessian_object_t * pointer to the deserialized Hessian object
  *         or NULL if an error occurs.
  */
-hessian_object_t * hessian_deserialize_tag (int tag, BUFFER * input);
+hessian_object_t * hessian_deserialize_tag (int tag, pep_buffer_t * input);
 
 /**
  * Gets the type hessian_t of an object.
@@ -187,8 +174,8 @@ const char * hessian_string_getstring(const hessian_object_t *string);
 /**
  *  UTF-8 string utilities
  */
-size_t utf8_strlen(const char *array);
-char * utf8_bgets(size_t utf8_l, BUFFER * input);
+size_t hessian_utf8_strlen(const char *array);
+char * hessian_utf8_bgets(size_t utf8_l, pep_buffer_t * input);
 
 /**
  *  Hessian XML getters
@@ -253,14 +240,6 @@ size_t hessian_map_length(const hessian_object_t * map);
 hessian_object_t * hessian_map_getkey(const hessian_object_t * map, int index);
 hessian_object_t * hessian_map_getvalue(const hessian_object_t * map, int index);
 
-/*
- * Hessian serialization chunk size
- */
-#ifndef HESSIAN_CHUNK_SIZE
-#include <stdint.h>
-#define HESSIAN_CHUNK_SIZE INT16_MAX
-#endif
-
 /**
  * Stupid boolean constants
  */
@@ -276,4 +255,4 @@ hessian_object_t * hessian_map_getvalue(const hessian_object_t * map, int index)
 #endif
 
 
-#endif // _HESSIAN_H_
+#endif

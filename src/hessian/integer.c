@@ -1,6 +1,6 @@
 /*
- * Copyright 2008 Members of the EGEE Collaboration.
- * See http://www.eu-egee.org/partners for details on the copyright holders.
+ * Copyright (c) Members of the EGEE Collaboration. 2006-2010.
+ * See http://www.eu-egee.org/partners/ for details on the copyright holders.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * $Id$
  */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "hessian/hessian.h"
-#include "util/log.h"
+#include "hessian.h"
+#include "i_hessian.h"
+#include "log.h"
 
 /***********************************
  * Hessian integer and ref objects *
@@ -43,7 +43,7 @@ static const hessian_class_t _hessian_integer_descr = {
     sizeof(hessian_integer_t),
     'I', 0,
     hessian_integer_ctor,
-    NULL, // nothing to release
+    NULL, /* nothing to release */
     hessian_integer_serialize,
     hessian_integer_deserialize
 };
@@ -54,11 +54,12 @@ const void * hessian_integer_class = &_hessian_integer_descr;
  */
 static hessian_object_t * hessian_integer_ctor (hessian_object_t * object, va_list * ap) {
     hessian_integer_t * self= object;
+    int32_t value;
     if (self == NULL) {
-		log_error("hessian_integer_ctor: NULL object pointer.");
-    	return NULL;
+        pep_log_error("hessian_integer_ctor: NULL object pointer.");
+        return NULL;
     }
-    int32_t value= va_arg( *ap, int32_t);
+    value= va_arg( *ap, int32_t);
     self->value= value;
     return self;
 }
@@ -66,66 +67,68 @@ static hessian_object_t * hessian_integer_ctor (hessian_object_t * object, va_li
 /**
  * HessianInt serialize method.
  */
-static int hessian_integer_serialize (const hessian_object_t * object, BUFFER * output) {
+static int hessian_integer_serialize (const hessian_object_t * object, pep_buffer_t * output) {
     const hessian_integer_t * self= object;
+    const hessian_class_t * class;
+    int32_t value, b8, b16, b24, b32;
     if (self == NULL) {
-		log_error("hessian_integer_serialize: NULL object pointer.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_integer_serialize: NULL object pointer.");
+        return HESSIAN_ERROR;
     }
-    const hessian_class_t * class= hessian_getclass(object);
+    class= hessian_getclass(object);
     if (class == NULL) {
-		log_error("hessian_integer_serialize: NULL class descriptor.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_integer_serialize: NULL class descriptor.");
+        return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_INTEGER && class->type != HESSIAN_REF) {
-		log_error("hessian_integer_serialize: wrong class type: %d.", class->type);
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_integer_serialize: wrong class type: %d.", class->type);
+        return HESSIAN_ERROR;
     }
-    int32_t value= self->value;
-    int32_t b32 = (value >> 24) & 0x000000FF;
-    int32_t b24 = (value >> 16) & 0x000000FF;
-    int32_t b16 = (value >> 8) & 0x000000FF;
-    int32_t b8 = value & 0x000000FF;
-    //printf("XXX:integer_serialize: %d", value);
-    buffer_putc(class->tag,output);
-    buffer_putc(b32,output);
-    buffer_putc(b24,output);
-    buffer_putc(b16,output);
-    buffer_putc(b8,output);
+    value= self->value;
+    b32 = (value >> 24) & 0x000000FF;
+    b24 = (value >> 16) & 0x000000FF;
+    b16 = (value >> 8) & 0x000000FF;
+    b8 = value & 0x000000FF;
+    pep_buffer_putc(class->tag,output);
+    pep_buffer_putc(b32,output);
+    pep_buffer_putc(b24,output);
+    pep_buffer_putc(b16,output);
+    pep_buffer_putc(b8,output);
     return HESSIAN_OK;
 }
 
 /**
  * HessianInt deserialize method.
  */
-static int hessian_integer_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
+static int hessian_integer_deserialize (hessian_object_t * object, int tag, pep_buffer_t * input) {
     hessian_integer_t * self= object;
+    const hessian_class_t * class;
+    int32_t value, b8, b16, b24, b32;
     if (self == NULL) {
-		log_error("hessian_integer_deserialize: NULL object pointer.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_integer_deserialize: NULL object pointer.");
+        return HESSIAN_ERROR;
     }
-    const hessian_class_t * class= hessian_getclass(object);
+     class= hessian_getclass(object);
     if (class == NULL) {
-		log_error("hessian_integer_deserialize: NULL class descriptor.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_integer_deserialize: NULL class descriptor.");
+        return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_INTEGER && class->type != HESSIAN_REF) {
-		log_error("hessian_integer_deserialize: wrong class type: %d.", class->type);
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_integer_deserialize: wrong class type: %d.", class->type);
+        return HESSIAN_ERROR;
     }
-    // 'I' or 'R' tag
+    /* 'I' or 'R' tag */
     if (tag != class->tag) {
-		log_error("hessian_integer_deserialize: wrong tag: %c (%d).",(char)tag,tag);
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_integer_deserialize: wrong tag: %c (%d).",(char)tag,tag);
+        return HESSIAN_ERROR;
     }
 
-    // read int32
-    int32_t b32 = buffer_getc(input);
-    int32_t b24 = buffer_getc(input);
-    int32_t b16 = buffer_getc(input);
-    int32_t b8 = buffer_getc(input);
-
-    int32_t value= (b32 << 24) + (b24 << 16) + (b16 << 8) + b8;
+    /* read int32 */
+    b32 = pep_buffer_getc(input);
+    b24 = pep_buffer_getc(input);
+    b16 = pep_buffer_getc(input);
+    b8 = pep_buffer_getc(input);
+    value= (b32 << 24) + (b24 << 16) + (b16 << 8) + b8;
 
     self->value= value;
     return HESSIAN_OK;
@@ -136,20 +139,21 @@ static int hessian_integer_deserialize (hessian_object_t * object, int tag, BUFF
  */
 int32_t hessian_integer_getvalue(const hessian_object_t * object) {
     const hessian_integer_t * self= object;
+    const hessian_class_t * class;
     if (self == NULL) {
-		log_error("hessian_integer_getvalue: NULL object pointer.");
-    	return INT32_MIN;
+        pep_log_error("hessian_integer_getvalue: NULL object pointer.");
+        return INT32_MIN;
     }
-    const hessian_class_t * class= hessian_getclass(object);
+    class= hessian_getclass(object);
     if (class == NULL) {
-		log_error("hessian_integer_getvalue: NULL class descriptor.");
-    	return INT32_MIN;
+        pep_log_error("hessian_integer_getvalue: NULL class descriptor.");
+        return INT32_MIN;
     }
     if (class->type != HESSIAN_INTEGER) {
-		log_error("hessian_integer_getvalue: wrong class type: %d.", class->type);
-    	return INT32_MIN;
+        pep_log_error("hessian_integer_getvalue: wrong class type: %d.", class->type);
+        return INT32_MIN;
     }
-	return self->value;
+    return self->value;
 }
 
 /**
@@ -162,7 +166,7 @@ static const hessian_class_t _hessian_ref_descr = {
     sizeof(hessian_ref_t),
     'R', 0,
     hessian_integer_ctor,
-    NULL, // nothing to release
+    NULL, /* nothing to release */
     hessian_integer_serialize,
     hessian_integer_deserialize
 };
@@ -173,18 +177,19 @@ const void * hessian_ref_class = &_hessian_ref_descr;
  */
 int32_t hessian_ref_getvalue(const hessian_object_t * object) {
     const hessian_ref_t * self= object;
+    const hessian_class_t * class;
     if (self == NULL) {
-		log_error("hessian_ref_getvalue: NULL object pointer.");
-		return INT32_MIN;
-	}
-    const hessian_class_t * class= hessian_getclass(object);
+        pep_log_error("hessian_ref_getvalue: NULL object pointer.");
+        return INT32_MIN;
+    }
+    class= hessian_getclass(object);
     if (class == NULL) {
-		log_error("hessian_ref_getvalue: NULL class descriptor.");
-		return INT32_MIN;
+        pep_log_error("hessian_ref_getvalue: NULL class descriptor.");
+        return INT32_MIN;
     }
     if (class->type != HESSIAN_REF) {
-		log_error("hessian_ref_getvalue: wrong class type: %d.", class->type);
-		return INT32_MIN;
+        pep_log_error("hessian_ref_getvalue: wrong class type: %d.", class->type);
+        return INT32_MIN;
     }
     return self->value;
 }

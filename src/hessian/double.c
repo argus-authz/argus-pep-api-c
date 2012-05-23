@@ -1,6 +1,6 @@
 /*
- * Copyright 2008 Members of the EGEE Collaboration.
- * See http://www.eu-egee.org/partners for details on the copyright holders.
+ * Copyright (c) Members of the EGEE Collaboration. 2006-2010.
+ * See http://www.eu-egee.org/partners/ for details on the copyright holders.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * $Id$
  */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <float.h>
 
-#include "hessian/hessian.h"
-#include "util/log.h"
+#include "hessian.h"
+#include "i_hessian.h"
+#include "log.h"
 
 /**
  * Method prototypes
@@ -40,7 +40,7 @@ static const hessian_class_t _hessian_double_descr = {
     sizeof(hessian_double_t),
     'D', 0,
     hessian_double_ctor,
-    NULL, // nothing to release
+    NULL, /* nothing to release */
     hessian_double_serialize,
     hessian_double_deserialize
 };
@@ -51,97 +51,102 @@ const void * hessian_double_class = &_hessian_double_descr;
  */
 static hessian_object_t * hessian_double_ctor (hessian_object_t * object, va_list * ap) {
     hessian_double_t * self= object;
-    if (self == NULL) {
-		log_error("hessian_double_ctor: NULL object pointer.");
-    	return NULL;
-    }
     double value= va_arg( *ap, double);
+    if (self == NULL) {
+        pep_log_error("hessian_double_ctor: NULL object pointer.");
+        return NULL;
+    }
     self->value= value;
-    // printf("XXX:double_ctor: self(0x%0x0)", (unsigned int)self);
     return self;
 }
 
 /**
  * HessianDouble serialize method.
  */
-static int hessian_double_serialize (const hessian_object_t * object, BUFFER * output) {
+static int hessian_double_serialize (const hessian_object_t * object, pep_buffer_t * output) {
     const hessian_double_t * self= object;
+    const hessian_class_t * class;
+    int64_t *lvalue, value;
+    int b8, b16, b24, b32, b40, b48, b56, b64;
     if (self == NULL) {
-		log_error("hessian_double_serialize: NULL object pointer.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_double_serialize: NULL object pointer.");
+        return HESSIAN_ERROR;
     }
-    const hessian_class_t * class= hessian_getclass(object);
+    class= hessian_getclass(object);
     if (class == NULL) {
-		log_error("hessian_double_serialize: NULL class descriptor.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_double_serialize: NULL class descriptor.");
+        return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_DOUBLE) {
-		log_error("hessian_double_serialize: wrong class type: %d.",class->type);
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_double_serialize: wrong class type: %d.",class->type);
+        return HESSIAN_ERROR;
     }
-    // convert 64-bit double to a 64-bit long
-    int64_t *lvalue = (int64_t*) &(self->value);
-    int64_t value= *lvalue;
-    int b64 = (value >> 56) & 0x000000FF;
-    int b56 = (value >> 48) & 0x000000FF;
-    int b48 = (value >> 40) & 0x000000FF;
-    int b40 = (value >> 32) & 0x000000FF;
-    int b32 = (value >> 24) & 0x000000FF;
-    int b24 = (value >> 16) & 0x000000FF;
-    int b16 = (value >> 8) & 0x000000FF;
-    int b8 = value & 0x000000FF;
-    buffer_putc(class->tag,output);
-    buffer_putc(b64,output);
-    buffer_putc(b56,output);
-    buffer_putc(b48,output);
-    buffer_putc(b40,output);
-    buffer_putc(b32,output);
-    buffer_putc(b24,output);
-    buffer_putc(b16,output);
-    buffer_putc(b8,output);
+    /* convert 64-bit double to a 64-bit long */
+    lvalue = (int64_t*) &(self->value);
+    value= *lvalue;
+    b64 = (value >> 56) & 0x000000FF;
+    b56 = (value >> 48) & 0x000000FF;
+    b48 = (value >> 40) & 0x000000FF;
+    b40 = (value >> 32) & 0x000000FF;
+    b32 = (value >> 24) & 0x000000FF;
+    b24 = (value >> 16) & 0x000000FF;
+    b16 = (value >> 8) & 0x000000FF;
+    b8 = value & 0x000000FF;
+    pep_buffer_putc(class->tag,output);
+    pep_buffer_putc(b64,output);
+    pep_buffer_putc(b56,output);
+    pep_buffer_putc(b48,output);
+    pep_buffer_putc(b40,output);
+    pep_buffer_putc(b32,output);
+    pep_buffer_putc(b24,output);
+    pep_buffer_putc(b16,output);
+    pep_buffer_putc(b8,output);
     return HESSIAN_OK;
 }
 
 /**
  * HessianDouble deserialize method.
  */
-static int hessian_double_deserialize (hessian_object_t * object, int tag, BUFFER * input) {
+static int hessian_double_deserialize (hessian_object_t * object, int tag, pep_buffer_t * input) {
     hessian_double_t * self= object;
+    const hessian_class_t * class;
+    int64_t b8, b16, b24, b32, b40, b48, b56, b64, lvalue;
+    double * value;
     if (self == NULL) {
-		log_error("hessian_double_deserialize: NULL object pointer.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_double_deserialize: NULL object pointer.");
+        return HESSIAN_ERROR;
     }
-    const hessian_class_t * class= hessian_getclass(object);
+    class= hessian_getclass(object);
     if (class == NULL) {
-		log_error("hessian_double_deserialize: NULL class descriptor.");
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_double_deserialize: NULL class descriptor.");
+        return HESSIAN_ERROR;
     }
     if (class->type != HESSIAN_DOUBLE) {
-		log_error("hessian_double_deserialize: wrong class type: %d.",class->type);
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_double_deserialize: wrong class type: %d.",class->type);
+        return HESSIAN_ERROR;
     }
     if (tag != class->tag) {
-		log_error("hessian_double_deserialize: invalid tag: %c (%d).",(char)tag,tag);
-    	return HESSIAN_ERROR;
+        pep_log_error("hessian_double_deserialize: invalid tag: %c (%d).",(char)tag,tag);
+        return HESSIAN_ERROR;
     }
-    int64_t b64 = buffer_getc(input);
-    int64_t b56 = buffer_getc(input);
-    int64_t b48 = buffer_getc(input);
-    int64_t b40 = buffer_getc(input);
-    int64_t b32 = buffer_getc(input);
-    int64_t b24 = buffer_getc(input);
-    int64_t b16 = buffer_getc(input);
-    int64_t b8 = buffer_getc(input);
-    int64_t lvalue= (b64 << 56)
-		+ (b56 << 48)
-		+ (b48 << 40)
-		+ (b40 << 32)
-		+ (b32 << 24)
-		+ (b24 << 16)
-		+ (b16 << 8)
-		+ b8;
-    // convert 64bit long to double
-    double *value= (double *) &lvalue;
+    b64 = pep_buffer_getc(input);
+    b56 = pep_buffer_getc(input);
+    b48 = pep_buffer_getc(input);
+    b40 = pep_buffer_getc(input);
+    b32 = pep_buffer_getc(input);
+    b24 = pep_buffer_getc(input);
+    b16 = pep_buffer_getc(input);
+    b8 = pep_buffer_getc(input);
+    lvalue= (b64 << 56)
+        + (b56 << 48)
+        + (b48 << 40)
+        + (b40 << 32)
+        + (b32 << 24)
+        + (b24 << 16)
+        + (b16 << 8)
+        + b8;
+    /* convert 64bit long to double */
+    value= (double *) &lvalue;
     self->value= (*value);
     return HESSIAN_OK;
 }
@@ -151,19 +156,20 @@ static int hessian_double_deserialize (hessian_object_t * object, int tag, BUFFE
  */
 double hessian_double_getvalue(const hessian_object_t * object) {
     const hessian_double_t * self= object;
+    const hessian_class_t * class;
     if (self == NULL) {
-		log_error("hessian_double_deserialize: NULL object pointer.");
-    	return DBL_MIN;
+        pep_log_error("hessian_double_deserialize: NULL object pointer.");
+        return DBL_MIN;
     }
-    const hessian_class_t * class= hessian_getclass(object);
+    class= hessian_getclass(object);
     if (class == NULL) {
-		log_error("hessian_double_deserialize: NULL class descriptor.");
-    	return DBL_MIN;
+        pep_log_error("hessian_double_deserialize: NULL class descriptor.");
+        return DBL_MIN;
     }
     if (class->type != HESSIAN_DOUBLE) {
-		log_error("hessian_double_deserialize: wrong class type: %d.",class->type);
-    	return DBL_MIN;
+        pep_log_error("hessian_double_deserialize: wrong class type: %d.",class->type);
+        return DBL_MIN;
     }
-	return self->value;
+    return self->value;
 }
 

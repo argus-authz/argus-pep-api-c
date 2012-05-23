@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Members of the EGEE Collaboration.
+ * Copyright (c) Members of the EGEE Collaboration. 2008.
  * See http://www.eu-egee.org/partners for details on the copyright holders.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,7 @@
  * compiler flags: CFLAGS=-I/opt/glite/include
  * linker flags: LDFLAGS=-L/opt/glite/lib
  */
-#include "pep/pep.h"
+#include "argus/pep.h"
 
 /*
  * local logging functions
@@ -81,7 +81,7 @@ static void debug(const char * format, ...) {
  * PEP-C logging callback function
  */
 static void log_handler_pep(int level, const char * format, va_list args) {
-	fprintf(stdout,"XXX:PEP-C[%d]: ",level);
+	fprintf(stdout,"libargus-pep[%d]: ",level);
 	vfprintf(stdout,format,args);
 	fprintf(stdout,"\n");
 }
@@ -232,11 +232,8 @@ static int dump_response(xacml_response_t ** response_ptr) {
 			for (k= 0; k<attrs_l; k++) {
 				xacml_attributeassignment_t * attr= xacml_obligation_getattributeassignment(obligation,k);
 				info("response.result[%d].obligation[%d].attributeassignment[%d].id= %s",i,j,k,xacml_attributeassignment_getid(attr));
-				size_t values_l= xacml_attributeassignment_values_length(attr);
-				int l= 0;
-				for (l= 0; l<values_l; l++) {
-					info("response.result[%d].obligation[%d].attributeassignment[%d].value[%d]= %s",i,j,k,l,xacml_attributeassignment_getvalue(attr,l));
-				}
+				info("response.result[%d].obligation[%d].attributeassignment[%d].datatype= %s",i,j,k,xacml_attributeassignment_getdatatype(attr));
+			    info("response.result[%d].obligation[%d].attributeassignment[%d].value= %s",i,j,k,xacml_attributeassignment_getvalue(attr));
 			}
 		}
 	}
@@ -376,6 +373,8 @@ static int oh_delete(pep_obligationhandler_t * oh) {
  */
 int main(int argc, char **argv) {
 
+    PEP * pep;
+    pep_error_t pep_rc;
 
 	char * url= "http://localhost:8080/PEPd/authz?random";
 	if (argc == 2) {
@@ -383,29 +382,46 @@ int main(int argc, char **argv) {
 		info("%s: using endpoint URL: %s",argv[0], url);
 	}
 	info("initialize PEP...");
-	pep_error_t pep_rc= pep_initialize();
-	if (pep_rc != PEP_OK) {
-		error("test_pep: pep_initialize() failed: %s",pep_strerror(pep_rc));
-		pep_destroy();
+	pep= pep_initialize();
+	if (pep == NULL) {
+		error("test_pep: pep_initialize() failed");
 		return -1;
 	}
 
 	info("set LOG options...");
-	pep_setoption(PEP_OPTION_LOG_STDERR,stderr);
-	pep_setoption(PEP_OPTION_LOG_LEVEL,PEP_LOGLEVEL_DEBUG); // DEBUG, INFO, WARN and ERROR
-	pep_setoption(PEP_OPTION_LOG_HANDLER,log_handler_pep); // will override stderr log handler
+	pep_setoption(pep,PEP_OPTION_LOG_STDERR,stderr);
+	pep_setoption(pep,PEP_OPTION_LOG_LEVEL,PEP_LOGLEVEL_DEBUG); // DEBUG, INFO, WARN and ERROR
+	pep_setoption(pep,PEP_OPTION_LOG_HANDLER,log_handler_pep); // will override stderr log handler
 
-	info("create PIP and add to PEP...");
+	info("create PIP");
 	pep_pip_t * pip= pip_create("PIPRequestDumper",pip_init,pip_process,pip_destroy);
 	if (pip == NULL) {
 		error("test_pep: pip_create(...) failed");
-		pep_destroy();
+		pep_destroy(pep);
 		return -1;
 	}
-	pep_rc= pep_addpip(pip);
+
+	info("install PIP: %s",pip->id);
+	pep_rc= pep_addpip(pep,pip);
 	if (pep_rc != PEP_OK) {
 		error("test_pep: pep_addpip() failed: %s",pep_strerror(pep_rc));
-		pep_destroy();
+		pep_destroy(pep);
+		return -1;
+	}
+
+	info("install PIP: %s",authzinterop2gridwn_adapter_pip->id);
+	pep_rc= pep_addpip(pip,authzinterop2gridwn_adapter_pip);
+	if (pep_rc != PEP_OK) {
+		error("test_pep: pep_addpip() failed: %s",pep_strerror(pep_rc));
+		pep_destroy(pep);
+		return -1;
+	}
+
+	info("install PIP: %s",pip->id);
+	pep_rc= pep_addpip(pep,pip);
+	if (pep_rc != PEP_OK) {
+		error("test_pep: pep_addpip() failed: %s",pep_strerror(pep_rc));
+		pep_destroy(pep);
 		return -1;
 	}
 
@@ -413,13 +429,13 @@ int main(int argc, char **argv) {
 	pep_obligationhandler_t * oh= oh_create("OHResponseDumper",oh_init,oh_process,oh_destroy);
 	if (oh == NULL) {
 		error("test_pep: oh_create(...) failed");
-		pep_destroy();
+		pep_destroy(pep);
 		return -1;
 	}
-	pep_rc= pep_addobligationhandler(oh);
+	pep_rc= pep_addobligationhandler(pep,oh);
 	if (pep_rc != PEP_OK) {
 		error("test_pep: pep_addobligationhandler() failed: %s",pep_strerror(pep_rc));
-		pep_destroy();
+		pep_destroy(pep);
 		return -1;
 	}
 
@@ -430,11 +446,12 @@ int main(int argc, char **argv) {
 	info("add XACML subject(cert-chain)...");
 	xacml_subject_t * subject= xacml_subject_create();
 	assert(subject);
-	xacml_attribute_t * proxy= xacml_attribute_create(XACML_AUTHZINTEROP_SUBJECT_CERTCHAIN);
-	assert(proxy);
-	xacml_attribute_addvalue(proxy,"PEM_ENCODE_PROXY_CERTCHAIN...");
-	xacml_attribute_setdatatype(proxy,XACML_DATATYPE_BASE64BINARY);
-	xacml_subject_addattribute(subject,proxy);
+	xacml_attribute_t * certchain= xacml_attribute_create(XACML_AUTHZINTEROP_SUBJECT_CERTCHAIN);
+	assert(certchain);
+	xacml_attribute_addvalue(certchain,"PEM_ENCODE_PROXY_CERTCHAIN...");
+	xacml_attribute_setdatatype(certchain,XACML_DATATYPE_BASE64BINARY);
+	xacml_subject_addattribute(subject,certchain);
+
 	xacml_request_addsubject(request,subject);
 	info("add XACML resource(resource-id)...");
 	xacml_resource_t * resource= xacml_resource_create();

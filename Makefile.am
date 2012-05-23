@@ -1,6 +1,6 @@
 #
-# Copyright 2008 Members of the EGEE Collaboration.
-# See http://www.eu-egee.org/partners for details on the copyright holders. 
+# Copyright (c) Members of the EGEE Collaboration. 2004-2010.
+# See http://www.eu-egee.org/partners/ for details on the copyright holders. 
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,30 +17,54 @@
 # $Id$
 #
 
-SUBDIRS = src 
-EXTRA_DIST = LICENSE CHANGELOG autotools.sh test/test_pep.c test/Makefile doc/html
+#ACLOCAL_AMFLAGS = -I project
+#ACLOCAL_AMFLAGS = -I $(srcdir)/project
 
-docdir = $(datadir)/doc/$(PACKAGE)
-doc_DATA = AUTHORS CHANGELOG LICENSE
+SUBDIRS = src 
+
+if ENABLE_DEVEL
+exampledir = $(docdir)/example
+example_DATA = $(srcdir)/src/example/pep_client_example.c $(srcdir)/src/example/README
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libargus-pep.pc
+endif
+
+#EXTRA_DIST = LICENSE CHANGELOG autotools.sh test/test_pep.c test/Makefile doc/html
+EXTRA_DIST = LICENSE ChangeLog autotools.sh doc/Doxyfile $(example_DATA)
+
+docdir = $(datadir)/doc/$(PACKAGE_NAME)-$(PACKAGE_VERSION)
+
+if ENABLE_LIBRARY
+doc_DATA = AUTHORS ChangeLog LICENSE README
+endif
+
 
 # Generate doxygen doc
+doc: html
+htmldir = $(docdir)/api
+if ENABLE_DEVEL
 doxygen: doc/Doxyfile
-	$(DOXYGEN) doc/Doxyfile
+	$(DOXYGEN) $(srcdir)/doc/Doxyfile
 
 html-local: doxygen
 
-# Install doxygen doc in $(prefix)/share/doc/glite-authz-pep-c/api
-htmldir = $(docdir)/api
 install-data-local: install-html
+else
+install-data-local:
+endif
 
 uninstall-local: uninstall-html
 
-install-html: 
-	[ -d "$(htmldir)" ] || $(mkinstalldirs) $(htmldir)
-	if [ -d "doc/html" ] ; then \
-	for file in doc/html/* ; do \
-		[ -f "$$file" ] && $(INSTALL_DATA) $$file $(htmldir)/`basename $$file`; \
-	done \
+install-html:
+	test -d "$(htmldir)" || $(mkdir_p) "$(DESTDIR)$(htmldir)"
+	@if test -d "doc/html"; then \
+	    for file in doc/html/* ; do \
+	        if test -f "$$file"; then \
+	            f=`basename $$file`; \
+	            echo "$(INSTALL_DATA) '$$file' '$(DESTDIR)$(htmldir)/$$f'"; \
+	            $(INSTALL_DATA) "$$file" "$(DESTDIR)$(htmldir)/$$f"; \
+	        fi \
+	    done \
 	fi
 
 uninstall-html:

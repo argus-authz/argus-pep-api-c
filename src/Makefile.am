@@ -1,6 +1,6 @@
 #
-# Copyright 2008 Members of the EGEE Collaboration.
-# See http://www.eu-egee.org/partners for details on the copyright holders. 
+# Copyright (c) Members of the EGEE Collaboration. 2006-2010.
+# See http://www.eu-egee.org/partners/ for details on the copyright holders.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,19 +14,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# $Id$
-#
 
-SUBDIRS = util hessian pep 
+if ENABLE_LIBRARY
+SUBDIRS = util hessian argus 
+lib_LTLIBRARIES = libargus-pep.la
+endif
 
-#
-# libpep-c = util + hessian + pep
-#
-lib_LTLIBRARIES = libpep-c.la
-libpep_c_la_LIBADD = util/libutil.la hessian/libhessian.la pep/libpep.la 
-libpep_c_la_LDFLAGS = -version-info 1:3:0
-libpep_c_la_SOURCES = libpep-c.c
+libargus_pep_la_CFLAGS = \
+    $(LIBCURL_CFLAGS)
+
+libargus_pep_la_LIBADD = \
+    util/libutil.la \
+    hessian/libhessian.la \
+    argus/libpep.la \
+    $(LIBCURL_LIBS)
+
+libargus_pep_la_LDFLAGS = \
+    -version-info 2:4:0
+
+libargus_pep_la_SOURCES = libargus_pep.c
 
 # headers files in <prefix>/include (public API)
-pepincludedir = $(includedir)/pep
-pepinclude_HEADERS = pep/pep.h pep/error.h pep/xacml.h util/buffer.h util/linkedlist.h
+if ENABLE_DEVEL
+pepincludedir = $(includedir)/argus
+pepinclude_HEADERS = argus/pep.h argus/pip.h argus/oh.h argus/error.h argus/xacml.h argus/profiles.h
+endif
