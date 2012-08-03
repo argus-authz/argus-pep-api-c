@@ -52,6 +52,7 @@ rm -rf $RPM_BUILD_ROOT
 
 make DESTDIR=$RPM_BUILD_ROOT install
 find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
+strip -s -v %{buildroot}%{_libdir}/*.so
 
 # clean up installed documentation, will be done using doc macro
 rm -rf $RPM_BUILD_ROOT%{_datadir}/doc/%{name}-%{version}
