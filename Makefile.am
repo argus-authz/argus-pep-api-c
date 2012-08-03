@@ -71,7 +71,7 @@ uninstall-html:
 	$(RM) -fr $(htmldir) 
 
 distclean-local:
-	$(RM) -fr doc/html doc/man rpmbuild stage tgz RPMS target
+	$(RM) -fr doc/html doc/man 
 
 #
 # RPM/ETICS
@@ -82,6 +82,9 @@ version = $(shell grep "Version:" $(spec_file) | sed -e "s/Version://g" -e "s/[ 
 release = 1
 rpmbuild_dir = $(shell pwd)/rpmbuild
 stage_dir = $(shell pwd)/stage
+
+clean-local:
+	$(RM) -fr $(rpmbuild_dir) stage tgz RPMS target
 
 rpm: dist
 	echo "Building RPM in $(rpmbuild_dir)"
