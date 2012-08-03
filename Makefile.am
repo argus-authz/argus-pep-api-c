@@ -72,3 +72,29 @@ uninstall-html:
 
 distclean-local:
 	$(RM) -fr doc/html doc/man
+
+#
+# RPM/ETICS
+#
+name = argus-pep-api-c
+spec_file = fedora/$(name).spec
+version = $(shell grep "Version:" $(spec_file) | sed -e "s/Version://g" -e "s/[ \t]*//g")
+release = 1
+rpmbuild_dir = $(shell pwd)/rpmbuild
+stage_dir = $(shell pwd)/stage
+
+rpm: dist
+	echo "Building RPM in $(rpmbuild_dir)"
+	mkdir -p $(rpmbuild_dir)/BUILD $(rpmbuild_dir)/RPMS \
+		$(rpmbuild_dir)/SOURCES $(rpmbuild_dir)/SPECS \
+		$(rpmbuild_dir)/SRPMS
+	cp $(name)-$(version).tar.gz $(rpmbuild_dir)/SOURCES
+	rpmbuild --nodeps -v -ba $(spec) --define "_topdir $(rpmbuild_dir)"
+
+etics: rpm
+	echo "Publising RPMs and tarballs"
+	mkdir -p tgz RPMS
+	cp target/*.tar.gz tgz
+	cp -r $(rpmbuild_dir)/RPMS/* $(rpmbuild_dir)/SRPMS/* RPMS
+
+
