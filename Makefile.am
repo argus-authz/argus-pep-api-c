@@ -87,17 +87,18 @@ clean-local:
 	$(RM) -fr $(rpmbuild_dir) stage tgz RPMS target
 
 rpm: dist
+	mv -v $(name)-$(version).tar.gz $(name)-$(version).src.tar.gz
 	echo "Building RPM in $(rpmbuild_dir)"
 	mkdir -p $(rpmbuild_dir)/BUILD $(rpmbuild_dir)/RPMS \
 		$(rpmbuild_dir)/SOURCES $(rpmbuild_dir)/SPECS \
 		$(rpmbuild_dir)/SRPMS
-	cp $(name)-$(version).tar.gz $(rpmbuild_dir)/SOURCES
+	cp -v $(name)-$(version).src.tar.gz $(rpmbuild_dir)/SOURCES/$(name)-$(version).tar.gz
 	rpmbuild --nodeps -v -ba $(spec_file) --define "_topdir $(rpmbuild_dir)"
 
 etics: rpm
-	echo "Publising RPMs and tarballs"
+	echo "Publishing RPMs and tarballs"
 	mkdir -p tgz RPMS
-	cp target/*.tar.gz tgz
-	cp -r $(rpmbuild_dir)/RPMS/* $(rpmbuild_dir)/SRPMS/* RPMS
+	cp -v $(name)-$(version).src.tar.gz tgz
+	cp -rv $(rpmbuild_dir)/RPMS/* $(rpmbuild_dir)/SRPMS/* RPMS
 
 
