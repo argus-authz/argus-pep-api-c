@@ -65,7 +65,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%{_libdir}/libargus-pep.so.2.0.3
+%{_libdir}/libargus-pep.so.2.0.4
 %{_libdir}/libargus-pep.so.2
 
 %doc AUTHORS LICENSE README ChangeLog
