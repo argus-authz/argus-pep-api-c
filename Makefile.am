@@ -82,9 +82,10 @@ version = $(shell grep "Version:" $(spec_file) | sed -e "s/Version://g" -e "s/[ 
 release = 1
 rpmbuild_dir = $(shell pwd)/rpmbuild
 stage_dir = $(shell pwd)/stage
+fakeroot_dir = $(shell pwd)/FAKEROOT
 
 clean-local:
-	$(RM) -fr $(rpmbuild_dir) stage tgz RPMS target FAKEROOT *.tar.gz
+	$(RM) -fr rpmbuild stage tgz RPMS target FAKEROOT *.tar.gz
 
 rpm: dist
 	mv -v $(name)-$(version).tar.gz $(name)-$(version).src.tar.gz
@@ -96,9 +97,9 @@ rpm: dist
 	rpmbuild -v -ba $(spec_file) --define "_topdir $(rpmbuild_dir)"
 
 binary-tarball:
-	mkdir -p FAKEROOT
-	make DESTDIR=FAKEROOT install
-	cd FAKEROOT
+	mkdir -p $(fakeroot_dir)
+	make DESTDIR=$(fakeroot_dir) install
+	cd $(fakeroot_dir)
 	tar -cvzf ../$(name)-$(version).tar.gz *
 
 
