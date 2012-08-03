@@ -89,7 +89,7 @@ rpm: dist
 		$(rpmbuild_dir)/SOURCES $(rpmbuild_dir)/SPECS \
 		$(rpmbuild_dir)/SRPMS
 	cp $(name)-$(version).tar.gz $(rpmbuild_dir)/SOURCES
-	rpmbuild --nodeps -v -ba $(spec) --define "_topdir $(rpmbuild_dir)"
+	rpmbuild --nodeps -v -ba $(spec_file) --define "_topdir $(rpmbuild_dir)"
 
 etics: rpm
 	echo "Publising RPMs and tarballs"
