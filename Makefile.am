@@ -84,7 +84,7 @@ rpmbuild_dir = $(shell pwd)/rpmbuild
 stage_dir = $(shell pwd)/stage
 
 clean-local:
-	$(RM) -fr $(rpmbuild_dir) stage tgz RPMS target
+	$(RM) -fr $(rpmbuild_dir) stage tgz RPMS target *.src.tar.gz
 
 rpm: dist
 	mv -v $(name)-$(version).tar.gz $(name)-$(version).src.tar.gz
