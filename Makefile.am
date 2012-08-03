@@ -84,7 +84,7 @@ rpmbuild_dir = $(shell pwd)/rpmbuild
 stage_dir = $(shell pwd)/stage
 
 clean-local:
-	$(RM) -fr $(rpmbuild_dir) stage tgz RPMS target *.src.tar.gz
+	$(RM) -fr $(rpmbuild_dir) stage tgz RPMS target FAKEROOT *.tar.gz
 
 rpm: dist
 	mv -v $(name)-$(version).tar.gz $(name)-$(version).src.tar.gz
@@ -93,7 +93,14 @@ rpm: dist
 		$(rpmbuild_dir)/SOURCES $(rpmbuild_dir)/SPECS \
 		$(rpmbuild_dir)/SRPMS
 	cp -v $(name)-$(version).src.tar.gz $(rpmbuild_dir)/SOURCES/$(name)-$(version).tar.gz
-	rpmbuild --nodeps -v -ba $(spec_file) --define "_topdir $(rpmbuild_dir)"
+	rpmbuild -v -ba $(spec_file) --define "_topdir $(rpmbuild_dir)"
+
+binary-tarball:
+	mkdir -p FAKEROOT
+	make DESTDIR=FAKEROOT install
+	cd FAKEROOT
+	tar -cvzf ../$(name)-$(version).tar.gz *
+
 
 etics: rpm
 	echo "Publishing RPMs and tarballs"
