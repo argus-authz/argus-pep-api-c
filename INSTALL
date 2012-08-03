@@ -12,8 +12,6 @@ curl-devel (or libcurl-devel) package is required to build the Argus PEP client 
 
 ./configure
 
-NOTE: for RHEL6/SL6 add the --with-libcurl-nss flag!
-
 or if you want to install the lib and include in a different directory:
 
 ./configure --prefix=/usr [--libdir=/usr/lib64]
@@ -50,5 +48,3 @@ PKG_CHECK_MODULES(LIBARGUS_PEP,[libargus-pep >= 2],
     ]
 )
 
---
-$Id$

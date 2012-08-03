@@ -67,7 +67,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libargus-pep.so.2.0.4
 %{_libdir}/libargus-pep.so.2
 
-%doc AUTHORS LICENSE README ChangeLog
+%doc AUTHORS COPYING LICENSE README INSTALL ChangeLog
 
 %files devel
 %defattr(-,root,root,-)
