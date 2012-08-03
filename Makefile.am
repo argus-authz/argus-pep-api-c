@@ -71,7 +71,7 @@ uninstall-html:
 	$(RM) -fr $(htmldir) 
 
 distclean-local:
-	$(RM) -fr doc/html doc/man
+	$(RM) -fr doc/html doc/man rpmbuild stage tgz RPMS target
 
 #
 # RPM/ETICS
