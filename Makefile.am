@@ -99,14 +99,13 @@ rpm: dist
 binary-tarball:
 	mkdir -p $(fakeroot_dir)
 	make DESTDIR=$(fakeroot_dir) install
-	cd $(fakeroot_dir)
-	tar -cvzf ../$(name)-$(version).tar.gz *
+	cd $(fakeroot_dir) && tar -cvzf ../$(name)-$(version).tar.gz *
 
 
 etics: rpm
 	echo "Publishing RPMs and tarballs"
 	mkdir -p tgz RPMS
-	cp -v $(name)-$(version).src.tar.gz tgz
+	cp -v $(name)-$(version).src.tar.gz $(name)-$(version).tar.gz tgz
 	cp -rv $(rpmbuild_dir)/RPMS/* $(rpmbuild_dir)/SRPMS/* RPMS
 
 
