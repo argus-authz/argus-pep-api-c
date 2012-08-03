@@ -34,7 +34,7 @@ authorization response back from Argus.
 This package contains the development libraries.
 
 %prep
-%setup -q -n argus-pep-api-c
+%setup -q
 
 %build
 %configure
