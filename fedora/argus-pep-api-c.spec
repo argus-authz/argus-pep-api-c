@@ -14,8 +14,6 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: libcurl-devel
 
-Requires: libcurl
-
 %description
 The Argus PEP client API for C is a multi-thread friendly client library used to 
 communicate with the Argus PEP Server. It authorizes request and receives
