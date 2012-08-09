@@ -85,15 +85,14 @@ stage_dir = $(shell pwd)/stage
 fakeroot_dir = $(shell pwd)/FAKEROOT
 
 clean-local:
+	@echo "Cleaning..."
 	$(RM) -fr rpmbuild stage tgz RPMS target FAKEROOT *.tar.gz
 
 rpm: dist
-	mv -v $(name)-$(version).tar.gz $(name)-$(version).src.tar.gz
-	echo "Building RPM in $(rpmbuild_dir)"
-	mkdir -p $(rpmbuild_dir)/BUILD $(rpmbuild_dir)/RPMS \
-		$(rpmbuild_dir)/SOURCES $(rpmbuild_dir)/SPECS \
-		$(rpmbuild_dir)/SRPMS
-	cp -v $(name)-$(version).src.tar.gz $(rpmbuild_dir)/SOURCES/$(name)-$(version).tar.gz
+	@echo "Building RPM in $(rpmbuild_dir)"
+	mv $(name)-$(version).tar.gz $(name)-$(version).src.tar.gz
+	mkdir -p $(rpmbuild_dir)/BUILD $(rpmbuild_dir)/RPMS $(rpmbuild_dir)/SOURCES $(rpmbuild_dir)/SPECS $(rpmbuild_dir)/SRPMS
+	cp $(name)-$(version).src.tar.gz $(rpmbuild_dir)/SOURCES/$(name)-$(version).tar.gz
 	rpmbuild -v -ba $(spec_file) --define "_topdir $(rpmbuild_dir)"
 
 binary-tarball:
@@ -101,12 +100,12 @@ binary-tarball:
 	make DESTDIR=$(fakeroot_dir) install
 	cd $(fakeroot_dir) && tar -cvzf ../$(name)-$(version).bin.tar.gz *
 
-
-etics: rpm
-	echo "Publishing RPMs and tarballs"
-	mkdir -p tgz RPMS
-	cp -v $(name)-$(version).src.tar.gz tgz
-	test -f $(name)-$(version).bin.tar.gz && cp -v $(name)-$(version).bin.tar.gz tgz/$(name)-$(version).tar.gz
-	cp -rv $(rpmbuild_dir)/RPMS/* $(rpmbuild_dir)/SRPMS/* RPMS
+etics: 
+	@echo "Publishing RPMs and tarballs"
+	mkdir -p RPMS tgz
+	test -f $(rpmbuild_dir)/SRPMS/$(name)-$(version)-*.src.rpm
+	cp -r $(rpmbuild_dir)/RPMS/* $(rpmbuild_dir)/SRPMS/* RPMS
+	test -f $(name)-$(version).src.tar.gz && cp $(name)-$(version).src.tar.gz tgz
+	test ! -f $(name)-$(version).bin.tar.gz || cp $(name)-$(version).bin.tar.gz tgz/$(name)-$(version).tar.gz
 
 
