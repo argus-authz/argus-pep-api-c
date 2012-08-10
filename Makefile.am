@@ -86,9 +86,10 @@ fakeroot_dir = $(shell pwd)/FAKEROOT
 
 clean-local:
 	@echo "Cleaning..."
-	$(RM) -fr rpmbuild stage tgz RPMS target FAKEROOT *.tar.gz
+	rm -fr rpmbuild stage tgz RPMS target FAKEROOT *.tar.gz
 
 rpm: dist
+	rpm --version
 	@echo "Building RPM with $(spec_file)"
 	mv $(name)-$(version).tar.gz $(name)-$(version).src.tar.gz
 	mkdir -p $(rpmbuild_dir)/BUILD $(rpmbuild_dir)/RPMS $(rpmbuild_dir)/SOURCES $(rpmbuild_dir)/SPECS $(rpmbuild_dir)/SRPMS
