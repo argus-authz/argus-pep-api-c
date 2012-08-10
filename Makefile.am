@@ -30,7 +30,7 @@ pkgconfig_DATA = libargus-pep.pc
 endif
 
 #EXTRA_DIST = LICENSE CHANGELOG autotools.sh test/test_pep.c test/Makefile doc/html
-EXTRA_DIST = LICENSE ChangeLog autotools.sh doc/Doxyfile $(example_DATA)
+EXTRA_DIST = fedora LICENSE ChangeLog autotools.sh doc/Doxyfile $(example_DATA)
 
 docdir = $(datadir)/doc/$(PACKAGE_NAME)-$(PACKAGE_VERSION)
 
