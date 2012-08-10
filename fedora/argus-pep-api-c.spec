@@ -85,9 +85,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Fri Aug 3 2012 Valery Tschopp <valery.tschopp@switch.ch> 2.1.1-1
-- New package for version 2.1.1
+- Self managed packaging with spec file.
+
 * Tue Dec 6 2011 Valery Tschopp <valery.tschopp@switch.ch> 2.1.0-1
 - New package for version 2.1.0
+
 * Tue Oct 4 2011 Mischa Salle <msalle@nikhef.nl> 2.0.3-2
 - Initial build.
 
