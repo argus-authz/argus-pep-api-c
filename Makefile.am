@@ -77,7 +77,7 @@ distclean-local:
 # RPM/ETICS
 #
 name = argus-pep-api-c
-spec_file = fedora/$(name).spec
+spec_file = fedora/$(name)$(shell rpm --eval "%?dist").spec
 version = $(shell grep "Version:" $(spec_file) | sed -e "s/Version://g" -e "s/[ \t]*//g")
 release = 1
 rpmbuild_dir = $(shell pwd)/rpmbuild
@@ -89,7 +89,7 @@ clean-local:
 	$(RM) -fr rpmbuild stage tgz RPMS target FAKEROOT *.tar.gz
 
 rpm: dist
-	@echo "Building RPM in $(rpmbuild_dir)"
+	@echo "Building RPM with $(spec_file)"
 	mv $(name)-$(version).tar.gz $(name)-$(version).src.tar.gz
 	mkdir -p $(rpmbuild_dir)/BUILD $(rpmbuild_dir)/RPMS $(rpmbuild_dir)/SOURCES $(rpmbuild_dir)/SPECS $(rpmbuild_dir)/SRPMS
 	cp $(name)-$(version).src.tar.gz $(rpmbuild_dir)/SOURCES/$(name)-$(version).tar.gz
