@@ -12,7 +12,8 @@ URL: https://twiki.cern.ch/twiki/bin/view/EGEE/AuthorizationFramework
 Source: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires: libcurl-devel
+# SL5 curl-devel, SL6 libcurl-devel
+BuildRequires: curl-devel
 
 %description
 The Argus PEP client API for C is a multi-thread friendly client library used to 
