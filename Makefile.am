@@ -100,7 +100,6 @@ debian: dist
 	mkdir -p $(debbuild_dir)
 	cp $(name)-$(version).src.tar.gz $(debbuild_dir)/$(name)_$(version).orig.tar.gz
 	tar -C $(debbuild_dir) -xf $(name)-$(version).src.tar.gz
-	cp -r debian $(debbuild_dir)/$(name)-$(version)
 	cd $(debbuild_dir)/$(name)-$(version) && debuild -us -uc 
 
 etics: 
