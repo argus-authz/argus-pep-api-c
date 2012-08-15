@@ -11,7 +11,7 @@ Vcs-Browser: https://github.com/argus-authz/argus-pep-api-c
 Package: libargus-pep-dev
 Section: libdevel
 Architecture: any
-Depends: libargus-pep2 (= ${binary:Version})
+Depends: libargus-pep2 (= ${binary:Version}), ${misc:Depends}
 Description: Argus PEP client library for C (development package)
  The Argus PEP client API for C is a multir thread friendly client 
  library used to communicate with the Argus PEP Server. 
