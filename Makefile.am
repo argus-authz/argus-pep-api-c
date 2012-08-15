@@ -81,12 +81,12 @@ spec_file = fedora/$(name)$(shell rpm --eval "%?dist").spec
 version = $(shell grep "Version:" $(spec_file) | sed -e "s/Version://g" -e "s/[ \t]*//g")
 release = 1
 rpmbuild_dir = $(shell pwd)/rpmbuild
+debbuild_dir = $(shell pwd)/debbuild
 stage_dir = $(shell pwd)/stage
-fakeroot_dir = $(shell pwd)/FAKEROOT
 
 clean-local:
 	@echo "Cleaning..."
-	rm -fr rpmbuild stage tgz RPMS target FAKEROOT *.tar.gz
+	rm -fr rpmbuild debbuild stage tgz RPMS target *.tar.gz
 
 rpm: dist
 	rpm --version
@@ -96,10 +96,15 @@ rpm: dist
 	cp $(name)-$(version).src.tar.gz $(rpmbuild_dir)/SOURCES/$(name)-$(version).tar.gz
 	rpmbuild -v -ba $(spec_file) --define "_topdir $(rpmbuild_dir)"
 
-binary-tarball:
-	mkdir -p $(fakeroot_dir)
-	make DESTDIR=$(fakeroot_dir) install
-	cd $(fakeroot_dir) && tar -cvzf ../$(name)-$(version).bin.tar.gz *
+debian: dist
+	debuild --version
+	mv $(name)-$(version).tar.gz $(name)-$(version).src.tar.gz
+	@echo "Building Debian package in $(debbuild_dir)"
+	mkdir -p $(debbuild_dir)
+	cp $(name)-$(version).src.tar.gz $(debbuild_dir)/$(name)_$(version).orig.tar.gz
+	tar -C $(debbuild_dir) -xf $(name)-$(version).src.tar.gz
+	cp -r debian $(debbuild_dir)/$(name)-$(version)
+	cd $(debbuild_dir)/$(name)-$(version) && debuild -us -uc 
 
 etics: 
 	@echo "Publishing RPMs and tarballs"
