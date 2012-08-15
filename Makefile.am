@@ -77,9 +77,9 @@ name = argus-pep-api-c
 spec_file = fedora/$(name)$(shell rpm --eval "%?dist").spec
 version = $(shell grep "Version:" $(spec_file) | sed -e "s/Version://g" -e "s/[ \t]*//g")
 release = 1
-rpmbuild_dir = $(shell pwd)/rpmbuild
-debbuild_dir = $(shell pwd)/debbuild
-stage_dir = $(shell pwd)/stage
+rpmbuild_dir = $(CURDIR)/rpmbuild
+debbuild_dir = $(CURDIR)/debbuild
+stage_dir = $(CURDIR)/stage
 
 clean-local:
 	@echo "Cleaning..."
