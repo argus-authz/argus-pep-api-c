@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# $Id$
-#
 
 #ACLOCAL_AMFLAGS = -I project
 #ACLOCAL_AMFLAGS = -I $(srcdir)/project
@@ -29,8 +27,7 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libargus-pep.pc
 endif
 
-#EXTRA_DIST = LICENSE CHANGELOG autotools.sh test/test_pep.c test/Makefile doc/html
-EXTRA_DIST = fedora LICENSE ChangeLog autotools.sh doc/Doxyfile $(example_DATA)
+EXTRA_DIST = fedora debian LICENSE ChangeLog autotools.sh doc/Doxyfile $(example_DATA)
 
 docdir = $(datadir)/doc/$(PACKAGE_NAME)-$(PACKAGE_VERSION)
 
