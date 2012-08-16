@@ -95,8 +95,8 @@ rpm: dist
 
 debian: dist
 	debuild --version
-	mv $(name)-$(version).tar.gz $(name)-$(version).src.tar.gz
 	@echo "Building Debian package in $(debbuild_dir)"
+	mv $(name)-$(version).tar.gz $(name)-$(version).src.tar.gz
 	mkdir -p $(debbuild_dir)
 	cp $(name)-$(version).src.tar.gz $(debbuild_dir)/$(name)_$(version).orig.tar.gz
 	tar -C $(debbuild_dir) -xf $(name)-$(version).src.tar.gz
