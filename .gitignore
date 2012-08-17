@@ -17,3 +17,4 @@ aclocal.m4
 /libargus-pep.pc
 install-sh
 ltmain.sh
+/doc/html
