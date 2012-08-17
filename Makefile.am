@@ -32,7 +32,7 @@ EXTRA_DIST = fedora debian LICENSE ChangeLog autotools.sh doc/Doxyfile $(example
 docdir = $(datadir)/doc/$(PACKAGE_NAME)-$(PACKAGE_VERSION)
 
 if ENABLE_LIBRARY
-doc_DATA = AUTHORS ChangeLog LICENSE README.md
+doc_DATA = AUTHORS ChangeLog LICENSE README
 endif
 
 
@@ -74,8 +74,6 @@ distclean-local:
 # RPM/ETICS
 #
 name = argus-pep-api-c
-version = 2.1.1
-release = 1
 
 #spec_file = fedora/$(name)$(shell rpm --eval "%?dist").spec
 spec_file = fedora/$(name)$(spec_dist).spec
@@ -85,12 +83,6 @@ debbuild_dir = $(CURDIR)/debbuild
 clean-local:
 	@echo "Cleaning..."
 	rm -fr rpmbuild debbuild stage tgz RPMS target *.tar.gz
-
-spec:
-	@echo "Setting version and release in spec file: $(version)-$(release)"
-	sed -e 's#@@SPEC_VERSION@@#$(version)#g' -e 's#@@SPEC_RELEASE@@#$(release)#g' $(spec_file).in > $(spec_file)
-
-all-local: spec
 
 rpm: dist
 	@echo "Building RPM with $(spec_file)"
