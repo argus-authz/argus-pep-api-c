@@ -32,7 +32,7 @@ EXTRA_DIST = fedora debian LICENSE ChangeLog autotools.sh doc/Doxyfile $(example
 docdir = $(datadir)/doc/$(PACKAGE_NAME)-$(PACKAGE_VERSION)
 
 if ENABLE_LIBRARY
-doc_DATA = AUTHORS ChangeLog LICENSE README
+doc_DATA = AUTHORS ChangeLog LICENSE README.md
 endif
 
 
