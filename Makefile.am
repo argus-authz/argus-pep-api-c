@@ -38,7 +38,7 @@ endif
 
 # Generate doxygen doc
 doc: html
-htmldir = $(docdir)/api
+htmldir = $(docdir)/html
 if ENABLE_DEVEL
 doxygen: doc/Doxyfile
 	$(DOXYGEN) $(srcdir)/doc/Doxyfile
@@ -74,19 +74,25 @@ distclean-local:
 # RPM/ETICS
 #
 name = argus-pep-api-c
-spec_file = fedora/$(name)$(shell rpm --eval "%?dist").spec
-version = $(shell grep "Version:" $(spec_file) | sed -e "s/Version://g" -e "s/[ \t]*//g")
+version = 2.1.1
 release = 1
+
+#spec_file = fedora/$(name)$(shell rpm --eval "%?dist").spec
+spec_file = fedora/$(name)$(spec_dist).spec
 rpmbuild_dir = $(CURDIR)/rpmbuild
 debbuild_dir = $(CURDIR)/debbuild
-stage_dir = $(CURDIR)/stage
 
 clean-local:
 	@echo "Cleaning..."
 	rm -fr rpmbuild debbuild stage tgz RPMS target *.tar.gz
 
+spec:
+	@echo "Setting version and release in spec file: $(version)-$(release)"
+	sed -e 's#@@SPEC_VERSION@@#$(version)#g' -e 's#@@SPEC_RELEASE@@#$(release)#g' $(spec_file).in > $(spec_file)
+
+all-local: spec
+
 rpm: dist
-	rpm --version
 	@echo "Building RPM with $(spec_file)"
 	mv $(name)-$(version).tar.gz $(name)-$(version).src.tar.gz
 	mkdir -p $(rpmbuild_dir)/BUILD $(rpmbuild_dir)/RPMS $(rpmbuild_dir)/SOURCES $(rpmbuild_dir)/SPECS $(rpmbuild_dir)/SRPMS
@@ -94,7 +100,6 @@ rpm: dist
 	rpmbuild -v -ba $(spec_file) --define "_topdir $(rpmbuild_dir)"
 
 debian: dist
-	debuild --version
 	@echo "Building Debian package in $(debbuild_dir)"
 	mv $(name)-$(version).tar.gz $(name)-$(version).src.tar.gz
 	mkdir -p $(debbuild_dir)
