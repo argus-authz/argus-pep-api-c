@@ -1,8 +1,8 @@
 Name: argus-pep-api-c
 
 # PACKAGE_VERSION and PACKAGE_RELEASE defined in configure.ac
-Version: @PACKAGE_VERSION@
-Release: @PACKAGE_RELEASE@%{?dist}
+Version: @@SPEC_VERSION@@
+Release: @@SPEC_RELEASE@@%{?dist}
 Summary: Argus PEP client library
 
 
