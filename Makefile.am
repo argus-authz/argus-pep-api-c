@@ -90,6 +90,7 @@ spec:
 
 
 rpm: spec
+	test -f $(name)-$(version).tar.gz
 	@echo "Building RPM with $(spec_file)"
 	mv $(name)-$(version).tar.gz $(name)-$(version).src.tar.gz
 	mkdir -p $(rpmbuild_dir)/BUILD $(rpmbuild_dir)/RPMS $(rpmbuild_dir)/SOURCES $(rpmbuild_dir)/SPECS $(rpmbuild_dir)/SRPMS
@@ -98,6 +99,7 @@ rpm: spec
 
 
 debian:
+	test -f $(name)-$(version).tar.gz
 	@echo "Building Debian package in $(debbuild_dir)"
 	mv $(name)-$(version).tar.gz $(name)-$(version).src.tar.gz
 	mkdir -p $(debbuild_dir)
