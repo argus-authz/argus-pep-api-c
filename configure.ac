@@ -17,11 +17,8 @@
 #
 
 ##
-# VERSION and RELEASE numbers
-#
+# VERSION number
 AC_INIT([argus-pep-api-c], [2.1.1], [argus-support@cern.ch])
-AC_SUBST([PACKAGE_RELEASE],[1])
-AC_MSG_NOTICE([$PACKAGE_NAME version:$PACKAGE_VERSION rel:$PACKAGE_RELEASE])
 ##
 
 AC_CONFIG_AUX_DIR([project])
@@ -123,8 +120,6 @@ AC_CHECK_FUNCS([strerror strrchr calloc])
 AM_CONFIG_HEADER([src/config.h])
 
 AC_CONFIG_FILES([
-fedora/argus-pep-api-c.spec
-fedora/argus-pep-api-c.el6.spec
 libargus-pep.pc
 Makefile
 src/Makefile
