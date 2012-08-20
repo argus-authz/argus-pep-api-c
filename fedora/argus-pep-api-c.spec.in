@@ -15,7 +15,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # SL5 curl-devel, SL6 libcurl-devel
 # %{dist} is not defined on SL5!
-%if 0%{?dist}
+%if %{?dist:1}
 BuildRequires: libcurl-devel
 %else
 BuildRequires: curl-devel
