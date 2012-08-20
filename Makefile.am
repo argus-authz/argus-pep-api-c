@@ -32,7 +32,7 @@ EXTRA_DIST = fedora debian LICENSE ChangeLog autotools.sh doc/Doxyfile $(example
 docdir = $(datadir)/doc/$(PACKAGE_NAME)-$(PACKAGE_VERSION)
 
 if ENABLE_LIBRARY
-doc_DATA = AUTHORS ChangeLog LICENSE README.md
+doc_DATA = AUTHORS ChangeLog LICENSE README
 endif
 
 
@@ -74,11 +74,10 @@ distclean-local:
 # RPM/ETICS
 #
 name = argus-pep-api-c
-version = 2.1.1
+version = $(PACKAGE_VERSION)
 release = 1
 
-#spec_file = fedora/$(name)$(shell rpm --eval "%?dist").spec
-spec_file = fedora/$(name)$(spec_dist).spec
+spec_file = fedora/$(name).spec
 rpmbuild_dir = $(CURDIR)/rpmbuild
 debbuild_dir = $(CURDIR)/debbuild
 
@@ -86,26 +85,28 @@ clean-local:
 	@echo "Cleaning..."
 	rm -fr rpmbuild debbuild stage tgz RPMS target *.tar.gz
 
+
 spec:
 	@echo "Setting version and release in spec file: $(version)-$(release)"
 	sed -e 's#@@SPEC_VERSION@@#$(version)#g' -e 's#@@SPEC_RELEASE@@#$(release)#g' $(spec_file).in > $(spec_file)
 
-all-local: spec
 
-rpm: dist
+rpm: spec
 	@echo "Building RPM with $(spec_file)"
 	mv $(name)-$(version).tar.gz $(name)-$(version).src.tar.gz
 	mkdir -p $(rpmbuild_dir)/BUILD $(rpmbuild_dir)/RPMS $(rpmbuild_dir)/SOURCES $(rpmbuild_dir)/SPECS $(rpmbuild_dir)/SRPMS
 	cp $(name)-$(version).src.tar.gz $(rpmbuild_dir)/SOURCES/$(name)-$(version).tar.gz
 	rpmbuild -v -ba $(spec_file) --define "_topdir $(rpmbuild_dir)"
 
-debian: dist
+
+debian:
 	@echo "Building Debian package in $(debbuild_dir)"
 	mv $(name)-$(version).tar.gz $(name)-$(version).src.tar.gz
 	mkdir -p $(debbuild_dir)
 	cp $(name)-$(version).src.tar.gz $(debbuild_dir)/$(name)_$(version).orig.tar.gz
 	tar -C $(debbuild_dir) -xf $(name)-$(version).src.tar.gz
 	cd $(debbuild_dir)/$(name)-$(version) && debuild -us -uc 
+
 
 etics: 
 	@echo "Publishing RPMs and tarballs"
