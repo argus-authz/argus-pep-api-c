@@ -14,6 +14,7 @@ stamp*
 aclocal.m4
 /configure
 /libtool
+/project/compile
 /libargus-pep.pc
 install-sh
 ltmain.sh
