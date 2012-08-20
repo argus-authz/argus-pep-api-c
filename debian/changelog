@@ -1,5 +1,5 @@
 argus-pep-api-c (2.1.1-1) unstable; urgency=low
 
-  * Initial release for Debian.
+  * Initial release for Debian (Closes: #23482)
 
  -- Valery Tschopp <valery.tschopp@switch.ch>  Wed, 15 Aug 2012 13:44:02 +0200
