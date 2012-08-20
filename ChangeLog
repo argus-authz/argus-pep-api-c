@@ -1,3 +1,8 @@
+argus-pep-api-c 2.1.1
+---------------------
+* RPM packaging with spec file added.
+* Debian packaging with debian directory and files added.
+
 argus-pep-api-c 2.1.0
 ---------------------
 * pep_id(PEP * pep) function added.
@@ -121,7 +126,4 @@ PEP-C 1.1.0
 PEP-C 1.0.0
 -----------
 beta release of the PEP-C thin client.
-
---
-$Id$
 
