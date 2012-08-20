@@ -1,7 +1,8 @@
 Name: argus-pep-api-c
 
-Version: @@SPEC_VERSION@@
-Release: @@SPEC_RELEASE@@%{?dist}
+# PACKAGE_VERSION and PACKAGE_RELEASE defined in configure.ac
+Version: @PACKAGE_VERSION@
+Release: @PACKAGE_RELEASE@%{?dist}
 Summary: Argus PEP client library
 
 
@@ -68,7 +69,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libargus-pep.so.2.0.4
 %{_libdir}/libargus-pep.so.2
 
-%doc AUTHORS COPYING LICENSE README.md INSTALL ChangeLog
+%doc AUTHORS COPYING LICENSE README INSTALL ChangeLog
 
 %files devel
 %defattr(-,root,root,-)
