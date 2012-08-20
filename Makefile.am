@@ -78,10 +78,9 @@ spec_file = fedora/$(name).spec
 rpmbuild_dir = $(CURDIR)/rpmbuild
 debbuild_dir = $(CURDIR)/debbuild
 
-
 clean-local:
 	@echo "Cleaning..."
-	rm -fr rpmbuild debbuild stage tgz RPMS target *.tar.gz
+	rm -fr rpmbuild debbuild stage tgz RPMS target *.tar.gz 
 
 
 spec:
@@ -97,8 +96,7 @@ rpm: spec
 	cp $(name)-$(version).src.tar.gz $(rpmbuild_dir)/SOURCES/$(name)-$(version).tar.gz
 	rpmbuild -v -ba $(spec_file) --define "_topdir $(rpmbuild_dir)"
 
-
-debian:
+deb:
 	test -f $(name)-$(version).tar.gz
 	@echo "Building Debian package in $(debbuild_dir)"
 	mv $(name)-$(version).tar.gz $(name)-$(version).src.tar.gz
