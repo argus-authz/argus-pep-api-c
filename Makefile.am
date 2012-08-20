@@ -15,9 +15,6 @@
 # limitations under the License.
 #
 
-#ACLOCAL_AMFLAGS = -I project
-#ACLOCAL_AMFLAGS = -I $(srcdir)/project
-
 SUBDIRS = src 
 
 if ENABLE_DEVEL
@@ -80,6 +77,7 @@ release = 1
 spec_file = fedora/$(name).spec
 rpmbuild_dir = $(CURDIR)/rpmbuild
 debbuild_dir = $(CURDIR)/debbuild
+
 
 clean-local:
 	@echo "Cleaning..."
