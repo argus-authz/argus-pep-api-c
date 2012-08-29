@@ -77,10 +77,13 @@ release = 1
 spec_file = fedora/$(name).spec
 rpmbuild_dir = $(CURDIR)/rpmbuild
 debbuild_dir = $(CURDIR)/debbuild
+tmp_dir=$(CURDIR)/tmp
+tgz_dir=$(CURDIR)/tgz
+deb_dir=$(CURDIR)/deb
 
 clean-local:
 	@echo "Cleaning..."
-	rm -fr $(rpmbuild_dir) $(debbuild_dir) $(spec_file) tgz RPMS target *.tar.gz 
+	rm -rf target $(rpmbuild_dir) $(debbuild_dir) $(tmp_dir) *.tar.gz $(tgz_dir) RPMS $(deb_dir) $(spec_file)
 
 
 spec:
@@ -88,22 +91,42 @@ spec:
 	sed -e 's#@@SPEC_VERSION@@#$(version)#g' -e 's#@@SPEC_RELEASE@@#$(release)#g' $(spec_file).in > $(spec_file)
 
 
-rpm: spec
+pre_rpmbuild: spec
 	test -f $(name)-$(version).tar.gz || make dist
-	@echo "Building RPM with $(spec_file)"
+	@echo "Preparing for rpmbuild in $(rpmbuild_dir)"
 	mv $(name)-$(version).tar.gz $(name)-$(version).src.tar.gz
 	mkdir -p $(rpmbuild_dir)/BUILD $(rpmbuild_dir)/RPMS $(rpmbuild_dir)/SOURCES $(rpmbuild_dir)/SPECS $(rpmbuild_dir)/SRPMS
 	cp $(name)-$(version).src.tar.gz $(rpmbuild_dir)/SOURCES/$(name)-$(version).tar.gz
-	rpmbuild -v -ba $(spec_file) --define "_topdir $(rpmbuild_dir)"
 
-deb:
+
+srpm: pre_rpmbuild
+	@echo "Building SRPM in $(rpmbuild_dir)"
+	rpmbuild --nodeps -v -bs $(spec_file) --define "_topdir $(rpmbuild_dir)"
+
+
+rpm: pre_rpmbuild
+	@echo "Building RPM/SRPM in $(rpmbuild_dir)"
+	rpmbuild --nodeps -v -ba $(spec_file) --define "_topdir $(rpmbuild_dir)"
+
+
+pre_debbuild:
 	test -f $(name)-$(version).tar.gz || make dist
-	@echo "Building Debian package in $(debbuild_dir)"
+	@echo "Prepare for Debian building in $(debbuild_dir)"
 	mv $(name)-$(version).tar.gz $(name)-$(version).src.tar.gz
 	mkdir -p $(debbuild_dir)
 	cp $(name)-$(version).src.tar.gz $(debbuild_dir)/$(name)_$(version).orig.tar.gz
-	tar -C $(debbuild_dir) -xf $(name)-$(version).src.tar.gz
+	tar -C $(debbuild_dir) -xzf $(name)-$(version).src.tar.gz
+
+
+deb: pre_debbuild
+	@echo "Building Debian package in $(debbuild_dir)"
 	cd $(debbuild_dir)/$(name)-$(version) && debuild -us -uc 
+
+
+deb-src: pre_debbuild
+	@echo "Building Debian source package in $(debbuild_dir)"
+	cd $(debbuild_dir) && dpkg-source -b $(name)-$(version)
+
 
 
 etics: 
