@@ -129,12 +129,32 @@ deb-src: pre_debbuild
 
 
 
-etics: 
-	@echo "Publishing RPMs and tarballs"
-	mkdir -p RPMS tgz
-	test -f $(rpmbuild_dir)/SRPMS/$(name)-$(version)-*.src.rpm
-	cp -r $(rpmbuild_dir)/RPMS/* $(rpmbuild_dir)/SRPMS/* RPMS
-	test -f $(name)-$(version).src.tar.gz && cp $(name)-$(version).src.tar.gz tgz
-	test ! -f $(name)-$(version).bin.tar.gz || cp $(name)-$(version).bin.tar.gz tgz/$(name)-$(version).tar.gz
-
+etics:
+	@echo "Publish SRPM/RPM/Debian/tarball"
+	mkdir -p RPMS $(tgz_dir) $(deb_dir)
+	test ! -f $(name)-$(version).src.tar.gz || cp -v $(name)-$(version).src.tar.gz $(tgz_dir)
+	test ! -f $(rpmbuild_dir)/SRPMS/$(name)-$(version)-*.src.rpm || cp -v $(rpmbuild_dir)/SRPMS/$(name)-$(version)-*.src.rpm RPMS
+	if [ -f $(rpmbuild_dir)/RPMS/*/$(name)-$(version)-*.rpm ] ; then \
+		cp -v $(rpmbuild_dir)/RPMS/*/$(name)-$(version)-*.rpm RPMS ; \
+		test ! -d $(tmp_dir) || rm -fr $(tmp_dir) ; \
+		mkdir -p $(tmp_dir) ; \
+		cd $(tmp_dir) ; \
+		rpm2cpio $(rpmbuild_dir)/RPMS/*/$(name)-$(version)-*.rpm | cpio -idm ; \
+		tar -C $(tmp_dir) -czf $(name)-$(version).tar.gz * ; \
+		mv -v $(name)-$(version).tar.gz $(tgz_dir) ; \
+		rm -fr $(tmp_dir) ; \
+	fi
+	test ! -f $(debbuild_dir)/$(name)_$(version)-*.dsc || cp -v $(debbuild_dir)/$(name)_$(version)-*.dsc $(deb_dir)
+	test ! -f $(debbuild_dir)/$(name)_$(version)-*.debian.tar.gz || cp -v $(debbuild_dir)/$(name)_$(version)-*.debian.tar.gz $(deb_dir)
+	test ! -f $(debbuild_dir)/$(name)_$(version).orig.tar.gz || cp -v $(debbuild_dir)/$(name)_$(version).orig.tar.gz $(deb_dir)
+	if [ -f $(debbuild_dir)/$(deb_name)_$(version)-*.deb ] ; then \
+		cp -v $(debbuild_dir)/$(deb_name)_$(version)-*.deb $(deb_dir) ; \
+		test ! -d $(tmp_dir) || rm -fr $(tmp_dir) ; \
+		mkdir -p $(tmp_dir) ; \
+		dpkg -x $(debbuild_dir)/$(deb_name)_$(version)-*.deb $(tmp_dir) ; \
+		cd $(tmp_dir) ; \
+		tar -C $(tmp_dir) -czf $(name)-$(version).tar.gz * ; \
+		mv -v $(name)-$(version).tar.gz $(tgz_dir) ; \
+		rm -fr $(tmp_dir) ; \
+	fi
 
