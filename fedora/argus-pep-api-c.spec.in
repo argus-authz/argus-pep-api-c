@@ -15,10 +15,14 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # SL5 curl-devel, SL6 libcurl-devel
 # %{dist} is not defined on SL5!
-%if %defined dist
-BuildRequires: libcurl-devel
-%else
+%if %undefined dist
 BuildRequires: curl-devel
+%else
+%if %defined el5
+BuildRequires: curl-devel
+%else
+BuildRequires: libcurl-devel
+%endif
 %endif
 
 
@@ -40,6 +44,7 @@ authorization response back from Argus.
 This package contains the development libraries.
 
 %prep
+echo "XXX:macros: dist=%{?dist} el5=%{?el5} rhel=%{?rhel}"
 %setup -q
 
 %build
