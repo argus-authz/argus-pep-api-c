@@ -14,17 +14,11 @@ Source: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # SL5 curl-devel, SL6 libcurl-devel
-# %{dist} is not defined on SL5!
-%if %undefined dist
-BuildRequires: curl-devel
-%else
 %if %defined el5
 BuildRequires: curl-devel
 %else
 BuildRequires: libcurl-devel
 %endif
-%endif
-
 
 %description
 The Argus PEP client API for C is a multi-thread friendly client library used to 
@@ -34,7 +28,13 @@ authorization response back from Argus.
 %package devel
 Group: Development/Libraries
 Summary: Argus PEP client development libraries
+# SL5 doesn't correctly find the pkgconfig(libcurl) dependency
+%if %defined el5
+Requires: %{name} = %{version}-%{release}, curl-devel
+%else
 Requires: %{name} = %{version}-%{release}
+%endif
+
 
 %description devel
 The Argus PEP client API for C is a multi-thread friendly client library used to 
