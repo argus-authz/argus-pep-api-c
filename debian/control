@@ -2,7 +2,7 @@ Source: argus-pep-api-c
 Priority: extra
 Maintainer: Valery Tschopp <valery.tschopp@switch.ch>
 Build-Depends: debhelper (>= 7.0.50~), dh-autoreconf, dh-make, autoconf, doxygen, pkg-config, quilt, libcurl4-openssl-dev
-Standards-Version: 3.8.4
+Standards-Version: 3.9.1
 Section: libs
 Homepage: https://twiki.cern.ch/twiki/bin/view/EGEE/AuthZPEPC
 Vcs-Git: git://github.com/argus-authz/argus-pep-api-c.git
