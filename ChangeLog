@@ -1,3 +1,7 @@
+argus-pep-api-c 2.2.0
+---------------------
+* RPM and Debian packaging moved to separate projects.
+
 argus-pep-api-c 2.1.1
 ---------------------
 * RPM packaging with spec file added.

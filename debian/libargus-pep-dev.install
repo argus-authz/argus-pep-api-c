@@ -1,9 +1,0 @@
-usr/include/argus/error.h
-usr/include/argus/oh.h
-usr/include/argus/pep.h
-usr/include/argus/pip.h
-usr/include/argus/profiles.h
-usr/include/argus/xacml.h
-usr/lib/libargus-pep.so
-#usr/lib/libargus-pep.a
-usr/lib/pkgconfig/libargus-pep.pc
