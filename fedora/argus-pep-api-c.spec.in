@@ -21,9 +21,10 @@ BuildRequires: libcurl-devel
 %endif
 
 %description
-The Argus PEP client API for C is a multi-thread friendly client library used to 
-communicate with the Argus PEP Server. It authorizes request and receives
-authorization response back from Argus.
+The Argus PEP client API for C is a multi-thread friendly client library 
+used to communicate with the Argus PEP Server. 
+It authorizes request and receives authorization response back from 
+the Argus PEP Server.
 
 %package devel
 Group: Development/Libraries
@@ -37,9 +38,10 @@ Requires: %{name} = %{version}-%{release}
 
 
 %description devel
-The Argus PEP client API for C is a multi-thread friendly client library used to 
-communicate with the Argus PEP Server. It authorizes request and receives
-authorization response back from Argus.
+The Argus PEP client API for C is a multi-thread friendly client library 
+used to communicate with the Argus PEP Server. 
+It authorizes request and receives authorization response back from 
+the Argus PEP Server.
 
 This package contains the development libraries.
 
@@ -80,7 +82,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libargus-pep.so.2.0.4
 %{_libdir}/libargus-pep.so.2
 
-%doc AUTHORS COPYING LICENSE README INSTALL ChangeLog
+%doc AUTHORS COPYING LICENSE README ChangeLog
 
 %files devel
 %defattr(-,root,root,-)
@@ -94,7 +96,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/argus/oh.h
 %{_includedir}/argus/profiles.h
 
-%doc src/example
+%doc src/example INSTALL
 
 %changelog
 * Fri Aug 3 2012 Valery Tschopp <valery.tschopp@switch.ch> 2.1.1-1
