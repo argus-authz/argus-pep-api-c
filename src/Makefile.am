@@ -30,7 +30,7 @@ libargus_pep_la_LIBADD = \
     $(LIBCURL_LIBS)
 
 libargus_pep_la_LDFLAGS = \
-    -version-info 2:4:0
+    -version-info 3:0:1
 
 libargus_pep_la_SOURCES = libargus_pep.c
 
