@@ -152,6 +152,20 @@ xacml_obligation_t * xacml_result_getobligation(const xacml_result_t * result, i
     return pep_llist_get(result->obligations,i);
 }
 
+int xacml_result_removeobligation(xacml_result_t * result, int i) {
+    xacml_obligation_t * obligation;
+    if (result == NULL)	{
+        pep_log_error("xacml_result_removeobligation: NULL result.");
+        return NULL;
+    }
+    obligation = pep_llist_remove(result->obligations,i);
+    if (obligation == NULL)
+	return PEP_XACML_ERROR;
+
+    xacml_obligation_delete(obligation);
+    return PEP_XACML_OK;
+}
+
 void xacml_result_delete(xacml_result_t * result) {
     if (result == NULL) return;
     if (result->resourceid != NULL) free(result->resourceid);
