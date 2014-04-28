@@ -18,7 +18,7 @@
 
 ##
 # VERSION number
-AC_INIT([argus-pep-api-c], [2.2.0], [argus-support@cern.ch])
+AC_INIT([argus-pep-api-c], [2.3.0], [argus-support@googlegroups.com])
 ##
 
 AC_CONFIG_AUX_DIR([project])

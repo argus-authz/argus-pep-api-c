@@ -1,3 +1,7 @@
+argus-pep-api-c 2.3.0
+---------------------
+* xacml_result_removeobligation(...) function added.
+
 argus-pep-api-c 2.2.0
 ---------------------
 * RPM and Debian packaging moved to separate projects.
