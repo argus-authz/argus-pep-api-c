@@ -156,11 +156,13 @@ int xacml_result_removeobligation(xacml_result_t * result, int i) {
     xacml_obligation_t * obligation;
     if (result == NULL)	{
         pep_log_error("xacml_result_removeobligation: NULL result.");
-        return NULL;
+        return PEP_XACML_ERROR;
     }
     obligation = pep_llist_remove(result->obligations,i);
-    if (obligation == NULL)
-	return PEP_XACML_ERROR;
+    if (obligation == NULL) {
+        pep_log_error("xacml_result_removeobligation: failed to remove obligation from list.");
+        return PEP_XACML_ERROR;
+    }
 
     xacml_obligation_delete(obligation);
     return PEP_XACML_OK;

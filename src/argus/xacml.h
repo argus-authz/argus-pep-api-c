@@ -889,7 +889,7 @@ xacml_obligation_t * xacml_result_getobligation(const xacml_result_t * result, i
  * @return int {@link #PEP_XACML_OK} or {@link #PEP_XACML_ERROR} on error.
  * @see xacml_result_obligations_length(const xacml_result_t * result) to get the index range.
  */
-int xacml_result_removeobligation(xacml_result_t * result, int i);
+int xacml_result_removeobligation(xacml_result_t * result, int obligation_idx);
 
 /**
  * Deletes the XACML Result. The contained Obligations will be recursively deleted.
