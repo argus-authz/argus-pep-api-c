@@ -163,15 +163,7 @@ PEP * pep_initialize(void) {
         return NULL;
     }
     
-    pep->option_endpoint_urls= pep_llist_create();
-    if (pep->option_endpoint_urls == NULL) {
-        pep_log_error("pep_initialize: endpoint URLs list allocation failed.");
-        curl_easy_cleanup(pep->curl);
-        pep_llist_delete(pep->pips);
-        pep_llist_delete(pep->ohs);
-        free(pep);
-        return NULL;
-    }
+    pep->option_endpoint_urls= NULL; // not used
     
     return pep;
 }
